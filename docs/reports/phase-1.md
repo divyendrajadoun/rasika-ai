@@ -39,8 +39,8 @@ real deploy (Vercel edge + CDN changes the picture).
 
 - `src/middleware.ts`, `src/app/login/actions.ts`: `// MOCK:` cookie session (Phase 2 → Supabase Auth).
 - `/dashboard` and `/dashboard/new` are shells (Phase 2 builds the grid and wizard).
-- `/public/demo/after.mp4` is a 32 s, 540×960 cut of the Baisa Bling reel; `before.mp4` is a generated
-  placeholder because the raw selfie footage was not in the materials provided.
+- `/public/demo/after.mp4` and `before.mp4` are 32 s, 540×960 cuts of the Baisa Bling edit and the raw
+  take (`IMG_7571.MP4`), encoded identically so the split slider stays in sync.
 - Terms / Privacy are drafts marked for legal review.
 
 ## Decisions to review

@@ -34,7 +34,7 @@ export const beforeAfter = {
   sub: "Drag the handle. The raw selfie clip is on the left, the Rasika edit on the right — playing in sync.",
   before: { src: "/demo/before.mp4", label: "Raw clip" },
   after: { src: "/demo/after.mp4", label: "Rasika edit" },
-  note: "Example reel courtesy of a jewellery brand. Replace the demo files in /public/demo to show your own.",
+  note: "Real footage: the same 90-second take, raw on the left and the Rasika edit on the right.",
 };
 
 export const howItWorks = {
