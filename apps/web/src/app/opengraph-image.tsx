@@ -40,28 +40,13 @@ export default async function OgImage() {
         </span>
       </div>
       <div style={{ display: "flex", flexDirection: "column" }}>
-        <span
-          style={{
-            fontFamily: "Anton",
-            fontSize: 120,
-            lineHeight: 0.96,
-          }}
-        >
+        {/* satori mis-measures Anton when a line is split into spans, so each line is one text run */}
+        <span style={{ fontFamily: "Anton", fontSize: 120, lineHeight: 0.96, color: c.gold }}>
           YOUR REEL.
         </span>
-        <div
-          style={{
-            display: "flex",
-            gap: 28,
-            fontFamily: "Anton",
-            fontSize: 120,
-            lineHeight: 0.96,
-          }}
-        >
-          <span>EDITED LIKE A</span>
-          <span style={{ color: c.gold }}>STUDIO</span>
-          <span>DID IT.</span>
-        </div>
+        <span style={{ fontFamily: "Anton", fontSize: 120, lineHeight: 0.96 }}>
+          EDITED LIKE A STUDIO DID IT.
+        </span>
         <span
           style={{
             fontFamily: "Serif",
