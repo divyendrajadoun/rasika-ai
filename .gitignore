@@ -36,3 +36,4 @@ lighthouse-*.html
 lighthouse-*.json
 test-results/
 playwright-report/
+*.egg-info/

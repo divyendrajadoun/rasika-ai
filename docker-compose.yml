@@ -42,7 +42,11 @@ services:
     ports: ["9000:9000", "9001:9001"]
     volumes: ["s3-data:/data"]
     healthcheck:
-      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:9000/ | grep -qE '^(200|403)$'"]
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -o /dev/null -w '%{http_code}' http://localhost:9000/ | grep -qE '^(200|403)$'",
+        ]
       interval: 5s
       timeout: 3s
       retries: 20

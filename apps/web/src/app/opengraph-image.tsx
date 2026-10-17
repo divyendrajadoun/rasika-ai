@@ -45,10 +45,9 @@ export default async function OgImage() {
             fontFamily: "Anton",
             fontSize: 120,
             lineHeight: 0.96,
-            textTransform: "uppercase",
           }}
         >
-          Your reel.
+          YOUR REEL.
         </span>
         <div
           style={{
@@ -57,12 +56,11 @@ export default async function OgImage() {
             fontFamily: "Anton",
             fontSize: 120,
             lineHeight: 0.96,
-            textTransform: "uppercase",
           }}
         >
-          <span>Edited like a</span>
-          <span style={{ color: c.gold }}>studio</span>
-          <span>did it.</span>
+          <span>EDITED LIKE A</span>
+          <span style={{ color: c.gold }}>STUDIO</span>
+          <span>DID IT.</span>
         </div>
         <span
           style={{
