@@ -1,0 +1,35 @@
+{
+  "id": "mikku-royal",
+  "name": "Mikku Royal",
+  "tagline": "Rajasthani editorial. Maroon stage, gold rule, poster type.",
+  "palette": {
+    "stage": "#3a0a11",
+    "mar": "#5a0f1a",
+    "ter": "#c8452f",
+    "gold": "#e6b450",
+    "goldd": "#9a6a14",
+    "iv": "#f6ecd8",
+    "ink": "#1a0a0c"
+  },
+  "fonts": {
+    "poster": "Anton",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Tiro Devanagari Hindi",
+    "caption": "Inter"
+  },
+  "grain": 0.05,
+  "pace": 0.6,
+  "captionStyle": "one-word",
+  "captionSize": 74,
+  "endCardShape": "arch",
+  "pattern": "jaali",
+  "preferredElements": [
+    "posterText",
+    "imageCard",
+    "bleedPlate",
+    "chapterCard",
+    "reveal",
+    "propPunchIn"
+  ]
+}

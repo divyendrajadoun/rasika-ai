@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rasika-worker"
+version = "0.1.0"
+description = "Rasika render/transcribe worker — consumes jobs from Redis, renders plans to MP4"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "redis>=5.0,<6",
+    "pydantic>=2.7,<3",
+    "pydantic-settings>=2.3,<3",
+    "numpy>=1.26,<3",
+    "structlog>=24.1,<26",
+    "playwright>=1.45,<2",
+]
+
+[project.optional-dependencies]
+dev = ["ruff>=0.6", "mypy>=1.10", "pytest>=8.2", "types-redis"]
+# Phase 4+: transcription + vision deps (heavy; installed in the Docker image)
+ml = ["faster-whisper>=1.0", "mediapipe>=0.10", "opencv-python-headless>=4.9", "Pillow>=10"]
+
+[tool.setuptools.packages.find]
+include = ["rasika_worker*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "N"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"rasika_worker/sfx.py" = ["N", "E", "SIM", "B"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unused_ignores = true
+ignore_missing_imports = true
+exclude = ["tests/"]
+
+[[tool.mypy.overrides]]
+module = "rasika_worker.sfx"
+ignore_errors = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

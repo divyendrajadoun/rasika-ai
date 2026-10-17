@@ -1,0 +1,28 @@
+{
+  "id": "noir-minimal",
+  "name": "Noir Minimal",
+  "tagline": "Black, white and one accent. Slow, calm, founder-friendly.",
+  "palette": {
+    "stage": "#0b0b0c",
+    "mar": "#111113",
+    "ter": "#e4572e",
+    "gold": "#f2f2f0",
+    "goldd": "#8a8a86",
+    "iv": "#f7f7f5",
+    "ink": "#050505"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Tiro Devanagari Hindi",
+    "caption": "Inter"
+  },
+  "grain": 0,
+  "pace": 0.3,
+  "captionStyle": "phrase",
+  "captionSize": 64,
+  "endCardShape": "square",
+  "pattern": "none",
+  "preferredElements": ["posterText", "counter", "equation", "chapterCard"]
+}

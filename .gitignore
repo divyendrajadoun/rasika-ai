@@ -1,0 +1,38 @@
+# deps
+node_modules/
+.pnpm-store/
+# builds
+.next/
+out/
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+coverage/
+# env & secrets — only .env.example is committed
+.env
+.env.*
+!.env.example
+# python
+__pycache__/
+*.pyc
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+apps/worker/work/
+# local data (docker volumes, renders, frames)
+.data/
+frames/
+*.log
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+# lighthouse / test artefacts
+.lighthouseci/
+lighthouse-*.html
+lighthouse-*.json
+test-results/
+playwright-report/

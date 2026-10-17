@@ -1,0 +1,313 @@
+<!doctype html>
+<!-- Baisa Bling — "What is your taste?" reel. Code Motion Video composition.
+     Contract: window.COMP, window.renderFrame(t), window.__ready -->
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<title>Baisa Bling — Rasika</title>
+<style>
+  @font-face { font-family: "Anton"; src: url("fonts/Anton.ttf"); }
+  @font-face { font-family: "Inter"; src: url("fonts/Inter.ttf"); font-weight: 100 900; }
+  @font-face { font-family: "Serif"; src: url("fonts/InstrumentSerif-Italic.ttf"); font-style: italic; }
+  @font-face { font-family: "Tiro"; src: url("fonts/TiroDevanagariHindi.ttf"); }
+  :root { --mar:#5a0f1a; --ter:#c8452f; --gold:#e6b450; --goldd:#9a6a14; --iv:#f6ecd8; --stage:#3a0a11; }
+  html, body { margin:0; background:#000; overflow:hidden; }
+  #stage { position:absolute; left:0; top:0; width:1080px; height:1920px; overflow:hidden; background:var(--stage);
+           transform-origin:0 0; font-family:Inter, sans-serif; }
+  .L { position:absolute; inset:0; }
+  #pattern { background-image: radial-gradient(circle, rgba(230,180,80,.16) 2.5px, transparent 3.5px),
+             radial-gradient(circle, rgba(230,180,80,.08) 1.5px, transparent 2.5px);
+             background-size: 60px 60px, 60px 60px; background-position: 0 0, 30px 30px; }
+  #vw { position:absolute; left:0; top:0; width:1080px; height:1920px; transform-origin:50% 50%; overflow:hidden; }
+  #vid { width:1080px; height:1920px; display:block; }
+  .it { position:absolute; left:0; width:1080px; text-align:center; }
+  .ln { display:block; line-height:1.04; }
+  .w { display:inline-block; overflow:hidden; padding:.14em .04em .1em; margin:-.14em 0 -.1em; vertical-align:bottom; }
+  .wi { display:inline-block; }
+  .an { font-family:Anton; text-transform:uppercase; letter-spacing:.01em; }
+  .se { font-family:Serif; font-style:italic; }
+  .in { font-family:Inter; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+  .card { position:absolute; background:var(--iv); padding:14px 14px 74px; box-shadow:0 30px 70px rgba(30,0,5,.45); border-radius:6px; }
+  .card img { display:block; width:100%; height:100%; object-fit:cover; }
+  .card .lb { position:absolute; left:0; right:0; bottom:14px; font:400 42px/1 Anton; color:var(--mar); text-align:center; text-transform:uppercase; letter-spacing:.02em; }
+  .bleed { position:absolute; inset:0; overflow:hidden; }
+  .bleed .k { position:absolute; inset:0; }
+  .bleed img { width:100%; height:100%; object-fit:cover; display:block; }
+  .shade { position:absolute; left:0; right:0; top:0; height:760px; background:linear-gradient(rgba(25,3,7,.82), rgba(25,3,7,0)); }
+  .lbl { text-shadow: 0 6px 30px rgba(0,0,0,.55); }
+  #cap { position:absolute; z-index:3; left:0; width:1080px; top:1400px; text-align:center; white-space:nowrap; }
+  #capi { display:inline-block; font:800 74px/1.1 Inter; color:#fff6e2; -webkit-text-stroke:14px #2a060c; paint-order:stroke fill;
+          letter-spacing:-.01em; transform-origin:50% 60%; }
+  #capi.g { font:italic 108px/1 Serif; color:var(--gold); -webkit-text-stroke:12px #2a060c; letter-spacing:0; }
+  #capi.r { font:400 96px/1 Anton; color:#ff8a66; -webkit-text-stroke:12px #2a060c; text-transform:uppercase; letter-spacing:.01em; }
+  .lock { position:absolute; left:140px; width:800px; top:250px; height:300px; border:4px dashed var(--goldd); border-radius:28px;
+          background:rgba(246,236,216,.9); text-align:center; box-shadow:0 20px 60px rgba(60,0,10,.25); }
+  .lock .t { font:800 30px Inter; letter-spacing:.3em; color:var(--mar); margin-top:30px; }
+  .lock .b { font:400 150px/1.1 Anton; color:var(--ter); filter:blur(22px); letter-spacing:.06em; }
+  .lock .s { font:800 24px Inter; letter-spacing:.3em; color:var(--goldd); }
+  .phone { position:absolute; left:640px; top:170px; width:390px; height:700px; border-radius:46px; background:#0d0d0f;
+           border:10px solid #1c1c20; overflow:hidden; box-shadow:0 30px 70px rgba(0,0,0,.4); }
+  .post { width:370px; margin:0 auto 18px; }
+  .post .h { height:44px; display:flex; align-items:center; gap:10px; color:#eee; font:700 20px Inter; padding-left:10px; }
+  .post .h i { width:28px; height:28px; border-radius:50%; background:linear-gradient(45deg,#c8452f,#e6b450); display:inline-block; }
+  .post img { width:370px; height:370px; object-fit:cover; display:block; }
+  .post .f { color:#ddd; font:600 20px Inter; padding:8px 10px; }
+  .stamp { position:absolute; left:70px; top:560px; padding:10px 34px; border:8px solid var(--ter); color:var(--ter);
+           font:400 110px/1 Anton; text-transform:uppercase; border-radius:16px; background:rgba(246,236,216,.85); }
+  canvas.fx { position:absolute; z-index:4; inset:0; pointer-events:none; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="L" id="pattern"></div>
+  <div class="L" id="bleed" style="z-index:0;isolation:isolate"></div>
+  <div id="vw" style="z-index:1"><img id="vid" alt=""></div>
+  <div class="L" id="fx" style="z-index:2"></div>
+  <div id="cap"><span id="capi"></span></div>
+  <canvas class="fx" id="grain"></canvas>
+</div>
+<script src="words.js"></script>
+<script>
+window.COMP = { width:1080, height:1920, fps:30, duration:90.1 };
+const W = 1080, H = 1920, NFR = 2703;
+
+// ───────── toolkit (from the skill template) ─────────
+const E = {
+  linear:t=>t, outCubic:t=>1-Math.pow(1-t,3), inCubic:t=>t*t*t,
+  inOutCubic:t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2, outQuint:t=>1-Math.pow(1-t,5),
+  outExpo:t=>t>=1?1:1-Math.pow(2,-10*t), inExpo:t=>t<=0?0:Math.pow(2,10*t-10),
+  outBack:t=>{const c=1.70158;return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2);},
+};
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x)), lerp=(a,b,p)=>a+(b-a)*p;
+const prog=(t,a,b,e=E.linear)=>e(clamp((t-a)/(b-a)));
+function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let x=Math.imul(seed^seed>>>15,1|seed);
+  x=x+Math.imul(x^x>>>7,61|x)^x;return((x^x>>>14)>>>0)/4294967296;};}
+const $=s=>document.querySelector(s);
+function set(el,{x=0,y=0,s=1,r=0,o=1,blur=0}={}){
+  el.style.transform=`translate(${x}px,${y}px) scale(${s}) rotate(${r}deg)`;
+  el.style.opacity=o; el.style.filter=blur>.05?`blur(${blur}px)`:'none';
+  el.style.visibility=o<=.001?'hidden':'visible';
+}
+
+// ───────── builders ─────────
+const FX=$('#fx'), BL=$('#bleed'); const items=[];
+const C={mar:'#5a0f1a',ter:'#c8452f',gold:'#e6b450',goldd:'#9a6a14',iv:'#f6ecd8'};
+function T(t0,t1,top,lines,opt={}){
+  const el=document.createElement('div'); el.className='it'; el.style.top=top+'px';
+  if(opt.left!=null){el.style.left=opt.left+'px'; el.style.width=(opt.w||600)+'px'; el.style.textAlign=opt.align||'left';}
+  el.innerHTML=lines.map(([tx,c,sz,col,extra])=>`<div class="ln ${c}" style="font-size:${sz}px;color:${col};${extra||''}">`+
+    tx.split(' ').map(w=>`<span class="w"><span class="wi">${w}</span></span>`).join(' ')+`</div>`).join('');
+  (opt.parent||FX).appendChild(el); items.push({el,t0,t1,kind:'rise',opt}); return el;
+}
+function X(t0,t1,html,kind,opt={}){
+  const el=document.createElement('div'); el.innerHTML=html; el.style.position='absolute'; el.style.left='0'; el.style.top='0';
+  el.style.width='1080px'; el.style.height='1920px';
+  (opt.parent||FX).appendChild(el); items.push({el,t0,t1,kind,opt}); return el;
+}
+function card(t0,t1,src,label,x,y,w,h,r,opt={}){
+  const el=document.createElement('div'); el.className='card';
+  Object.assign(el.style,{left:x+'px',top:y+'px',width:w+'px',height:h+'px'});
+  el.innerHTML=`<img src="${src}" style="object-position:${opt.pos||'50% 50%'}">`+(label?`<div class="lb">${label}</div>`:'');
+  FX.appendChild(el); items.push({el,t0,t1,kind:'card',opt:{r,...opt}}); return el;
+}
+function bleed(t0,t1,inner,opt={}){
+  const el=document.createElement('div'); el.className='bleed'; el.innerHTML=`<div class="k">${inner}</div>`;
+  BL.appendChild(el); items.push({el,t0,t1,kind:'bleed',opt}); return el;
+}
+const img=(src,pos)=>`<img src="${src}" style="object-position:${pos||'50% 50%'}">`;
+const lbl=(top,a,b)=>`<div class="lbl" style="position:absolute;left:0;width:1080px;top:${top}px;text-align:center">
+  <div class="in" style="font-size:28px;color:${C.gold}">${a}</div>
+  <div class="an" style="font-size:118px;line-height:1.05;color:${C.iv}">${b}</div></div>`;
+
+// ───────── VIDEO MODES ─────────
+const M={ full:{s:1,x:0,y:0,r:0,f:0,ar:0}, zoom:{s:2.1,x:126,y:-735,r:0,f:0,ar:0},
+          card:{s:.56,x:0,y:275,r:90,f:1,ar:0}, pip:{s:.34,x:318,y:560,r:150,f:1,ar:0},
+          arch:{s:.6,x:0,y:150,r:40,f:1,ar:1} };
+const SEG=[[0,'full'],[12.5,'zoom'],[14.05,'full'],[16.72,'card'],[23.62,'full'],[29.3,'card'],[31.55,'full'],
+  [43.3,'card'],[45.95,'pip'],[54.62,'card'],[57.3,'full'],[67.45,'card'],[76.95,'full'],[80.55,'pip'],
+  [84.95,'full'],[87.55,'arch']];
+function vstate(t){
+  let i=0; for(let k=0;k<SEG.length;k++) if(t>=SEG[k][0]) i=k;
+  const cur=M[SEG[i][1]]; if(i===0) return {...cur};
+  const prev=M[SEG[i-1][1]], z=SEG[i][1]==='zoom'||SEG[i-1][1]==='zoom';
+  const p=prog(t,SEG[i][0],SEG[i][0]+(z?.6:.5),z?E.inOutCubic:E.outExpo);
+  const o={}; for(const k in cur) o[k]=lerp(prev[k],cur[k],p); o.v=prog(t,SEG[i][0]-.02,SEG[i][0]+.12)*(1-prog(t,SEG[i][0]+.12,SEG[i][0]+.4)); return o;
+}
+
+// ───────── SCENES ─────────
+// 0 · HOOK
+T(0.15,2.75,215,[['HOW DO YOU KNOW','an',96,C.mar],['YOUR TASTE','an',210,C.ter],['in jewellery?','se',112,C.goldd]]);
+card(1.55,2.75,'img/i1.jpg','',40,1080,300,380,-9,{pos:'50% 30%'});
+card(1.7,2.75,'img/i2.jpg','',740,1060,300,380,8,{pos:'50% 35%'});
+// 2000 years
+X(2.8,5.95,`<div class="it" style="top:215px"><div class="an cnt" style="font-size:250px;color:${C.ter};line-height:1">0</div>
+  <div class="in" style="font-size:44px;color:${C.mar}">years ago</div></div>`,'pop',{fn:(el,a)=>{
+  el.querySelector('.cnt').textContent=Math.round(lerp(0,2000,prog(a,0,1.0,E.outQuint)));}});
+T(3.88,5.95,600,[['India had a word','se',92,C.goldd]]);
+// the locked word
+X(6.0,8.85,`<div class="lock"><div class="t">THE WORD</div><div class="b">RASIKA</div><div class="s">REVEALED AT THE END</div></div>`,'pop');
+// not ours
+T(8.9,12.2,230,[['MOST OF OUR TASTE','an',96,C.mar],["ISN'T OURS",'an',220,C.ter]]);
+// choker punch-in
+X(12.55,14.1,`<svg width="1080" height="1920" style="position:absolute;left:0;top:0"><ellipse class="ring" cx="540" cy="975" rx="370" ry="150"
+  fill="none" stroke="${C.gold}" stroke-width="10" stroke-dasharray="1800" stroke-dashoffset="1800"/></svg>
+  <div class="it" style="top:600px"><div class="an" style="font-size:110px;color:${C.iv};text-shadow:0 6px 30px rgba(0,0,0,.6)">THE SAME CHOKER</div></div>`,
+  'fade',{fn:(el,a)=>{el.querySelector('.ring').style.strokeDashoffset=1800*(1-prog(a,.35,1.1,E.outCubic));}});
+// feed
+const posts=[1,4,9,13,18,22,26,30,30,30].map(d=>`<div class="post"><div class="h"><i></i>trending.jewels</div><img src="img/choker.jpg"><div class="f">♥ Day ${d} · you saw this again</div></div>`).join('');
+X(14.0,16.65,`<div class="phone"><div class="col">${posts}</div></div>`,'slide',{fn:(el,a)=>{
+  el.querySelector('.col').style.transform=`translateY(${-lerp(0,3700,prog(a,.1,2.2,E.inOutCubic))}px)`;}});
+X(14.0,16.65,`<div class="it" style="top:230px;left:50px;width:600px;text-align:left">
+  <div class="an" style="font-size:84px;color:${C.mar};line-height:1">ON YOUR FEED</div>
+  <div class="an day" style="font-size:150px;color:${C.ter};line-height:1.1">DAY 1</div></div>`,'pop',{fn:(el,a)=>{
+  el.querySelector('.day').textContent='DAY '+(1+Math.floor(29*prog(a,.25,1.9)));}});
+X(16.12,16.7,`<div class="stamp">YOU NEED IT</div>`,'stamp');
+// mere exposure effect (card mode, dark stage)
+T(16.85,19.7,215,[['PSYCHOLOGISTS CALL THIS','in',30,C.gold,'letter-spacing:.3em'],['THE MERE','an',120,C.iv],['EXPOSURE EFFECT','an',120,C.gold]]);
+T(19.8,23.55,230,[['SEEN MORE','an',150,C.iv],['= liked more','se',130,C.gold]]);
+X(22.75,23.55,`<div class="it" style="top:560px"><div class="in" style="font-size:34px;color:${C.iv};letter-spacing:.25em">FAMILIAR ≠ YOURS</div></div>`,'pop');
+// real taste
+T(23.7,26.7,215,[['REAL TASTE IS','an',100,C.mar],['knowing','se',120,C.goldd],['WHY','an',230,C.ter]]);
+T(26.7,29.25,230,[['FIND IT WITHOUT','an',100,C.mar],['BUYING','an',170,C.ter],['a single thing','se',110,C.goldd]]);
+// chapter 01
+const chap=(t0,t1,n,a,b)=>{T(t0,t1,150,[[n,'an',210,C.gold],[a,'an',84,C.iv],[b,'se',90,C.gold]]);};
+chap(29.35,31.55,'01',"DON'T STOP AT",'pretty');
+T(31.6,34.2,230,[['WHAT EXACTLY','an',110,C.mar],['do you love?','se',120,C.ter]]);
+// chips + cards
+X(34.45,39.85,`<div style="position:absolute;left:60px;top:230px">
+  <div class="an chip c1" style="display:inline-block;font-size:76px;color:${C.iv};background:${C.mar};padding:6px 26px;border-radius:14px">SHAPE</div><br>
+  <div class="an chip c2" style="display:inline-block;margin-top:18px;font-size:76px;color:${C.iv};background:${C.ter};padding:6px 26px;border-radius:14px">WEIGHT</div></div>`,
+  'fade',{fn:(el,a)=>{const c1=el.querySelector('.c1'),c2=el.querySelector('.c2');
+   set(c1,{s:.4+.6*prog(a,0,.4,E.outBack),o:prog(a,0,.15)}); set(c2,{s:.4+.6*prog(a,.85,1.25,E.outBack),o:prog(a,.85,1.0)});}});
+card(35.9,36.8,'img/i4.jpg','WARM GOLD',590,190,420,500,6);
+card(36.75,37.95,'img/i3.jpg','OXIDISED SILVER',570,180,440,520,-5,{pos:'50% 60%'});
+X(37.9,39.5,`<div class="card" style="left:590px;top:190px;width:420px;height:500px;padding:14px 14px 74px">
+  <svg width="420" height="500" viewBox="0 0 420 500" style="display:block;background:${C.ter}"><defs><pattern id="jl" width="70" height="70" patternUnits="userSpaceOnUse">
+  <path d="M35 4 L66 35 L35 66 L4 35Z" fill="none" stroke="${C.iv}" stroke-width="5"/><circle cx="35" cy="35" r="11" fill="none" stroke="${C.gold}" stroke-width="4"/>
+  <circle cx="0" cy="0" r="7" fill="${C.iv}"/><circle cx="70" cy="70" r="7" fill="${C.iv}"/><circle cx="70" cy="0" r="7" fill="${C.iv}"/><circle cx="0" cy="70" r="7" fill="${C.iv}"/></pattern></defs>
+  <rect width="420" height="500" fill="url(#jl)"/></svg><div class="lb">JAALI WORK</div></div>`,'cardx',{r:5});
+card(39.45,40.2,'img/i1.jpg','THE GLOW OF POLKI',570,180,440,520,-4,{pos:'50% 22%'});
+T(40.2,43.2,230,[['NAME IT','an',190,C.mar],['to find it','se',130,C.ter]]);
+// chapter 02
+chap(43.35,45.95,'02','LOOK WHERE YOUR ALGORITHM','never will');
+// pip images
+bleed(45.95,47.45,img('img/i6.jpg','50% 40%')+`<div class="shade"></div>`+lbl(210,'LOOK HERE','MINIATURE PAINTINGS'));
+bleed(47.4,49.35,`<svg width="1080" height="1920" viewBox="0 0 1080 1920"><defs><linearGradient id="sd" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#c98d5c"/><stop offset="1" stop-color="#7d3f22"/></linearGradient>
+  <pattern id="ar" width="270" height="420" patternUnits="userSpaceOnUse"><path d="M25 410 L25 170 Q25 30 135 20 Q245 30 245 170 L245 410" fill="none" stroke="#f3d3a8" stroke-opacity=".45" stroke-width="10"/>
+  <path d="M55 410 L55 180 Q55 65 135 55 Q215 65 215 180 L215 410" fill="none" stroke="#5a2410" stroke-opacity=".35" stroke-width="6"/>
+  <circle cx="135" cy="120" r="16" fill="#f3d3a8" fill-opacity=".4"/></pattern></defs>
+  <rect width="1080" height="1920" fill="url(#sd)"/><rect width="1080" height="1920" fill="url(#ar)"/></svg>`+
+  `<div class="shade"></div>`+lbl(210,'THE WOMEN CARVED ON','TEMPLE WALLS'));
+bleed(49.3,51.4,img('img/i9.jpg','45% 50%')+`<div class="shade"></div>`+lbl(210,'JAIPUR','AMRAPALI MUSEUM'));
+const holes=Array.from({length:14},(_,i)=>`<rect x="${i*90+20}" y="14" width="44" height="30" rx="6" fill="#f6ecd8"/><rect x="${i*90+20}" y="676" width="44" height="30" rx="6" fill="#f6ecd8"/>`).join('');
+bleed(51.35,54.65,`<div style="position:absolute;inset:0;background:#141010"></div>
+  <div class="strip" style="position:absolute;left:0;top:520px;width:1300px;height:720px;background:#050404">
+  <svg width="1300" height="720" style="position:absolute;left:0;top:0">${holes}</svg>
+  <img src="img/i2.jpg" style="position:absolute;left:40px;top:62px;width:560px;height:596px;object-fit:cover;object-position:50% 30%;filter:sepia(.25)">
+  <img src="img/i1.jpg" style="position:absolute;left:640px;top:62px;width:560px;height:596px;object-fit:cover;object-position:50% 25%;filter:sepia(.25)"></div>
+  <svg class="ring2" width="1080" height="1920" style="position:absolute;left:0;top:0"><circle cx="330" cy="980" r="150" fill="none" stroke="${C.gold}" stroke-width="10" stroke-dasharray="950" stroke-dashoffset="950"/></svg>`+
+  lbl(210,'OLD HINDI FILMS','WATCH THE JEWELLERY'),{fn:(el,a)=>{
+   el.querySelector('.strip').style.transform=`translateX(${-lerp(0,160,prog(a,0,3.3))}px)`;
+   el.querySelector('.ring2 circle').style.strokeDashoffset=950*(1-prog(a,1.7,2.4,E.outCubic));}});
+// chapter 03
+chap(54.65,57.3,'03','PLAY WITH WHAT','you already have');
+card(57.35,59.55,'img/i5.jpg','+ A PLAIN SHIRT',580,175,430,560,5,{pos:'50% 35%'});
+X(57.4,59.55,`<div class="it" style="top:240px;left:60px;width:520px;text-align:left"><div class="se" style="font-size:96px;color:${C.goldd};line-height:1">mum's</div>
+  <div class="an" style="font-size:130px;color:${C.mar};line-height:1">JHUMKAS</div></div>`,'pop');
+card(59.55,60.4,'img/i4.jpg',"NANI'S PAYAL",70,180,440,520,-5);
+card(60.35,61.65,'img/i3.jpg','SILVER',40,200,470,520,-4,{pos:'50% 62%'});
+card(60.5,61.65,'img/i4.jpg','+ GOLD',570,200,470,520,4);
+T(61.7,66.0,215,[['NOTICE WHAT','an',110,C.mar],['YOU KEEP','an',110,C.mar],['reaching for','se',130,C.ter]]);
+T(66.1,67.45,230,[["THAT'S YOUR",'an',110,C.mar],['TASTE','an',240,C.ter]]);
+// reveal (card mode)
+X(67.5,68.95,`<div class="lock" style="background:rgba(58,10,17,.6);border-color:${C.gold}"><div class="t" style="color:${C.gold}">THE WORD</div>
+  <div class="b" style="color:${C.iv}">RASIKA</div><div class="s" style="color:${C.gold}">2000 YEARS OLD</div></div>`,'pop');
+X(68.95,69.65,`<div class="it" style="top:230px"><div style="font:400 170px/1.2 Tiro;color:${C.gold}">रस</div>
+  <div class="an" style="font-size:90px;color:${C.iv}">RAS</div></div>`,'pop');
+T(69.65,72.25,215,[['SOMEONE WHO COULD','an',96,C.iv],['truly feel','se',120,C.gold],['BEAUTY','an',150,C.iv]]);
+T(72.25,74.95,260,[['NOT JUST','an',150,C.iv],['see it','se',150,C.gold]]);
+X(74.95,76.95,`<div class="it" style="top:170px"><div class="an big" style="font-size:250px;color:${C.gold};line-height:1">RASIKA</div>
+  <div style="font:400 120px/1.3 Tiro;color:${C.iv}">रसिक</div></div><canvas class="burst" width="1080" height="1920" style="position:absolute;left:0;top:0"></canvas>`,
+  'pop',{fn:(el,a)=>{const cv=el.querySelector('.burst'),g=cv.getContext('2d');g.clearRect(0,0,1080,1920);
+   const r=rng(7),p=prog(a,0,1.4,E.outCubic);
+   for(let i=0;i<46;i++){const an=r()*Math.PI*2,sp=250+r()*520,sz=3+r()*7;const x=540+Math.cos(an)*sp*p,y=330+Math.sin(an)*sp*p*.75;
+     g.globalAlpha=(1-p)*.95;g.fillStyle=i%3?C.gold:C.iv;g.beginPath();g.arc(x,y,sz,0,7);g.fill();}}});
+// Baisa Bling
+T(77.4,80.5,215,[['THAT’S WHAT WE DO AT','in',30,C.mar,'letter-spacing:.28em'],['Baisa Bling','se',190,C.ter]]);
+X(78.4,80.5,`<div class="it" style="top:520px"><div class="an" style="font-size:72px;color:${C.mar};display:inline-block;position:relative">
+  NOT FROM THE FEED<span class="strike" style="position:absolute;left:-10px;top:52%;height:10px;background:${C.ter};width:0"></span></div></div>`,
+  'pop',{fn:(el,a)=>{el.querySelector('.strike').style.width=(prog(a,1.3,1.8,E.outCubic)*640)+'px';}});
+bleed(80.55,82.3,img('img/i8.jpg','50% 40%')+`<div class="shade"></div>`+lbl(210,'WE LOOK AT','RAJASTHAN'));
+bleed(82.25,83.4,img('img/i7.jpg','50% 35%')+`<div class="shade"></div>`+lbl(210,'ITS','PALACES'));
+bleed(83.35,84.05,img('img/i6.jpg','50% 40%')+`<div class="shade"></div>`+lbl(210,'ITS','PAINTINGS'));
+bleed(84.0,85.0,img('img/i3.jpg','50% 60%')+`<div class="shade"></div>`+lbl(210,'ITS','CRAFTS'));
+T(85.0,87.55,215,[['BRING THAT RAS INTO','an',84,C.mar],['JEWELLERY','an',190,C.ter],['you wear every day','se',100,C.goldd]]);
+// end card
+bleed(87.55,90.2,`<div style="position:absolute;inset:0;background:${C.mar}"></div>`+img('img/i7.jpg','50% 50%').replace('<img','<img class="gate" style="opacity:.28;filter:blur(3px) sepia(.4)"'),{fn:(el,a)=>{}});
+T(87.6,90.2,150,[['BAISA BLING','in',34,C.gold,'letter-spacing:.42em'],['a little bit of Rajasthan,','se',86,C.iv],['a little bit of you.','se',86,C.gold]]);
+
+// ───────── CAPTIONS ─────────
+const GOLDW=new Set(['taste','jewellery','why','pretty','gold','beauty','rasika','ras','familiar','exposure','feel','have','name']);
+const REDW=new Set(['feed','choker','need','algorithm','first','second','third','amrapali','jaipur','rajasthan','baisa','bling','2000','polki','silver','jaali','payal','jhumkas','miniature','temple','hindi','ours','buying','shape','weight']);
+const CW=WORDS.map((w,i)=>{const nx=WORDS[i+1]?WORDS[i+1].t:w.t+.8;return {txt:w.w.replace(/[.,?!]/g,''),t:w.t,end:Math.min(nx,w.t+.85)};});
+function caption(t){
+  const el=$('#capi'); let cw=null; for(const c of CW){ if(t>=c.t-.03&&t<c.end){cw=c;} if(c.t>t) break; }
+  if(!cw){el.style.visibility='hidden';return;}
+  const k=cw.txt.toLowerCase().replace(/[’']s$/,'');
+  if(el.textContent!==cw.txt) el.textContent=cw.txt;
+  el.className=GOLDW.has(k)?'g':REDW.has(k)?'r':'';
+  const p=prog(t,cw.t-.03,cw.t+.16,E.outBack); set(el,{s:.72+.28*p,y:(1-p)*18,o:1});
+}
+
+// ───────── GRAIN ─────────
+const grain=$('#grain'); grain.width=W/3; grain.height=H/3; grain.style.width=W+'px'; grain.style.height=H+'px';
+const gctx=grain.getContext('2d'), gimg=gctx.createImageData(grain.width,grain.height);
+function drawGrain(t,amt=13){const r=rng(Math.floor(t*30)+1),d=gimg.data;for(let i=0;i<d.length;i+=4){const v=r()*255;d[i]=d[i+1]=d[i+2]=v;d[i+3]=amt;}gctx.putImageData(gimg,0,0);}
+
+// ───────── RENDER ─────────
+const vid=$('#vid'), vw=$('#vw');
+window.renderFrame = async function(t){
+  const n=clamp(Math.round(t*30)+1,1,NFR), src='frames/f'+String(n).padStart(5,'0')+'.jpg';
+  if(!vid.src.endsWith(src)){ vid.src=src; try{ await vid.decode(); }catch(e){} }
+  const v=vstate(t), breathe=1+.012*Math.sin(t*.45)*(1-v.f);
+  vw.style.transform=`translate(${v.x}px,${v.y}px) scale(${v.s*breathe})`;
+  const rt=lerp(v.r,540,v.ar); vw.style.borderRadius=`${rt}px ${rt}px ${v.r}px ${v.r}px / ${rt}px ${rt}px ${v.r}px ${v.r}px`;
+  vw.style.boxShadow=v.f>.01?`0 0 0 ${10/v.s*v.f}px rgba(230,180,80,${v.f}), 0 60px 120px rgba(0,0,0,${.55*v.f})`:'none';
+  $('#pattern').style.transform=`translateY(${-t*14%60}px)`;
+  for(const it of items){
+    const {el,t0,t1,kind,opt}=it;
+    if(t<t0-.001||t>t1){ el.style.display='none'; continue; }
+    el.style.display=''; const a=t-t0, ex=prog(t,t1-.26,t1,E.inCubic);
+    if(kind==='rise'){
+      el.querySelectorAll('.wi').forEach((w,i)=>{const p=prog(a,i*.055,i*.055+.5,E.outExpo); w.style.transform=`translateY(${(1-p)*125}%)`;});
+      set(el,{y:-ex*50,o:1-ex,blur:ex*8});
+    } else if(kind==='pop'){
+      const p=prog(a,0,.45,E.outBack); set(el,{s:.6+.4*p,o:prog(a,0,.12)*(1-ex),y:-ex*40});
+      el.style.transformOrigin='50% 25%';
+    } else if(kind==='fade'){ set(el,{o:prog(a,0,.25)*(1-ex)}); }
+    else if(kind==='slide'){ const p=prog(a,0,.5,E.outExpo); set(el,{x:(1-p)*600+ex*600,o:1}); }
+    else if(kind==='stamp'){ const p=prog(a,0,.22,E.outBack); el.style.transformOrigin='300px 620px'; set(el,{s:2.2-1.2*p,r:-7,o:prog(a,0,.08)*(1-ex)}); }
+    else if(kind==='card'||kind==='cardx'){
+      const p=prog(a,0,.55,E.outBack), r=(opt.r||0);
+      set(el,{y:(1-p)*900, x:ex*(r>0?900:-900), r:r*(1+(1-p)*2)+ex*r*3, o:1, blur:ex*6});
+    } else if(kind==='bleed'){
+      const p=prog(a,0,.42,E.outExpo); el.style.clipPath=`inset(0 0 ${(1-p)*100}% 0)`;
+      el.style.opacity=1-prog(t,t1-.2,t1); el.querySelector('.k').style.transform=`scale(${1.1-.08*prog(a,0,t1-t0)})`;
+      el.style.zIndex=Math.round(t0*10);
+    }
+    if(opt.fn) opt.fn(el,a,t,ex);
+  }
+  caption(t);
+  drawGrain(t);
+};
+const stage=$('#stage');
+window.__ready=Promise.all([document.fonts.load('400 100px Anton'),document.fonts.load('800 50px Inter'),
+  document.fonts.load('italic 100px Serif'),document.fonts.load('100px Tiro'),document.fonts.ready,
+  ...[...document.images].map(i=>i.decode().catch(()=>{}))]);
+if(!window.__RENDER__){ const fit=()=>{const s=Math.min(innerWidth/W,innerHeight/H);stage.style.transform=`scale(${s})`;};
+  addEventListener('resize',fit); fit(); let t=0,last=performance.now();
+  window.__ready.then(()=>{const tick=async now=>{t=(t+(now-last)/1000)%COMP.duration;last=now;await renderFrame(t);requestAnimationFrame(tick);};requestAnimationFrame(tick);}); }
+</script>
+</body>
+</html>

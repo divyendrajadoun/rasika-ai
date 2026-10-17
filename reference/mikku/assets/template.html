@@ -1,0 +1,216 @@
+<!doctype html>
+<!-- mikku template — talking-head reel. Code Motion Video composition.
+     Contract: window.COMP, window.renderFrame(t), window.__ready -->
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<title>mikku reel</title>
+<style>
+  @font-face { font-family: "Anton"; src: url("fonts/Anton.ttf"); }
+  @font-face { font-family: "Inter"; src: url("fonts/Inter.ttf"); font-weight: 100 900; }
+  @font-face { font-family: "Serif"; src: url("fonts/InstrumentSerif-Italic.ttf"); font-style: italic; }
+  @font-face { font-family: "Mukta"; src: url("fonts/Mukta-ExtraBold.ttf"); }
+  @font-face { font-family: "Tiro"; src: url("fonts/TiroDevanagariHindi.ttf"); }
+  :root { --mar:#5a0f1a; --ter:#c8452f; --gold:#e6b450; --goldd:#9a6a14; --iv:#f6ecd8; --stage:#3a0a11; }
+  html, body { margin:0; background:#000; overflow:hidden; }
+  #stage { position:absolute; left:0; top:0; width:1080px; height:1920px; overflow:hidden; background:var(--stage);
+           transform-origin:0 0; font-family:Inter, sans-serif; }
+  .L { position:absolute; inset:0; }
+  #pattern { background-image: radial-gradient(circle, rgba(230,180,80,.16) 2.5px, transparent 3.5px),
+             radial-gradient(circle, rgba(230,180,80,.08) 1.5px, transparent 2.5px);
+             background-size: 60px 60px, 60px 60px; background-position: 0 0, 30px 30px; }
+  #vw { position:absolute; left:0; top:0; width:1080px; height:1920px; transform-origin:50% 50%; overflow:hidden; }
+  #vid { width:1080px; height:1920px; display:block; }
+  .it { position:absolute; left:0; width:1080px; text-align:center; }
+  .ln { display:block; line-height:1.04; }
+  .w { display:inline-block; overflow:hidden; padding:.14em .04em .1em; margin:-.14em 0 -.1em; vertical-align:bottom; }
+  .wi { display:inline-block; }
+  .an { font-family:Anton; text-transform:uppercase; letter-spacing:.01em; }
+  .se { font-family:Serif; font-style:italic; }
+  .in { font-family:Inter; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+  .card { position:absolute; background:var(--iv); padding:14px 14px 74px; box-shadow:0 30px 70px rgba(30,0,5,.45); border-radius:6px; }
+  .card img { display:block; width:100%; height:100%; object-fit:cover; }
+  .card .lb { position:absolute; left:0; right:0; bottom:14px; font:400 42px/1 Anton; color:var(--mar); text-align:center; text-transform:uppercase; letter-spacing:.02em; }
+  .bleed { position:absolute; inset:0; overflow:hidden; }
+  .bleed .k { position:absolute; inset:0; }
+  .bleed img { width:100%; height:100%; object-fit:cover; display:block; }
+  .shade { position:absolute; left:0; right:0; top:0; height:760px; background:linear-gradient(rgba(25,3,7,.82), rgba(25,3,7,0)); }
+  .lbl { text-shadow: 0 6px 30px rgba(0,0,0,.55); }
+  #cap { position:absolute; z-index:3; left:0; width:1080px; top:1400px; text-align:center; white-space:nowrap; }
+  #capi { display:inline-block; font:800 74px/1.1 Inter; color:#fff6e2; -webkit-text-stroke:14px #2a060c; paint-order:stroke fill;
+          letter-spacing:-.01em; transform-origin:50% 60%; }
+  #capi.g { font:italic 108px/1 Serif; color:var(--gold); -webkit-text-stroke:12px #2a060c; letter-spacing:0; }
+  #capi.r { font:400 96px/1 Anton; color:#ff8a66; -webkit-text-stroke:12px #2a060c; text-transform:uppercase; letter-spacing:.01em; }
+  .lock { position:absolute; left:140px; width:800px; top:250px; height:300px; border:4px dashed var(--goldd); border-radius:28px;
+          background:rgba(246,236,216,.9); text-align:center; box-shadow:0 20px 60px rgba(60,0,10,.25); }
+  .lock .t { font:800 30px Inter; letter-spacing:.3em; color:var(--mar); margin-top:30px; }
+  .lock .b { font:400 150px/1.1 Anton; color:var(--ter); filter:blur(22px); letter-spacing:.06em; }
+  .lock .s { font:800 24px Inter; letter-spacing:.3em; color:var(--goldd); }
+  .phone { position:absolute; left:640px; top:170px; width:390px; height:700px; border-radius:46px; background:#0d0d0f;
+           border:10px solid #1c1c20; overflow:hidden; box-shadow:0 30px 70px rgba(0,0,0,.4); }
+  .post { width:370px; margin:0 auto 18px; }
+  .post .h { height:44px; display:flex; align-items:center; gap:10px; color:#eee; font:700 20px Inter; padding-left:10px; }
+  .post .h i { width:28px; height:28px; border-radius:50%; background:linear-gradient(45deg,#c8452f,#e6b450); display:inline-block; }
+  .post img { width:370px; height:370px; object-fit:cover; display:block; }
+  .post .f { color:#ddd; font:600 20px Inter; padding:8px 10px; }
+  .stamp { position:absolute; left:70px; top:560px; padding:10px 34px; border:8px solid var(--ter); color:var(--ter);
+           font:400 110px/1 Anton; text-transform:uppercase; border-radius:16px; background:rgba(246,236,216,.85); }
+  canvas.fx { position:absolute; z-index:4; inset:0; pointer-events:none; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="L" id="pattern"></div>
+  <div class="L" id="bleed" style="z-index:0;isolation:isolate"></div>
+  <div id="vw" style="z-index:1"><img id="vid" alt=""></div>
+  <div class="L" id="fx" style="z-index:2"></div>
+  <div id="cap"><span id="capi"></span></div>
+  <canvas class="fx" id="grain"></canvas>
+</div>
+<script src="video.js"></script>
+<script src="words.js"></script>
+<script>
+window.COMP = { width:1080, height:1920, fps:30, duration:VIDEO.duration };
+const W = 1080, H = 1920, NFR = VIDEO.frames;
+
+// ───────── toolkit (from the skill template) ─────────
+const E = {
+  linear:t=>t, outCubic:t=>1-Math.pow(1-t,3), inCubic:t=>t*t*t,
+  inOutCubic:t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2, outQuint:t=>1-Math.pow(1-t,5),
+  outExpo:t=>t>=1?1:1-Math.pow(2,-10*t), inExpo:t=>t<=0?0:Math.pow(2,10*t-10),
+  outBack:t=>{const c=1.70158;return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2);},
+};
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x)), lerp=(a,b,p)=>a+(b-a)*p;
+const prog=(t,a,b,e=E.linear)=>e(clamp((t-a)/(b-a)));
+function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let x=Math.imul(seed^seed>>>15,1|seed);
+  x=x+Math.imul(x^x>>>7,61|x)^x;return((x^x>>>14)>>>0)/4294967296;};}
+const $=s=>document.querySelector(s);
+function set(el,{x=0,y=0,s=1,r=0,o=1,blur=0}={}){
+  el.style.transform=`translate(${x}px,${y}px) scale(${s}) rotate(${r}deg)`;
+  el.style.opacity=o; el.style.filter=blur>.05?`blur(${blur}px)`:'none';
+  el.style.visibility=o<=.001?'hidden':'visible';
+}
+
+// ───────── builders ─────────
+const FX=$('#fx'), BL=$('#bleed'); const items=[];
+const C={mar:'#5a0f1a',ter:'#c8452f',gold:'#e6b450',goldd:'#9a6a14',iv:'#f6ecd8'};
+function T(t0,t1,top,lines,opt={}){
+  const el=document.createElement('div'); el.className='it'; el.style.top=top+'px';
+  if(opt.left!=null){el.style.left=opt.left+'px'; el.style.width=(opt.w||600)+'px'; el.style.textAlign=opt.align||'left';}
+  el.innerHTML=lines.map(([tx,c,sz,col,extra])=>`<div class="ln ${c}" style="font-size:${sz}px;color:${col};${extra||''}">`+
+    tx.split(' ').map(w=>`<span class="w"><span class="wi">${w}</span></span>`).join(' ')+`</div>`).join('');
+  (opt.parent||FX).appendChild(el); items.push({el,t0,t1,kind:'rise',opt}); return el;
+}
+function X(t0,t1,html,kind,opt={}){
+  const el=document.createElement('div'); el.innerHTML=html; el.style.position='absolute'; el.style.left='0'; el.style.top='0';
+  el.style.width='1080px'; el.style.height='1920px';
+  (opt.parent||FX).appendChild(el); items.push({el,t0,t1,kind,opt}); return el;
+}
+function card(t0,t1,src,label,x,y,w,h,r,opt={}){
+  const el=document.createElement('div'); el.className='card';
+  Object.assign(el.style,{left:x+'px',top:y+'px',width:w+'px',height:h+'px'});
+  el.innerHTML=`<img src="${src}" style="object-position:${opt.pos||'50% 50%'}">`+(label?`<div class="lb">${label}</div>`:'');
+  FX.appendChild(el); items.push({el,t0,t1,kind:'card',opt:{r,...opt}}); return el;
+}
+function bleed(t0,t1,inner,opt={}){
+  const el=document.createElement('div'); el.className='bleed'; el.innerHTML=`<div class="k">${inner}</div>`;
+  BL.appendChild(el); items.push({el,t0,t1,kind:'bleed',opt}); return el;
+}
+const img=(src,pos)=>`<img src="${src}" style="object-position:${pos||'50% 50%'}">`;
+const lbl=(top,a,b)=>`<div class="lbl" style="position:absolute;left:0;width:1080px;top:${top}px;text-align:center">
+  <div class="in" style="font-size:28px;color:${C.gold}">${a}</div>
+  <div class="an" style="font-size:118px;line-height:1.05;color:${C.iv}">${b}</div></div>`;
+
+// ───────── VIDEO MODES ─────────
+const M={ full:{s:1,x:0,y:0,r:0,f:0,ar:0}, zoom:{s:2.1,x:126,y:-735,r:0,f:0,ar:0} /* zoom on point (px,py): x=(540-px)*s, y=(960-py)*s */,
+          card:{s:.56,x:0,y:275,r:90,f:1,ar:0}, pip:{s:.34,x:318,y:560,r:150,f:1,ar:0},
+          arch:{s:.6,x:0,y:150,r:40,f:1,ar:1} };
+const SEG=[[0,'full']];   // e.g. [[0,'full'],[12.5,'zoom'],[14.05,'full'],[16.7,'card'],[23.6,'full'],[46,'pip'],[54.6,'full'],[END-2.5,'arch']]
+function vstate(t){
+  let i=0; for(let k=0;k<SEG.length;k++) if(t>=SEG[k][0]) i=k;
+  const cur=M[SEG[i][1]]; if(i===0) return {...cur};
+  const prev=M[SEG[i-1][1]], z=SEG[i][1]==='zoom'||SEG[i-1][1]==='zoom';
+  const p=prog(t,SEG[i][0],SEG[i][0]+(z?.6:.5),z?E.inOutCubic:E.outExpo);
+  const o={}; for(const k in cur) o[k]=lerp(prev[k],cur[k],p); o.v=prog(t,SEG[i][0]-.02,SEG[i][0]+.12)*(1-prog(t,SEG[i][0]+.12,SEG[i][0]+.4)); return o;
+}
+
+// ───────── SCENES ─────────  (REPLACE everything in this block per video)
+// Zones (full mode): poster type y 150–650 on the wall ABOVE the head; cards top-right/left y 170–760;
+// captions fixed at y 1400. In card/pip modes the top zone is dark stage → use C.iv / C.gold text.
+// Text colour on a LIGHT wall: C.mar / C.ter / C.goldd.  On the maroon stage or images: C.iv / C.gold.
+// Every item: (t0,t1) taken from words.json — enter ON the spoken word, leave before the next item.
+// T(t0,t1,top,[[text,'an'|'se'|'in',px,colour,extraCss], ...])   rising poster lines
+// X(t0,t1,html,'pop'|'fade'|'slide'|'stamp'|'cardx',{fn:(el,a,t,ex)=>{}})   custom element, fn runs per frame
+// card(t0,t1,src,label,x,y,w,h,tiltDeg,{pos})   polaroid image card (flies in from below, exits sideways)
+// bleed(t0,t1,img(src,pos)+'<div class="shade"></div>'+lbl(210,'SMALL','BIG'))   full-frame image (use with pip mode)
+// chap(t0,t1,'01','LINE','italic line')   chapter card (use with card mode)
+const chap=(t0,t1,n,a,b)=>{T(t0,t1,150,[[n,'an',210,C.gold],[a,'an',84,C.iv],[b,'se',90,C.gold]]);};
+// --- starter beats: delete/replace ---
+T(0.15,2.7,215,[['HOOK QUESTION','an',96,C.mar],['BIG WORD','an',210,C.ter],['italic tail?','se',112,C.goldd]]);
+X(3.0,5.5,`<div class="lock"><div class="t">THE WORD</div><div class="b">SECRET</div><div class="s">REVEALED AT THE END</div></div>`,'pop');
+
+// ───────── CAPTIONS ─────────
+const GOLDW=new Set(['taste']);   // emotional/key words → gold serif italic
+const REDW=new Set(['first','second','third']);   // nouns, names, brands, numbers → terracotta Anton
+const CW=WORDS.map((w,i)=>{const nx=WORDS[i+1]?WORDS[i+1].t:w.t+.8;return {txt:w.w.replace(/[.,?!]/g,''),t:w.t,end:Math.min(nx,w.t+.85)};});
+function caption(t){
+  const el=$('#capi'); let cw=null; for(const c of CW){ if(t>=c.t-.03&&t<c.end){cw=c;} if(c.t>t) break; }
+  if(!cw){el.style.visibility='hidden';return;}
+  const k=cw.txt.toLowerCase().replace(/[’']s$/,'');
+  if(el.textContent!==cw.txt) el.textContent=cw.txt;
+  el.className=GOLDW.has(k)?'g':REDW.has(k)?'r':'';
+  if(/[\u0900-\u097F]/.test(cw.txt)) el.style.fontFamily='Mukta'; else el.style.fontFamily='';
+  const p=prog(t,cw.t-.03,cw.t+.16,E.outBack); set(el,{s:.72+.28*p,y:(1-p)*18,o:1});
+}
+
+// ───────── GRAIN ─────────
+const grain=$('#grain'); grain.width=W/3; grain.height=H/3; grain.style.width=W+'px'; grain.style.height=H+'px';
+const gctx=grain.getContext('2d'), gimg=gctx.createImageData(grain.width,grain.height);
+function drawGrain(t,amt=13){const r=rng(Math.floor(t*30)+1),d=gimg.data;for(let i=0;i<d.length;i+=4){const v=r()*255;d[i]=d[i+1]=d[i+2]=v;d[i+3]=amt;}gctx.putImageData(gimg,0,0);}
+
+// ───────── RENDER ─────────
+const vid=$('#vid'), vw=$('#vw');
+window.renderFrame = async function(t){
+  const n=clamp(Math.round(t*30)+1,1,NFR), src='frames/f'+String(n).padStart(5,'0')+'.jpg';
+  if(!vid.src.endsWith(src)){ vid.src=src; try{ await vid.decode(); }catch(e){} }
+  const v=vstate(t), breathe=1+.012*Math.sin(t*.45)*(1-v.f);
+  vw.style.transform=`translate(${v.x}px,${v.y}px) scale(${v.s*breathe})`;
+  const rt=lerp(v.r,540,v.ar); vw.style.borderRadius=`${rt}px ${rt}px ${v.r}px ${v.r}px / ${rt}px ${rt}px ${v.r}px ${v.r}px`;
+  vw.style.boxShadow=v.f>.01?`0 0 0 ${10/v.s*v.f}px rgba(230,180,80,${v.f}), 0 60px 120px rgba(0,0,0,${.55*v.f})`:'none';
+  $('#pattern').style.transform=`translateY(${-t*14%60}px)`;
+  for(const it of items){
+    const {el,t0,t1,kind,opt}=it;
+    if(t<t0-.001||t>t1){ el.style.display='none'; continue; }
+    el.style.display=''; const a=t-t0, ex=prog(t,t1-.26,t1,E.inCubic);
+    if(kind==='rise'){
+      el.querySelectorAll('.wi').forEach((w,i)=>{const p=prog(a,i*.055,i*.055+.5,E.outExpo); w.style.transform=`translateY(${(1-p)*125}%)`;});
+      set(el,{y:-ex*50,o:1-ex,blur:ex*8});
+    } else if(kind==='pop'){
+      const p=prog(a,0,.45,E.outBack); set(el,{s:.6+.4*p,o:prog(a,0,.12)*(1-ex),y:-ex*40});
+      el.style.transformOrigin='50% 25%';
+    } else if(kind==='fade'){ set(el,{o:prog(a,0,.25)*(1-ex)}); }
+    else if(kind==='slide'){ const p=prog(a,0,.5,E.outExpo); set(el,{x:(1-p)*600+ex*600,o:1}); }
+    else if(kind==='stamp'){ const p=prog(a,0,.22,E.outBack); el.style.transformOrigin='300px 620px'; set(el,{s:2.2-1.2*p,r:-7,o:prog(a,0,.08)*(1-ex)}); }
+    else if(kind==='card'||kind==='cardx'){
+      const p=prog(a,0,.55,E.outBack), r=(opt.r||0);
+      set(el,{y:(1-p)*900, x:ex*(r>0?900:-900), r:r*(1+(1-p)*2)+ex*r*3, o:1, blur:ex*6});
+    } else if(kind==='bleed'){
+      const p=prog(a,0,.42,E.outExpo); el.style.clipPath=`inset(0 0 ${(1-p)*100}% 0)`;
+      el.style.opacity=1-prog(t,t1-.2,t1); el.querySelector('.k').style.transform=`scale(${1.1-.08*prog(a,0,t1-t0)})`;
+      el.style.zIndex=Math.round(t0*10);
+    }
+    if(opt.fn) opt.fn(el,a,t,ex);
+  }
+  caption(t);
+  drawGrain(t);
+};
+const stage=$('#stage');
+window.__ready=Promise.all([document.fonts.load('400 100px Anton'),document.fonts.load('800 50px Inter'),
+  document.fonts.load('italic 100px Serif'),document.fonts.load('100px Tiro'),document.fonts.load('80px Mukta'),document.fonts.ready,
+  ...[...document.images].map(i=>i.decode().catch(()=>{}))]);
+if(!window.__RENDER__){ const fit=()=>{const s=Math.min(innerWidth/W,innerHeight/H);stage.style.transform=`scale(${s})`;};
+  addEventListener('resize',fit); fit(); let t=0,last=performance.now();
+  window.__ready.then(()=>{const tick=async now=>{t=(t+(now-last)/1000)%COMP.duration;last=now;await renderFrame(t);requestAnimationFrame(tick);};requestAnimationFrame(tick);}); }
+</script>
+</body>
+</html>

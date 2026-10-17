@@ -1,0 +1,104 @@
+# Local stack: `docker compose up` → redis, postgres, rustfs (S3), worker.
+# The web app runs with `pnpm dev` on the host (fast HMR); add `--profile full`
+# to also run it in Docker: `docker compose --profile full up --build`.
+name: rasika
+
+services:
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports: ["6379:6379"]
+    volumes: ["redis-data:/data"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: rasika
+      POSTGRES_PASSWORD: rasika
+      POSTGRES_DB: rasika
+    ports: ["5432:5432"]
+    volumes: ["pg-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rasika -d rasika"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # S3-compatible object store (MinIO-compatible API). MinIO's public images were pulled
+  # from Docker Hub/quay in 2025-26, so local dev uses RustFS; production uses Cloudflare R2.
+  rustfs:
+    image: rustfs/rustfs:1.0.3
+    environment:
+      RUSTFS_ACCESS_KEY: rasika
+      RUSTFS_SECRET_KEY: rasika-secret
+      RUSTFS_VOLUMES: /data
+      RUSTFS_CONSOLE_ENABLE: "true"
+      RUSTFS_REGION: auto
+    ports: ["9000:9000", "9001:9001"]
+    volumes: ["s3-data:/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:9000/ | grep -qE '^(200|403)$'"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # one-shot: create the bucket (idempotent)
+  s3-init:
+    image: amazon/aws-cli:latest
+    depends_on:
+      rustfs: { condition: service_healthy }
+    environment:
+      AWS_ACCESS_KEY_ID: rasika
+      AWS_SECRET_ACCESS_KEY: rasika-secret
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_EC2_METADATA_DISABLED: "true"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >
+        aws --endpoint-url http://rustfs:9000 s3api head-bucket --bucket rasika 2>/dev/null
+        || aws --endpoint-url http://rustfs:9000 s3api create-bucket --bucket rasika;
+        echo "bucket ready"
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    env_file: [.env.example]
+    environment:
+      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgresql://rasika:rasika@postgres:5432/rasika
+      S3_ENDPOINT: http://rustfs:9000
+      WORKER_WORK_DIR: /work
+    volumes: ["worker-work:/work"]
+    depends_on:
+      redis: { condition: service_healthy }
+      postgres: { condition: service_healthy }
+      rustfs: { condition: service_healthy }
+      s3-init: { condition: service_completed_successfully }
+    restart: unless-stopped
+
+  web:
+    profiles: ["full"]
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    env_file: [.env.example]
+    environment:
+      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgresql://rasika:rasika@postgres:5432/rasika
+      S3_ENDPOINT: http://rustfs:9000
+    ports: ["3000:3000"]
+    depends_on:
+      redis: { condition: service_healthy }
+      postgres: { condition: service_healthy }
+
+volumes:
+  redis-data:
+  pg-data:
+  s3-data:
+  worker-work:
