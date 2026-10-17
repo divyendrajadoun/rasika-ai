@@ -23,10 +23,13 @@ docs/            job protocol, costs, phase reports
 cp .env.example .env
 pnpm install
 docker compose up -d          # redis · postgres · rustfs (S3) · worker
+pnpm --filter web db:migrate  # create the tables (Drizzle)
 pnpm dev                      # web on http://localhost:3000
 ```
 
 Checks: `pnpm check` (lint · typecheck · test · build) and `pnpm worker:check`.
+Auth is Supabase (set `NEXT_PUBLIC_SUPABASE_*` in `.env`); data lives in the compose Postgres until
+you point `DATABASE_URL` at Supabase (then `drizzle/0001_rls.sql` activates row-level security).
 
 ## Brand
 

@@ -357,3 +357,25 @@
     transform: translateY(0) rotate(0);
   }
 }
+
+/* ── app form + button primitives (dashboard, wizard, login) ── */
+@layer components {
+  .input {
+    @apply bg-background text-foreground placeholder:text-muted-foreground focus-visible:border-gold h-11 w-full rounded-xl border px-3 text-base outline-none;
+  }
+  textarea.input {
+    @apply h-auto py-2;
+  }
+  .input-dark {
+    @apply border-gold/30 bg-ink/40 text-iv placeholder:text-iv/40 h-12 w-full rounded-xl border px-4 text-base outline-none;
+  }
+  .btn-ter {
+    @apply bg-ter inline-flex h-11 items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold text-white transition hover:bg-[#d8553d] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-outline-gold {
+    @apply border-goldd/50 dark:border-gold/40 hover:bg-gold/10 inline-flex h-11 items-center justify-center gap-2 rounded-full border px-5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .icon-btn {
+    @apply text-muted-foreground hover:bg-gold/10 hover:text-foreground inline-flex size-9 items-center justify-center rounded-full transition;
+  }
+}

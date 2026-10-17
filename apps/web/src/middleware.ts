@@ -1,26 +1,48 @@
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// MOCK: Phase 1 auth gate. A `rasika_session` cookie stands in for a Supabase session
-// so "Get started" → /login → /dashboard works end-to-end. Replaced by Supabase Auth in Phase 2.
-export const SESSION_COOKIE = "rasika_session";
+/**
+ * Refreshes the Supabase session cookie on every request and gates /dashboard.
+ * (Supabase Auth replaced the Phase 1 mock cookie.)
+ */
+export async function middleware(req: NextRequest) {
+  let res = NextResponse.next({ request: req });
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll: () => req.cookies.getAll(),
+        setAll: (list: Array<{ name: string; value: string; options: CookieOptions }>) => {
+          for (const { name, value } of list) req.cookies.set(name, value);
+          res = NextResponse.next({ request: req });
+          for (const { name, value, options } of list) res.cookies.set(name, value, options);
+        },
+      },
+    },
+  );
 
-export function middleware(req: NextRequest) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const { pathname, search } = req.nextUrl;
-  const hasSession = Boolean(req.cookies.get(SESSION_COOKIE)?.value);
 
-  if (pathname.startsWith("/dashboard") && !hasSession) {
+  if (pathname.startsWith("/dashboard") && !user) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     url.search = `?next=${encodeURIComponent(pathname + search)}`;
     return NextResponse.redirect(url);
   }
-  if (pathname === "/login" && hasSession) {
+  if (pathname === "/login" && user) {
     const url = req.nextUrl.clone();
-    url.pathname = req.nextUrl.searchParams.get("next") ?? "/dashboard";
+    const next = req.nextUrl.searchParams.get("next");
+    url.pathname = next && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
     url.search = "";
     return NextResponse.redirect(url);
   }
-  return NextResponse.next();
+  return res;
 }
 
-export const config = { matcher: ["/dashboard/:path*", "/login"] };
+export const config = {
+  matcher: ["/dashboard/:path*", "/login", "/api/:path*"],
+};

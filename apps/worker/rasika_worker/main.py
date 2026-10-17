@@ -18,6 +18,7 @@ import redis
 import structlog
 
 from rasika_worker import __version__
+from rasika_worker.db import JobStore
 from rasika_worker.protocol import JobMessage, JobStatus, JobType, ProgressUpdate
 from rasika_worker.settings import Settings, get_settings
 
@@ -41,9 +42,13 @@ def configure_logging(level: str) -> None:
 class Publisher:
     """Publishes progress to Redis pub/sub (Postgres persistence lands in Phase 2)."""
 
-    def __init__(self, r: redis.Redis[str], job_id: str) -> None:
+    def __init__(
+        self, r: redis.Redis[str], job_id: str, project_id: str, store: JobStore | None = None
+    ) -> None:
         self._r = r
         self._job_id = job_id
+        self._project_id = project_id
+        self._store = store
         self._started = time.monotonic()
 
     def update(self, status: JobStatus, progress: int, message: str = "", **timings: float) -> None:
@@ -55,6 +60,10 @@ class Publisher:
             timings={"elapsed_sec": round(time.monotonic() - self._started, 3), **timings},
         )
         self._r.publish(f"rasika:progress:{self._job_id}", upd.model_dump_json())
+        if self._store:
+            self._store.update(
+                self._job_id, self._project_id, status, progress, message, upd.timings
+            )
         log.info("progress", job_id=self._job_id, status=status, progress=progress, message=message)
 
     def fail(self, error: str) -> None:
@@ -62,13 +71,21 @@ class Publisher:
             job_id=self._job_id, status=JobStatus.FAILED, progress=100, error=error
         )
         self._r.publish(f"rasika:progress:{self._job_id}", upd.model_dump_json())
+        if self._store:
+            self._store.update(
+                self._job_id, self._project_id, JobStatus.FAILED, 100, "", {}, error=error
+            )
         log.error("job_failed", job_id=self._job_id, error=error)
 
 
 def handle_noop(job: JobMessage, pub: Publisher) -> None:
     """Placeholder handler so the queue round-trips end-to-end in Phase 0."""
-    pub.update(JobStatus.PROBING, 0, "Looking at your video…")
-    pub.update(JobStatus.DONE, 100, "Your reel is ready")
+    pub.update(JobStatus.PROBING, 10, "Looking at your video…")
+    pub.update(
+        JobStatus.DONE,
+        100,
+        "Upload received. Transcription, planning and rendering arrive in Phase 4.",
+    )
 
 
 HANDLERS: dict[JobType, Handler] = {t: handle_noop for t in JobType}
@@ -80,6 +97,7 @@ class Worker:
         self.redis: redis.Redis[str] = redis.Redis.from_url(
             settings.redis_url, decode_responses=True
         )
+        self.store = JobStore(settings.database_url)
         self._stop = False
 
     def stop(self, *_: object) -> None:
@@ -92,7 +110,7 @@ class Worker:
         except Exception as exc:  # malformed message: log and drop, never crash the loop
             log.error("bad_job_message", raw=raw[:500], error=str(exc))
             return
-        pub = Publisher(self.redis, job.job_id)
+        pub = Publisher(self.redis, job.job_id, job.project_id, self.store)
         handler = HANDLERS[job.type]
         t0 = time.monotonic()
         try:

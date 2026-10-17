@@ -1,38 +1,65 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { env } from "@/lib/env";
+import { createSupabaseServer } from "@/lib/supabase/server";
 
-const SESSION_COOKIE = "rasika_session";
-
-/** Only allow same-origin relative paths as a post-login destination. */
 function safeNext(raw: FormDataEntryValue | null): string {
   const v = typeof raw === "string" ? raw : "";
   return v.startsWith("/") && !v.startsWith("//") ? v : "/dashboard";
 }
-
-// MOCK: magic-link sign-in. Sets a cookie with the email so the dashboard can greet the user.
-// Phase 2 replaces this with Supabase Auth (email magic link + Google).
-export async function mockSignIn(formData: FormData) {
-  const email = String(formData.get("email") ?? "")
+const email = (fd: FormData) =>
+  String(fd.get("email") ?? "")
     .trim()
     .toLowerCase();
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-    redirect(`/login?error=email&next=${encodeURIComponent(safeNext(formData.get("next")))}`);
-  }
-  const jar = await cookies();
-  jar.set(SESSION_COOKIE, email, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7,
+const back = (next: string, q: Record<string, string>) =>
+  redirect(`/login?${new URLSearchParams({ next, ...q }).toString()}`);
+
+/** Magic link (Supabase email OTP). Note: Supabase's built-in mailer is rate-limited. */
+export async function sendMagicLink(fd: FormData) {
+  const next = safeNext(fd.get("next"));
+  const e = email(fd);
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) back(next, { error: "email" });
+  const supabase = await createSupabaseServer();
+  const { error } = await supabase.auth.signInWithOtp({
+    email: e,
+    options: { emailRedirectTo: `${env.siteUrl}/auth/callback?next=${encodeURIComponent(next)}` },
   });
-  redirect(safeNext(formData.get("next")));
+  if (error) back(next, { error: error.message });
+  back(next, { sent: "link", email: e });
 }
 
-export async function mockSignOut() {
-  const jar = await cookies();
-  jar.delete(SESSION_COOKIE);
+/** Email + password sign-in (so testing isn't blocked by email rate limits). */
+export async function signInWithPassword(fd: FormData) {
+  const next = safeNext(fd.get("next"));
+  const supabase = await createSupabaseServer();
+  const { error } = await supabase.auth.signInWithPassword({
+    email: email(fd),
+    password: String(fd.get("password") ?? ""),
+  });
+  if (error) back(next, { error: error.message, mode: "password" });
+  redirect(next);
+}
+
+export async function signUpWithPassword(fd: FormData) {
+  const next = safeNext(fd.get("next"));
+  const e = email(fd);
+  const password = String(fd.get("password") ?? "");
+  if (password.length < 8)
+    back(next, { error: "Password must be at least 8 characters.", mode: "password" });
+  const supabase = await createSupabaseServer();
+  const { data, error } = await supabase.auth.signUp({
+    email: e,
+    password,
+    options: { emailRedirectTo: `${env.siteUrl}/auth/callback?next=${encodeURIComponent(next)}` },
+  });
+  if (error) back(next, { error: error.message, mode: "password" });
+  if (!data.session) back(next, { sent: "confirm", email: e });
+  redirect(next);
+}
+
+export async function signOut() {
+  const supabase = await createSupabaseServer();
+  await supabase.auth.signOut();
   redirect("/");
 }

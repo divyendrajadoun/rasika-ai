@@ -14,6 +14,7 @@ dependencies = [
     "numpy>=1.26,<3",
     "structlog>=24.1,<26",
     "playwright>=1.45,<2",
+    "psycopg[binary]>=3.1,<4",
 ]
 
 [project.optional-dependencies]
