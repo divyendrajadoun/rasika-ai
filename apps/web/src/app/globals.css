@@ -1,0 +1,359 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Theme switching: `data-theme` on <html>. Dark (maroon) is the default. */
+@custom-variant dark (&:is([data-theme="dark"] *));
+
+@theme inline {
+  /* ── brand tokens (same names as the engine's colour tokens) ── */
+  --color-stage: var(--stage);
+  --color-mar: var(--mar);
+  --color-ter: var(--ter);
+  --color-gold: var(--gold);
+  --color-goldd: var(--goldd);
+  --color-iv: var(--iv);
+  --color-ink: var(--ink);
+
+  /* ── semantic (shadcn) ── */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-anton), Impact, "Arial Narrow Bold", sans-serif;
+  --font-accent: var(--font-serif), Georgia, serif;
+  --font-devanagari: var(--font-tiro), "Noto Sans Devanagari", serif;
+  --font-heading: var(--font-display);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --animate-caption-pop: caption-pop 0.19s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-drift: drift 6s linear infinite;
+}
+
+/* ── brand palette: identical in both themes (matches apps/web/src/config/brand.ts) ── */
+:root {
+  --stage: #3a0a11;
+  --mar: #5a0f1a;
+  --ter: #c8452f;
+  --gold: #e6b450;
+  --goldd: #9a6a14;
+  --iv: #f6ecd8;
+  --ink: #1a0a0c;
+  --radius: 0.75rem;
+}
+
+/* ── Light (ivory) theme ── */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --background: #f6ecd8;
+  --foreground: #1a0a0c;
+  --card: #fbf5e8;
+  --card-foreground: #1a0a0c;
+  --popover: #fbf5e8;
+  --popover-foreground: #1a0a0c;
+  --primary: #c8452f;
+  --primary-foreground: #fff6e2;
+  --secondary: #efe2c8;
+  --secondary-foreground: #3a0a11;
+  --muted: #efe2c8;
+  --muted-foreground: #5f4b43;
+  --accent: #efe2c8;
+  --accent-foreground: #3a0a11;
+  --destructive: #b3261e;
+  --border: rgba(58, 10, 17, 0.14);
+  --input: rgba(58, 10, 17, 0.18);
+  --ring: #9a6a14;
+  --chart-1: #c8452f;
+  --chart-2: #e6b450;
+  --chart-3: #5a0f1a;
+  --chart-4: #9a6a14;
+  --chart-5: #3a0a11;
+  --sidebar: #fbf5e8;
+  --sidebar-foreground: #1a0a0c;
+  --sidebar-primary: #c8452f;
+  --sidebar-primary-foreground: #fff6e2;
+  --sidebar-accent: #efe2c8;
+  --sidebar-accent-foreground: #3a0a11;
+  --sidebar-border: rgba(58, 10, 17, 0.14);
+  --sidebar-ring: #9a6a14;
+}
+
+/* ── Dark (maroon) theme — the default ── */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #1f070b;
+  --foreground: #f6ecd8;
+  --card: #2d0a10;
+  --card-foreground: #f6ecd8;
+  --popover: #2d0a10;
+  --popover-foreground: #f6ecd8;
+  --primary: #c8452f;
+  --primary-foreground: #fff6e2;
+  --secondary: #3a0a11;
+  --secondary-foreground: #f6ecd8;
+  --muted: #3a0a11;
+  --muted-foreground: #d9c4a8;
+  --accent: #4a0f17;
+  --accent-foreground: #f6ecd8;
+  --destructive: #ff8a66;
+  --border: rgba(230, 180, 80, 0.18);
+  --input: rgba(230, 180, 80, 0.22);
+  --ring: #e6b450;
+  --chart-1: #c8452f;
+  --chart-2: #e6b450;
+  --chart-3: #f6ecd8;
+  --chart-4: #9a6a14;
+  --chart-5: #5a0f1a;
+  --sidebar: #2d0a10;
+  --sidebar-foreground: #f6ecd8;
+  --sidebar-primary: #c8452f;
+  --sidebar-primary-foreground: #fff6e2;
+  --sidebar-accent: #4a0f17;
+  --sidebar-accent-foreground: #f6ecd8;
+  --sidebar-border: rgba(230, 180, 80, 0.18);
+  --sidebar-ring: #e6b450;
+}
+
+/* Re-apply light when the toggle says so, even though :root above sets dark. */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply scroll-smooth font-sans;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    overflow-x: clip;
+  }
+  ::selection {
+    background: var(--gold);
+    color: var(--ink);
+  }
+  :focus-visible {
+    outline: 3px solid var(--gold);
+    outline-offset: 3px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Gold-dot jaali pattern from the reference template's #pattern layer. */
+  .jaali {
+    background-color: var(--stage);
+    background-image:
+      radial-gradient(circle, rgba(230, 180, 80, 0.16) 2.5px, transparent 3.5px),
+      radial-gradient(circle, rgba(230, 180, 80, 0.08) 1.5px, transparent 2.5px);
+    background-size:
+      60px 60px,
+      60px 60px;
+    background-position:
+      0 0,
+      30px 30px;
+  }
+  .jaali-drift {
+    animation: var(--animate-drift);
+  }
+  /* Film grain overlay at ~5 %. */
+  .grain {
+    position: relative;
+    isolation: isolate;
+  }
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.05;
+    mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    background-size: 160px 160px;
+  }
+  /* Palace-arch mask: the end card's `arch` shape. */
+  .arch {
+    border-radius: 999px 999px 40px 40px / 50% 50% 40px 40px;
+  }
+  .gold-rule {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold) 20%, var(--gold) 80%, transparent);
+  }
+  .poster {
+    @apply font-display uppercase leading-[0.98] tracking-[0.01em];
+  }
+  .kicker {
+    @apply font-sans text-[0.72rem] font-extrabold uppercase tracking-[0.28em];
+  }
+  .caption {
+    @apply font-sans font-extrabold;
+    color: #fff6e2;
+    -webkit-text-stroke: 0.14em #2a060c;
+    paint-order: stroke fill;
+  }
+  .caption-gold {
+    @apply font-accent italic;
+    color: var(--gold);
+    -webkit-text-stroke: 0.1em #2a060c;
+    paint-order: stroke fill;
+  }
+  .caption-red {
+    @apply font-display uppercase;
+    color: #ff8a66;
+    -webkit-text-stroke: 0.1em #2a060c;
+    paint-order: stroke fill;
+  }
+  .polaroid {
+    background: var(--iv);
+    padding: 4% 4% 14%;
+    border-radius: 4px;
+    box-shadow: 0 20px 50px rgba(30, 0, 5, 0.45);
+  }
+
+  /* ── motion primitives (CSS-first so they run before hydration) ── */
+  .rise-mask {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+    padding: 0.14em 0.04em 0.1em;
+    margin: -0.14em 0 -0.1em;
+  }
+  .rise-word {
+    display: inline-block;
+    will-change: transform;
+    transform: translateY(125%);
+    animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .fade-up {
+    animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .card-in {
+    animation: card-in 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  .reveal {
+    transition-property: opacity, transform;
+    transition-duration: 0.6s;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal-card {
+    transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .reveal-hidden.reveal-up {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  .reveal-hidden.reveal-card {
+    opacity: 0;
+    transform: translateY(80px) rotate(3deg);
+  }
+  .reveal-hidden.reveal-shown {
+    opacity: 1;
+    transform: none;
+  }
+  .container-x {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+}
+
+@keyframes caption-pop {
+  from {
+    transform: translateY(18px) scale(0.72);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+@keyframes drift {
+  from {
+    background-position:
+      0 0,
+      30px 30px;
+  }
+  to {
+    background-position:
+      0 -60px,
+      30px -30px;
+  }
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(125%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes card-in {
+  from {
+    transform: translateY(80px) rotate(3deg);
+  }
+  to {
+    transform: translateY(0) rotate(0);
+  }
+}
