@@ -15,6 +15,7 @@ import base64
 import contextlib
 import json
 import math
+import multiprocessing
 import shutil
 import subprocess
 import time
@@ -273,7 +274,11 @@ def render(
     )
     t0 = time.time()
     results: list[dict[str, Any]] = []
-    with ProcessPoolExecutor(max_workers=len(jobs)) as ex:
+    # spawn, never fork: a forked child inherits the parent's Playwright/asyncio state and its
+    # stdio, which on Linux ends in "ValueError: flush of closed file" when the chunk exits
+    with ProcessPoolExecutor(
+        max_workers=len(jobs), mp_context=multiprocessing.get_context("spawn")
+    ) as ex:
         futs = [ex.submit(render_chunk, j) for j in jobs]
         pending: set[Future[dict[str, Any]]] = set(futs)
         while pending:
