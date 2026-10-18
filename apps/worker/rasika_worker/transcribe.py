@@ -219,7 +219,11 @@ class FasterWhisperTranscriber:
         for seg in segments:
             words.extend(self._words([seg]))
             if duration > 0:
-                report(0.15 + 0.8 * min(1.0, float(seg.end) / duration), "Timing every word…")
+                done_s, total_s = int(float(seg.end)), int(duration)
+                report(
+                    0.15 + 0.8 * min(1.0, float(seg.end) / duration),
+                    f"Timing every word… {done_s // 60}:{done_s % 60:02d} of {total_s // 60}:{total_s % 60:02d}",
+                )
         # monotonic, de-overlapped times
         for i in range(1, len(words)):
             if words[i].t < words[i - 1].t:

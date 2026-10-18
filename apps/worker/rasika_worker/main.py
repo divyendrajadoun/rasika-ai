@@ -8,6 +8,7 @@ import json
 import logging
 import signal
 import sys
+import threading
 import time
 import traceback
 from collections.abc import Callable
@@ -49,12 +50,39 @@ class Publisher:
         self._store = store
         self._started = time.monotonic()
         self._last: tuple[JobStatus, int, str] | None = None
+        self._last_at = time.monotonic()
+        self._lock = threading.Lock()
+        self._stop = threading.Event()
+        # heartbeat: a long stage (CPU transcription, a render chunk) must never look frozen —
+        # every HEARTBEAT_SEC without a real update we re-publish the same state with elapsed time
+        self._hb = threading.Thread(target=self._heartbeat, name="heartbeat", daemon=True)
+        self._hb.start()
 
-    def update(self, status: JobStatus, progress: int, message: str = "", **timings: float) -> None:
-        key = (status, progress, message)
-        if key == self._last and not timings:  # the render loop polls every second
-            return
-        self._last = key
+    HEARTBEAT_SEC = 15.0
+
+    def _heartbeat(self) -> None:
+        while not self._stop.wait(self.HEARTBEAT_SEC):
+            with self._lock:
+                if self._last is None or time.monotonic() - self._last_at < self.HEARTBEAT_SEC:
+                    continue
+                status, progress, message = self._last
+                if status in (JobStatus.DONE, JobStatus.FAILED, JobStatus.CANCELED):
+                    continue
+                elapsed = int(time.monotonic() - self._started)
+                base = message.split(" · still working")[0]
+                self._publish(
+                    status,
+                    progress,
+                    f"{base} · still working ({elapsed // 60}m {elapsed % 60:02d}s)",
+                    {},
+                )
+
+    def close(self) -> None:
+        self._stop.set()
+
+    def _publish(
+        self, status: JobStatus, progress: int, message: str, timings: dict[str, float]
+    ) -> None:
         upd = ProgressUpdate(
             job_id=self._job_id,
             status=status,
@@ -62,14 +90,27 @@ class Publisher:
             message=message,
             timings={"elapsed_sec": round(time.monotonic() - self._started, 3), **timings},
         )
-        self._r.publish(f"rasika:progress:{self._job_id}", upd.model_dump_json())
+        try:
+            self._r.publish(f"rasika:progress:{self._job_id}", upd.model_dump_json())
+        except Exception as exc:  # the heartbeat must never kill the job
+            log.warning("publish_failed", error=str(exc))
         if self._store:
             self._store.update(
                 self._job_id, self._project_id, status, progress, message, upd.timings
             )
+        self._last_at = time.monotonic()
+
+    def update(self, status: JobStatus, progress: int, message: str = "", **timings: float) -> None:
+        key = (status, progress, message)
+        if key == self._last and not timings:  # the render loop polls every second
+            return
+        with self._lock:
+            self._last = key
+            self._publish(status, progress, message, dict(timings))
         log.info("progress", job_id=self._job_id, status=status, progress=progress, message=message)
 
     def fail(self, error: str) -> None:
+        self._stop.set()
         upd = ProgressUpdate(
             job_id=self._job_id, status=JobStatus.FAILED, progress=100, error=error
         )
@@ -125,6 +166,7 @@ class Worker:
             log.info(
                 "job_done", job_id=job.job_id, type=job.type, sec=round(time.monotonic() - t0, 3)
             )
+            pub.close()
         except Exception as exc:
             user_facing = type(exc).__name__ == "PipelineError"
             tb = traceback.format_exc()
