@@ -74,7 +74,12 @@ services:
     build:
       context: .
       dockerfile: apps/worker/Dockerfile
-    env_file: [.env.example]
+    # defaults from .env.example, real secrets from .env when it exists (the in-cluster hosts
+    # below still win over both)
+    env_file:
+      - path: .env.example
+      - path: .env
+        required: false
     environment:
       REDIS_URL: redis://redis:6379
       DATABASE_URL: postgresql://rasika:rasika@postgres:5432/rasika
