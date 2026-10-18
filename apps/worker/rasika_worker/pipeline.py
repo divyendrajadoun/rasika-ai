@@ -19,16 +19,21 @@ import structlog
 
 from rasika_worker import media
 from rasika_worker.db import Repo
+from rasika_worker.face import subject_from_keyframes
+from rasika_worker.planner import ChromiumValidator, Planner, PlannerInput
 from rasika_worker.protocol import JobMessage, JobStatus, JobType
 from rasika_worker.render import RenderSpec, render
 from rasika_worker.settings import Settings
 from rasika_worker.storage import Storage, project_prefix
 from rasika_worker.transcribe import Transcriber, make_transcriber
+from rasika_worker.transcript_fix import suggest_fixes
 
 if TYPE_CHECKING:
     from rasika_worker.main import Publisher
 
 log = structlog.get_logger("rasika.worker.pipeline")
+_HERE = Path(__file__).resolve().parent
+_REPO_ROOT = _HERE.parents[2] if len(_HERE.parents) > 2 else None
 
 MAX_DURATION_DEFAULT = 180.0
 
@@ -44,13 +49,15 @@ class Pipeline:
         self.storage = Storage(settings)
         self.redis = r
         self._transcriber: Transcriber | None = None
+        self._planner: Planner | None = None
+        self._anthropic: Any = None
 
     @property
     def handlers(self) -> dict[JobType, Callable[[JobMessage, Publisher], None]]:
         return {
             JobType.PROBE: self.probe,
             JobType.TRANSCRIBE: self.transcribe,
-            JobType.PLAN: self.plan_stub,
+            JobType.PLAN: self.plan,
             JobType.RENDER_PREVIEW: lambda j, p: self.render(j, p, preview=True),
             JobType.RENDER_FINAL: lambda j, p: self.render(j, p, preview=False),
             JobType.CLEANUP: self.cleanup,
@@ -263,19 +270,197 @@ class Pipeline:
         log.info(
             "transcribed", words=len(words), language=result.language, sec=t_tr, notes=result.notes
         )
-        pub.update(
-            JobStatus.AWAITING_TRANSCRIPT_REVIEW,
-            100,
-            f"Transcript ready: {len(words)} words ({result.language}). Designing the edit arrives in Phase 5.",
-            transcribe_sec=t_tr,
-            transcript_words=float(len(words)),
+        timings: dict[str, float] = {"transcribe_sec": t_tr, "transcript_words": float(len(words))}
+
+        # cheap correction pass: safe fixes applied as a new version, the rest kept as suggestions
+        if self.s.anthropic_api_key and words:
+            pub.update(JobStatus.TRANSCRIBING, 96, "Checking spellings and names…", **timings)
+            t0 = time.time()
+            try:
+                fix = suggest_fixes(
+                    self.anthropic(),
+                    self.s.anthropic_fast_model,
+                    words,
+                    brand,
+                    labels,
+                    None,
+                    result.language,
+                )
+                if fix.changed:
+                    version = self.repo.insert_transcript(
+                        job.project_id, result.language, fix.words
+                    )
+                    words = fix.words
+                self.repo.audit(
+                    job.user_id,
+                    "transcript_fix",
+                    "project",
+                    job.project_id,
+                    {
+                        "version": version,
+                        "applied": fix.applied[:200],
+                        "suggestions": fix.suggestions[:100],
+                        "rejected": fix.rejected,
+                        "usage": fix.usage,
+                    },
+                )
+                timings["transcript_fix_sec"] = round(time.time() - t0, 2)
+                timings["transcript_fix_applied"] = float(fix.changed)
+            except Exception as exc:  # never block the pipeline on suggestions
+                log.warning("transcript_fix_failed", error=str(exc))
+
+        if self.s.auto_plan and self.s.anthropic_api_key:
+            pub.update(JobStatus.PLANNING, 0, "Designing your edit…", **timings)
+            self.enqueue(job, JobType.PLAN, {"transcript_version": version})
+        else:
+            pub.update(
+                JobStatus.AWAITING_TRANSCRIPT_REVIEW,
+                100,
+                f"Transcript ready: {len(words)} words ({result.language}).",
+                **timings,
+            )
+
+    # ── 7.4 planning ──
+    def anthropic(self) -> Any:
+        if self._anthropic is None:
+            import anthropic
+
+            self._anthropic = anthropic.Anthropic(api_key=self.s.anthropic_api_key)
+        return self._anthropic
+
+    def planner(self) -> Planner:
+        if self._planner is None:
+            self._planner = Planner(self.s, self.anthropic())
+        return self._planner
+
+    def plan(self, job: JobMessage, pub: Publisher) -> None:
+        pub.update(JobStatus.PLANNING, 3, "Designing your edit…")
+        work = self.work(job.project_id)
+        project = self.repo.project(job.project_id)
+        if not project:
+            raise PipelineError("Project not found.")
+        tr = self.repo.latest_transcript(job.project_id)
+        if not tr or not tr["words"]:
+            raise PipelineError("No transcript to plan from.")
+        words = list(tr["words"])
+        duration = float(
+            project.get("duration_sec") or (words[-1].get("end") or words[-1]["t"]) + 1.0
         )
 
-    def plan_stub(self, job: JobMessage, pub: Publisher) -> None:
-        # MOCK: the Claude planner lands in Phase 5; until then a `plan` job reports honestly.
-        pub.update(
-            JobStatus.AWAITING_TRANSCRIPT_REVIEW, 100, "Planning is not built yet (Phase 5)."
+        # keyframes + face detection
+        t0 = time.time()
+        kf_dir = work / "keyframes"
+        kf_dir.mkdir(exist_ok=True)
+        keyframes: list[Path] = []
+        for a in self.repo.assets(job.project_id, "keyframe"):
+            dest = kf_dir / Path(a["storage_key"]).name
+            if not dest.exists():
+                self.storage.download(a["storage_key"], dest)
+            keyframes.append(dest)
+        if not keyframes:
+            src, _ = self.source(job, work)
+            keyframes = media.extract_keyframes(self.s.ffmpeg_bin, src, kf_dir, duration)
+        subject = subject_from_keyframes(keyframes)
+        timings: dict[str, float] = {
+            "subject_sec": round(time.time() - t0, 2),
+            "face_detections": float(subject.detections),
+        }
+        pub.update(JobStatus.PLANNING, 12, "Reading the room…", **timings)
+
+        # the user's images
+        img_dir = work / "img"
+        img_dir.mkdir(exist_ok=True)
+        images: list[dict[str, Any]] = []
+        for a in sorted(
+            self.repo.assets(job.project_id, "image"),
+            key=lambda r: (r.get("meta") or {}).get("order", 0),
+        ):
+            dest = img_dir / f"{a['id']}{Path(a['storage_key']).suffix.lower() or '.jpg'}"
+            if not dest.exists():
+                self.storage.download(a["storage_key"], dest)
+            meta = a.get("meta") or {}
+            images.append(
+                {
+                    "id": str(a["id"]),
+                    "label": meta.get("label"),
+                    "sayWhen": meta.get("sayWhen"),
+                    "path": str(dest),
+                }
+            )
+
+        style = self._style_tokens(project)
+        brand = dict(project.get("brand") or {})
+        options = dict(project.get("style_options") or {})
+        inp = PlannerInput(
+            duration_sec=round(duration, 2),
+            language=str(tr["language"]),
+            words=words,
+            subject=subject.as_plan_subject(),
+            style=style,
+            style_text=project.get("style_text"),
+            brand=brand,
+            images=images,
+            keyframes=keyframes,
+            options=options,
         )
+        pub.update(JobStatus.PLANNING, 20, "Designing your edit…", **timings)
+        t0 = time.time()
+        validator = ChromiumValidator(self.s)
+        try:
+            res = self.planner().plan(inp, validator)
+        finally:
+            validator.close()
+        timings["plan_sec"] = round(time.time() - t0, 2)
+        timings["plan_input_tokens"] = float(res.usage["input_tokens"])
+        timings["plan_output_tokens"] = float(res.usage["output_tokens"])
+        timings["plan_cache_read"] = float(res.usage["cache_read"])
+        version = self.repo.insert_plan(
+            job.project_id, res.plan, created_by="llm", report=res.report
+        )
+        self.repo.audit(
+            job.user_id, "plan", "project", job.project_id, {"version": version, **res.report}
+        )
+        log.info(
+            "planned",
+            version=version,
+            ok=res.ok,
+            attempts=res.attempts,
+            elements=res.report["elements"],
+            errors=len(res.report["errors"]),
+        )
+        if not res.ok:
+            errs = "; ".join(e["message"] for e in res.report["errors"][:3])
+            raise PipelineError(
+                f"The planner could not produce a valid edit ({len(res.report['errors'])} errors): {errs}"
+            )
+        if self.s.auto_render:
+            pub.update(JobStatus.RENDERING_PREVIEW, 0, "Making a quick preview…", **timings)
+            self.enqueue(job, JobType.RENDER_PREVIEW, {"plan_version": version, "then_final": True})
+        else:
+            pub.update(
+                JobStatus.AWAITING_PLAN_REVIEW, 100, "Your edit is ready to preview", **timings
+            )
+
+    def _style_tokens(self, project: dict[str, Any]) -> dict[str, Any]:
+        """The preset's tokens (packages/schema/presets) for the project's style_preset."""
+        preset = str(project.get("style_preset") or "mikku-royal")
+        candidates = [
+            (_REPO_ROOT / "packages" / "schema" / "presets" / f"{preset}.json")
+            if _REPO_ROOT
+            else None,
+            Path("/app/presets") / f"{preset}.json",
+        ]
+        for c in candidates:
+            if c and c.exists():
+                return dict(json.loads(c.read_text(encoding="utf-8")))
+        fewshot = [
+            (_REPO_ROOT / "plans" / "baisa_bling.json") if _REPO_ROOT else None,
+            Path("/app/plans/baisa_bling.json"),
+        ]
+        for c in fewshot:
+            if c and c.exists():
+                return dict(json.loads(c.read_text(encoding="utf-8"))["style"])
+        raise PipelineError(f"Unknown style preset {preset}")
 
     # ── 7.5 / 7.6 render ──
     def render(self, job: JobMessage, pub: Publisher, preview: bool) -> None:
@@ -368,7 +553,16 @@ class Pipeline:
                 },
             )
             timings["upload_sec"] = round(time.time() - t0, 2)
-            pub.update(JobStatus.READY_PREVIEW, 100, "Preview ready", **timings)
+            if job.payload.get("then_final"):
+                pub.update(
+                    JobStatus.RENDERING_FINAL,
+                    0,
+                    "Preview ready. Rendering in full quality…",
+                    **timings,
+                )
+                self.enqueue(job, JobType.RENDER_FINAL, {"plan_version": plan_row["version"]})
+            else:
+                pub.update(JobStatus.READY_PREVIEW, 100, "Preview ready", **timings)
             return
         self.upload_asset(
             job,

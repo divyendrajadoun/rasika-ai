@@ -97,7 +97,7 @@ export function StepStyle({
           id="style-text"
           className="input min-h-24"
           maxLength={300}
-          placeholder="e.g. make it feel like a vintage Bollywood poster, more yellow, fewer images"
+          placeholder="e.g. clean clinic white with navy accents, fewer effects, bigger captions"
           value={value.text}
           onChange={(e) => set({ text: e.target.value })}
         />

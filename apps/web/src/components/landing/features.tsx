@@ -29,7 +29,7 @@ function Demo({ id }: { id: string }) {
                 className="d-rise font-accent text-goldd text-[11px] italic"
                 style={v({ "--i": 2 })}
               >
-                in jewellery?
+                in 30 days?
               </span>
             </div>
           </div>
@@ -67,11 +67,11 @@ function Demo({ id }: { id: string }) {
           <div className="d-polaroid polaroid absolute right-[6%] top-[8%] w-[46%]">
             <div className="aspect-[4/5] w-full bg-[linear-gradient(135deg,#c8452f,#e6b450)]" />
             <p className="poster text-mar absolute inset-x-0 bottom-[3%] text-center text-[8px]">
-              JHUMKA
+              BALCONY
             </p>
           </div>
           <div className="absolute inset-x-0 bottom-[22%] text-center">
-            <span className="d-cap-once caption-red text-[16px]">jhumka</span>
+            <span className="d-cap-once caption-red text-[16px]">balcony</span>
           </div>
         </div>
       );

@@ -4,7 +4,7 @@ import { BeforeAfter } from "@/components/landing/before-after";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { Features } from "@/components/landing/features";
 import { StyleGallery } from "@/components/landing/style-gallery";
-import { WhoFor } from "@/components/landing/who-for";
+import { Industries } from "@/components/landing/industries";
 import { Pricing } from "@/components/landing/pricing";
 import { Faq } from "@/components/landing/faq";
 import { FinalCta } from "@/components/landing/final-cta";
@@ -40,11 +40,11 @@ export default function LandingPage() {
       <Nav />
       <main id="main">
         <Hero />
+        <Industries />
         <BeforeAfter />
         <HowItWorks />
         <Features />
         <StyleGallery />
-        <WhoFor />
         <Pricing />
         <Faq />
         <FinalCta />

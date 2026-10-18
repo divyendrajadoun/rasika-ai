@@ -78,8 +78,6 @@ export function heuristicTextWidth(
 }
 
 const DARK_MODES = new Set<VideoModeName>(["card", "pip", "arch"]);
-const LIGHT_TOKENS = new Set<ColorToken>(["mar", "ter", "goldd"]);
-const DARK_TOKENS = new Set<ColorToken>(["iv", "gold"]);
 
 function modeAt(plan: Plan, t: number): VideoModeName {
   let m: VideoModeName = "full";
@@ -391,26 +389,27 @@ export function validatePlan(
     }
   }
 
-  // ── colour context ──
+  // ── colour context: light-wall tokens over the dark stage (and vice versa) are swapped ──
+  const DARK_SWAP: Record<string, ColorToken> = { mar: "iv", ter: "gold", goldd: "gold" };
+  const LIGHT_SWAP: Record<string, ColorToken> = { iv: "mar", gold: "ter" };
   for (const el of plan.elements) {
     if (el.type !== "posterText") continue;
     const dark = DARK_MODES.has(modeAt(plan, el.t0 + 0.05));
     for (const line of el.lines) {
       if (!line.color) continue;
-      if (dark && LIGHT_TOKENS.has(line.color)) {
+      const swap = dark
+        ? DARK_SWAP[line.color]
+        : el.anim === "rise"
+          ? LIGHT_SWAP[line.color]
+          : undefined;
+      if (swap) {
         issues.push({
-          level: "warn",
+          level: "fixed",
           code: "color.context",
           elementId: el.id,
-          message: `"${line.text}" uses ${line.color} over the dark stage — iv/gold read better`,
+          message: `"${line.text}" ${line.color}→${swap} for the ${dark ? "dark stage" : "light wall"}`,
         });
-      } else if (!dark && DARK_TOKENS.has(line.color) && el.anim === "rise") {
-        issues.push({
-          level: "warn",
-          code: "color.context",
-          elementId: el.id,
-          message: `"${line.text}" uses ${line.color} on the light wall — mar/ter/goldd read better`,
-        });
+        line.color = swap;
       }
     }
   }

@@ -37,6 +37,11 @@ COPY packages/engine/harness/index.html /app/engine/harness/index.html
 COPY apps/worker/pyproject.toml /app/pyproject.toml
 COPY apps/worker/rasika_worker /app/rasika_worker
 COPY apps/worker/prompts /app/prompts
+# Planner inputs: the Plan JSON Schema, style presets, the few-shot plan and the craft guide
+COPY packages/schema/plan.schema.json /app/schema/plan.schema.json
+COPY packages/schema/presets /app/presets
+COPY plans/baisa_bling.json plans/baisa_bling.words.json /app/plans/
+COPY reference/mikku/references/style-guide.md /app/prompts/style-guide.md
 RUN pip install --no-cache-dir -e ".[ml]" \
  && mkdir -p /work /models
 

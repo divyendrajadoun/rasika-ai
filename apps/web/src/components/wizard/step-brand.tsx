@@ -41,7 +41,7 @@ export function StepBrand({
             maxLength={60}
             value={value.name}
             onChange={(e) => set({ name: e.target.value })}
-            placeholder="Baisa Bling"
+            placeholder="Khanna Homes"
           />
         </label>
         <label className="block">
@@ -51,7 +51,7 @@ export function StepBrand({
             maxLength={60}
             value={value.handle}
             onChange={(e) => set({ handle: e.target.value })}
-            placeholder="@baisabling"
+            placeholder="@khannahomes"
           />
         </label>
         <label className="block">

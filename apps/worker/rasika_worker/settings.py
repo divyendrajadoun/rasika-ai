@@ -63,6 +63,13 @@ class Settings(BaseSettings):
     music_bed_path: Path | None = Field(default=None, alias="MUSIC_BED_PATH")
     enable_music_bed: bool = Field(default=False, alias="ENABLE_MUSIC_BED")
 
+    anthropic_api_key: str = Field(default="", alias="ANTHROPIC_API_KEY")
+    anthropic_planner_model: str = Field(default="claude-opus-5-5", alias="ANTHROPIC_PLANNER_MODEL")
+    anthropic_fast_model: str = Field(default="claude-haiku-5-5", alias="ANTHROPIC_FAST_MODEL")
+    # After transcription: suggest fixes (fast model), plan (planner model), render preview + final.
+    auto_plan: bool = Field(default=True, alias="AUTO_PLAN")
+    auto_render: bool = Field(default=True, alias="AUTO_RENDER")
+
     log_level: str = Field(default="info", alias="LOG_LEVEL")
     sentry_dsn: str = Field(default="", alias="SENTRY_DSN")
 

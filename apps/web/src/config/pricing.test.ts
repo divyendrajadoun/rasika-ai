@@ -34,18 +34,20 @@ describe("pricing config", () => {
 describe("landing content", () => {
   it("has every section the spec lists", () => {
     expect(landing.nav.links.map((l) => l.label)).toEqual([
+      "Industries",
       "How it works",
       "Styles",
       "Pricing",
       "FAQ",
     ]);
-    expect(landing.hero.headline).toBe("YOUR REEL. EDITED LIKE A STUDIO DID IT.");
+    expect(landing.hero.headline).toBe("TALK TO YOUR PHONE. POST LIKE A STUDIO.");
     expect(landing.howItWorks.steps).toHaveLength(3);
     expect(landing.features.items).toHaveLength(8);
-    expect(landing.whoFor.items).toHaveLength(5);
+    expect(landing.industries.items).toHaveLength(8);
+    for (const it of landing.industries.items) expect(it.poster).toHaveLength(3);
     expect(landing.faq.items.length).toBeGreaterThanOrEqual(6);
     expect(landing.finalCta.title).toBe(brand.tagline);
-    expect(landing.footer.madeIn).toBe("Made in Rajasthan");
+    expect(landing.footer.madeIn).toBe("Made in India");
   });
 
   it("exposes the four presets with Mikku Royal first", () => {

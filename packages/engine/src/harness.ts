@@ -5,15 +5,42 @@
  * render contract the worker's render.py expects:
  *   window.COMP, window.renderFrame(t), window.__ready
  */
-import { Plan, Transcript, type TranscriptWord } from "@rasika/schema";
+import { Plan, Transcript, validatePlan, type TranscriptWord } from "@rasika/schema";
 import { createEngine, type Engine } from "./engine";
 import { deriveSfx } from "./sfx";
 
 export * from "./engine";
 export * from "./sfx";
+/** Exposed for the worker: validate a plan inside Chromium with real canvas font metrics. */
+export { validatePlan, Plan as PlanSchema };
 export * from "./toolkit";
 export { captionWindows } from "./captions";
 export { buildSegments, vstate, MODES } from "./modes";
+
+/** Canvas-based text measurement for validatePlan (the same fonts the render uses). */
+export function measureTextCanvas(): (
+  text: string,
+  font: string,
+  size: number,
+  tracking?: number,
+) => number {
+  const ctx = document.createElement("canvas").getContext("2d");
+  const family: Record<string, string> = {
+    anton: "Anton",
+    serif: "Serif",
+    kicker: "Inter",
+    devanagari: "Tiro",
+  };
+  return (text, font, size, tracking = 0) => {
+    if (!ctx) return text.length * size * 0.5;
+    const weight = font === "kicker" ? "800 " : "";
+    const style = font === "serif" ? "italic " : "";
+    ctx.font = `${style}${weight}${size}px ${family[font] ?? "Inter"}`;
+    const base = font === "kicker" ? 0.14 : font === "anton" ? 0.01 : 0;
+    const txt = font === "anton" || font === "kicker" ? text.toUpperCase() : text;
+    return ctx.measureText(txt).width + text.length * (base + tracking) * size;
+  };
+}
 
 export interface HarnessConfig {
   /** Raw plan JSON — parsed with Zod here so defaults are applied before the engine sees it. */

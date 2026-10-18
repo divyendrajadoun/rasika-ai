@@ -9,14 +9,15 @@ export const dynamic = "force-dynamic";
 export default async function NewEditPage({
   searchParams,
 }: {
-  searchParams: Promise<{ style?: string; project?: string }>;
+  searchParams: Promise<{ style?: string; project?: string; industry?: string }>;
 }) {
   const user = await requireUser("/dashboard/new");
-  const { style, project } = await searchParams;
+  const { style, project, industry } = await searchParams;
   const plan = plans.find((p) => p.id === user.plan) ?? plans[0]!;
   return (
     <Wizard
       initialStyle={style}
+      initialIndustry={industry}
       resumeProjectId={project}
       credits={user.credits}
       maxSeconds={plan.maxSeconds}

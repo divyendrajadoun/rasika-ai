@@ -7,8 +7,8 @@ Kept up to date per phase. Numbers marked _(est.)_ are estimates until the admin
 
 | Driver                       | Where                      | Note                                                         |
 | ---------------------------- | -------------------------- | ------------------------------------------------------------ |
-| Planner call (Claude Opus)   | worker `plan` (Phase 5)    | vision + ~15–25K input / 5–10K output tokens _(est.)_; cache the style guide + schema + few-shot prefix |
-| Cheap Claude pass (Haiku)    | transcript suggestions     | small _(est.)_                                               |
+| Planner call (Claude Opus)   | worker `plan`              | measured: 10–17 K input + 22.5 K cached prefix, 8–14 K output per attempt; a repair round doubles output |
+| Cheap Claude pass (Haiku)    | transcript fixes           | ≈ 2–3 K in / 1–2 K out for a 90 s reel                       |
 | Transcription compute        | worker `transcribe`        | faster-whisper large-v3, CPU int8 — see measurements         |
 | Render compute               | worker `render_final`      | the biggest one: headless Chromium frame capture + x264      |
 | Storage                      | R2                         | source + proxy + outputs for 30 days; frames never stored    |
@@ -29,6 +29,17 @@ Baisa Bling, 90.1 s HEVC 1080×1920 source, 2 703 frames, hand-written plan (47 
 Rule of thumb: render time ≈ `frames / (2.7 × chunks)` seconds; with 8 vCPU a 90 s reel is
 ≈ 2 min of render plus ≈ 1 min of ffmpeg work. Transcription with large-v3 on CPU int8 is ≈ 5× real-time (measured on 24 threads); `medium` halves
 it; a GPU (`WHISPER_DEVICE=cuda`, `float16`) brings it under 15 s _(est.)_.
+
+## Measured — Phase 5 planner (Opus 5.5, 2026-10-18)
+
+| Reel         | Attempts | Input tokens | Cache read | Output tokens | Seconds |
+| ------------ | -------- | ------------ | ---------- | ------------- | ------- |
+| baisa_bling  | 2        | 42 205       | 22 546     | 22 342        | 176     |
+| realtor_3bhk | 1        | 10 282       | 0 (cold)   | 10 035        | 94      |
+| doctor_sleep | 1        | 10 309       | 0 (cold)   | 7 922         | 73      |
+
+The 22.5 K-token prefix (prompt + style guide + schema + few-shot) is cached for 5 minutes, so
+back-to-back jobs on a busy worker pay for it once.
 
 ## Levers
 

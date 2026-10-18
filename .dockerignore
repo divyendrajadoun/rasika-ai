@@ -11,9 +11,12 @@
 .golden-work*
 .golden-report*
 .work-*
-out
+out/
 work
-reference
+reference/*
+!reference/mikku
+reference/mikku/*
+!reference/mikku/references
 apps/web
 docs
 *.log

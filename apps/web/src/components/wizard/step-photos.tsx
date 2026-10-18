@@ -80,7 +80,7 @@ export function StepPhotos({
     <div>
       <p className="font-accent text-muted-foreground text-xl italic">
         Optional. Add up to 15 photos. Tell us which word each one belongs to — “show this when I
-        say <em>payal</em>”.
+        say <em>balcony</em>”.
       </p>
 
       <label
@@ -127,7 +127,7 @@ export function StepPhotos({
               <div className="min-w-0 flex-1 space-y-2">
                 <input
                   className="input"
-                  placeholder={`Label (e.g. “Nani's payal”)`}
+                  placeholder={`Label (e.g. “East-facing balcony”)`}
                   maxLength={60}
                   value={p.label}
                   onChange={(e) => update(p.assetId, { label: e.target.value })}

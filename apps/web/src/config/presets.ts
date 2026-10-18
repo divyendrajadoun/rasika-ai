@@ -10,10 +10,10 @@ export interface PresetCard {
 
 const previewCopy: Record<string, PresetCard["preview"]> = {
   "mikku-royal": {
-    kicker: "HOW DO YOU KNOW",
-    big: "YOUR TASTE",
-    italic: "in jewellery?",
-    caption: "taste",
+    kicker: "THE ONE THING",
+    big: "NOBODY TELLS YOU",
+    italic: "before you buy",
+    caption: "honestly",
   },
   "katana-pop": {
     kicker: "STOP SCROLLING",

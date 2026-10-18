@@ -12,6 +12,9 @@
       → (re)run the pipeline from a stage for an existing project.
 
   python -m rasika_worker.cli transcribe-local --audio file.(wav|mp4|m4a) [--lang auto] → words JSON.
+
+  python -m rasika_worker.cli plan-local --words words.json --video file.mp4 [--images DIR] [--style katana-pop]
+      [--brand "Name"] [--industry "real estate"] -o out/plan.json → Claude plan + validator report (no DB).
 """
 
 from __future__ import annotations
@@ -249,6 +252,99 @@ def cmd_enqueue(a: argparse.Namespace, s: Settings) -> int:
     return 0
 
 
+def cmd_plan_local(a: argparse.Namespace, s: Settings) -> int:
+    """words + video (+ images) → plan.json via the real planner, no DB. Prints the validator report."""
+    from rasika_worker.face import subject_from_keyframes
+    from rasika_worker.planner import ChromiumValidator, Planner, PlannerInput
+
+    work = Path(a.work or (s.work_dir / f"plan-{int(time.time())}"))
+    work.mkdir(parents=True, exist_ok=True)
+    raw = json.loads(Path(a.words).read_text(encoding="utf-8"))
+    words = raw["words"] if isinstance(raw, dict) else raw
+    language = raw.get("language", "en") if isinstance(raw, dict) else "en"
+    src = Path(a.video)
+    info = media.probe(s.ffprobe_bin, src)
+    keyframes = media.extract_keyframes(s.ffmpeg_bin, src, work / "keyframes", info.duration_sec)
+    subject = subject_from_keyframes(keyframes)
+    images: list[dict[str, Any]] = []
+    if a.images:
+        for p in sorted(Path(a.images).glob("*")):
+            if p.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp"):
+                images.append(
+                    {
+                        "id": p.stem,
+                        "label": p.stem.replace("_", " "),
+                        "sayWhen": p.stem.replace("_", " "),
+                        "path": str(p),
+                    }
+                )
+    style_path = Path(a.style) if a.style else None
+    if style_path and style_path.exists():
+        style = json.loads(style_path.read_text(encoding="utf-8"))
+    else:
+        preset_dir = Path(__file__).resolve().parents[3] / "packages" / "schema" / "presets"
+        style = json.loads(
+            (preset_dir / f"{a.style or 'mikku-royal'}.json").read_text(encoding="utf-8")
+        )
+    brand: dict[str, Any] = {}
+    if a.brand:
+        brand["name"] = a.brand
+    if a.handle:
+        brand["handle"] = a.handle
+    inp = PlannerInput(
+        duration_sec=round(info.duration_sec, 2),
+        language=language,
+        words=words,
+        subject=subject.as_plan_subject(),
+        style=style,
+        style_text=a.style_text,
+        brand=brand,
+        images=images,
+        keyframes=keyframes,
+        industry=a.industry,
+        options={"captions": True, "sfxIntensity": 0.8},
+    )
+    validator = ChromiumValidator(s)
+    try:
+        res = Planner(s).plan(inp, validator)
+    finally:
+        validator.close()
+    out = Path(a.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(res.plan, ensure_ascii=False, indent=1), encoding="utf-8")
+    out.with_suffix(".report.json").write_text(
+        json.dumps(res.report, ensure_ascii=False, indent=1), encoding="utf-8"
+    )
+    if res.raw_first is not None:
+        out.with_suffix(".raw.json").write_text(
+            json.dumps(res.raw_first, ensure_ascii=False, indent=1), encoding="utf-8"
+        )
+    rep = res.report
+    print(
+        json.dumps(
+            {
+                "out": str(out),
+                "ok": rep["ok"],
+                "attempts": rep["attempts"],
+                "elements": rep["elements"],
+                "modeSwitches": rep["modeSwitches"],
+                "errors": len(rep["errors"]),
+                "warnings": len(rep["warnings"]),
+                "fixed": len(rep["fixed"]),
+                "usage": rep["usage"],
+                "seconds": rep["seconds"],
+                "subject": subject.as_plan_subject(),
+            },
+            indent=1,
+        )
+    )
+    for e in rep["errors"]:
+        print("  error", e["code"], e.get("elementId", ""), e["message"])
+    for w in rep["warnings"][:12]:
+        print("  warn ", w["code"], w.get("elementId", ""), w["message"])
+    return 0 if rep["ok"] else 1
+
+
 def cmd_transcribe_local(a: argparse.Namespace, s: Settings) -> int:
     from rasika_worker.transcribe import make_transcriber
 
@@ -323,6 +419,19 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--type", default="probe")
     p.add_argument("--lang", default="auto")
     p.set_defaults(fn=cmd_enqueue)
+
+    p = sub.add_parser("plan-local")
+    p.add_argument("--words", required=True)
+    p.add_argument("--video", required=True)
+    p.add_argument("--images")
+    p.add_argument("--style", help="preset id or a style tokens json file")
+    p.add_argument("--style-text")
+    p.add_argument("--brand")
+    p.add_argument("--handle")
+    p.add_argument("--industry")
+    p.add_argument("-o", "--out", default="out/plan.json")
+    p.add_argument("--work")
+    p.set_defaults(fn=cmd_plan_local)
 
     p = sub.add_parser("transcribe-local")
     p.add_argument("--audio", required=True)

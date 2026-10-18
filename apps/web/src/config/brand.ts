@@ -8,11 +8,11 @@ export const brand = {
   meaning: "Sanskrit: one who truly feels beauty, not just sees it.",
   tagline: "Feel your reel. Don't just post it.",
   description:
-    "Upload a talking video. Get poster type, captions, images on the exact word, and sound — in minutes.",
+    "Upload one talking video. Get poster titles, word-timed captions, your photos on the exact word, and sound — a studio-grade reel in minutes, for any industry.",
   domain: "rasika.app",
   handle: "@rasika.app",
   email: "hello@rasika.app",
-  madeIn: "Made in Rajasthan",
+  madeIn: "Made in India",
   colors: {
     stage: "#3a0a11",
     maroon: "#5a0f1a",

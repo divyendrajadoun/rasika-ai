@@ -33,12 +33,15 @@ const draftKey = (projectId: string) => `rasika:wizard:${projectId}`;
 
 export function Wizard({
   initialStyle,
+  initialIndustry,
   resumeProjectId,
   credits,
   maxSeconds,
   planName,
 }: {
   initialStyle?: string;
+  /** From the landing page's industry picker — seeds the free-text style wish. */
+  initialIndustry?: string;
   resumeProjectId?: string;
   credits: number;
   maxSeconds: number;
@@ -54,7 +57,7 @@ export function Wizard({
     photos: [],
     style: {
       preset: initialStyle && /^[a-z-]+$/.test(initialStyle) ? initialStyle : defaultPresetId,
-      text: "",
+      text: industryHint(initialIndustry),
       captions: true,
       sfxIntensity: 0.6,
       music: false,
@@ -249,4 +252,23 @@ export function Wizard({
       </div>
     </div>
   );
+}
+
+const INDUSTRY_HINTS: Record<string, string> = {
+  "real-estate":
+    "Real estate listing: show the price as a counter, land each photo on the room I name.",
+  doctors:
+    "Doctor explainer: calm, clinical, chapters for each reason, no stamps or flashy effects.",
+  coaches:
+    "Coach / educator: chapter cards for each step, counters for numbers, clear poster lines.",
+  founders:
+    "Founder story: bold poster lines, a counter for the big number, product photos on the word.",
+  food: "Restaurant / chef: warm and appetising, photos of the dish on the word, time as a counter.",
+  fitness: "Fitness: punchy, chapter per swap or exercise, counters for reps and days.",
+  "law-finance": "Lawyer / finance explainer: serious, numbered clauses as chapters, no stamps.",
+  agencies: "Agency client reel: clean and brandable, end card with the client handle.",
+};
+
+function industryHint(id?: string): string {
+  return (id && INDUSTRY_HINTS[id]) || "";
 }

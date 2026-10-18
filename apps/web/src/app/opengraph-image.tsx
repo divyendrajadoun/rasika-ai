@@ -36,16 +36,16 @@ export default async function OgImage() {
           {brand.name}
         </span>
         <span style={{ fontSize: 22, letterSpacing: 6, color: c.gold, opacity: 0.85 }}>
-          HINDI + ENGLISH · 1080P · SOUND
+          ANY INDUSTRY · ENGLISH + HINDI · 1080P
         </span>
       </div>
       <div style={{ display: "flex", flexDirection: "column" }}>
         {/* satori mis-measures Anton when a line is split into spans, so each line is one text run */}
         <span style={{ fontFamily: "Anton", fontSize: 120, lineHeight: 0.96, color: c.gold }}>
-          YOUR REEL.
+          TALK TO YOUR PHONE.
         </span>
         <span style={{ fontFamily: "Anton", fontSize: 120, lineHeight: 0.96 }}>
-          EDITED LIKE A STUDIO DID IT.
+          POST LIKE A STUDIO.
         </span>
         <span
           style={{

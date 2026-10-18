@@ -253,6 +253,36 @@ describe("validatePlan", () => {
     expect(r.issues.some((i) => i.code === "rhythm.static")).toBe(true);
   });
 
+  it("swaps light-wall colour tokens for stage tokens in dark modes", () => {
+    const r = validatePlan(
+      basePlan({
+        videoModes: [
+          { t: 0, mode: "full" },
+          { t: 2, mode: "card" },
+        ],
+        elements: [
+          {
+            id: "dark",
+            type: "posterText",
+            t0: 2.84,
+            t1: 4,
+            top: 215,
+            lines: [
+              { text: "ONE", font: "anton", size: 100, color: "mar" },
+              { text: "two", font: "serif", size: 80, color: "ter" },
+            ],
+          },
+        ],
+      }),
+      words,
+    );
+    const el = r.plan.elements[0]!;
+    expect(el.type === "posterText" && el.lines.map((l) => l.color)).toEqual(["iv", "gold"]);
+    expect(r.issues.filter((i) => i.code === "color.context" && i.level === "fixed")).toHaveLength(
+      2,
+    );
+  });
+
   it("fills a missing zoom point from the prop and defaults the end card time", () => {
     const r = validatePlan(
       basePlan({

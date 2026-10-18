@@ -21,9 +21,12 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["ruff>=0.6", "mypy>=1.10", "pytest>=8.2", "types-redis", "types-boto3", "datamodel-code-generator>=0.26"]
 # Phase 4+: transcription + vision deps (heavy; installed in the Docker image)
-ml = ["faster-whisper>=1.1", "Pillow>=10"]
-# Phase 5: face detection for faceBox/freeZone
-vision = ["opencv-python-headless>=4.9", "mediapipe>=0.10"]
+ml = [
+    "faster-whisper>=1.1",
+    "Pillow>=10",
+    "anthropic>=0.40",
+    "opencv-python-headless>=4.9,<5",
+]
 
 [tool.setuptools.packages.find]
 include = ["rasika_worker*"]

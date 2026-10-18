@@ -24,9 +24,9 @@ live updates: Redis pub/sub channel `rasika:progress:<job_id>` → Next.js SSE r
 | type             | payload                                                                 |
 | ---------------- | ----------------------------------------------------------------------- |
 | `probe`          | `{ source_key, language_hint: "auto"\|"en"\|"hi"\|"hinglish", max_duration_sec? }` |
-| `transcribe`     | `{ source_key, language_hint }` (enqueued by `probe` with the same `job_id`) |
-| `plan`           | `{ transcript_version, style, brand, images[] }` — Phase 5 (stub until then) |
-| `render_preview` | `{ plan_version? }` → 540×960, ultrafast, no grain → asset `preview_540` |
+| `transcribe`     | `{ source_key, language_hint }` (enqueued by `probe` with the same `job_id`); applies safe transcript fixes, then enqueues `plan` when `AUTO_PLAN` |
+| `plan`           | `{ transcript_version }` → Claude plan, validated in Chromium, saved as `edit_plans` version; enqueues `render_preview` with `then_final` when `AUTO_RENDER` |
+| `render_preview` | `{ plan_version?, then_final? }` → 540×960, ultrafast, no grain → asset `preview_540`; with `then_final` it enqueues `render_final` |
 | `render_final`   | `{ plan_version?, watermark?: bool }` → `output_1080`, `output_720`, `thumbnail` |
 | `cleanup`        | `{ keep_outputs: bool }`                                                |
 
