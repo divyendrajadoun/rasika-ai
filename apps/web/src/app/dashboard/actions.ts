@@ -85,7 +85,11 @@ export async function createEdit(input: unknown): Promise<ActionResult> {
       project_id: w.projectId,
       user_id: user.id,
       type: "probe",
-      payload: { source_key: source.storageKey, language_hint: w.options.language },
+      payload: {
+        source_key: source.storageKey,
+        language_hint: w.options.language,
+        max_duration_sec: plan.maxSeconds,
+      },
     });
   });
   revalidatePath("/dashboard");

@@ -76,5 +76,28 @@ export async function getProject(userId: string, id: string) {
       url: await presignGet(a.storageKey, a.kind.startsWith("output") ? a.filename : undefined),
     })),
   );
-  return { project, assets: withUrls, job: job ?? null };
+  const [transcript] = await db
+    .select()
+    .from(schema.transcripts)
+    .where(eq(schema.transcripts.projectId, id))
+    .orderBy(desc(schema.transcripts.version))
+    .limit(1);
+  const [plan] = await db
+    .select({
+      id: schema.editPlans.id,
+      version: schema.editPlans.version,
+      createdBy: schema.editPlans.createdBy,
+      createdAt: schema.editPlans.createdAt,
+    })
+    .from(schema.editPlans)
+    .where(eq(schema.editPlans.projectId, id))
+    .orderBy(desc(schema.editPlans.version))
+    .limit(1);
+  return {
+    project,
+    assets: withUrls,
+    job: job ?? null,
+    transcript: transcript ?? null,
+    plan: plan ?? null,
+  };
 }

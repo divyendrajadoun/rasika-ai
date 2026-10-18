@@ -80,7 +80,8 @@ services:
       DATABASE_URL: postgresql://rasika:rasika@postgres:5432/rasika
       S3_ENDPOINT: http://rustfs:9000
       WORKER_WORK_DIR: /work
-    volumes: ["worker-work:/work"]
+      WHISPER_CACHE_DIR: /models
+    volumes: ["worker-work:/work", "whisper-models:/models"]
     depends_on:
       redis: { condition: service_healthy }
       postgres: { condition: service_healthy }
@@ -108,3 +109,4 @@ volumes:
   pg-data:
   s3-data:
   worker-work:
+  whisper-models:

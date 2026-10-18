@@ -44,3 +44,10 @@ playwright-report/
 .golden-report*.log
 .dev-engine*.png
 .next-server.log
+work/
+out/
+.work-*/
+.worker-*.log
+.web-build.log
+.project-page.png
+.dashboard.png

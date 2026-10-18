@@ -43,6 +43,8 @@ export const ASSET_KINDS = [
   "frame_bundle",
   "output_1080",
   "output_720",
+  "preview_540",
+  "keyframe",
   "thumbnail",
   "logo",
 ] as const;
@@ -131,6 +133,13 @@ export interface AssetMeta {
   codec?: string;
   crop?: { x: number; y: number; w: number; h: number };
   order?: number;
+  rotation?: number;
+  autoCrop?: boolean;
+  /** keyframes: the source time of the still */
+  t?: number;
+  /** outputs: which edit plan version was rendered, and how many parallel chunks */
+  planVersion?: number;
+  chunks?: number;
 }
 
 export const assets = pgTable(

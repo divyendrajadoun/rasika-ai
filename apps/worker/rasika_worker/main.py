@@ -1,9 +1,6 @@
-"""Worker entrypoint.
-
-Phase 0: a real Redis consumer loop with graceful shutdown, structured logs and
-a health check. Job handlers are registered in `HANDLERS`; until Phase 4 the
-only handler is `noop`, which acknowledges the message and reports 100 %.
-"""
+"""Worker entrypoint: Redis consumer loop with graceful shutdown, structured logs, a health check,
+and the stage handlers from `pipeline.py` (probe · transcribe · render_preview · render_final ·
+cleanup; `plan` is a Phase 5 stub)."""
 
 from __future__ import annotations
 
@@ -40,7 +37,7 @@ def configure_logging(level: str) -> None:
 
 
 class Publisher:
-    """Publishes progress to Redis pub/sub (Postgres persistence lands in Phase 2)."""
+    """Publishes progress to Redis pub/sub and persists it to Postgres (`jobs`, `projects`)."""
 
     def __init__(
         self, r: redis.Redis[str], job_id: str, project_id: str, store: JobStore | None = None
@@ -50,8 +47,13 @@ class Publisher:
         self._project_id = project_id
         self._store = store
         self._started = time.monotonic()
+        self._last: tuple[JobStatus, int, str] | None = None
 
     def update(self, status: JobStatus, progress: int, message: str = "", **timings: float) -> None:
+        key = (status, progress, message)
+        if key == self._last and not timings:  # the render loop polls every second
+            return
+        self._last = key
         upd = ProgressUpdate(
             job_id=self._job_id,
             status=status,
@@ -79,26 +81,30 @@ class Publisher:
 
 
 def handle_noop(job: JobMessage, pub: Publisher) -> None:
-    """Placeholder handler so the queue round-trips end-to-end in Phase 0."""
+    """Acknowledge-only handler (tests, and the Phase 0 smoke job)."""
     pub.update(JobStatus.PROBING, 10, "Looking at your video…")
-    pub.update(
-        JobStatus.DONE,
-        100,
-        "Upload received. Transcription, planning and rendering arrive in Phase 4.",
-    )
-
-
-HANDLERS: dict[JobType, Handler] = {t: handle_noop for t in JobType}
+    pub.update(JobStatus.DONE, 100, "Noop job acknowledged.")
 
 
 class Worker:
-    def __init__(self, settings: Settings) -> None:
+    def __init__(self, settings: Settings, handlers: dict[JobType, Handler] | None = None) -> None:
         self.settings = settings
         self.redis: redis.Redis[str] = redis.Redis.from_url(
             settings.redis_url, decode_responses=True
         )
         self.store = JobStore(settings.database_url)
+        self._handlers = handlers
         self._stop = False
+
+    @property
+    def handlers(self) -> dict[JobType, Handler]:
+        if self._handlers is None:
+            from rasika_worker.pipeline import (
+                Pipeline,
+            )  # heavy imports (boto3, playwright) stay lazy
+
+            self._handlers = Pipeline(self.settings, self.redis).handlers
+        return self._handlers
 
     def stop(self, *_: object) -> None:
         log.info("shutdown_requested")
@@ -111,7 +117,7 @@ class Worker:
             log.error("bad_job_message", raw=raw[:500], error=str(exc))
             return
         pub = Publisher(self.redis, job.job_id, job.project_id, self.store)
-        handler = HANDLERS[job.type]
+        handler = self.handlers[job.type]
         t0 = time.monotonic()
         try:
             handler(job, pub)
@@ -119,7 +125,9 @@ class Worker:
                 "job_done", job_id=job.job_id, type=job.type, sec=round(time.monotonic() - t0, 3)
             )
         except Exception as exc:
-            pub.fail(f"{type(exc).__name__}: {exc}")
+            user_facing = type(exc).__name__ == "PipelineError"
+            pub.fail(str(exc) if user_facing else f"{type(exc).__name__}: {exc}")
+            log.exception("job_exception", job_id=job.job_id, type=job.type)
 
     def run(self) -> None:
         s = self.settings
@@ -130,6 +138,8 @@ class Worker:
             queue=s.job_queue,
             parallelism=s.effective_parallelism,
             work_dir=str(s.work_dir),
+            engine=str(s.engine_bundle),
+            whisper=f"{s.whisper_model}/{s.whisper_device}/{s.whisper_compute_type}",
         )
         signal.signal(signal.SIGTERM, self.stop)
         signal.signal(signal.SIGINT, self.stop)

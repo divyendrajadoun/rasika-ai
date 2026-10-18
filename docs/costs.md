@@ -3,26 +3,35 @@
 Kept up to date per phase. Numbers marked _(est.)_ are estimates until the admin page
 (Phase 8) reports real averages from `jobs.timings`.
 
-## Per-reel cost drivers (90 s reel)
+## Per-reel cost drivers (SPEC §14)
 
-| Driver                              | Model / resource    | Est. per reel    | Notes                                              |
-| ----------------------------------- | ------------------- | ---------------- | -------------------------------------------------- |
-| Planner call (vision + ~20K in/8K out) | `claude-opus-5-5`  | _(est.)_ ₹25–40  | Style guide + schema + few-shot prefix cached      |
-| Transcript fixes, style-text parse  | `claude-haiku-5-5`  | _(est.)_ < ₹1    | 1–2 small calls                                    |
-| Transcription                       | faster-whisper CPU  | _(est.)_ 1–3 min | int8 large-v3; GPU optional                        |
-| Render (chunked, 8 vCPU)            | Playwright + ffmpeg | _(est.)_ < 4 min | ≈9 s compute per second of video, parallelised     |
-| Storage (30-day retention)          | R2                  | negligible       | source 100–500 MB + outputs; frames deleted post-render |
+| Driver                       | Where                      | Note                                                         |
+| ---------------------------- | -------------------------- | ------------------------------------------------------------ |
+| Planner call (Claude Opus)   | worker `plan` (Phase 5)    | vision + ~15–25K input / 5–10K output tokens _(est.)_; cache the style guide + schema + few-shot prefix |
+| Cheap Claude pass (Haiku)    | transcript suggestions     | small _(est.)_                                               |
+| Transcription compute        | worker `transcribe`        | faster-whisper large-v3, CPU int8 — see measurements         |
+| Render compute               | worker `render_final`      | the biggest one: headless Chromium frame capture + x264      |
+| Storage                      | R2                         | source + proxy + outputs for 30 days; frames never stored    |
 
-## Caching plan
+## Measured — Phase 4 (2026-10-18, dev PC: 24-thread desktop CPU, local RustFS)
 
-- Prompt caching for the style guide + JSON schema + golden few-shot: identical across jobs.
-- Proxy video + keyframes are reused across re-plans; frames are extracted only at final render.
+Baisa Bling, 90.1 s HEVC 1080×1920 source, 2 703 frames, hand-written plan (47 elements).
 
-## Measured (fill in from Phase 4)
+| Stage                                         | Seconds | Notes                                              |
+| --------------------------------------------- | ------- | -------------------------------------------------- |
+| probe + voice/16 k audio                      | 0.8     | ffprobe + two ffmpeg passes                        |
+| proxy (H.264 1080×1920, veryfast)             | 17.5    |                                                    |
+| transcribe (large-v3, CPU int8, 24 threads)   | 455     | incl. model load + en/hi verification probes; GPU → seconds |
+| frame extraction (fps=30, crop 9:16, q 3)     | 6.4     |                                                    |
+| render, 8 parallel Chromium chunks            | 125     | 21.6 frames/s aggregate; ≈ 2.7 frames/s per chunk |
+| concat + sfx + mix + mux + 720p + thumbnail   | 17      |                                                    |
 
-| Stage        | p50 | p95 | Notes |
-| ------------ | --- | --- | ----- |
-| probe        |     |     |       |
-| transcribe   |     |     |       |
-| plan         |     |     |       |
-| render_final |     |     |       |
+Rule of thumb: render time ≈ `frames / (2.7 × chunks)` seconds; with 8 vCPU a 90 s reel is
+≈ 2 min of render plus ≈ 1 min of ffmpeg work. Transcription with large-v3 on CPU int8 is ≈ 5× real-time (measured on 24 threads); `medium` halves
+it; a GPU (`WHISPER_DEVICE=cuda`, `float16`) brings it under 15 s _(est.)_.
+
+## Levers
+
+- Chunk count = min(vCPUs, ceil(duration / 12 s)); more vCPUs → near-linear speed-up up to 8.
+- JPEG capture quality 95 (final) / 80 (preview); `-preset medium` crf 20 final, `ultrafast` crf 28 preview.
+- Frames are extracted only for a render and deleted right after (SPEC §7.7).

@@ -14,6 +14,14 @@ const STAGES: Array<{ key: string; label: string; copy: string }> = [
   { key: "done", label: "Done", copy: "Your reel is ready." },
 ];
 const ORDER = STAGES.map((s) => s.key);
+/** Waiting states sit just after the stage that produced them. */
+const AFTER: Record<string, string> = {
+  awaiting_transcript_review: "transcribing",
+  awaiting_plan_review: "planning",
+  ready_preview: "rendering_preview",
+};
+const stageIndex = (status: string) =>
+  status in AFTER ? ORDER.indexOf(AFTER[status]!) + 0.5 : ORDER.indexOf(status);
 const ACTIVE = new Set([
   "uploaded",
   "probing",
@@ -31,7 +39,7 @@ export function ProgressView({
   initial: { status: string; progress: number; message: string };
 }) {
   const s = useJobEvents(projectId, initial);
-  const idx = ORDER.indexOf(s.status);
+  const idx = stageIndex(s.status);
   const failed = s.status === "failed";
   return (
     <section className="bg-card mt-8 rounded-2xl border p-6" aria-live="polite">
@@ -42,7 +50,7 @@ export function ProgressView({
         {ACTIVE.has(s.status) && <span className="poster text-ter text-3xl">{s.progress}%</span>}
       </div>
       <p className="font-accent text-muted-foreground mt-1 text-xl italic">
-        {s.message || STAGES[idx]?.copy}
+        {s.message || STAGES[Math.floor(idx)]?.copy}
       </p>
       {ACTIVE.has(s.status) && (
         <div className="bg-muted mt-4 h-2 overflow-hidden rounded-full">

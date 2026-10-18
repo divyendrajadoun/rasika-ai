@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-from rasika_worker.main import Worker
+from rasika_worker.main import Worker, handle_noop
 from rasika_worker.protocol import JobMessage, JobType
 from rasika_worker.settings import Settings
 
@@ -19,7 +19,9 @@ class FakeRedis:
 
 
 def test_process_publishes_progress_for_valid_job(tmp_path) -> None:  # type: ignore[no-untyped-def]
-    w = Worker(Settings(WORKER_WORK_DIR=str(tmp_path)))
+    w = Worker(
+        Settings(WORKER_WORK_DIR=str(tmp_path)), handlers=dict.fromkeys(JobType, handle_noop)
+    )
     fake = FakeRedis()
     w.redis = fake  # type: ignore[assignment]
     job = JobMessage(job_id="job-1", project_id="p", user_id="u", type=JobType.RENDER_FINAL)
@@ -31,7 +33,9 @@ def test_process_publishes_progress_for_valid_job(tmp_path) -> None:  # type: ig
 
 
 def test_process_drops_malformed_message(tmp_path) -> None:  # type: ignore[no-untyped-def]
-    w = Worker(Settings(WORKER_WORK_DIR=str(tmp_path)))
+    w = Worker(
+        Settings(WORKER_WORK_DIR=str(tmp_path)), handlers=dict.fromkeys(JobType, handle_noop)
+    )
     fake = FakeRedis()
     w.redis = fake  # type: ignore[assignment]
     w.process("{not json")

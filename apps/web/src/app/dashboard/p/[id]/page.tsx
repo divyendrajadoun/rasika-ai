@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { deleteProject, duplicateProject } from "@/app/dashboard/actions";
 import { fmtDuration } from "@/components/dashboard/project-card";
 import { ProgressView } from "@/components/dashboard/progress-view";
+import { TranscriptPanel } from "@/components/dashboard/transcript-panel";
 import { presetCards } from "@/config/presets";
 import { requireUser } from "@/lib/auth";
 import { getProject } from "@/lib/projects";
@@ -16,12 +17,15 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   const { id } = await params;
   const data = await getProject(user.id, id);
   if (!data) notFound();
-  const { project, assets, job } = data;
+  const { project, assets, job, transcript, plan } = data;
   const source = assets.find((a) => a.kind === "source_video");
   const images = assets
     .filter((a) => a.kind === "image")
     .sort((a, b) => (a.meta.order ?? 0) - (b.meta.order ?? 0));
   const output = assets.find((a) => a.kind === "output_1080");
+  const share = assets.find((a) => a.kind === "output_720");
+  const preview = assets.find((a) => a.kind === "preview_540");
+  const proxy = assets.find((a) => a.kind === "proxy");
   const preset =
     presetCards.find((c) => c.tokens.id === project.stylePreset)?.tokens.name ??
     project.stylePreset;
@@ -57,18 +61,61 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
           />
         )}
 
+        {transcript && <TranscriptPanel transcript={transcript} />}
+
         <section id="download" className="mt-10">
           <h2 className="poster text-3xl">Export</h2>
           {output ? (
-            <a href={output.url} className="btn-ter mt-4" download>
-              Download 1080p MP4
-            </a>
+            <div className="mt-4 space-y-4">
+              <video
+                src={output.url}
+                controls
+                playsInline
+                preload="metadata"
+                className="bg-stage aspect-[9/16] w-full max-w-xs rounded-xl"
+              />
+              <div className="flex flex-wrap gap-2">
+                <a href={output.url} className="btn-ter" download>
+                  Download 1080p MP4
+                </a>
+                {share && (
+                  <a href={share.url} className="btn-outline-gold" download>
+                    720p share copy
+                  </a>
+                )}
+              </div>
+              <p className="text-muted-foreground text-xs">
+                {(output.sizeBytes / 1024 / 1024).toFixed(1)} MB · plan v
+                {output.meta.planVersion ?? plan?.version ?? "?"} · rendered in{" "}
+                {output.meta.chunks ?? "?"} parallel chunks
+              </p>
+            </div>
+          ) : preview ? (
+            <div className="mt-4 space-y-3">
+              <video
+                src={preview.url}
+                controls
+                playsInline
+                preload="metadata"
+                className="bg-stage aspect-[9/16] w-full max-w-xs rounded-xl"
+              />
+              <p className="text-muted-foreground text-xs">
+                540p preview · the full-quality render follows.
+              </p>
+            </div>
           ) : (
             <p className="text-muted-foreground mt-2 text-sm">
-              The final MP4 appears here once rendering is built (Phase 4). The preview editor
-              arrives in Phase 6.
+              {plan
+                ? "A plan exists; the final MP4 appears here once the render finishes."
+                : "Your transcript is ready. The edit plan (Phase 5) and the final MP4 appear here after that step."}
             </p>
           )}
+          <p className="text-muted-foreground mt-3 text-xs">
+            <Link href={`/dev/engine?project=${project.id}`} className="hover:underline">
+              Open in the engine dev player
+            </Link>
+            {proxy ? " · normalised 1080p proxy ready" : ""}
+          </p>
         </section>
       </div>
 

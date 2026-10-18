@@ -19,16 +19,19 @@ live updates: Redis pub/sub channel `rasika:progress:<job_id>` → Next.js SSE r
 }
 ```
 
-`payload` per type (filled in from Phase 4 onward):
+`payload` per type:
 
-| type             | payload                                                       |
-| ---------------- | ------------------------------------------------------------- |
-| `probe`          | `{ source_key }`                                              |
-| `transcribe`     | `{ audio_key, language_hint: "auto"\|"en"\|"hi"\|"hinglish" }` |
-| `plan`           | `{ transcript_version, style, brand, images[] }`              |
-| `render_preview` | `{ plan_version }` (540×960, ultrafast, no grain)             |
-| `render_final`   | `{ plan_version, watermark: bool }`                           |
-| `cleanup`        | `{ keep_outputs: bool }`                                      |
+| type             | payload                                                                 |
+| ---------------- | ----------------------------------------------------------------------- |
+| `probe`          | `{ source_key, language_hint: "auto"\|"en"\|"hi"\|"hinglish", max_duration_sec? }` |
+| `transcribe`     | `{ source_key, language_hint }` (enqueued by `probe` with the same `job_id`) |
+| `plan`           | `{ transcript_version, style, brand, images[] }` — Phase 5 (stub until then) |
+| `render_preview` | `{ plan_version? }` → 540×960, ultrafast, no grain → asset `preview_540` |
+| `render_final`   | `{ plan_version?, watermark?: bool }` → `output_1080`, `output_720`, `thumbnail` |
+| `cleanup`        | `{ keep_outputs: bool }`                                                |
+
+One `jobs` row follows a pipeline run through its stages; the worker re-enqueues the next stage with
+the same `job_id` (and updates `jobs.type`). `plan_version` defaults to the latest `edit_plans` row.
 
 ## Progress message (`PUBLISH rasika:progress:<job_id> <json>`)
 

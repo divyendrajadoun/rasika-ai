@@ -9,3 +9,6 @@ apps/worker/
 public/
 plans/*.words.json
 packages/schema/plan.schema.json
+work/
+out/
+.work-*/

@@ -23,6 +23,8 @@ export interface HarnessConfig {
   frames: { pattern: string; count: number };
   fontBaseUrl?: string;
   grain?: boolean;
+  /** Stage scale for headless renders at other sizes (0.5 → 540×960 preview). */
+  scale?: number;
 }
 
 declare global {
@@ -62,6 +64,7 @@ export function mountHarness(cfg: HarnessConfig, root: HTMLElement = document.bo
   window.renderFrame = (t: number) => engine.renderFrame(t);
   window.__ready = engine.ready;
   window.__engine = engine;
+  if (cfg.scale && cfg.scale !== 1) engine.stage.style.transform = `scale(${cfg.scale})`;
   if (!window.__RENDER__) {
     const fit = () => {
       const s = Math.min(innerWidth / 1080, innerHeight / 1920);
