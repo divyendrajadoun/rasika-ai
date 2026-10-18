@@ -86,7 +86,18 @@ services:
       S3_ENDPOINT: http://rustfs:9000
       WORKER_WORK_DIR: /work
       WHISPER_CACHE_DIR: /models
+      # transcription on the host GPU (RTX-class: a 90 s reel in ~15 s instead of ~8 min on CPU);
+      # the worker falls back to CPU int8 if CUDA is not available in the container
+      WHISPER_DEVICE: cuda
+      WHISPER_COMPUTE_TYPE: float16
     volumes: ["worker-work:/work", "whisper-models:/models"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
     depends_on:
       redis: { condition: service_healthy }
       postgres: { condition: service_healthy }

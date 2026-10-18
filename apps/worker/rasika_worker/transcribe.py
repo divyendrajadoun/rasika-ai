@@ -138,12 +138,27 @@ class FasterWhisperTranscriber:
                 device=self.s.whisper_device,
                 compute=self.s.whisper_compute_type,
             )
-            self._model = WhisperModel(
-                self.s.whisper_model,
-                device=self.s.whisper_device,
-                compute_type=self.s.whisper_compute_type,
-                download_root=str(self.s.whisper_cache_dir) if self.s.whisper_cache_dir else None,
-            )
+            root = str(self.s.whisper_cache_dir) if self.s.whisper_cache_dir else None
+            try:
+                self._model = WhisperModel(
+                    self.s.whisper_model,
+                    device=self.s.whisper_device,
+                    compute_type=self.s.whisper_compute_type,
+                    download_root=root,
+                )
+                if self.s.whisper_device == "cuda":
+                    # a load can succeed and the first encode still fail without CUDA libs:
+                    # probe with half a second of silence so we fall back before a real job
+                    import numpy as np
+
+                    list(self._model.transcribe(np.zeros(8000, dtype=np.float32), beam_size=1)[0])
+            except Exception as exc:
+                if self.s.whisper_device == "cpu":
+                    raise
+                log.warning("whisper_gpu_unavailable", error=str(exc)[:200], fallback="cpu/int8")
+                self._model = WhisperModel(
+                    self.s.whisper_model, device="cpu", compute_type="int8", download_root=root
+                )
         return self._model
 
     @staticmethod
