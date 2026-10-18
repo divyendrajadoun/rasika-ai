@@ -172,3 +172,53 @@ the keyframes now switches poster text to ivory/gold when the speaker's wall is 
 Phase 6: the editor — live preview with the engine, timeline, properties panel, retime-to-word,
 regenerate a beat, undo/redo, style switcher, transcript review with the stored suggestions,
 render final from the editor, export page.
+
+## Follow-up (19 Oct): motion styles — every preset moves and sounds differently
+
+**The problem.** A preset was palette + fonts + caption format. Motion was the same for all of
+them (one beat structure, one worked example, one synthesised sound bank), so the 14 landing demos
+were literally one hand plan re-skinned, and a dashboard edit in "Paper Collage" was the Mikku
+edit in beige. The community looks section showed other tools' videos and linked out to GitHub.
+
+**What changed.**
+
+- `StyleTokens.motion` (`packages/schema/src/style.ts`): family · enter · exit · easing · speed ·
+  camera · sfxKit · texture · direction · avoidElements, all defaulted to the house editorial motion
+  so old plans render identically (golden stills: 0 failures).
+- Engine: per-family stage class + CSS for cards/locks/stamps and six stage textures; seven
+  typography entrances and five exits; four camera behaviours (`modes.ts`); per-family card
+  choreography (`elements.ts updateItem`); mixed-case families don't uppercase type; two new fonts
+  (Kalam for Devanagari + Latin hand, Permanent Marker). The cue sheet carries the kit.
+- Worker: `sfx.py` renders seven kits (pop · click · marker · chalk · hype · cinematic · none) —
+  eleven new generators (air, swell, click, thud, scribble, tap, chalk, drop, zap, shimmer, boom).
+  The planner receives a **Motion direction** section per style (direction text, prefer / never
+  lists, entrance / camera / kit), the system prompt explains the seven families and that the
+  direction overrides the editorial beat table; banned elements are dropped in `_normalise`;
+  shouted lines are sentence-cased for the mixed-case families.
+- Presets: the 14 existing ones each got a motion block; five new looks built from the
+  awesome-claude-video-skills list run entirely inside Rasika — **Kinetic Mono** (Apple-recap
+  kinetic type: blur in, dive out, hard cuts, clicks), **Whiteboard Marker** (draw-on, wipes,
+  marker scribbles, paper), **Chalkboard Maths** (dim-and-reveal, chalk ticks, board), **Hype
+  Cut** (slams, whip camera, zaps and drops, boxed captions), **Launch Spotlight** (slides, glide,
+  cinematic swells, vignette).
+- Web: the GitHub community section, its JSON and third-party clips are removed — no redirection.
+  The styles section shows 19 and explains the families. The wizard's style step plays the real
+  demo render of each preset on hover with family + sound chips.
+- Demos: `tools/styledemos` now renders each preset from **its own plan**, written by the real
+  planner for that style's direction (`tools/styledemos/plans/*.json`, committed).
+
+**Verified.**
+
+| check | result |
+| --- | --- |
+| schema / engine / web / worker suites | 10 · 14 · 12 · 23 passing; mypy clean; web build clean |
+| golden stills (house style) | 54 / 54 ≥ 0.92, unchanged |
+| planner obeys direction | whiteboard: equations ×2, strikeLine ×2, counters, 0 stamps / bleed plates / locks; kinetic: 27 poster lines, 0 lock / reveal / stamp; hype: 6 stamps, 4 split cards; chalk: 0 lock / stamp / punch-in |
+| 19 plans on the reference take | 35–50 elements each, 98–226 s per plan, all validated |
+| 19 demos (12 s, 540p) | 0.6–1.5 MB each, ≈ 11 s per render |
+| sound kits | all seven synthesise; `none` is silent |
+
+**Still to do.** The 19 plans share the opening beats the speech dictates (hook → "2000 years"
+counter → tease) so the first seconds of some demos rhyme; the families diverge after. A per-family
+worked example in the planner prefix would widen that further. The `/dashboard/new?style=` deep
+link and the industry hints still work for the new ids.

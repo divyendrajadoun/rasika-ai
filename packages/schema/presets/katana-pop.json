@@ -25,5 +25,26 @@
   "captionAccent": "gold",
   "endCardShape": "rounded",
   "pattern": "none",
-  "preferredElements": ["posterText", "chips", "stamp", "imageCard", "strikeLine"]
+  "preferredElements": [
+    "posterText",
+    "chips",
+    "stamp",
+    "imageCard",
+    "strikeLine"
+  ],
+  "motion": {
+    "family": "hype",
+    "enter": "slam",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 1.0,
+    "camera": "whip",
+    "sfxKit": "hype",
+    "texture": "none",
+    "direction": "Loud and fast. One or two giant words slam in on the first word; a punch-in (`zoom`) every 3–4 s on the thing being named; `stamp` verdicts on judgement words; `chips` for lists; something changes every 1.5–2.5 s. Hard cuts, no fades, no soft serif lines.",
+    "avoidElements": [
+      "filmStrip",
+      "bleedPlate"
+    ]
+  }
 }

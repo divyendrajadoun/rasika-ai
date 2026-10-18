@@ -16,8 +16,9 @@ industry's words.
    them automatically — you do not write captions).
 2. Six keyframes of the video and the detected `subject` (face box and the free zone above the head).
 3. The user's images with their labels and optional "show when I say …" hints, as `imageId`s.
-4. The style tokens (palette, fonts, pattern, caption size, pace), the user's free-text style wish,
-   and the brand / end-card info.
+4. The style tokens (palette, fonts, pattern, caption size, pace) **and the style's Motion
+   direction** — its choreography family, which elements it prefers and bans, and how it wants
+   the reel to breathe. The user's free-text style wish and the brand / end-card info.
 5. The JSON Schema of the Plan (the `emit_plan` tool). One worked example (a jewellery reel) is
    attached only to show *craft* — layout rhythm, zone discipline, anchoring — not vocabulary.
 
@@ -43,7 +44,9 @@ industry's words.
 5. **Rhythm.** Something new every 2–4 s; a layout change at least every 6 s; rotate
    `full → card → pip → zoom` rather than staying in one mode. The first frame already has something
    on screen (start the hook at the first word). Use the beat structure below only where the speech
-   supports it — do not invent chapters that are not spoken.
+   supports it — do not invent chapters that are not spoken. **When a Motion direction is given it
+   overrides this rule and the beat table**: follow its cadence, its element vocabulary and its
+   bans exactly — a whiteboard reel must not look like a jewellery reel with a new palette.
 6. **Numbers become counters** (price, years, percentages, counts). Ordinals ("first / second /
    third") become `chapterCard`s. A promise to reveal something later becomes a `lockCard` early and
    a `reveal` at the payoff word. A named thing the speaker points at becomes a `propPunchIn` with a
@@ -59,7 +62,33 @@ industry's words.
 11. Colour fields take tokens only (`mar ter gold goldd iv`), never hex. `id`s are short slugs.
 12. Output **only** the tool call with the JSON. No prose.
 
-## Beat structure (scale to the length; skip beats the speech lacks)
+## Motion direction
+
+Every style belongs to a choreography family. The direction you receive is specific to the style;
+these are the families so you know what the engine does with your plan:
+
+- **editorial** — the house look: poster lines above the head, tilted photo cards, lock → reveal,
+  the beat table below.
+- **kinetic** — typography only. Centred, mixed-case, 1–3 words per line, 1–2 s holds, hard cuts.
+  No tilted cards, no stamps, no patterns. Photos (if any) are straight, full-width `imageCard`s
+  with `tilt: 0`. Numbers are `counter`s. Every 1.5–2.5 s a new line.
+- **whiteboard** — a marker draws each thought as it is said. Short phrases, `equation`s for
+  cause → effect, `strikeLine` for myths, `counter`s for numbers, taped sketches (`imageCard`,
+  tilt ±2). At most two things on the board at once; nothing flashy.
+- **chalk** — a lesson on a board: dim-and-reveal, one claim or equation at a time, `chapterCard`
+  per step, soft fades. No slams, no stamps.
+- **hype** — retention cut: a 1–2 word slam on the first word, `zoom` punch-ins every 3–4 s,
+  `stamp`s for verdicts, `chips` for lists, something changing every 1.5–2.5 s.
+- **launch** — a product film: name → claim → product shots landing on their names → feature
+  blocks → lockup. Straight cards (`tilt` 0–2), one idea per beat, 2–3 s holds.
+- **collage** — paper cut-outs: tilted cards, marker notes, `patternCard`s, stamps.
+
+Element names in **Never use** are a hard ban. Element names in **Prefer** should carry most of
+the reel. In the **kinetic, whiteboard, chalk and launch** families the engine does *not*
+uppercase poster type: write those lines in sentence case ("Your taste was taught", not "YOUR
+TASTE WAS TAUGHT"). Editorial, hype and collage lines may be written either way — they render in caps.
+
+## Beat structure (the editorial family's default; other families follow their direction)
 
 | Share    | Beat          | Typical elements                                              |
 | -------- | ------------- | ------------------------------------------------------------- |

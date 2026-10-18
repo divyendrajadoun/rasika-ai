@@ -160,12 +160,15 @@ class Planner:
                 "text": "## This reel\n\n" + json.dumps(meta, ensure_ascii=False, indent=1),
             }
         )
+        style_tokens = {k: v for k, v in inp.style.items() if k != "motion"}
+        motion = dict(inp.style.get("motion") or {})
         parts.append(
             {
                 "type": "text",
-                "text": "## Style tokens\n\n" + json.dumps(inp.style, ensure_ascii=False),
+                "text": "## Style tokens\n\n" + json.dumps(style_tokens, ensure_ascii=False),
             }
         )
+        parts.append({"type": "text", "text": motion_brief(inp.style, motion)})
         wall = (
             "The wall behind the speaker is DARK: use `iv` / `gold` for every poster line, "
             "including in `full` and `zoom` modes, never `mar` / `ter` / `goldd`."
@@ -397,7 +400,19 @@ class Planner:
         return max(3, int(duration_sec / 8))
 
     def _normalise(self, plan: dict[str, Any], inp: PlannerInput) -> dict[str, Any]:
-        """Pin the fields the model must not change."""
+        """Pin the fields the model must not change; drop elements the style bans."""
+        motion = inp.style.get("motion") or {}
+        banned = set(motion.get("avoidElements") or [])
+        if banned and isinstance(plan.get("elements"), list):
+            kept = [e for e in plan["elements"] if e.get("type") not in banned]
+            if len(kept) != len(plan["elements"]):
+                log.info("planner_dropped_banned", n=len(plan["elements"]) - len(kept))
+            plan["elements"] = kept
+        if motion.get("family") in MIXED_CASE_FAMILIES and isinstance(plan.get("elements"), list):
+            for el in plan["elements"]:
+                for line in el.get("lines") or []:
+                    if isinstance(line, dict) and isinstance(line.get("text"), str):
+                        line["text"] = sentence_case(line["text"])
         plan["version"] = 1
         plan["meta"] = {
             "durationSec": inp.duration_sec,
@@ -423,6 +438,38 @@ class Planner:
             el["id"] = eid
             seen.add(eid)
         return plan
+
+
+MIXED_CASE_FAMILIES = {"kinetic", "whiteboard", "chalk", "launch"}
+
+
+def sentence_case(text: str) -> str:
+    """'YOUR TASTE WAS TAUGHT' → 'Your taste was taught'. Only shouted multi-word Latin lines
+    change; acronyms, single words, numbers and Devanagari are left alone."""
+    letters = [c for c in text if c.isalpha()]
+    if len(text.split()) < 2 or not letters or not all(c.isupper() for c in letters):
+        return text
+    if not all(ord(c) < 0x250 for c in letters):  # not Latin script
+        return text
+    low = text.lower()
+    return low[0].upper() + low[1:]
+
+
+def motion_brief(style: dict[str, Any], motion: dict[str, Any]) -> str:
+    """The style's choreography, as a section of the user message."""
+    family = motion.get("family") or "editorial"
+    direction = (motion.get("direction") or "").strip() or (
+        "House editorial choreography: follow the beat structure in the system prompt."
+    )
+    prefer = ", ".join(style.get("preferredElements") or []) or "any"
+    never = ", ".join(motion.get("avoidElements") or []) or "none"
+    return (
+        f"## Motion direction for this style (family: {family})\n\n"
+        + direction
+        + f"\n\n**Prefer:** {prefer}\n**Never use:** {never}\n"
+        + f"Entrance: {motion.get('enter', 'rise')} · exit: {motion.get('exit', 'lift')} · "
+        + f"camera: {motion.get('camera', 'glide')} · sound kit: {motion.get('sfxKit', 'pop')}."
+    )
 
 
 # ── validation inside Chromium (same validator + font metrics the engine uses) ──

@@ -25,5 +25,27 @@
   "captionAccent": "gold",
   "endCardShape": "arch",
   "pattern": "none",
-  "preferredElements": ["posterText", "bleedPlate", "filmStrip", "chapterCard", "propPunchIn"]
+  "preferredElements": [
+    "posterText",
+    "bleedPlate",
+    "filmStrip",
+    "chapterCard",
+    "propPunchIn"
+  ],
+  "motion": {
+    "family": "editorial",
+    "enter": "rise",
+    "exit": "lift",
+    "easing": "smooth",
+    "speed": 1.25,
+    "camera": "glide",
+    "sfxKit": "cinematic",
+    "texture": "vignette",
+    "direction": "Trailer cut. Tall Bebas lines rising slowly, letter-spaced kickers, `bleedPlate`s and a `filmStrip` for the world, `lockCard` → `reveal` for the payoff, long holds (3–4 s), deep booms. No chips, no stamps.",
+    "avoidElements": [
+      "chips",
+      "stamp",
+      "feedPhone"
+    ]
+  }
 }

@@ -25,5 +25,26 @@
   "captionAccent": "gold",
   "endCardShape": "rounded",
   "pattern": "none",
-  "preferredElements": ["posterText", "propPunchIn", "stamp", "chips", "imageCard", "reveal"]
+  "preferredElements": [
+    "posterText",
+    "propPunchIn",
+    "stamp",
+    "chips",
+    "imageCard",
+    "reveal"
+  ],
+  "motion": {
+    "family": "hype",
+    "enter": "pop",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 1.0,
+    "camera": "glide",
+    "sfxKit": "pop",
+    "texture": "none",
+    "direction": "Creator energy: big white Montserrat lines popping in, `counter`s for every number, a `lockCard` tease early and a `reveal` on the payoff, `chips` for the list, punch-ins on the verb. Something new every 2–3 s.",
+    "avoidElements": [
+      "filmStrip"
+    ]
+  }
 }

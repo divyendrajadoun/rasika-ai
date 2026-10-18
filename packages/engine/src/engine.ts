@@ -5,7 +5,14 @@
  *  - `assetMode: "video"`   browser preview, a <video> synced to t (scrubbable, real-time)
  *  - `assetMode: "frames"`  headless render, pre-extracted JPEG frames (frame-exact)
  */
-import type { ColorToken, Plan, TranscriptWord, VideoModeName } from "@rasika/schema";
+import {
+  motionOf,
+  type ColorToken,
+  type Motion,
+  type Plan,
+  type TranscriptWord,
+  type VideoModeName,
+} from "@rasika/schema";
 import { captionAt, captionWindows, type CaptionWindow } from "./captions";
 import { engineCss, fontFaceCss, fontLoadDescriptor, fontsForStyle } from "./css";
 import { div } from "./dom";
@@ -71,9 +78,12 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
   let transcript = opts.transcript;
   const fps = plan.meta.fps;
   const palette = plan.style.palette;
+  let motion: Motion = motionOf(plan.style);
+  const patternClass = () =>
+    `L rk-pattern${plan.style.pattern === "none" ? " none" : ""} tex-${motion.texture}`;
 
   // ── stage + layers ──
-  const stage = div("rk");
+  const stage = div(`rk fam-${motion.family}`);
   const style = document.createElement("style");
   const families = fontsForStyle(plan.style.fonts);
   style.textContent =
@@ -84,10 +94,11 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
       fonts: plan.style.fonts,
       captionStyle: plan.style.captionStyle,
       captionAccent: plan.style.captionAccent ?? "gold",
+      motion,
     });
   stage.appendChild(style);
 
-  const pattern = div(`L rk-pattern${plan.style.pattern === "none" ? " none" : ""}`);
+  const pattern = div(patternClass());
   const bl = div("L rk-bleed", { zIndex: "0", isolation: "isolate" });
   const vw = div("rk-vw", { zIndex: "1" });
   const fx = div("L rk-fx", { zIndex: "2" });
@@ -126,6 +137,8 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
   function build() {
     fx.replaceChildren();
     bl.replaceChildren();
+    motion = motionOf(plan.style);
+    stage.className = `rk fam-${motion.family}`;
     const p = plan.style.palette;
     C = {
       mar: p.mar,
@@ -154,7 +167,7 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
     }
     cw = plan.captions.enabled ? captionWindows(transcript, plan.style.captionStyle) : [];
     cap.style.top = `${plan.captions.y}px`;
-    pattern.className = `L rk-pattern${plan.style.pattern === "none" ? " none" : ""}`;
+    pattern.className = patternClass();
   }
   build();
 
@@ -210,13 +223,15 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
 
   async function renderFrame(t: number, o: { seek?: boolean } = {}) {
     await showFrame(t, o.seek ?? true);
-    const v = vstate(segs, t);
-    const vs = videoWrapperStyle(v, t, C.gold);
+    const v = vstate(segs, t, motion.camera);
+    const vs = videoWrapperStyle(v, t, C.gold, motion.camera);
     vw.style.transform = vs.transform;
     vw.style.borderRadius = vs.borderRadius;
     vw.style.boxShadow = vs.boxShadow;
-    pattern.style.transform = `translateY(${(-t * 14) % 60}px)`;
-    for (const it of items) updateItem(it, t);
+    // the dot pattern drifts; textures are static backdrops
+    pattern.style.transform =
+      motion.texture === "none" ? `translateY(${(-t * 14) % 60}px)` : "none";
+    for (const it of items) updateItem(it, t, motion);
     // captions
     const c = captionAt(cw, plan.captions, t);
     if (!c) {

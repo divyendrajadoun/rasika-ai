@@ -25,5 +25,28 @@
   "captionAccent": "gold",
   "endCardShape": "rounded",
   "pattern": "none",
-  "preferredElements": ["posterText", "stamp", "chips", "propPunchIn", "reveal", "counter"]
+  "preferredElements": [
+    "posterText",
+    "stamp",
+    "chips",
+    "propPunchIn",
+    "reveal",
+    "counter"
+  ],
+  "motion": {
+    "family": "hype",
+    "enter": "slam",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 1.0,
+    "camera": "whip",
+    "sfxKit": "hype",
+    "texture": "dots",
+    "direction": "Neon club cut. Slams, zaps, `stamp`s, zoom punch-ins, `chips` in neon, `counter`s racing. Fast: something every 1.5–2 s. No serif lines, no film strips.",
+    "avoidElements": [
+      "filmStrip",
+      "bleedPlate",
+      "patternCard"
+    ]
+  }
 }

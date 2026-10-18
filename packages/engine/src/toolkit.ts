@@ -17,6 +17,9 @@ export const E = {
     const c = 1.70158;
     return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2);
   }) as Easing,
+  outQuart: ((t) => 1 - Math.pow(1 - t, 4)) as Easing,
+  inOutQuint: ((t) =>
+    t < 0.5 ? 16 * t * t * t * t * t : 1 - Math.pow(-2 * t + 2, 5) / 2) as Easing,
 } as const;
 
 export const clamp = (x: number, a = 0, b = 1): number => Math.min(b, Math.max(a, x));

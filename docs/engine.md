@@ -65,16 +65,44 @@ Five formats, chosen by the style's `captionStyle`:
 Every style names real families (`style.fonts.poster / accent / ui / devanagari / caption`) from
 the bundled OFL set in `packages/engine/fonts`: Anton, Inter, Instrument Serif, Tiro Devanagari
 Hindi, Mukta, Montserrat, Bebas Neue, Playfair Display (italic), Archivo Black, Caveat, Bangers,
-Poppins, DM Serif Display. `css.ts` maps names to files, emits only the needed `@font-face`
-rules and waits for exactly those families in `engine.ready`. Poster weight/tracking adapt to the
-family (Montserrat/Poppins 800, Bebas +.03em).
+Poppins, DM Serif Display, Kalam (Latin + Devanagari hand, for the board styles) and Permanent
+Marker (Apache-2.0). `css.ts` maps names to files, emits only the needed `@font-face` rules and
+waits for exactly those families in `engine.ready`. Poster weight/tracking adapt to the family
+(Montserrat/Poppins/Inter 800, Kalam 700, Bebas +.03em); the mixed-case families (kinetic,
+whiteboard, chalk, launch) do not uppercase poster type.
+
+## Motion (`style.motion`)
+
+A preset is a look *and* a way of moving. `StyleTokens.motion` (schema `style.ts`) holds:
+
+| field           | values                                                        | engine effect |
+| --------------- | ------------------------------------------------------------- | ------------- |
+| `family`        | editorial · kinetic · whiteboard · chalk · hype · launch · collage | stage class `fam-*` (per-family CSS for cards, locks, stamps), card choreography, planner vocabulary |
+| `enter`         | rise · pop · slam · slide · fade · draw · blur                 | typography entrance (`rise` = house word-by-word for lines, pop for blocks) |
+| `exit`          | lift · dive · cut · wipe · fade                                | how typography leaves (editorial/collage cards keep the house sideways fling) |
+| `easing`        | spring · snap · smooth · soft                                  | outBack · outExpo · outCubic · outQuint |
+| `speed`         | 0.5–1.6                                                        | multiplies every entrance/exit duration |
+| `camera`        | glide · cut · whip · still                                     | mode-change duration (0.5 s / hard / 0.22 s / 0.6 s) and whether the frame breathes |
+| `sfxKit`        | pop · click · marker · chalk · hype · cinematic · none         | which synthesised palette renders the cue types (worker `sfx.py`) |
+| `texture`       | none · paper · board · grid · dots · vignette · gradient      | static backdrop behind the framed video (replaces the drifting dot pattern) |
+| `direction`     | markdown                                                       | the planner's beat structure + vocabulary for this style |
+| `avoidElements` | element types                                                  | hard ban; the planner prompt states it and `_normalise` drops them |
+
+Everything defaults to the house editorial motion, so plans written before this field existed
+render exactly as before (the golden test guards it). `motionOf(style)` fills partial blocks.
 
 ## Presets
 
-Fourteen presets live in `packages/schema/presets`: Mikku Royal (default), Katana Pop, Noir
-Minimal, Bold Creator, Creator Yellow, Editorial Ivory, Clinic Clean, Brutalist Acid, Cinema Bebas,
-Paper Collage, Neon Pop, Sage Wellness, Boardroom Navy, Festive Bandhani. The landing page shows
-each one rendered by the engine on the same real 12 s take (`tools/styledemos/make_styledemos.py`
+Nineteen presets live in `packages/schema/presets`. The original fourteen — Mikku Royal (default),
+Katana Pop, Noir Minimal, Bold Creator, Creator Yellow, Editorial Ivory, Clinic Clean, Brutalist
+Acid, Cinema Bebas, Paper Collage, Neon Pop, Sage Wellness, Boardroom Navy, Festive Bandhani — now
+each carry a motion block (hype cuts slam and whip, Noir blurs in and cuts, Ivory fades on a still
+camera, Collage wipes with marker sounds …). Five were built from the looks the open video-skills
+community shares: **Kinetic Mono** (Apple-recap kinetic type), **Whiteboard Marker** (a marker
+draws each thought), **Chalkboard Maths** (dim-and-reveal lesson), **Hype Cut** (the TikTok
+retention cut) and **Launch Spotlight** (a product launch film). The landing page and the wizard
+show each one rendered by the engine on the same real 12 s take, from a plan the real planner
+wrote for that style (`tools/styledemos/make_styledemos.py`, plans in `tools/styledemos/plans`
 → `apps/web/public/demo/styles`).
 
 ## Validation (`validatePlan`)
@@ -95,7 +123,10 @@ plate, pop on cards / chips / pop text / the locked card, ticks under counters a
 day-counter, impact on stamps, riser → impact + sub on `reveal`, riser + sub on the end card,
 `accent: "glitch" | "sub"` hints on poster text. Gains scale with `sfx.intensity`; `sfx.extra`
 is appended verbatim. On the Baisa plan this reproduces every cue of the reference `cues.json`
-within 0.11 s (unit-tested).
+within 0.11 s (unit-tested). The cue sheet carries `kit` (= `style.motion.sfxKit`); the worker's
+`sfx.py` maps each cue type to that kit's generator and gain — the same `pop` cue is a pitched pop
+in the house kit, a sine click in `click`, a scribble in `marker`, a chalk tick in `chalk`, a
+bright pop in `hype` and a breath of air in `cinematic`. `none` renders silence.
 
 ## Headless contract
 

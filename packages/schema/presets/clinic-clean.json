@@ -25,5 +25,28 @@
   "captionAccent": "ter",
   "endCardShape": "rounded",
   "pattern": "none",
-  "preferredElements": ["posterText", "counter", "chapterCard", "equation", "imageCard"]
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chapterCard",
+    "equation",
+    "imageCard"
+  ],
+  "motion": {
+    "family": "launch",
+    "enter": "slide",
+    "exit": "fade",
+    "easing": "smooth",
+    "speed": 1.0,
+    "camera": "glide",
+    "sfxKit": "click",
+    "texture": "none",
+    "direction": "Clinical clarity. Short mixed-case lines slide in from the left, `chapterCard`s for the steps, `equation`s for cause → effect, `counter`s for doses and days, straight image cards. One idea per beat, 2–3 s holds, calm camera.",
+    "avoidElements": [
+      "stamp",
+      "filmStrip",
+      "patternCard",
+      "feedPhone"
+    ]
+  }
 }

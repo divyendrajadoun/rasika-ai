@@ -25,5 +25,28 @@
   "captionAccent": "ter",
   "endCardShape": "square",
   "pattern": "none",
-  "preferredElements": ["posterText", "counter", "stamp", "chips", "strikeLine", "reveal"]
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "stamp",
+    "chips",
+    "strikeLine",
+    "reveal"
+  ],
+  "motion": {
+    "family": "hype",
+    "enter": "slam",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 1.0,
+    "camera": "cut",
+    "sfxKit": "hype",
+    "texture": "grid",
+    "direction": "Brutalist. Acid-green slams on a grid, hard cuts, `stamp`s, `strikeLine` through the myth, `chips` as a stack, counters that count hard. No serif, no soft fades, no tilted photos (tilt 0).",
+    "avoidElements": [
+      "filmStrip",
+      "bleedPlate",
+      "patternCard"
+    ]
+  }
 }

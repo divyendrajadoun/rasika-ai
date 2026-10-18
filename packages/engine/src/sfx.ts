@@ -3,12 +3,14 @@
  * scaled by `plan.sfx.intensity`, plus the planner's `extra` cues. Output matches the
  * reference cues.json consumed by the worker's sfx mixer.
  */
-import type { Plan, SfxCue } from "@rasika/schema";
+import { motionOf, type Plan, type SfxCue, type SfxKit } from "@rasika/schema";
 
 export interface CueSheet {
   duration: number;
   bpm: 0;
   bed_gain: 0;
+  /** which synthesised palette the worker renders the cues with (style.motion.sfxKit) */
+  kit: SfxKit;
   cues: SfxCue[];
 }
 
@@ -16,7 +18,8 @@ const r2 = (n: number) => Math.round(n * 100) / 100;
 
 export function deriveSfx(plan: Plan): CueSheet {
   const cues: SfxCue[] = [];
-  const k = plan.sfx.intensity <= 0 ? 0 : 0.4 + 0.6 * plan.sfx.intensity;
+  const kit = motionOf(plan.style).sfxKit;
+  const k = plan.sfx.intensity <= 0 || kit === "none" ? 0 : 0.4 + 0.6 * plan.sfx.intensity;
   const push = (c: Omit<SfxCue, "gain"> & { gain: number }) => {
     if (k <= 0) return;
     // dedupe: same type within 0.1 s
@@ -88,6 +91,7 @@ export function deriveSfx(plan: Plan): CueSheet {
     duration: plan.meta.durationSec,
     bpm: 0,
     bed_gain: 0,
+    kit,
     cues: cues.filter((c) => c.t >= 0),
   };
 }

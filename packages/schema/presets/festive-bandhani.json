@@ -25,5 +25,24 @@
   "captionAccent": "gold",
   "endCardShape": "arch",
   "pattern": "bandhani",
-  "preferredElements": ["posterText", "imageCard", "splitCards", "bleedPlate", "reveal", "stamp"]
+  "preferredElements": [
+    "posterText",
+    "imageCard",
+    "splitCards",
+    "bleedPlate",
+    "reveal",
+    "stamp"
+  ],
+  "motion": {
+    "family": "editorial",
+    "enter": "pop",
+    "exit": "lift",
+    "easing": "spring",
+    "speed": 1.0,
+    "camera": "glide",
+    "sfxKit": "pop",
+    "texture": "none",
+    "direction": "Festive editorial. Popping poster lines, bandhani `patternCard`s, `bleedPlate`s of the festival, `splitCards` on the first noun, a `reveal` with a burst at the payoff, chips for offers. Full beat table.",
+    "avoidElements": []
+  }
 }

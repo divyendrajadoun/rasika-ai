@@ -1,0 +1,1153 @@
+{
+ "version": 1,
+ "meta": {
+  "durationSec": 90.1,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "language": "en"
+ },
+ "style": {
+  "id": "paper-collage",
+  "name": "Paper Collage",
+  "tagline": "Kraft paper, marker type, red tape. The Vox-style explainer feel.",
+  "palette": {
+   "stage": "#e8dcc3",
+   "mar": "#2b2520",
+   "ter": "#d7263d",
+   "gold": "#2b2520",
+   "goldd": "#8c4a1f",
+   "iv": "#fbf6ec",
+   "ink": "#2b2520"
+  },
+  "fonts": {
+   "poster": "Archivo Black",
+   "accent": "Caveat",
+   "ui": "Inter",
+   "devanagari": "Tiro Devanagari Hindi",
+   "caption": "Inter"
+  },
+  "grain": 0.1,
+  "pace": 0.55,
+  "captionStyle": "box",
+  "captionAccent": "ter",
+  "captionSize": 70,
+  "endCardShape": "square",
+  "pattern": "none",
+  "preferredElements": [
+   "posterText",
+   "imageCard",
+   "splitCards",
+   "chips",
+   "equation",
+   "patternCard"
+  ],
+  "motion": {
+   "family": "collage",
+   "enter": "pop",
+   "exit": "wipe",
+   "easing": "spring",
+   "speed": 1,
+   "camera": "still",
+   "sfxKit": "marker",
+   "texture": "paper",
+   "direction": "Paper collage explainer. Taped photo cards (tilt ±4–8), marker notes in the accent hand, `patternCard`s as coloured paper, `equation`s and `strikeLine`s drawn like a Vox explainer, `chips` as labels. Ideas wipe away between beats. No film strips, no feed phone.",
+   "avoidElements": [
+    "filmStrip",
+    "feedPhone",
+    "bleedPlate"
+   ]
+  }
+ },
+ "subject": {
+  "faceBox": {
+   "x": 145,
+   "y": 626,
+   "w": 622,
+   "h": 753
+  },
+  "freeZone": {
+   "x": 0,
+   "y": 150,
+   "w": 1080,
+   "h": 436
+  },
+  "prop": {
+   "label": "prop",
+   "point": {
+    "x": 424,
+    "y": 1491
+   }
+  }
+ },
+ "videoModes": [
+  {
+   "t": 0,
+   "mode": "full"
+  },
+  {
+   "t": 8.85,
+   "mode": "card"
+  },
+  {
+   "t": 12.2,
+   "mode": "full"
+  },
+  {
+   "t": 16.72,
+   "mode": "card"
+  },
+  {
+   "t": 23.62,
+   "mode": "full"
+  },
+  {
+   "t": 29.3,
+   "mode": "card"
+  },
+  {
+   "t": 31.55,
+   "mode": "full"
+  },
+  {
+   "t": 37.95,
+   "mode": "pip"
+  },
+  {
+   "t": 41,
+   "mode": "full"
+  },
+  {
+   "t": 43.3,
+   "mode": "card"
+  },
+  {
+   "t": 45.95,
+   "mode": "full"
+  },
+  {
+   "t": 51.3,
+   "mode": "pip"
+  },
+  {
+   "t": 54.62,
+   "mode": "card"
+  },
+  {
+   "t": 57.3,
+   "mode": "full"
+  },
+  {
+   "t": 61.65,
+   "mode": "pip"
+  },
+  {
+   "t": 67.45,
+   "mode": "card"
+  },
+  {
+   "t": 72.2,
+   "mode": "pip"
+  },
+  {
+   "t": 74.9,
+   "mode": "card"
+  },
+  {
+   "t": 77.4,
+   "mode": "full"
+  },
+  {
+   "t": 80.55,
+   "mode": "pip"
+  },
+  {
+   "t": 84.7,
+   "mode": "full"
+  },
+  {
+   "t": 87.55,
+   "mode": "arch"
+  }
+ ],
+ "captions": {
+  "enabled": true,
+  "y": 1400,
+  "gold": [
+   "taste",
+   "jewellery",
+   "why",
+   "pretty",
+   "love",
+   "beauty",
+   "feel",
+   "familiar",
+   "exposure",
+   "have",
+   "name",
+   "excitement",
+   "ras",
+   "rasika"
+  ],
+  "accent": [
+   "2000",
+   "india",
+   "choker",
+   "feed",
+   "month",
+   "need",
+   "first",
+   "second",
+   "third",
+   "shape",
+   "weight",
+   "gold",
+   "silver",
+   "jaali",
+   "polki",
+   "algorithm",
+   "miniature",
+   "temple",
+   "amrapali",
+   "jaipur",
+   "hindi",
+   "jhumkas",
+   "payal",
+   "baisa",
+   "bling",
+   "rajasthan",
+   "palaces",
+   "paintings",
+   "crafts",
+   "buying"
+  ]
+ },
+ "elements": [
+  {
+   "id": "hook",
+   "t0": 0.22,
+   "t1": 2.8,
+   "anchorWordIndex": 0,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "HOW DO YOU KNOW",
+     "font": "anton",
+     "size": 84,
+     "color": "mar"
+    },
+    {
+     "text": "YOUR TASTE",
+     "font": "anton",
+     "size": 160,
+     "color": "ter"
+    },
+    {
+     "text": "in jewellery?",
+     "font": "serif",
+     "size": 100,
+     "color": "goldd"
+    }
+   ],
+   "top": 180,
+   "anim": "rise"
+  },
+  {
+   "id": "hook-cards",
+   "t0": 1.6,
+   "t1": 2.8,
+   "anchorWordIndex": 8,
+   "type": "splitCards",
+   "cards": [
+    {
+     "imageId": "i1",
+     "label": "",
+     "x": 40,
+     "y": 1500,
+     "w": 300,
+     "h": 380,
+     "tilt": -7,
+     "objectPosition": "50% 30%"
+    },
+    {
+     "imageId": "i2",
+     "label": "",
+     "x": 740,
+     "y": 1490,
+     "w": 300,
+     "h": 380,
+     "tilt": 6,
+     "objectPosition": "50% 35%"
+    }
+   ],
+   "stagger": 0.15
+  },
+  {
+   "id": "years",
+   "t0": 2.84,
+   "t1": 5.9,
+   "anchorWordIndex": 11,
+   "type": "counter",
+   "from": 0,
+   "to": 2000,
+   "label": "years ago",
+   "top": 190,
+   "size": 220,
+   "duration": 1,
+   "color": "ter"
+  },
+  {
+   "id": "india",
+   "t0": 3.9,
+   "t1": 5.9,
+   "anchorWordIndex": 14,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "India had a word for it",
+     "font": "serif",
+     "size": 80,
+     "color": "goldd"
+    }
+   ],
+   "top": 500,
+   "anim": "pop"
+  },
+  {
+   "id": "lock",
+   "t0": 6.06,
+   "t1": 8.85,
+   "anchorWordIndex": 23,
+   "type": "lockCard",
+   "word": "RASIKA",
+   "kicker": "THE WORD",
+   "sub": "REVEALED AT THE END",
+   "blurred": true,
+   "dark": false
+  },
+  {
+   "id": "not-ours",
+   "t0": 8.92,
+   "t1": 12.2,
+   "anchorWordIndex": 34,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "MOST OF OUR TASTE",
+     "font": "anton",
+     "size": 90,
+     "color": "gold"
+    },
+    {
+     "text": "ISN'T OURS",
+     "font": "anton",
+     "size": 184,
+     "color": "gold"
+    }
+   ],
+   "top": 200,
+   "anim": "rise",
+   "accent": "glitch"
+  },
+  {
+   "id": "card-choker",
+   "t0": 12.84,
+   "t1": 16.7,
+   "anchorWordIndex": 44,
+   "type": "imageCard",
+   "imageId": "choker",
+   "label": "THE SAME CHOKER",
+   "x": 590,
+   "y": 170,
+   "w": 440,
+   "h": 430,
+   "tilt": 6,
+   "objectPosition": "50% 55%"
+  },
+  {
+   "id": "on-feed",
+   "t0": 13.76,
+   "t1": 16.1,
+   "anchorWordIndex": 48,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "IT'S ON YOUR FEED",
+     "font": "anton",
+     "size": 55,
+     "color": "mar"
+    },
+    {
+     "text": "for a month",
+     "font": "serif",
+     "size": 100,
+     "color": "ter"
+    }
+   ],
+   "top": 220,
+   "anim": "pop",
+   "left": 50,
+   "w": 520,
+   "align": "left"
+  },
+  {
+   "id": "stamp",
+   "t0": 16.17,
+   "t1": 16.7,
+   "anchorWordIndex": 58,
+   "type": "stamp",
+   "text": "YOU NEED IT"
+  },
+  {
+   "id": "mere",
+   "t0": 16.82,
+   "t1": 19.75,
+   "anchorWordIndex": 60,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "PSYCHOLOGISTS CALL THIS",
+     "font": "kicker",
+     "size": 30,
+     "color": "gold",
+     "tracking": 0.3
+    },
+    {
+     "text": "THE MERE",
+     "font": "anton",
+     "size": 120,
+     "color": "gold"
+    },
+    {
+     "text": "EXPOSURE EFFECT",
+     "font": "anton",
+     "size": 108,
+     "color": "gold"
+    }
+   ],
+   "top": 200,
+   "anim": "rise"
+  },
+  {
+   "id": "seen-more",
+   "t0": 19.8,
+   "t1": 23.6,
+   "anchorWordIndex": 67,
+   "type": "equation",
+   "left": "SEEN MORE",
+   "right": "liked more",
+   "top": 220,
+   "leftSize": 140,
+   "rightSize": 130,
+   "leftColor": "gold",
+   "rightColor": "ter"
+  },
+  {
+   "id": "familiar",
+   "t0": 22.8,
+   "t1": 23.6,
+   "anchorWordIndex": 82,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "IT JUST FEELS FAMILIAR",
+     "font": "kicker",
+     "size": 34,
+     "color": "gold",
+     "tracking": 0.25
+    }
+   ],
+   "top": 560,
+   "anim": "pop"
+  },
+  {
+   "id": "real-taste",
+   "t0": 23.72,
+   "t1": 26.6,
+   "anchorWordIndex": 84,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "REAL TASTE IS",
+     "font": "anton",
+     "size": 90,
+     "color": "mar"
+    },
+    {
+     "text": "knowing",
+     "font": "serif",
+     "size": 110,
+     "color": "goldd"
+    },
+    {
+     "text": "WHY",
+     "font": "anton",
+     "size": 180,
+     "color": "ter"
+    }
+   ],
+   "top": 170,
+   "anim": "rise"
+  },
+  {
+   "id": "find-it",
+   "t0": 26.6,
+   "t1": 29.14,
+   "anchorWordIndex": 94,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "FIND IT WITHOUT",
+     "font": "anton",
+     "size": 90,
+     "color": "mar"
+    },
+    {
+     "text": "BUYING",
+     "font": "anton",
+     "size": 150,
+     "color": "ter"
+    },
+    {
+     "text": "a single thing",
+     "font": "serif",
+     "size": 100,
+     "color": "goldd"
+    }
+   ],
+   "top": 190,
+   "anim": "rise"
+  },
+  {
+   "id": "chap-1",
+   "t0": 29.4,
+   "t1": 31.55,
+   "anchorWordIndex": 102,
+   "type": "chapterCard",
+   "number": "01",
+   "line": "DON'T STOP AT",
+   "italicLine": "pretty"
+  },
+  {
+   "id": "what-exactly",
+   "t0": 31.76,
+   "t1": 34.2,
+   "anchorWordIndex": 107,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "ASK YOURSELF",
+     "font": "anton",
+     "size": 110,
+     "color": "mar"
+    },
+    {
+     "text": "what exactly you love",
+     "font": "serif",
+     "size": 110,
+     "color": "ter"
+    }
+   ],
+   "top": 220,
+   "anim": "rise"
+  },
+  {
+   "id": "chips",
+   "t0": 34.22,
+   "t1": 39.45,
+   "anchorWordIndex": 113,
+   "type": "chips",
+   "items": [
+    {
+     "text": "SHAPE",
+     "at": 0.34,
+     "bg": "mar",
+     "color": "iv"
+    },
+    {
+     "text": "WEIGHT",
+     "at": 1.14,
+     "bg": "ter",
+     "color": "iv"
+    }
+   ],
+   "x": 60,
+   "y": 230,
+   "size": 72
+  },
+  {
+   "id": "card-gold",
+   "t0": 35.96,
+   "t1": 36.8,
+   "anchorWordIndex": 117,
+   "type": "imageCard",
+   "imageId": "i4",
+   "label": "WARM GOLD",
+   "x": 590,
+   "y": 180,
+   "w": 430,
+   "h": 430,
+   "tilt": 6,
+   "objectPosition": "50% 35%"
+  },
+  {
+   "id": "card-silver",
+   "t0": 36.8,
+   "t1": 38,
+   "anchorWordIndex": 120,
+   "type": "imageCard",
+   "imageId": "i3",
+   "label": "OXIDISED SILVER",
+   "x": 580,
+   "y": 175,
+   "w": 440,
+   "h": 440,
+   "tilt": -5,
+   "objectPosition": "50% 60%"
+  },
+  {
+   "id": "card-jaali",
+   "t0": 38,
+   "t1": 39.52,
+   "anchorWordIndex": 123,
+   "type": "patternCard",
+   "pattern": "jaali",
+   "label": "JAALI WORK",
+   "x": 590,
+   "y": 180,
+   "w": 430,
+   "h": 430,
+   "tilt": 5
+  },
+  {
+   "id": "card-polki",
+   "t0": 39.52,
+   "t1": 41,
+   "anchorWordIndex": 130,
+   "type": "imageCard",
+   "imageId": "i1",
+   "label": "THE GLOW OF POLKI",
+   "x": 60,
+   "y": 180,
+   "w": 440,
+   "h": 440,
+   "tilt": -5,
+   "objectPosition": "50% 22%"
+  },
+  {
+   "id": "name-it",
+   "t0": 41.08,
+   "t1": 43.3,
+   "anchorWordIndex": 136,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "NAME IT",
+     "font": "anton",
+     "size": 180,
+     "color": "mar"
+    },
+    {
+     "text": "to find it",
+     "font": "serif",
+     "size": 120,
+     "color": "ter"
+    }
+   ],
+   "top": 220,
+   "anim": "rise"
+  },
+  {
+   "id": "chap-2",
+   "t0": 43.38,
+   "t1": 45.95,
+   "anchorWordIndex": 145,
+   "type": "chapterCard",
+   "number": "02",
+   "line": "LOOK WHERE YOUR ALGORITHM",
+   "italicLine": "never will"
+  },
+  {
+   "id": "card-miniature",
+   "t0": 46.02,
+   "t1": 47.42,
+   "anchorWordIndex": 152,
+   "type": "imageCard",
+   "imageId": "i6",
+   "label": "OLD MINIATURE PAINTINGS",
+   "x": 580,
+   "y": 180,
+   "w": 440,
+   "h": 400,
+   "tilt": 5,
+   "objectPosition": "40% 40%"
+  },
+  {
+   "id": "card-temple",
+   "t0": 47.42,
+   "t1": 49.84,
+   "anchorWordIndex": 155,
+   "type": "patternCard",
+   "pattern": "arches",
+   "label": "WOMEN ON TEMPLE WALLS",
+   "x": 50,
+   "y": 180,
+   "w": 440,
+   "h": 420,
+   "tilt": -5
+  },
+  {
+   "id": "card-amrapali",
+   "t0": 49.84,
+   "t1": 51.37,
+   "anchorWordIndex": 162,
+   "type": "imageCard",
+   "imageId": "i9",
+   "label": "AMRAPALI MUSEUM, JAIPUR",
+   "x": 580,
+   "y": 180,
+   "w": 450,
+   "h": 400,
+   "tilt": -4,
+   "objectPosition": "45% 50%"
+  },
+  {
+   "id": "card-film",
+   "t0": 51.53,
+   "t1": 54.62,
+   "anchorWordIndex": 167,
+   "type": "imageCard",
+   "imageId": "i2",
+   "label": "OLD HINDI FILMS",
+   "x": 60,
+   "y": 180,
+   "w": 440,
+   "h": 600,
+   "tilt": -6,
+   "objectPosition": "50% 30%"
+  },
+  {
+   "id": "watch",
+   "t0": 52.97,
+   "t1": 54.62,
+   "anchorWordIndex": 173,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "WATCH JUST",
+     "font": "anton",
+     "size": 79,
+     "color": "iv"
+    },
+    {
+     "text": "the jewellery",
+     "font": "serif",
+     "size": 93,
+     "color": "gold"
+    }
+   ],
+   "top": 260,
+   "anim": "pop",
+   "left": 560,
+   "w": 480,
+   "align": "left"
+  },
+  {
+   "id": "chap-3",
+   "t0": 54.71,
+   "t1": 57.3,
+   "anchorWordIndex": 177,
+   "type": "chapterCard",
+   "number": "03",
+   "line": "PLAY WITH WHAT",
+   "italicLine": "you already have"
+  },
+  {
+   "id": "card-shirt",
+   "t0": 57.4,
+   "t1": 59.55,
+   "anchorWordIndex": 185,
+   "type": "imageCard",
+   "imageId": "i5",
+   "label": "+ A PLAIN SHIRT",
+   "x": 580,
+   "y": 175,
+   "w": 440,
+   "h": 440,
+   "tilt": 5,
+   "objectPosition": "50% 30%"
+  },
+  {
+   "id": "jhumkas",
+   "t0": 57.73,
+   "t1": 59.55,
+   "anchorWordIndex": 186,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "mum's",
+     "font": "serif",
+     "size": 96,
+     "color": "goldd",
+     "lineHeight": 1
+    },
+    {
+     "text": "JHUMKAS",
+     "font": "anton",
+     "size": 104,
+     "color": "mar",
+     "lineHeight": 1
+    }
+   ],
+   "top": 240,
+   "anim": "pop",
+   "left": 60,
+   "w": 500,
+   "align": "left"
+  },
+  {
+   "id": "card-payal",
+   "t0": 59.6,
+   "t1": 60.4,
+   "anchorWordIndex": 193,
+   "type": "imageCard",
+   "imageId": "i4",
+   "label": "NANI'S PAYAL",
+   "x": 60,
+   "y": 180,
+   "w": 440,
+   "h": 430,
+   "tilt": -6,
+   "objectPosition": "50% 40%"
+  },
+  {
+   "id": "silver-gold",
+   "t0": 60.4,
+   "t1": 61.65,
+   "anchorWordIndex": 195,
+   "type": "splitCards",
+   "cards": [
+    {
+     "imageId": "i3",
+     "label": "SILVER",
+     "x": 40,
+     "y": 190,
+     "w": 450,
+     "h": 420,
+     "tilt": -5,
+     "objectPosition": "50% 62%"
+    },
+    {
+     "imageId": "i4",
+     "label": "+ GOLD",
+     "x": 580,
+     "y": 190,
+     "w": 450,
+     "h": 420,
+     "tilt": 5,
+     "objectPosition": "50% 35%"
+    }
+   ],
+   "stagger": 0.6
+  },
+  {
+   "id": "notice",
+   "t0": 61.72,
+   "t1": 66.1,
+   "anchorWordIndex": 199,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "NOTICE WHAT",
+     "font": "anton",
+     "size": 100,
+     "color": "gold"
+    },
+    {
+     "text": "YOU KEEP",
+     "font": "anton",
+     "size": 100,
+     "color": "gold"
+    },
+    {
+     "text": "reaching for",
+     "font": "serif",
+     "size": 120,
+     "color": "gold"
+    }
+   ],
+   "top": 200,
+   "anim": "rise"
+  },
+  {
+   "id": "thats-taste",
+   "t0": 66.17,
+   "t1": 67.45,
+   "anchorWordIndex": 210,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "THAT'S YOUR",
+     "font": "anton",
+     "size": 100,
+     "color": "gold"
+    },
+    {
+     "text": "TASTE",
+     "font": "anton",
+     "size": 220,
+     "color": "gold"
+    }
+   ],
+   "top": 220,
+   "anim": "pop"
+  },
+  {
+   "id": "unlock",
+   "t0": 67.56,
+   "t1": 68.99,
+   "anchorWordIndex": 214,
+   "type": "lockCard",
+   "word": "RASIKA",
+   "kicker": "THE WORD",
+   "sub": "2000 YEARS OLD",
+   "blurred": true,
+   "dark": true
+  },
+  {
+   "id": "ras",
+   "t0": 68.99,
+   "t1": 69.66,
+   "anchorWordIndex": 218,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "रस",
+     "font": "devanagari",
+     "size": 170,
+     "color": "gold",
+     "lineHeight": 1.2
+    },
+    {
+     "text": "RAS",
+     "font": "anton",
+     "size": 90,
+     "color": "gold",
+     "lineHeight": 1.4
+    }
+   ],
+   "top": 220,
+   "anim": "pop"
+  },
+  {
+   "id": "someone",
+   "t0": 69.66,
+   "t1": 72.28,
+   "anchorWordIndex": 219,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "SOMEONE WHO COULD",
+     "font": "anton",
+     "size": 86,
+     "color": "gold"
+    },
+    {
+     "text": "truly feel",
+     "font": "serif",
+     "size": 110,
+     "color": "gold"
+    },
+    {
+     "text": "BEAUTY",
+     "font": "anton",
+     "size": 140,
+     "color": "gold"
+    }
+   ],
+   "top": 200,
+   "anim": "rise"
+  },
+  {
+   "id": "not-just",
+   "t0": 72.28,
+   "t1": 74.9,
+   "anchorWordIndex": 225,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "FEEL IT",
+     "font": "anton",
+     "size": 150,
+     "color": "gold"
+    },
+    {
+     "text": "not just see it",
+     "font": "serif",
+     "size": 120,
+     "color": "gold"
+    }
+   ],
+   "top": 240,
+   "anim": "rise"
+  },
+  {
+   "id": "reveal",
+   "t0": 74.98,
+   "t1": 77.4,
+   "anchorWordIndex": 232,
+   "type": "reveal",
+   "word": "RASIKA",
+   "devanagari": "रसिक",
+   "definition": "one who can truly feel beauty",
+   "top": 170,
+   "burst": {
+    "seed": 7,
+    "count": 46,
+    "cx": 540,
+    "cy": 330
+   }
+  },
+  {
+   "id": "brand",
+   "t0": 77.49,
+   "t1": 80.55,
+   "anchorWordIndex": 240,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "THAT'S WHAT WE DO AT",
+     "font": "kicker",
+     "size": 30,
+     "color": "mar",
+     "tracking": 0.28
+    },
+    {
+     "text": "Baisa Bling",
+     "font": "serif",
+     "size": 180,
+     "color": "ter"
+    }
+   ],
+   "top": 200,
+   "anim": "rise",
+   "accent": "sub"
+  },
+  {
+   "id": "strike",
+   "t0": 78.3,
+   "t1": 80.55,
+   "anchorWordIndex": 243,
+   "type": "strikeLine",
+   "text": "WHAT'S TRENDING ON THE FEED",
+   "top": 500,
+   "size": 56,
+   "strikeAt": 1.4,
+   "strikeDur": 0.5,
+   "strikeWidth": 820,
+   "color": "ter"
+  },
+  {
+   "id": "card-rajasthan",
+   "t0": 80.9,
+   "t1": 82.3,
+   "anchorWordIndex": 253,
+   "type": "imageCard",
+   "imageId": "i8",
+   "label": "WE LOOK AT RAJASTHAN",
+   "x": 60,
+   "y": 180,
+   "w": 460,
+   "h": 560,
+   "tilt": -5,
+   "objectPosition": "50% 40%"
+  },
+  {
+   "id": "card-palaces",
+   "t0": 82.3,
+   "t1": 83.36,
+   "anchorWordIndex": 257,
+   "type": "imageCard",
+   "imageId": "i7",
+   "label": "PALACES",
+   "x": 570,
+   "y": 180,
+   "w": 460,
+   "h": 560,
+   "tilt": 6,
+   "objectPosition": "50% 35%"
+  },
+  {
+   "id": "card-paintings",
+   "t0": 83.36,
+   "t1": 84.02,
+   "anchorWordIndex": 259,
+   "type": "imageCard",
+   "imageId": "i6",
+   "label": "PAINTINGS",
+   "x": 60,
+   "y": 190,
+   "w": 460,
+   "h": 460,
+   "tilt": -4,
+   "objectPosition": "40% 40%"
+  },
+  {
+   "id": "card-crafts",
+   "t0": 84.02,
+   "t1": 84.74,
+   "anchorWordIndex": 261,
+   "type": "imageCard",
+   "imageId": "i3",
+   "label": "CRAFTS",
+   "x": 570,
+   "y": 190,
+   "w": 460,
+   "h": 520,
+   "tilt": 5,
+   "objectPosition": "50% 60%"
+  },
+  {
+   "id": "bring",
+   "t0": 84.74,
+   "t1": 87.55,
+   "anchorWordIndex": 263,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "BRING THAT RAS INTO",
+     "font": "anton",
+     "size": 80,
+     "color": "mar"
+    },
+    {
+     "text": "JEWELLERY",
+     "font": "anton",
+     "size": 160,
+     "color": "ter"
+    },
+    {
+     "text": "you wear every day",
+     "font": "serif",
+     "size": 96,
+     "color": "goldd"
+    }
+   ],
+   "top": 190,
+   "anim": "rise"
+  }
+ ],
+ "sfx": {
+  "auto": true,
+  "intensity": 0.8,
+  "extra": []
+ },
+ "endCard": {
+  "brand": "BAISA BLING",
+  "line1": "a little bit of Rajasthan,",
+  "line2": "a little bit of you.",
+  "handle": "@baisabling",
+  "bgImageId": "i7",
+  "t0": 87.55
+ }
+}

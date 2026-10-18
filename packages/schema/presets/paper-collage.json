@@ -25,5 +25,28 @@
   "captionAccent": "ter",
   "endCardShape": "square",
   "pattern": "none",
-  "preferredElements": ["posterText", "imageCard", "splitCards", "chips", "equation", "patternCard"]
+  "preferredElements": [
+    "posterText",
+    "imageCard",
+    "splitCards",
+    "chips",
+    "equation",
+    "patternCard"
+  ],
+  "motion": {
+    "family": "collage",
+    "enter": "pop",
+    "exit": "wipe",
+    "easing": "spring",
+    "speed": 1.0,
+    "camera": "still",
+    "sfxKit": "marker",
+    "texture": "paper",
+    "direction": "Paper collage explainer. Taped photo cards (tilt ±4–8), marker notes in the accent hand, `patternCard`s as coloured paper, `equation`s and `strikeLine`s drawn like a Vox explainer, `chips` as labels. Ideas wipe away between beats. No film strips, no feed phone.",
+    "avoidElements": [
+      "filmStrip",
+      "feedPhone",
+      "bleedPlate"
+    ]
+  }
 }

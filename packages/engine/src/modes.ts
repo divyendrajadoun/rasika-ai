@@ -2,8 +2,8 @@
  * Video modes — `M` / `SEG` / `vstate` from the reference composition.
  * full | zoom | card | pip | arch. 0.5 s outExpo between modes, 0.6 s inOutCubic into/out of zoom.
  */
-import type { VideoMode, VideoModeName } from "@rasika/schema";
-import { E, lerp, prog } from "./toolkit";
+import type { CameraKind, VideoMode, VideoModeName } from "@rasika/schema";
+import { E, lerp, prog, type Easing } from "./toolkit";
 
 export interface ModeState {
   s: number;
@@ -56,15 +56,34 @@ export function modeAt(segs: readonly Segment[], t: number): VideoModeName {
   return m;
 }
 
+/** How long a mode change takes per camera style (zoom moves are a touch slower). */
+export function cameraMove(camera: CameraKind, zoom: boolean): { dur: number; ease: Easing } {
+  switch (camera) {
+    case "cut":
+      return { dur: 0.034, ease: E.linear };
+    case "whip":
+      return { dur: zoom ? 0.3 : 0.22, ease: E.inOutQuint };
+    case "still":
+      return { dur: zoom ? 0.7 : 0.6, ease: E.inOutCubic };
+    default:
+      return { dur: zoom ? 0.6 : 0.5, ease: zoom ? E.inOutCubic : E.outExpo };
+  }
+}
+
 /** Interpolated video transform at time t (identical maths to the reference `vstate`). */
-export function vstate(segs: readonly Segment[], t: number): ModeState {
+export function vstate(
+  segs: readonly Segment[],
+  t: number,
+  camera: CameraKind = "glide",
+): ModeState {
   let i = 0;
   for (let k = 0; k < segs.length; k++) if (t >= segs[k]!.t) i = k;
   const cur = segs[i]!;
   if (i === 0) return { ...cur.state };
   const prev = segs[i - 1]!;
   const z = cur.mode === "zoom" || prev.mode === "zoom";
-  const p = prog(t, cur.t, cur.t + (z ? 0.6 : 0.5), z ? E.inOutCubic : E.outExpo);
+  const mv = cameraMove(camera, z);
+  const p = prog(t, cur.t, cur.t + mv.dur, mv.ease);
   return {
     s: lerp(prev.state.s, cur.state.s, p),
     x: lerp(prev.state.x, cur.state.x, p),
@@ -80,8 +99,10 @@ export function videoWrapperStyle(
   v: ModeState,
   t: number,
   gold: string,
+  camera: CameraKind = "glide",
 ): { transform: string; borderRadius: string; boxShadow: string } {
-  const breathe = 1 + 0.012 * Math.sin(t * 0.45) * (1 - v.f);
+  const still = camera === "still" || camera === "cut";
+  const breathe = still ? 1 : 1 + 0.012 * Math.sin(t * 0.45) * (1 - v.f);
   const rt = lerp(v.r, 540, v.ar);
   return {
     transform: `translate(${v.x}px,${v.y}px) scale(${v.s * breathe})`,

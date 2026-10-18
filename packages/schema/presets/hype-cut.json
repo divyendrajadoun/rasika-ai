@@ -1,0 +1,55 @@
+{
+  "id": "hype-cut",
+  "name": "Hype Cut",
+  "tagline": "The TikTok retention cut: slams, punch-ins, stamps, boxed captions.",
+  "palette": {
+    "stage": "#0f0f10",
+    "mar": "#111111",
+    "ter": "#ff2e63",
+    "gold": "#ffe600",
+    "goldd": "#00e5ff",
+    "iv": "#ffffff",
+    "ink": "#000000"
+  },
+  "fonts": {
+    "poster": "Anton",
+    "accent": "Bangers",
+    "ui": "Poppins",
+    "devanagari": "Mukta",
+    "caption": "Poppins"
+  },
+  "grain": 0.05,
+  "pace": 0.95,
+  "captionStyle": "box",
+  "captionSize": 84,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "stamp",
+    "counter",
+    "chips",
+    "splitCards",
+    "propPunchIn",
+    "feedPhone",
+    "reveal",
+    "lockCard"
+  ],
+  "motion": {
+    "family": "hype",
+    "enter": "slam",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 0.8,
+    "camera": "whip",
+    "sfxKit": "hype",
+    "texture": "none",
+    "direction": "Retention cut. The first word gets a 1–2 word slam (`posterText`, anim pop, 150–220 px). A `zoom` punch-in every 3–4 s on the thing being named (`propPunchIn` when it is a prop). `stamp` on every verdict word, `chips` for lists, `counter`s racing to the number, `lockCard` tease early and a `reveal` on the payoff, `feedPhone` if scrolling or feeds are mentioned. Something changes every 1.5–2.5 s; boxed captions carry the speech so poster lines stay short. Hard cuts, whip camera, no serif, no fades.",
+    "avoidElements": [
+      "filmStrip",
+      "bleedPlate",
+      "patternCard"
+    ]
+  }
+}

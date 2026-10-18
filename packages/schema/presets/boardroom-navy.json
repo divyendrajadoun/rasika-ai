@@ -25,5 +25,28 @@
   "captionAccent": "gold",
   "endCardShape": "square",
   "pattern": "arches",
-  "preferredElements": ["posterText", "chapterCard", "counter", "equation", "strikeLine"]
+  "preferredElements": [
+    "posterText",
+    "chapterCard",
+    "counter",
+    "equation",
+    "strikeLine"
+  ],
+  "motion": {
+    "family": "launch",
+    "enter": "slide",
+    "exit": "dive",
+    "easing": "smooth",
+    "speed": 1.0,
+    "camera": "glide",
+    "sfxKit": "cinematic",
+    "texture": "none",
+    "direction": "Boardroom brief. Lines slide in like slides, `counter`s for every figure, `equation`s for the mechanics, `chapterCard`s for the clauses, `lockCard` → `reveal` for the catch, straight cards. Measured: 2.5–3.5 s per beat.",
+    "avoidElements": [
+      "stamp",
+      "filmStrip",
+      "patternCard",
+      "feedPhone"
+    ]
+  }
 }

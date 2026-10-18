@@ -1,0 +1,58 @@
+{
+  "id": "whiteboard-marker",
+  "name": "Whiteboard Marker",
+  "tagline": "A marker draws each thought as you say it. Red, blue, black on white.",
+  "palette": {
+    "stage": "#f7f3ea",
+    "mar": "#1b1b1b",
+    "ter": "#d7263d",
+    "gold": "#1f6feb",
+    "goldd": "#1f8a4c",
+    "iv": "#ffffff",
+    "ink": "#1b1b1b"
+  },
+  "fonts": {
+    "poster": "Permanent Marker",
+    "accent": "Caveat",
+    "ui": "Kalam",
+    "devanagari": "Kalam",
+    "caption": "Kalam"
+  },
+  "grain": 0.08,
+  "pace": 0.5,
+  "captionStyle": "phrase",
+  "captionSize": 66,
+  "captionAccent": "ter",
+  "endCardShape": "square",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "equation",
+    "strikeLine",
+    "counter",
+    "chips",
+    "imageCard",
+    "splitCards",
+    "chapterCard"
+  ],
+  "motion": {
+    "family": "whiteboard",
+    "enter": "draw",
+    "exit": "wipe",
+    "easing": "smooth",
+    "speed": 1.15,
+    "camera": "still",
+    "sfxKit": "marker",
+    "texture": "paper",
+    "direction": "Whiteboard explainer. A marker draws each thought as it is said: short phrases (2–5 words) in the marker hand, `equation`s for cause → effect, `strikeLine` through a myth, `counter`s for numbers, `chips` as labels in marker colours (`ter` red, `gold` blue, `goldd` green on `iv`). Photos are taped sketches (`imageCard`, tilt ±2). At most two things on the board at once; ideas wipe away before the next. Calm camera, no punch-ins except one `zoom` on the key prop. No stamps, no slams, no film strips, no bleed plates.",
+    "avoidElements": [
+      "stamp",
+      "filmStrip",
+      "bleedPlate",
+      "feedPhone",
+      "patternCard",
+      "reveal",
+      "lockCard"
+    ]
+  }
+}

@@ -16,6 +16,80 @@ export type Palette = z.infer<typeof Palette>;
 export const FontRole = z.enum(["anton", "serif", "kicker", "devanagari", "caption"]);
 export type FontRole = z.infer<typeof FontRole>;
 
+/**
+ * Motion vocabulary — what makes two presets *move* differently, not just look different.
+ *
+ * family      the overall choreography the engine and the planner follow
+ *             editorial  poster type above the head, tilted photo cards, lock → reveal (the house style)
+ *             kinetic    typography-only, centred, mixed case, hard cuts, 1–2 s holds (Apple recap feel)
+ *             whiteboard a marker draws each thought; taped sketches; wipes between ideas
+ *             chalk      dim-and-reveal lesson on a board: one claim or equation at a time
+ *             hype       retention cut: slams, punch-ins, stamps, something new every 2 s
+ *             launch     product film: straight cards, soft shadows, pushes into what is named
+ *             collage    paper cut-outs, tape, marker notes
+ * enter/exit  how typography and cards arrive and leave
+ * easing      spring (overshoot) · snap (fast decel) · smooth (cubic) · soft (slow quint)
+ * speed       entrance duration multiplier (0.6 twice as fast … 1.6 slower)
+ * camera      how video modes change: glide (0.5 s) · cut (hard) · whip (0.22 s) · still (no breathing)
+ * sfxKit      the sound palette the worker synthesises the cues with
+ * texture     stage backdrop behind the framed video (replaces the dot pattern)
+ * direction   markdown for the planner: beat structure + vocabulary for this style
+ */
+export const MotionFamily = z.enum([
+  "editorial",
+  "kinetic",
+  "whiteboard",
+  "chalk",
+  "hype",
+  "launch",
+  "collage",
+]);
+export type MotionFamily = z.infer<typeof MotionFamily>;
+
+export const EnterKind = z.enum(["rise", "pop", "slam", "slide", "fade", "draw", "blur"]);
+export type EnterKind = z.infer<typeof EnterKind>;
+export const ExitKind = z.enum(["lift", "dive", "cut", "wipe", "fade"]);
+export type ExitKind = z.infer<typeof ExitKind>;
+export const EasingKind = z.enum(["spring", "snap", "smooth", "soft"]);
+export type EasingKind = z.infer<typeof EasingKind>;
+export const CameraKind = z.enum(["glide", "cut", "whip", "still"]);
+export type CameraKind = z.infer<typeof CameraKind>;
+export const SfxKit = z.enum(["pop", "click", "marker", "chalk", "hype", "cinematic", "none"]);
+export type SfxKit = z.infer<typeof SfxKit>;
+export const TextureKind = z.enum([
+  "none",
+  "paper",
+  "board",
+  "grid",
+  "dots",
+  "vignette",
+  "gradient",
+]);
+export type TextureKind = z.infer<typeof TextureKind>;
+
+export const Motion = z.object({
+  family: MotionFamily.default("editorial"),
+  enter: EnterKind.default("rise"),
+  exit: ExitKind.default("lift"),
+  easing: EasingKind.default("spring"),
+  speed: z.number().min(0.5).max(1.6).default(1),
+  camera: CameraKind.default("glide"),
+  sfxKit: SfxKit.default("pop"),
+  texture: TextureKind.default("none"),
+  direction: z.string().max(4000).default(""),
+  /** element types the planner should not use in this style */
+  avoidElements: z.array(z.string()).default([]),
+});
+export type Motion = z.infer<typeof Motion>;
+export type MotionInput = z.input<typeof Motion>;
+
+export const DEFAULT_MOTION: Motion = Motion.parse({});
+
+/** Fill a possibly-missing / partial motion block (plans written before motion existed). */
+export function motionOf(style: { motion?: Partial<Motion> | undefined }): Motion {
+  return style.motion ? { ...DEFAULT_MOTION, ...style.motion } : DEFAULT_MOTION;
+}
+
 export const StyleTokens = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -42,5 +116,6 @@ export const StyleTokens = z.object({
   endCardShape: z.enum(["arch", "rounded", "square"]),
   pattern: z.enum(["jaali", "arches", "bandhani", "leheriya", "none"]),
   preferredElements: z.array(z.string()),
+  motion: Motion.prefault({}),
 });
 export type StyleTokens = z.infer<typeof StyleTokens>;

@@ -218,19 +218,11 @@ export const features = {
 };
 
 export const styles = {
-  eyebrow: "14 styles, one take",
+  eyebrow: "19 styles, one take",
   title: "Pick a look. Drag to compare it with the raw clip.",
-  sub: "Every style you see here was rendered by Rasika from the same real 12-second phone clip — not a mock-up. Each is a full design system: palette, type, caption format, pace, end card.",
-  note: "Caption formats across the set: one-word pop, karaoke highlight, boxed word, clean lower third. Describe a look in the wizard (“clinic white, navy, fewer effects”) and we map it to the nearest preset.",
+  sub: "Every style here was planned and rendered by Rasika from the same real 12-second phone clip — not a mock-up. Each one is a full design system: palette, type, caption format, and its own motion — how lines enter, how the camera cuts, which sounds land.",
+  note: "Seven motion families — editorial, kinetic type, whiteboard, chalkboard, hype cut, launch film, paper collage — each with its own sound kit. The newest five were built from the looks the open video-skills community shares (Apple-style kinetic type, whiteboard explainers, 3Blue1Brown lessons, TikTok retention cuts, launch films) and run entirely inside Rasika. Describe a look in the wizard (“clinic white, navy, fewer effects”) and we map it to the nearest preset.",
   ctaLabel: "Use this style",
-};
-
-export const communityLooks = {
-  eyebrow: "More looks, from the open community",
-  title: "Styles we're adding next.",
-  sub: "These previews come from the open-source video-skills list on GitHub — kinetic captions, paper collage, Apple-style motion, b-roll engines. They are other tools' renders, shown with credit, and the looks we are porting into Rasika presets.",
-  credit:
-    "Previews © their authors, from github.com/zhuyansen/awesome-claude-video-skills. Each card links to the repo and shows its licence. Rasika's own styles are the ones rendered on the real take above.",
 };
 
 export const pricing = {

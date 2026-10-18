@@ -25,5 +25,29 @@
   "captionAccent": "ter",
   "endCardShape": "arch",
   "pattern": "none",
-  "preferredElements": ["posterText", "equation", "imageCard", "bleedPlate", "chapterCard"]
+  "preferredElements": [
+    "posterText",
+    "equation",
+    "imageCard",
+    "bleedPlate",
+    "chapterCard"
+  ],
+  "motion": {
+    "family": "launch",
+    "enter": "fade",
+    "exit": "fade",
+    "easing": "soft",
+    "speed": 1.3,
+    "camera": "still",
+    "sfxKit": "click",
+    "texture": "gradient",
+    "direction": "Breathing room. Soft fades, mixed case, 3–4 s holds, `chapterCard`s for the practice steps, `equation`s for the gentle logic, `counter`s for minutes and breaths, straight cards. Nothing slams, nothing is stamped.",
+    "avoidElements": [
+      "stamp",
+      "filmStrip",
+      "feedPhone",
+      "patternCard",
+      "reveal"
+    ]
+  }
 }

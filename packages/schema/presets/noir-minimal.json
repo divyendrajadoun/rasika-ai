@@ -25,5 +25,29 @@
   "captionAccent": "gold",
   "endCardShape": "square",
   "pattern": "none",
-  "preferredElements": ["posterText", "counter", "equation", "chapterCard"]
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "equation",
+    "chapterCard"
+  ],
+  "motion": {
+    "family": "kinetic",
+    "enter": "blur",
+    "exit": "dive",
+    "easing": "soft",
+    "speed": 1.1,
+    "camera": "cut",
+    "sfxKit": "click",
+    "texture": "vignette",
+    "direction": "Typography only, centred, mixed case, one thought per card, 1–2 s holds, blur-ins, hard cuts between ideas. White on near-black; a single accent word per line at most. Numbers as counters. No tilted cards, no stamps, no patterns.",
+    "avoidElements": [
+      "stamp",
+      "patternCard",
+      "bleedPlate",
+      "filmStrip",
+      "feedPhone",
+      "splitCards"
+    ]
+  }
 }

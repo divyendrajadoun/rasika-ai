@@ -1,6 +1,7 @@
 "use client";
 
-import { presetCards } from "@/config/presets";
+import { useRef } from "react";
+import { FAMILY_LABEL, SFX_LABEL, presetCards, type PresetCard } from "@/config/presets";
 import { cn } from "@/lib/utils";
 
 export interface StyleState {
@@ -23,69 +24,26 @@ export function StepStyle({
   return (
     <div className="space-y-8">
       <div>
-        <p className="kicker text-goldd dark:text-gold mb-3">Preset</p>
+        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+          <p className="kicker text-goldd dark:text-gold">Style</p>
+          <p className="text-muted-foreground text-xs">
+            Each style has its own motion and sound — hover a card to watch it on a real take.
+          </p>
+        </div>
         <ul
           className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
           role="radiogroup"
           aria-label="Style preset"
         >
-          {presetCards.map((c) => {
-            const p = c.tokens.palette;
-            const on = value.preset === c.tokens.id;
-            return (
-              <li key={c.tokens.id}>
-                <button
-                  type="button"
-                  role="radio"
-                  aria-checked={on}
-                  onClick={() => set({ preset: c.tokens.id })}
-                  className={cn(
-                    "bg-card w-full rounded-2xl border p-3 text-left transition hover:-translate-y-0.5",
-                    on && "border-ter ring-ter/40 ring-2",
-                  )}
-                >
-                  <div
-                    className="relative aspect-[9/12] overflow-hidden rounded-lg"
-                    style={{ background: p.stage }}
-                    aria-hidden
-                  >
-                    {c.tokens.pattern === "jaali" && (
-                      <div className="jaali absolute inset-0 opacity-80" />
-                    )}
-                    <div className="absolute inset-x-2 top-2 text-center">
-                      <p className="kicker text-[5px]" style={{ color: p.gold }}>
-                        {c.preview.kicker}
-                      </p>
-                      <p
-                        className={
-                          c.tokens.fonts.poster === "Inter"
-                            ? "font-sans text-[12px] font-black uppercase"
-                            : "poster text-[15px]"
-                        }
-                        style={{ color: p.iv }}
-                      >
-                        {c.preview.big}
-                      </p>
-                      <p className="font-accent text-[10px] italic" style={{ color: p.gold }}>
-                        {c.preview.italic}
-                      </p>
-                    </div>
-                    <div
-                      className={
-                        "absolute inset-x-[16%] bottom-[8%] top-[40%] bg-[linear-gradient(180deg,#efe0c6,#d8c3a3)] " +
-                        (c.tokens.endCardShape === "arch" ? "arch" : "rounded-md")
-                      }
-                      style={{ boxShadow: `0 0 0 2px ${p.gold}` }}
-                    >
-                      <div className="d-head" />
-                    </div>
-                  </div>
-                  <p className="poster mt-2 text-xl">{c.tokens.name}</p>
-                  <p className="text-muted-foreground text-xs">{c.tokens.tagline}</p>
-                </button>
-              </li>
-            );
-          })}
+          {presetCards.map((c) => (
+            <li key={c.tokens.id}>
+              <PresetButton
+                card={c}
+                on={value.preset === c.tokens.id}
+                onPick={() => set({ preset: c.tokens.id })}
+              />
+            </li>
+          ))}
         </ul>
       </div>
 
@@ -111,7 +69,7 @@ export function StepStyle({
           <span>
             <span className="block font-semibold">Captions</span>
             <span className="text-muted-foreground text-xs">
-              One word at a time, on the exact word
+              In the style&apos;s own format, on the exact word
             </span>
           </span>
           <input
@@ -152,6 +110,9 @@ export function StepStyle({
             className="mt-2 w-full accent-[var(--ter)]"
             aria-label="Sound effects intensity"
           />
+          <span className="text-muted-foreground mt-1 block text-xs">
+            The sound kit comes from the style; this sets how loud it lands.
+          </span>
         </label>
         <label className="bg-card block rounded-xl border p-4">
           <span className="block font-semibold">Language</span>
@@ -168,5 +129,83 @@ export function StepStyle({
         </label>
       </div>
     </div>
+  );
+}
+
+/** A style card: the real demo render (poster, video on hover/focus), name, motion + sound chips. */
+function PresetButton({
+  card,
+  on,
+  onPick,
+}: {
+  card: PresetCard;
+  on: boolean;
+  onPick: () => void;
+}) {
+  const vid = useRef<HTMLVideoElement>(null);
+  const id = card.tokens.id;
+  const play = () => {
+    const v = vid.current;
+    if (!v) return;
+    if (!v.src) v.src = `/demo/styles/${id}.mp4`;
+    void v.play().catch(() => undefined);
+  };
+  const stop = () => {
+    const v = vid.current;
+    if (!v) return;
+    v.pause();
+    v.currentTime = 0;
+  };
+  const m = card.tokens.motion;
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={on}
+      onClick={onPick}
+      onMouseEnter={play}
+      onMouseLeave={stop}
+      onFocus={play}
+      onBlur={stop}
+      className={cn(
+        "bg-card group w-full rounded-2xl border p-3 text-left transition hover:-translate-y-0.5",
+        on && "border-ter ring-ter/40 ring-2",
+      )}
+    >
+      <div className="relative aspect-[9/16] overflow-hidden rounded-lg bg-black" aria-hidden>
+        {/* eslint-disable-next-line @next/next/no-img-element -- static demo poster */}
+        <img
+          src={`/demo/styles/${id}.jpg`}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <video
+          ref={vid}
+          muted
+          loop
+          playsInline
+          preload="none"
+          tabIndex={-1}
+          className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+        />
+        {card.badge && (
+          <span className="kicker bg-gold text-ink absolute left-2 top-2 rounded-full px-2 py-0.5 text-[0.5rem]">
+            {card.badge}
+          </span>
+        )}
+      </div>
+      <p className="poster mt-2 text-xl">{card.tokens.name}</p>
+      <p className="text-muted-foreground line-clamp-2 text-xs">{card.tokens.tagline}</p>
+      <p className="mt-2 flex flex-wrap gap-1">
+        <span className="bg-muted text-foreground/80 rounded-full px-2 py-0.5 text-[0.65rem]">
+          {FAMILY_LABEL[m.family]}
+        </span>
+        <span className="bg-muted text-foreground/80 rounded-full px-2 py-0.5 text-[0.65rem]">
+          {SFX_LABEL[m.sfxKit]}
+        </span>
+      </p>
+    </button>
   );
 }

@@ -224,6 +224,113 @@
           "items": {
             "type": "string"
           }
+        },
+        "motion": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "family": {
+              "default": "editorial",
+              "type": "string",
+              "enum": [
+                "editorial",
+                "kinetic",
+                "whiteboard",
+                "chalk",
+                "hype",
+                "launch",
+                "collage"
+              ]
+            },
+            "enter": {
+              "default": "rise",
+              "type": "string",
+              "enum": [
+                "rise",
+                "pop",
+                "slam",
+                "slide",
+                "fade",
+                "draw",
+                "blur"
+              ]
+            },
+            "exit": {
+              "default": "lift",
+              "type": "string",
+              "enum": [
+                "lift",
+                "dive",
+                "cut",
+                "wipe",
+                "fade"
+              ]
+            },
+            "easing": {
+              "default": "spring",
+              "type": "string",
+              "enum": [
+                "spring",
+                "snap",
+                "smooth",
+                "soft"
+              ]
+            },
+            "speed": {
+              "default": 1,
+              "type": "number",
+              "minimum": 0.5,
+              "maximum": 1.6
+            },
+            "camera": {
+              "default": "glide",
+              "type": "string",
+              "enum": [
+                "glide",
+                "cut",
+                "whip",
+                "still"
+              ]
+            },
+            "sfxKit": {
+              "default": "pop",
+              "type": "string",
+              "enum": [
+                "pop",
+                "click",
+                "marker",
+                "chalk",
+                "hype",
+                "cinematic",
+                "none"
+              ]
+            },
+            "texture": {
+              "default": "none",
+              "type": "string",
+              "enum": [
+                "none",
+                "paper",
+                "board",
+                "grid",
+                "dots",
+                "vignette",
+                "gradient"
+              ]
+            },
+            "direction": {
+              "default": "",
+              "type": "string",
+              "maxLength": 4000
+            },
+            "avoidElements": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
         }
       },
       "required": [

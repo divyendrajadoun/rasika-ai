@@ -25,5 +25,27 @@
   "captionAccent": "gold",
   "endCardShape": "rounded",
   "pattern": "none",
-  "preferredElements": ["posterText", "counter", "chips", "chapterCard", "stamp"]
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chips",
+    "chapterCard",
+    "stamp"
+  ],
+  "motion": {
+    "family": "hype",
+    "enter": "slam",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 1.0,
+    "camera": "whip",
+    "sfxKit": "hype",
+    "texture": "none",
+    "direction": "Yellow-on-black retention cut. Slams, stamps, zoom punch-ins every 3–4 s, boxed captions carry the words so poster lines are short (1–3 words). `feedPhone` when scrolling is mentioned. Nothing holds longer than 3 s.",
+    "avoidElements": [
+      "filmStrip",
+      "bleedPlate",
+      "patternCard"
+    ]
+  }
 }

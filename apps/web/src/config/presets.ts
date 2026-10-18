@@ -83,6 +83,54 @@ const previewCopy: Record<string, PresetCard["preview"]> = {
     italic: "not just gold",
     caption: "diwali",
   },
+  "kinetic-mono": { kicker: "", big: "Your taste", italic: "was taught.", caption: "taught" },
+  "whiteboard-marker": {
+    kicker: "the rule",
+    big: "Buy less",
+    italic: "wear it more",
+    caption: "wear",
+  },
+  "chalkboard-maths": {
+    kicker: "lemma 1",
+    big: "Taste = exposure",
+    italic: "× repetition",
+    caption: "taste",
+  },
+  "hype-cut": { kicker: "WAIT", big: "STOP", italic: "watch this", caption: "stop" },
+  "launch-spotlight": {
+    kicker: "introducing",
+    big: "The Ras line",
+    italic: "from ₹2,400",
+    caption: "line",
+  },
+};
+
+const NEW_IDS = new Set([
+  "kinetic-mono",
+  "whiteboard-marker",
+  "chalkboard-maths",
+  "hype-cut",
+  "launch-spotlight",
+]);
+
+/** Human labels for a preset's motion family and sound kit (wizard + landing chips). */
+export const FAMILY_LABEL: Record<StyleTokens["motion"]["family"], string> = {
+  editorial: "Editorial",
+  kinetic: "Kinetic type",
+  whiteboard: "Whiteboard",
+  chalk: "Chalkboard",
+  hype: "Hype cut",
+  launch: "Launch film",
+  collage: "Paper collage",
+};
+export const SFX_LABEL: Record<StyleTokens["motion"]["sfxKit"], string> = {
+  pop: "Pop & whoosh",
+  click: "Soft clicks",
+  marker: "Marker on board",
+  chalk: "Chalk",
+  hype: "Zaps & drops",
+  cinematic: "Cinematic",
+  none: "Silent",
 };
 
 export const presetCards: PresetCard[] = schemaPresets.map((tokens) => ({
@@ -93,7 +141,7 @@ export const presetCards: PresetCard[] = schemaPresets.map((tokens) => ({
     italic: "your style",
     caption: "style",
   },
-  badge: tokens.id === "mikku-royal" ? "Default" : undefined,
+  badge: tokens.id === "mikku-royal" ? "Default" : NEW_IDS.has(tokens.id) ? "New" : undefined,
 }));
 
 export const defaultPresetId = "mikku-royal";

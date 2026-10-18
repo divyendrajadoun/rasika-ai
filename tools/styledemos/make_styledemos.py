@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 """
-Real style demos for the landing page: the same 12 s of the owner's real take, rendered by the
-engine in every preset (540×960, preview encoder, no grain), plus the raw clip for the compare.
+Real style demos for the landing page and the wizard: the same 12 s of the owner's real take,
+rendered by the engine in every preset (540×960, preview encoder, no grain), plus the raw clip for
+the compare slider.
 
   python tools/styledemos/make_styledemos.py --video IMG_7571.MP4 [--seconds 12] [--only katana-pop]
 
 Writes apps/web/public/demo/styles/<preset>.mp4 + <preset>.jpg (poster) and raw.mp4.
-Uses plans/baisa_bling.json with the preset's tokens swapped in (colours are tokens, so every
-preset re-skins the same edit) and its words for captions.
+
+Each preset is rendered from **its own plan** in tools/styledemos/plans/<preset>.json — produced by
+the real planner for that style's motion direction (see the scratch batch in the phase report), so
+a whiteboard demo draws equations while a hype demo slams and punches in. A preset without a plan
+falls back to the hand plan (plans/baisa_bling.json) re-skinned with the preset's tokens.
 """
 
 from __future__ import annotations
@@ -28,6 +32,7 @@ from rasika_worker.render import RenderSpec, render  # noqa: E402
 from rasika_worker.settings import Settings  # noqa: E402
 
 PRESETS = ROOT / "packages" / "schema" / "presets"
+PLANS = ROOT / "tools" / "styledemos" / "plans"
 OUT = ROOT / "apps" / "web" / "public" / "demo" / "styles"
 
 
@@ -36,21 +41,16 @@ OUT = ROOT / "apps" / "web" / "public" / "demo" / "styles"
 WIDTH_SCALE = {
     "Montserrat": 0.68, "Poppins": 0.7, "Archivo Black": 0.66, "Bangers": 0.9, "Bebas Neue": 1.05,
     "DM Serif Display": 0.82, "Playfair Display": 0.8, "Inter": 0.72, "Caveat": 0.95,
+    "Kalam": 0.8, "Permanent Marker": 0.75,
 }
 
 
-def trimmed_plan(seconds: float, style: dict) -> dict:
-    plan = json.loads((ROOT / "plans" / "baisa_bling.json").read_text(encoding="utf-8"))
+def trim(plan: dict, seconds: float) -> dict:
     plan.pop("$schema", None)
     plan["meta"]["durationSec"] = seconds
-    plan["style"] = style
-    k_poster = WIDTH_SCALE.get(style["fonts"]["poster"], 1.0)
-    k_accent = WIDTH_SCALE.get(style["fonts"]["accent"], 1.0)
-    for e in plan["elements"]:
-        for line in e.get("lines", []):
-            k = k_poster if line["font"] == "anton" else k_accent if line["font"] == "serif" else 1.0
-            line["size"] = max(24, int(line["size"] * k))
-    plan["videoModes"] = [m for m in plan["videoModes"] if m["t"] < seconds - 0.5]
+    plan["videoModes"] = [m for m in plan["videoModes"] if m["t"] < seconds - 0.5] or [
+        {"t": 0, "mode": "full"}
+    ]
     els = []
     for e in plan["elements"]:
         if e["t0"] >= seconds - 0.3:
@@ -62,17 +62,39 @@ def trimmed_plan(seconds: float, style: dict) -> dict:
     return plan
 
 
+def reskinned_hand_plan(seconds: float, style: dict) -> dict:
+    plan = json.loads((ROOT / "plans" / "baisa_bling.json").read_text(encoding="utf-8"))
+    plan["style"] = style
+    k_poster = WIDTH_SCALE.get(style["fonts"]["poster"], 1.0)
+    k_accent = WIDTH_SCALE.get(style["fonts"]["accent"], 1.0)
+    for e in plan["elements"]:
+        for line in e.get("lines", []):
+            k = k_poster if line["font"] == "anton" else k_accent if line["font"] == "serif" else 1.0
+            line["size"] = max(24, int(line["size"] * k))
+    return trim(plan, seconds)
+
+
+def demo_plan(seconds: float, style: dict) -> tuple[dict, str]:
+    own = PLANS / f"{style['id']}.json"
+    if own.exists():
+        plan = json.loads(own.read_text(encoding="utf-8"))
+        plan["style"] = style  # always the current tokens
+        return trim(plan, seconds), "planned"
+    return reskinned_hand_plan(seconds, style), "reskin"
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--video", required=True, type=pathlib.Path)
     ap.add_argument("--seconds", type=float, default=12.0)
-    ap.add_argument("--only")
+    ap.add_argument("--only", help="comma-separated preset ids")
     ap.add_argument("--parallelism", type=int, default=4)
     args = ap.parse_args()
     s = Settings()
     OUT.mkdir(parents=True, exist_ok=True)
     work = ROOT / ".work-styledemos"
     work.mkdir(exist_ok=True)
+    only = set(args.only.split(",")) if args.only else None
 
     clip = work / "clip.mp4"
     if not clip.exists():
@@ -97,13 +119,14 @@ def main() -> None:
 
     for pf in sorted(PRESETS.glob("*.json")):
         style = json.loads(pf.read_text(encoding="utf-8"))
-        if args.only and style["id"] != args.only:
+        if only and style["id"] not in only:
             continue
         dest = OUT / f"{style['id']}.mp4"
         t0 = time.time()
         w = work / style["id"]
         w.mkdir(exist_ok=True)
-        spec = RenderSpec(trimmed_plan(args.seconds, style), words, images, frames, n, voice, preview=True)
+        plan, source = demo_plan(args.seconds, style)
+        spec = RenderSpec(plan, words, images, frames, n, voice, preview=True)
         res = render(s, w, spec, parallelism=args.parallelism)
         # re-encode the preview to a small, web-friendly file (no audio: the page plays it muted)
         media.run(
@@ -111,7 +134,10 @@ def main() -> None:
              "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart", str(dest)]
         )
         media.still(s.ffmpeg_bin, dest, 1.0, OUT / f"{style['id']}.jpg", 540)
-        print(f"{style['id']:18s} {dest.stat().st_size / 1e6:5.2f} MB  {time.time() - t0:5.1f}s", flush=True)
+        print(
+            f"{style['id']:20s} {source:8s} {len(plan['elements']):3d} el  {dest.stat().st_size / 1e6:5.2f} MB  {time.time() - t0:5.1f}s",
+            flush=True,
+        )
         shutil.rmtree(w, ignore_errors=True)
 
 

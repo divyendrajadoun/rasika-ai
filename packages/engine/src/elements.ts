@@ -13,9 +13,10 @@ import type {
   TextLine,
   VideoModeName,
 } from "@rasika/schema";
+import { DEFAULT_MOTION, type EasingKind, type ExitKind, type Motion } from "@rasika/schema";
 import { div, esc, nextId, px, rgba } from "./dom";
 import { patternSvg, type Colors } from "./patterns";
-import { E, lerp, prog, rng, transformStyle, type Transform } from "./toolkit";
+import { E, lerp, prog, rng, transformStyle, type Easing, type Transform } from "./toolkit";
 
 export type ItemKind =
   "rise" | "pop" | "fade" | "slide" | "stamp" | "card" | "cardx" | "bleed" | "none";
@@ -572,8 +573,97 @@ export function buildEndCard(ec: EndCard, t0: number, ctx: BuildCtx): Item[] {
   ];
 }
 
-/** Per-frame update for one item — the reference render loop body. */
-export function updateItem(it: Item, t: number): void {
+const EASE: Record<EasingKind, Easing> = {
+  spring: E.outBack,
+  snap: E.outExpo,
+  smooth: E.outCubic,
+  soft: E.outQuint,
+};
+
+/**
+ * Entrance of a typography item under the style's motion. `perWord` items (the rising poster
+ * lines) keep the house word-by-word rise when the style says `rise`; block items under `rise`
+ * keep the house pop — that pairing *is* the editorial look.
+ */
+function typoEnter(el: HTMLElement, a: number, m: Motion, perWord: boolean): Transform {
+  const sp = m.speed;
+  const ease = EASE[m.easing];
+  const words = el.querySelectorAll<HTMLElement>(".wi");
+  el.style.clipPath = "";
+  if (m.enter === "rise" && perWord) {
+    words.forEach((w, i) => {
+      const p = prog(
+        a,
+        i * 0.055 * sp,
+        i * 0.055 * sp + 0.5 * sp,
+        m.easing === "spring" ? E.outExpo : ease,
+      );
+      w.style.transform = `translateY(${(1 - p) * 125}%)`;
+    });
+    return {};
+  }
+  words.forEach((w) => (w.style.transform = ""));
+  switch (m.enter) {
+    case "rise":
+    case "pop": {
+      const p = prog(a, 0, 0.45 * sp, ease);
+      el.style.transformOrigin = "50% 25%";
+      return { s: 0.6 + 0.4 * p, o: prog(a, 0, 0.12 * sp) };
+    }
+    case "slam": {
+      // nothing grows from zero: arrive oversize and decelerate onto the mark
+      const p = prog(a, 0, 0.34 * sp, m.easing === "spring" ? E.outExpo : ease);
+      el.style.transformOrigin = "50% 40%";
+      return { s: 3.2 - 2.2 * p, blur: (1 - p) * 10, o: prog(a, 0, 0.07 * sp) };
+    }
+    case "slide": {
+      const p = prog(a, 0, 0.5 * sp, ease);
+      return { x: (1 - p) * -160, o: prog(a, 0, 0.2 * sp) };
+    }
+    case "fade":
+      return { o: prog(a, 0, 0.35 * sp, E.outCubic) };
+    case "blur": {
+      const p = prog(a, 0, 0.45 * sp, E.outCubic);
+      el.style.transformOrigin = "50% 50%";
+      return { s: 1.06 - 0.06 * p, blur: (1 - p) * 18, o: prog(a, 0, 0.3 * sp) };
+    }
+    case "draw": {
+      const p = prog(a, 0, 0.6 * sp, E.inOutCubic);
+      el.style.clipPath = `inset(-2% ${(1 - p) * 100}% -2% 0)`;
+      return { o: 1 };
+    }
+  }
+}
+
+/** Apply the style's exit to a transform (ex = 0→1 exit progress). */
+function withExit(
+  el: HTMLElement,
+  tr: Transform,
+  ex: number,
+  kind: ExitKind,
+  liftBlur = false,
+): Transform {
+  if (ex <= 0) return tr;
+  const o = tr.o ?? 1;
+  switch (kind) {
+    case "lift":
+      return liftBlur
+        ? { ...tr, y: (tr.y ?? 0) - ex * 50, o: o * (1 - ex), blur: Math.max(tr.blur ?? 0, ex * 8) }
+        : { ...tr, y: (tr.y ?? 0) - ex * 40, o: o * (1 - ex) };
+    case "dive":
+      return { ...tr, y: (tr.y ?? 0) + ex * 40, s: (tr.s ?? 1) * (1 - 0.1 * ex), o: o * (1 - ex) };
+    case "fade":
+      return { ...tr, o: o * (1 - ex) };
+    case "cut":
+      return { ...tr, o: ex >= 1 ? 0 : o };
+    case "wipe":
+      el.style.clipPath = `inset(-2% 0 -2% ${ex * 100}%)`;
+      return tr;
+  }
+}
+
+/** Per-frame update for one item — the reference render loop body, under the style's motion. */
+export function updateItem(it: Item, t: number, m: Motion = DEFAULT_MOTION): void {
   const { el, t0, t1, kind } = it;
   if (t < t0 - 0.001 || t > t1) {
     el.style.display = "none";
@@ -581,51 +671,66 @@ export function updateItem(it: Item, t: number): void {
   }
   el.style.display = "";
   const a = t - t0;
-  const ex = prog(t, t1 - 0.26, t1, E.inCubic);
+  const sp = m.speed;
+  const ex =
+    m.exit === "cut" ? (t >= t1 - 0.001 ? 1 : 0) : prog(t, t1 - 0.26 * sp, t1, E.inCubic);
+  const fadeOrCut: ExitKind = m.exit === "cut" ? "cut" : "fade";
   switch (kind) {
-    case "rise": {
-      el.querySelectorAll<HTMLElement>(".wi").forEach((w, i) => {
-        const p = prog(a, i * 0.055, i * 0.055 + 0.5, E.outExpo);
-        w.style.transform = `translateY(${(1 - p) * 125}%)`;
-      });
-      set(el, { y: -ex * 50, o: 1 - ex, blur: ex * 8 });
+    case "rise":
+    case "pop":
+      set(el, withExit(el, typoEnter(el, a, m, kind === "rise"), ex, m.exit, kind === "rise"));
       break;
-    }
-    case "pop": {
-      const p = prog(a, 0, 0.45, E.outBack);
-      set(el, { s: 0.6 + 0.4 * p, o: prog(a, 0, 0.12) * (1 - ex), y: -ex * 40 });
-      el.style.transformOrigin = "50% 25%";
-      break;
-    }
     case "fade":
-      set(el, { o: prog(a, 0, 0.25) * (1 - ex) });
+      set(el, withExit(el, { o: prog(a, 0, 0.25 * sp) }, ex, fadeOrCut));
       break;
     case "slide": {
-      const p = prog(a, 0, 0.5, E.outExpo);
+      const p = prog(a, 0, 0.5 * sp, E.outExpo);
       set(el, { x: (1 - p) * 600 + ex * 600, o: 1 });
       break;
     }
     case "stamp": {
-      const p = prog(a, 0, 0.22, E.outBack);
+      const p = prog(a, 0, 0.22 * sp, E.outBack);
       el.style.transformOrigin = "300px 620px";
-      set(el, { s: 2.2 - 1.2 * p, r: -7, o: prog(a, 0, 0.08) * (1 - ex) });
+      set(el, withExit(el, { s: 2.2 - 1.2 * p, r: -7, o: prog(a, 0, 0.08) }, ex, fadeOrCut));
       break;
     }
     case "card":
     case "cardx": {
-      const p = prog(a, 0, 0.55, E.outBack);
       const r = it.r ?? 0;
-      set(el, {
-        y: (1 - p) * 900,
-        x: ex * (r > 0 ? 900 : -900),
-        r: r * (1 + (1 - p) * 2) + ex * r * 3,
-        o: 1,
-        blur: ex * 6,
-      });
+      let tr: Transform;
+      el.style.clipPath = "";
+      switch (m.family) {
+        case "kinetic":
+        case "launch": {
+          const p = prog(a, 0, 0.5 * sp, EASE[m.easing]);
+          tr = { y: (1 - p) * 140, s: 0.94 + 0.06 * p, r, o: prog(a, 0, 0.2 * sp) };
+          break;
+        }
+        case "whiteboard":
+        case "chalk": {
+          const p = prog(a, 0, 0.55 * sp, E.inOutCubic);
+          el.style.clipPath = `inset(0 0 ${(1 - p) * 100}% 0)`;
+          tr = { r, o: 1 };
+          break;
+        }
+        case "hype": {
+          const p = prog(a, 0, 0.3 * sp, E.outExpo);
+          tr = { s: 1.9 - 0.9 * p, r: r * p, blur: (1 - p) * 8, o: prog(a, 0, 0.06) };
+          break;
+        }
+        default: {
+          const p = prog(a, 0, 0.55 * sp, E.outBack);
+          tr = { y: (1 - p) * 900, r: r * (1 + (1 - p) * 2), o: 1 };
+        }
+      }
+      if (m.family === "editorial" || m.family === "collage") {
+        // the house exit: cards fling out sideways, spinning
+        set(el, { ...tr, x: ex * (r > 0 ? 900 : -900), r: (tr.r ?? 0) + ex * r * 3, blur: ex * 6 });
+      } else set(el, withExit(el, tr, ex, m.exit));
       break;
     }
     case "bleed": {
-      const p = prog(a, 0, 0.42, E.outExpo);
+      const p = prog(a, 0, 0.42 * sp, E.outExpo);
       el.style.clipPath = `inset(0 0 ${(1 - p) * 100}% 0)`;
       el.style.opacity = String(1 - prog(t, t1 - 0.2, t1));
       const k = el.querySelector<HTMLElement>(".k");

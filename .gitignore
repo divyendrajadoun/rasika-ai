@@ -56,3 +56,6 @@ out/
 .lh.json
 .wizard-*.png
 .work-styledemos/
+# planner side-cars next to the committed demo plans
+tools/styledemos/plans/*.raw.json
+tools/styledemos/plans/*.report.json

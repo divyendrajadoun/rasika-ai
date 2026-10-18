@@ -58,6 +58,81 @@ class Pattern(StrEnum):
     none = "none"
 
 
+class Family(StrEnum):
+    editorial = "editorial"
+    kinetic = "kinetic"
+    whiteboard = "whiteboard"
+    chalk = "chalk"
+    hype = "hype"
+    launch = "launch"
+    collage = "collage"
+
+
+class Enter(StrEnum):
+    rise = "rise"
+    pop = "pop"
+    slam = "slam"
+    slide = "slide"
+    fade = "fade"
+    draw = "draw"
+    blur = "blur"
+
+
+class Exit(StrEnum):
+    lift = "lift"
+    dive = "dive"
+    cut = "cut"
+    wipe = "wipe"
+    fade = "fade"
+
+
+class Easing(StrEnum):
+    spring = "spring"
+    snap = "snap"
+    smooth = "smooth"
+    soft = "soft"
+
+
+class Camera(StrEnum):
+    glide = "glide"
+    cut = "cut"
+    whip = "whip"
+    still = "still"
+
+
+class SfxKit(StrEnum):
+    pop = "pop"
+    click = "click"
+    marker = "marker"
+    chalk = "chalk"
+    hype = "hype"
+    cinematic = "cinematic"
+    none = "none"
+
+
+class Texture(StrEnum):
+    none = "none"
+    paper = "paper"
+    board = "board"
+    grid = "grid"
+    dots = "dots"
+    vignette = "vignette"
+    gradient = "gradient"
+
+
+class Motion(BaseModel):
+    family: Family | None = "editorial"
+    enter: Enter | None = "rise"
+    exit: Exit | None = "lift"
+    easing: Easing | None = "spring"
+    speed: float | None = Field(1, ge=0.5, le=1.6)
+    camera: Camera | None = "glide"
+    sfxKit: SfxKit | None = "pop"
+    texture: Texture | None = "none"
+    direction: str | None = Field("", max_length=4000)
+    avoidElements: list[str] | None = []
+
+
 class Palette(BaseModel):
     stage: str = Field(..., pattern="^#[0-9a-fA-F]{6}$")
     mar: str = Field(..., pattern="^#[0-9a-fA-F]{6}$")
@@ -416,6 +491,7 @@ class StyleTokens(BaseModel):
     endCardShape: EndCardShape
     pattern: Pattern
     preferredElements: list[str]
+    motion: Motion | None = Field({}, validate_default=True)
 
 
 class Prop(BaseModel):

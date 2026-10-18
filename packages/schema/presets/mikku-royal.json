@@ -32,5 +32,17 @@
     "chapterCard",
     "reveal",
     "propPunchIn"
-  ]
+  ],
+  "motion": {
+    "family": "editorial",
+    "enter": "rise",
+    "exit": "lift",
+    "easing": "spring",
+    "speed": 1.0,
+    "camera": "glide",
+    "sfxKit": "pop",
+    "texture": "none",
+    "direction": "The house editorial cut. Rising poster lines above the head, tilted photo cards that drop in, a lock → reveal payoff, bleed plates of the brand's world, jaali pattern cards when no photo fits. Full beat table.",
+    "avoidElements": []
+  }
 }

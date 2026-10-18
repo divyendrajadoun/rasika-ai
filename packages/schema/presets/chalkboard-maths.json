@@ -1,0 +1,58 @@
+{
+  "id": "chalkboard-maths",
+  "name": "Chalkboard Maths",
+  "tagline": "Dim and reveal, one claim at a time. The 3Blue1Brown lesson feel.",
+  "palette": {
+    "stage": "#1f2d2a",
+    "mar": "#15201d",
+    "ter": "#e05a7a",
+    "gold": "#ffd166",
+    "goldd": "#2a7fa8",
+    "iv": "#f3efe4",
+    "ink": "#0f1716"
+  },
+  "fonts": {
+    "poster": "Kalam",
+    "accent": "Caveat",
+    "ui": "Kalam",
+    "devanagari": "Kalam",
+    "caption": "Kalam"
+  },
+  "grain": 0.12,
+  "pace": 0.4,
+  "captionStyle": "clean",
+  "captionSize": 60,
+  "captionAccent": "gold",
+  "endCardShape": "square",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "equation",
+    "counter",
+    "chapterCard",
+    "strikeLine",
+    "chips",
+    "imageCard"
+  ],
+  "motion": {
+    "family": "chalk",
+    "enter": "draw",
+    "exit": "fade",
+    "easing": "smooth",
+    "speed": 1.3,
+    "camera": "still",
+    "sfxKit": "chalk",
+    "texture": "board",
+    "direction": "A lesson on a chalkboard. Dim-and-reveal: one claim or `equation` on the board at a time, drawn in as it is spoken, fading when the next arrives. `chapterCard` per step of the argument (yellow chalk number), `counter`s for quantities, `strikeLine` through the wrong intuition. Chalk colours: `iv` white for statements, `gold` yellow for the key term, `goldd` blue for definitions, `ter` pink for warnings. Longer holds (3–4 s), still camera, `card` mode for most of the reel so the board shows. No slams, no stamps, no punch-ins.",
+    "avoidElements": [
+      "stamp",
+      "filmStrip",
+      "bleedPlate",
+      "feedPhone",
+      "patternCard",
+      "reveal",
+      "lockCard",
+      "propPunchIn"
+    ]
+  }
+}

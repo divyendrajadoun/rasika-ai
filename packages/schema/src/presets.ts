@@ -13,6 +13,11 @@ import festiveBandhani from "../presets/festive-bandhani.json";
 import neonPop from "../presets/neon-pop.json";
 import paperCollage from "../presets/paper-collage.json";
 import sageWellness from "../presets/sage-wellness.json";
+import kineticMono from "../presets/kinetic-mono.json";
+import whiteboardMarker from "../presets/whiteboard-marker.json";
+import chalkboardMaths from "../presets/chalkboard-maths.json";
+import hypeCut from "../presets/hype-cut.json";
+import launchSpotlight from "../presets/launch-spotlight.json";
 
 /** The shipped presets, validated once at module load so a bad JSON fails fast. */
 export const presets: readonly StyleTokens[] = [
@@ -30,6 +35,11 @@ export const presets: readonly StyleTokens[] = [
   neonPop,
   paperCollage,
   sageWellness,
+  kineticMono,
+  whiteboardMarker,
+  chalkboardMaths,
+  hypeCut,
+  launchSpotlight,
 ].map((p) => StyleTokens.parse(p));
 
 export const defaultPreset: StyleTokens = presets[0] as StyleTokens;
