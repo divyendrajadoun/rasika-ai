@@ -65,8 +65,8 @@ Five formats, chosen by the style's `captionStyle`:
 Every style names real families (`style.fonts.poster / accent / ui / devanagari / caption`) from
 the bundled OFL set in `packages/engine/fonts`: Anton, Inter, Instrument Serif, Tiro Devanagari
 Hindi, Mukta, Montserrat, Bebas Neue, Playfair Display (italic), Archivo Black, Caveat, Bangers,
-Poppins, DM Serif Display, Kalam (Latin + Devanagari hand, for the board styles) and Permanent
-Marker (Apache-2.0). `css.ts` maps names to files, emits only the needed `@font-face` rules and
+Poppins, DM Serif Display, Kalam (Latin + Devanagari hand, for the board styles), Permanent
+Marker (Apache-2.0) and JetBrains Mono (the 3Blue1Brown lesson). `css.ts` maps names to files, emits only the needed `@font-face` rules and
 waits for exactly those families in `engine.ready`. Poster weight/tracking adapt to the family
 (Montserrat/Poppins/Inter 800, Kalam 700, Bebas +.03em); the mixed-case families (kinetic,
 whiteboard, chalk, launch) do not uppercase poster type.
@@ -77,12 +77,12 @@ A preset is a look *and* a way of moving. `StyleTokens.motion` (schema `style.ts
 
 | field           | values                                                        | engine effect |
 | --------------- | ------------------------------------------------------------- | ------------- |
-| `family`        | editorial · kinetic · whiteboard · chalk · hype · launch · collage | stage class `fam-*` (per-family CSS for cards, locks, stamps), card choreography, planner vocabulary |
-| `enter`         | rise · pop · slam · slide · fade · draw · blur                 | typography entrance (`rise` = house word-by-word for lines, pop for blocks) |
+| `family`        | editorial · kinetic · whiteboard · chalk · hype · launch · collage · blocks · beat | stage class `fam-*` (per-family CSS for cards, locks, stamps), card choreography, planner vocabulary **and which worked example the planner sees** (`apps/worker/prompts/examples/<family>.json`) |
+| `enter`         | rise · pop · slam · slide · fade · draw · blur · letters · mask | typography entrance (`rise` = house word-by-word for lines, pop for blocks; `letters` pops each letter, `mask` lifts the whole line under its mask) |
 | `exit`          | lift · dive · cut · wipe · fade                                | how typography leaves (editorial/collage cards keep the house sideways fling) |
 | `easing`        | spring · snap · smooth · soft                                  | outBack · outExpo · outCubic · outQuint |
 | `speed`         | 0.5–1.6                                                        | multiplies every entrance/exit duration |
-| `camera`        | glide · cut · whip · still                                     | mode-change duration (0.5 s / hard / 0.22 s / 0.6 s) and whether the frame breathes |
+| `camera`        | glide · cut · whip · still · push                              | mode-change duration (0.5 s / hard / 0.22 s / 0.6 s / hard) and whether the frame breathes; `push` adds a slow 7 % push-in on every unframed shot |
 | `sfxKit`        | pop · click · marker · chalk · hype · cinematic · none         | which synthesised palette renders the cue types (worker `sfx.py`) |
 | `texture`       | none · paper · board · grid · dots · vignette · gradient      | static backdrop behind the framed video (replaces the drifting dot pattern) |
 | `direction`     | markdown                                                       | the planner's beat structure + vocabulary for this style |
@@ -91,9 +91,15 @@ A preset is a look *and* a way of moving. `StyleTokens.motion` (schema `style.ts
 Everything defaults to the house editorial motion, so plans written before this field existed
 render exactly as before (the golden test guards it). `motionOf(style)` fills partial blocks.
 
+**Light stages.** `card` / `pip` / `arch` modes used to be treated as a dark context everywhere.
+Now the engine (`stageDark` in `BuildCtx`), the validator's colour-context swap and the planner's
+Motion direction all read the stage luma: on a light stage (Whiteboard Marker, Brand Bar, Sky
+Cards, Beat Type, Launch Spotlight, Paper Collage, Editorial Ivory …) framed modes take the
+light-wall tokens (`mar` / `ter` / `goldd`), chapter cards and reveals included.
+
 ## Presets
 
-Nineteen presets live in `packages/schema/presets`. The original fourteen — Mikku Royal (default),
+Twenty-six presets live in `packages/schema/presets`. The original fourteen — Mikku Royal (default),
 Katana Pop, Noir Minimal, Bold Creator, Creator Yellow, Editorial Ivory, Clinic Clean, Brutalist
 Acid, Cinema Bebas, Paper Collage, Neon Pop, Sage Wellness, Boardroom Navy, Festive Bandhani — now
 each carry a motion block (hype cuts slam and whip, Noir blurs in and cuts, Ivory fades on a still
@@ -104,6 +110,26 @@ retention cut) and **Launch Spotlight** (a product launch film). The landing pag
 show each one rendered by the engine on the same real 12 s take, from a plan the real planner
 wrote for that style (`tools/styledemos/make_styledemos.py`, plans in `tools/styledemos/plans`
 → `apps/web/public/demo/styles`).
+
+Seven more were built from the *measured* rules of the other repos in the community list (each
+repo was cloned and its SKILL.md, references and templates read; numbers below are theirs):
+**Slam Neon** (Shenghua: #0f0f17 stage, one neon accent, slam 2.4→1 with blur over 0.22 s, cut every
+1–4 s, captions on an accent pill), **Spotlight Promo** (Spotlight: footage first, ≤ 5-word captions
+low over a scrim, gold #E4B53B accent, 0.4 s fades with a 24 px rise, slow push), **Showreel
+Blocks** (Showreel: flat primary blocks, counters 1.2–1.8 s outQuart, entries 0.35–0.7 s, never the
+same transition thrice), **Brand Bar** (html-animation: bone #f5f5f2 ground, 700-weight sans at
+−0.035 em, pop 0.4→1.08→1, accent bar under the key word, 1.03→1.007 push), **Beat Type**
+(kinetic-typography-skills: Anton + italic serif on #f4f1ea paper, red / amber / blue bands, letter
+stagger 20–40 ms, expo.out), **Motionmaxxed** (motionmaxxing: near-black #110f14, sentence case,
+headline 9 % of the frame, arrivals from oversize, cuts every 0.3–2.3 s, no kickers or HUD) and
+**Sky Cards** (claude-motion-design: #f7f7f5 ground, white rounded cards, sky #38bdf8, 55 ms word
+rise, 0.3 s ease-in exits, something new every 2–4 s). The first five were re-tuned to the same
+sources: Kinetic Mono now uses Apple's measured black / #f5f5f7, 8-frame cut-on entries and 1.1 s
+holds; Whiteboard Marker uses the skill's Caveat 700 on #fbfbf8 with its ink / blue / gold / red /
+green; Chalkboard Maths is 3Blue1Brown's #1a1a2e with mono labels and one colour per meaning; Hype
+Cut uses the TikTok skill's Montserrat 800 karaoke captions with the #FFE45E active word; Launch
+Spotlight is the launch-kit's warm #faf7f2 ground with hero words punching in from 2.4× and glass
+clicks instead of whooshes.
 
 ## Validation (`validatePlan`)
 

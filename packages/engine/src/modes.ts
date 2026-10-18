@@ -15,6 +15,8 @@ export interface ModeState {
   f: number;
   /** arch factor 0..1 — top corners become a half-circle */
   ar: number;
+  /** start time of the segment this state belongs to (for the push camera) */
+  seg0?: number;
 }
 
 export const MODES: Record<Exclude<VideoModeName, "zoom">, ModeState> = {
@@ -65,6 +67,8 @@ export function cameraMove(camera: CameraKind, zoom: boolean): { dur: number; ea
       return { dur: zoom ? 0.3 : 0.22, ease: E.inOutQuint };
     case "still":
       return { dur: zoom ? 0.7 : 0.6, ease: E.inOutCubic };
+    case "push":
+      return { dur: 0.034, ease: E.linear };
     default:
       return { dur: zoom ? 0.6 : 0.5, ease: zoom ? E.inOutCubic : E.outExpo };
   }
@@ -79,7 +83,7 @@ export function vstate(
   let i = 0;
   for (let k = 0; k < segs.length; k++) if (t >= segs[k]!.t) i = k;
   const cur = segs[i]!;
-  if (i === 0) return { ...cur.state };
+  if (i === 0) return { ...cur.state, seg0: cur.t };
   const prev = segs[i - 1]!;
   const z = cur.mode === "zoom" || prev.mode === "zoom";
   const mv = cameraMove(camera, z);
@@ -91,6 +95,7 @@ export function vstate(
     r: lerp(prev.state.r, cur.state.r, p),
     f: lerp(prev.state.f, cur.state.f, p),
     ar: lerp(prev.state.ar, cur.state.ar, p),
+    seg0: cur.t,
   };
 }
 
@@ -101,8 +106,11 @@ export function videoWrapperStyle(
   gold: string,
   camera: CameraKind = "glide",
 ): { transform: string; borderRadius: string; boxShadow: string } {
-  const still = camera === "still" || camera === "cut";
-  const breathe = still ? 1 : 1 + 0.012 * Math.sin(t * 0.45) * (1 - v.f);
+  const still = camera === "still" || camera === "cut" || camera === "push";
+  // push: every unframed shot slowly pushes in (motion on every frame, never a static hold)
+  const push =
+    camera === "push" ? 1 + 0.07 * Math.min(1, (t - (v.seg0 ?? 0)) / 7) * (1 - v.f) : 1;
+  const breathe = (still ? 1 : 1 + 0.012 * Math.sin(t * 0.45) * (1 - v.f)) * push;
   const rt = lerp(v.r, 540, v.ar);
   return {
     transform: `translate(${v.x}px,${v.y}px) scale(${v.s * breathe})`,

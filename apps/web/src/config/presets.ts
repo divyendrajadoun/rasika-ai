@@ -103,6 +103,13 @@ const previewCopy: Record<string, PresetCard["preview"]> = {
     italic: "from ₹2,400",
     caption: "line",
   },
+  "slam-neon": { kicker: "", big: "NOT READY", italic: "yet", caption: "ready" },
+  "spotlight-promo": { kicker: "the offer", big: "Two for one", italic: "this week", caption: "week" },
+  "showreel-blocks": { kicker: "01", big: "FIVE", italic: "features", caption: "five" },
+  "brand-bar": { kicker: "", big: "Taste matters.", italic: "", caption: "taste" },
+  "beat-type": { kicker: "", big: "STOP", italic: "scrolling", caption: "stop" },
+  motionmaxxed: { kicker: "", big: "Only one brand", italic: "does this.", caption: "one" },
+  "sky-cards": { kicker: "step 1", big: "Connect it", italic: "in seconds", caption: "connect" },
 };
 
 const NEW_IDS = new Set([
@@ -111,6 +118,13 @@ const NEW_IDS = new Set([
   "chalkboard-maths",
   "hype-cut",
   "launch-spotlight",
+  "slam-neon",
+  "spotlight-promo",
+  "showreel-blocks",
+  "brand-bar",
+  "beat-type",
+  "motionmaxxed",
+  "sky-cards",
 ]);
 
 /** Human labels for a preset's motion family and sound kit (wizard + landing chips). */
@@ -122,6 +136,8 @@ export const FAMILY_LABEL: Record<StyleTokens["motion"]["family"], string> = {
   hype: "Hype cut",
   launch: "Launch film",
   collage: "Paper collage",
+  blocks: "Colour blocks",
+  beat: "Beat type",
 };
 export const SFX_LABEL: Record<StyleTokens["motion"]["sfxKit"], string> = {
   pop: "Pop & whoosh",

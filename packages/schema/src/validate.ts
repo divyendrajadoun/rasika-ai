@@ -79,6 +79,13 @@ export function heuristicTextWidth(
 
 const DARK_MODES = new Set<VideoModeName>(["card", "pip", "arch"]);
 
+/** Relative luma 0..1 of a #rrggbb colour. A light stage makes the framed modes a *light* context. */
+export function hexLuma(hex: string): number {
+  const n = parseInt(hex.replace("#", ""), 16);
+  if (Number.isNaN(n)) return 0;
+  return (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
+}
+
 function modeAt(plan: Plan, t: number): VideoModeName {
   let m: VideoModeName = "full";
   for (const vm of plan.videoModes) if (vm.t <= t + 1e-6) m = vm.mode;
@@ -392,14 +399,16 @@ export function validatePlan(
   // ── colour context: light-wall tokens over the dark stage (and vice versa) are swapped ──
   const DARK_SWAP: Record<string, ColorToken> = { mar: "iv", ter: "gold", goldd: "gold" };
   const LIGHT_SWAP: Record<string, ColorToken> = { iv: "mar", gold: "ter" };
+  const stageDark = hexLuma(plan.style.palette.stage) < 0.5;
   for (const el of plan.elements) {
     if (el.type !== "posterText") continue;
-    const dark = DARK_MODES.has(modeAt(plan, el.t0 + 0.05));
+    const framed = DARK_MODES.has(modeAt(plan, el.t0 + 0.05));
+    const dark = framed && stageDark;
     for (const line of el.lines) {
       if (!line.color) continue;
       const swap = dark
         ? DARK_SWAP[line.color]
-        : el.anim === "rise"
+        : el.anim === "rise" || (framed && !stageDark)
           ? LIGHT_SWAP[line.color]
           : undefined;
       if (swap) {

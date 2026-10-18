@@ -27,7 +27,7 @@ import {
 import { createGrain } from "./grain";
 import { buildSegments, modeAt, videoWrapperStyle, vstate, type Segment } from "./modes";
 import type { Colors } from "./patterns";
-import { clamp } from "./toolkit";
+import { clamp, hexLuma } from "./toolkit";
 
 export type AssetMode = "video" | "frames";
 
@@ -158,6 +158,7 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
       bl,
       durationSec: plan.meta.durationSec,
       modeAt: (t) => modeAt(segs, t),
+      stageDark: hexLuma(p.stage) < 0.5,
     };
     items = buildElements(plan.elements, ctx);
     if (plan.endCard) {

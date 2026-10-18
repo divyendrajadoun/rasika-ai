@@ -1,0 +1,58 @@
+{
+  "id": "sky-cards",
+  "name": "Sky Cards",
+  "tagline": "claude-motion-design's SaaS launch look: off-white ground, white rounded cards, one sky accent.",
+  "palette": {
+    "stage": "#f7f7f5",
+    "mar": "#0f172a",
+    "ter": "#38bdf8",
+    "gold": "#0ea5e9",
+    "goldd": "#64748b",
+    "iv": "#0f172a",
+    "ink": "#0f172a"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Tiro Devanagari Hindi",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.6,
+  "captionStyle": "karaoke",
+  "captionSize": 60,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chips",
+    "imageCard",
+    "splitCards",
+    "equation",
+    "chapterCard"
+  ],
+  "motion": {
+    "family": "launch",
+    "enter": "rise",
+    "exit": "dive",
+    "easing": "smooth",
+    "speed": 1.0,
+    "camera": "glide",
+    "sfxKit": "click",
+    "texture": "dots",
+    "direction": "SaaS launch film on a light ground. Headlines rise word by word under a mask (55 ms per word), mixed case, weight 700, one line each (2–5 words), one accent word in `ter`; exits are 0.3 s ease-in dives. Hook in the first 2 s as a question. A chain of steps, each 2–4 s, each `chip` or `chapterCard` producing what the next uses. Proof with a real number: `counter`s ticking up with a label. Straight `imageCard`s (tilt 0) as white cards. Something new every 2–4 s; every element readable for at least 1.5 s; never more than one thing moving at once. No stamps, no slams, no patterns, no glow, no emoji, no invented metrics.",
+    "avoidElements": [
+      "stamp",
+      "patternCard",
+      "bleedPlate",
+      "filmStrip",
+      "feedPhone",
+      "lockCard",
+      "reveal",
+      "propPunchIn"
+    ]
+  }
+}

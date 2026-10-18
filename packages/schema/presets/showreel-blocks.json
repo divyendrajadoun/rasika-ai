@@ -1,0 +1,55 @@
+{
+  "id": "showreel-blocks",
+  "name": "Showreel Blocks",
+  "tagline": "Showreel's motion-graphics reel: flat primary colour blocks, giant numbers, block wipes on the beat.",
+  "palette": {
+    "stage": "#1446ff",
+    "mar": "#0b1b6b",
+    "ter": "#ff3b30",
+    "gold": "#ffd400",
+    "goldd": "#ff8a00",
+    "iv": "#ffffff",
+    "ink": "#0a0a0a"
+  },
+  "fonts": {
+    "poster": "Montserrat",
+    "accent": "Poppins",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Montserrat"
+  },
+  "grain": 0.0,
+  "pace": 0.8,
+  "captionStyle": "karaoke",
+  "captionSize": 66,
+  "captionAccent": "gold",
+  "endCardShape": "square",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "bleedPlate",
+    "patternCard",
+    "chips",
+    "stamp",
+    "chapterCard",
+    "imageCard"
+  ],
+  "motion": {
+    "family": "blocks",
+    "enter": "slide",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 0.85,
+    "camera": "cut",
+    "sfxKit": "pop",
+    "texture": "none",
+    "direction": "Showreel motion graphics. Every section looks like a different project: a flat `bleedPlate` with `patternId: \"solid\"` or `\"blocks\"` and a 1–3 word title for each new idea, giant `counter`s (250–320 px) for numbers that count up over 1.2–1.8 s, `chips` as a stack that lands one per beat, `chapterCard`s for sections, straight `imageCard`s with a block label. Big move, short time: entries slide in hard, exits cut 0.1 s before the next. Never the same transition three times in a row — alternate plate, chips, counter, card. A layout never holds longer than 4 s. No serif lines, no vignette moods, no film strips.",
+    "avoidElements": [
+      "filmStrip",
+      "feedPhone",
+      "lockCard",
+      "reveal"
+    ]
+  }
+}

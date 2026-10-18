@@ -18,6 +18,13 @@ import whiteboardMarker from "../presets/whiteboard-marker.json";
 import chalkboardMaths from "../presets/chalkboard-maths.json";
 import hypeCut from "../presets/hype-cut.json";
 import launchSpotlight from "../presets/launch-spotlight.json";
+import slamNeon from "../presets/slam-neon.json";
+import spotlightPromo from "../presets/spotlight-promo.json";
+import showreelBlocks from "../presets/showreel-blocks.json";
+import brandBar from "../presets/brand-bar.json";
+import beatType from "../presets/beat-type.json";
+import motionmaxxed from "../presets/motionmaxxed.json";
+import skyCards from "../presets/sky-cards.json";
 
 /** The shipped presets, validated once at module load so a bad JSON fails fast. */
 export const presets: readonly StyleTokens[] = [
@@ -40,6 +47,13 @@ export const presets: readonly StyleTokens[] = [
   chalkboardMaths,
   hypeCut,
   launchSpotlight,
+  slamNeon,
+  spotlightPromo,
+  showreelBlocks,
+  brandBar,
+  beatType,
+  motionmaxxed,
+  skyCards,
 ].map((p) => StyleTokens.parse(p));
 
 export const defaultPreset: StyleTokens = presets[0] as StyleTokens;

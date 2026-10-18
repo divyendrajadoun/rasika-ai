@@ -23,6 +23,13 @@ export const E = {
 } as const;
 
 export const clamp = (x: number, a = 0, b = 1): number => Math.min(b, Math.max(a, x));
+
+/** Relative luma 0..1 of a #rrggbb colour (sRGB weights, no gamma — enough to tell light from dark). */
+export function hexLuma(hex: string): number {
+  const n = parseInt(hex.replace("#", ""), 16);
+  if (Number.isNaN(n)) return 0;
+  return (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
+}
 export const lerp = (a: number, b: number, p: number): number => a + (b - a) * p;
 
 /** Eased progress of `t` through [a, b], clamped to 0..1. */

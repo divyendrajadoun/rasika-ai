@@ -1,19 +1,19 @@
 {
   "id": "launch-spotlight",
   "name": "Launch Spotlight",
-  "tagline": "A product launch film: claim, product, features, lockup.",
+  "tagline": "Launch-video-kit film: warm light ground, hero words punching in on their spoken word, soft glass clicks.",
   "palette": {
-    "stage": "#101418",
-    "mar": "#0f172a",
-    "ter": "#6d5dfc",
-    "gold": "#a5b4fc",
-    "goldd": "#94a3b8",
-    "iv": "#f2f4f7",
-    "ink": "#080a0d"
+    "stage": "#faf7f2",
+    "mar": "#1b1713",
+    "ter": "#ff5b35",
+    "gold": "#ff5b35",
+    "goldd": "#6b645c",
+    "iv": "#1b1713",
+    "ink": "#17130f"
   },
   "fonts": {
     "poster": "Montserrat",
-    "accent": "DM Serif Display Italic",
+    "accent": "Montserrat",
     "ui": "Inter",
     "devanagari": "Tiro Devanagari Hindi",
     "caption": "Inter"
@@ -21,7 +21,7 @@
   "grain": 0.04,
   "pace": 0.6,
   "captionStyle": "karaoke",
-  "captionSize": 64,
+  "captionSize": 62,
   "captionAccent": "ter",
   "endCardShape": "rounded",
   "pattern": "none",
@@ -38,14 +38,14 @@
   ],
   "motion": {
     "family": "launch",
-    "enter": "slide",
+    "enter": "slam",
     "exit": "dive",
-    "easing": "soft",
-    "speed": 1.1,
+    "easing": "snap",
+    "speed": 0.9,
     "camera": "glide",
-    "sfxKit": "cinematic",
-    "texture": "vignette",
-    "direction": "A launch film. Name → hero claim (one big mixed-case line, 2–4 words) → product shots landing exactly on the words that name them (straight `imageCard`s, `tilt` 0–2, x 70, w 940, or `splitCards` side by side) → feature blocks (`chips` or `chapterCard`s, one per feature) → `lockCard` tease and `reveal` for the price or the launch date → lockup end card. One idea per beat, 2–3 s holds, lines slide in and dive out, the camera glides (`card` and `pip` modes while product shots are up). No stamps, no patterns, no film strips.",
+    "sfxKit": "click",
+    "texture": "none",
+    "direction": "A launch film. Hero words (1–4 words, mixed case, weight 800, 110–150 px) punch in from oversize and land on their spoken word; one key word per statement in `ter`. Name → claim → product shots landing on the words that name them (straight `imageCard`s or `splitCards`, tilt 0–1) → feature blocks (`chips`, one per feature, landing word by word) → `lockCard` tease and `reveal` for the price or date → quiet lockup. A beat every 1.2–1.8 s in kinetic stretches, hero holds at least 0.6 s, payoffs at least 1 s. Accent on exactly one element per shot. No whooshes-y stamps, no patterns, no slams at weight 900, no slow title cards, no film strips.",
     "avoidElements": [
       "stamp",
       "patternCard",

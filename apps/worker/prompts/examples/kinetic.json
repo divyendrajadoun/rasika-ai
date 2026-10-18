@@ -1,0 +1,264 @@
+{
+ "version": 1,
+ "meta": {
+  "durationSec": 24.0,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "language": "en"
+ },
+ "style": "<the style tokens, verbatim>",
+ "subject": {
+  "faceBox": {
+   "x": 330,
+   "y": 640,
+   "w": 420,
+   "h": 520
+  },
+  "freeZone": {
+   "x": 60,
+   "y": 150,
+   "w": 960,
+   "h": 480
+  },
+  "prop": {
+   "label": "brochure",
+   "point": {
+    "x": 700,
+    "y": 1180
+   }
+  }
+ },
+ "videoModes": [
+  {
+   "t": 0,
+   "mode": "full"
+  },
+  {
+   "t": 4.6,
+   "mode": "card"
+  },
+  {
+   "t": 11.0,
+   "mode": "full"
+  },
+  {
+   "t": 15.4,
+   "mode": "card"
+  },
+  {
+   "t": 21.5,
+   "mode": "arch"
+  }
+ ],
+ "captions": {
+  "enabled": true,
+  "y": 1400,
+  "gold": [
+   "stop",
+   "nobody",
+   "real"
+  ],
+  "accent": [
+   "gurgaon",
+   "three",
+   "twelve",
+   "brochure"
+  ]
+ },
+ "elements": [
+  {
+   "id": "k1",
+   "type": "posterText",
+   "t0": 0.3,
+   "t1": 3.3,
+   "anchorWordIndex": 0,
+   "top": 300,
+   "lines": [
+    {
+     "text": "Buying your first flat?",
+     "font": "anton",
+     "size": 112
+    }
+   ],
+   "anim": "pop"
+  },
+  {
+   "id": "k2",
+   "type": "posterText",
+   "t0": 3.5,
+   "t1": 4.6,
+   "anchorWordIndex": 8,
+   "top": 300,
+   "lines": [
+    {
+     "text": "Stop.",
+     "font": "anton",
+     "size": 190,
+     "color": "ter"
+    }
+   ],
+   "anim": "pop"
+  },
+  {
+   "id": "k3",
+   "type": "counter",
+   "t0": 4.7,
+   "t1": 6.6,
+   "anchorWordIndex": 11,
+   "from": 0,
+   "to": 3,
+   "label": "numbers nobody shows you",
+   "top": 260,
+   "size": 220,
+   "duration": 0.5
+  },
+  {
+   "id": "k4",
+   "type": "posterText",
+   "t0": 6.7,
+   "t1": 7.8,
+   "anchorWordIndex": 16,
+   "top": 300,
+   "lines": [
+    {
+     "text": "1  Maintenance",
+     "font": "anton",
+     "size": 108
+    }
+   ],
+   "anim": "pop"
+  },
+  {
+   "id": "k5",
+   "type": "posterText",
+   "t0": 7.9,
+   "t1": 9.0,
+   "anchorWordIndex": 19,
+   "top": 300,
+   "lines": [
+    {
+     "text": "2  Loading",
+     "font": "anton",
+     "size": 108
+    }
+   ],
+   "anim": "pop"
+  },
+  {
+   "id": "k6",
+   "type": "posterText",
+   "t0": 9.1,
+   "t1": 11.0,
+   "anchorWordIndex": 22,
+   "top": 300,
+   "lines": [
+    {
+     "text": "3  Lock-in",
+     "font": "anton",
+     "size": 108,
+     "color": "ter"
+    }
+   ],
+   "anim": "pop"
+  },
+  {
+   "id": "k7",
+   "type": "posterText",
+   "t0": 11.1,
+   "t1": 13.8,
+   "anchorWordIndex": 27,
+   "top": 300,
+   "lines": [
+    {
+     "text": "The real one",
+     "font": "anton",
+     "size": 108
+    },
+    {
+     "text": "at the end.",
+     "font": "serif",
+     "size": 72
+    }
+   ],
+   "anim": "pop"
+  },
+  {
+   "id": "k8",
+   "type": "counter",
+   "t0": 15.5,
+   "t1": 18.2,
+   "anchorWordIndex": 38,
+   "from": 0,
+   "to": 12,
+   "label": "% over the brochure price",
+   "top": 230,
+   "size": 250,
+   "duration": 0.7,
+   "color": "ter"
+  },
+  {
+   "id": "k9",
+   "type": "imageCard",
+   "t0": 17.5,
+   "t1": 18.2,
+   "anchorWordIndex": 43,
+   "imageId": "brochure",
+   "label": "",
+   "x": 70,
+   "y": 1180,
+   "w": 940,
+   "h": 560,
+   "tilt": 0
+  },
+  {
+   "id": "k10",
+   "type": "posterText",
+   "t0": 19.1,
+   "t1": 20.6,
+   "anchorWordIndex": 47,
+   "top": 300,
+   "lines": [
+    {
+     "text": "How you avoid it",
+     "font": "anton",
+     "size": 104
+    }
+   ],
+   "anim": "pop"
+  },
+  {
+   "id": "k11",
+   "type": "chips",
+   "t0": 20.7,
+   "t1": 23.0,
+   "anchorWordIndex": 51,
+   "x": 120,
+   "y": 250,
+   "size": 52,
+   "items": [
+    {
+     "text": "Save this",
+     "color": "iv",
+     "bg": "ter",
+     "at": 0
+    },
+    {
+     "text": "Send to family",
+     "color": "ink",
+     "bg": "gold",
+     "at": 0.8
+    }
+   ]
+  }
+ ],
+ "sfx": {
+  "auto": true,
+  "intensity": 0.7
+ },
+ "endCard": {
+  "brand": "HOMEWISE",
+  "line1": "Buy with the numbers.",
+  "handle": "@homewise"
+ }
+}

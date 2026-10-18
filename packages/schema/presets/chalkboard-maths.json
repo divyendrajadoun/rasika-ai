@@ -1,27 +1,27 @@
 {
   "id": "chalkboard-maths",
   "name": "Chalkboard Maths",
-  "tagline": "Dim and reveal, one claim at a time. The 3Blue1Brown lesson feel.",
+  "tagline": "3Blue1Brown lesson: deep navy board, mono labels, one colour per meaning, dim and reveal.",
   "palette": {
-    "stage": "#1f2d2a",
-    "mar": "#15201d",
-    "ter": "#e05a7a",
-    "gold": "#ffd166",
-    "goldd": "#2a7fa8",
-    "iv": "#f3efe4",
-    "ink": "#0f1716"
+    "stage": "#1a1a2e",
+    "mar": "#1a1a2e",
+    "ter": "#FC6255",
+    "gold": "#F9E04C",
+    "goldd": "#3FB4C9",
+    "iv": "#ececf4",
+    "ink": "#0d0d18"
   },
   "fonts": {
-    "poster": "Kalam",
-    "accent": "Caveat",
-    "ui": "Kalam",
-    "devanagari": "Kalam",
-    "caption": "Kalam"
+    "poster": "JetBrains Mono",
+    "accent": "Instrument Serif",
+    "ui": "JetBrains Mono",
+    "devanagari": "Tiro Devanagari Hindi",
+    "caption": "JetBrains Mono"
   },
   "grain": 0.12,
   "pace": 0.4,
   "captionStyle": "clean",
-  "captionSize": 60,
+  "captionSize": 54,
   "captionAccent": "gold",
   "endCardShape": "square",
   "pattern": "none",
@@ -36,14 +36,14 @@
   ],
   "motion": {
     "family": "chalk",
-    "enter": "draw",
+    "enter": "fade",
     "exit": "fade",
     "easing": "smooth",
     "speed": 1.3,
     "camera": "still",
     "sfxKit": "chalk",
     "texture": "board",
-    "direction": "A lesson on a chalkboard. Dim-and-reveal: one claim or `equation` on the board at a time, drawn in as it is spoken, fading when the next arrives. `chapterCard` per step of the argument (yellow chalk number), `counter`s for quantities, `strikeLine` through the wrong intuition. Chalk colours: `iv` white for statements, `gold` yellow for the key term, `goldd` blue for definitions, `ter` pink for warnings. Longer holds (3–4 s), still camera, `card` mode for most of the reel so the board shows. No slams, no stamps, no punch-ins.",
+    "direction": "A 3Blue1Brown lesson. Mono text, one colour per meaning for the whole reel: `gold` yellow is the active term, `goldd` teal the definition, `ter` red the warning, `iv` the statement. One equation or claim on the board at a time (`equation`, `posterText` of 2–6 words in sentence case), written in over ~1 s then held 2–3 s; the previous one fades when the next writes. `counter`s as live readouts in the parameter's own colour. `chapterCard`s as section cards (number in `gold`). `strikeLine` through the wrong intuition. Start sparse (one element), build density toward the end. Still camera, `card` mode most of the time so the board shows. No slams, stamps, punch-ins, patterns or photo bleeds.",
     "avoidElements": [
       "stamp",
       "filmStrip",

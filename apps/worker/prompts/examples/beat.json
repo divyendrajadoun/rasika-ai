@@ -1,0 +1,302 @@
+{
+ "version": 1,
+ "meta": {
+  "durationSec": 24.0,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "language": "en"
+ },
+ "style": "<the style tokens, verbatim>",
+ "subject": {
+  "faceBox": {
+   "x": 330,
+   "y": 640,
+   "w": 420,
+   "h": 520
+  },
+  "freeZone": {
+   "x": 60,
+   "y": 150,
+   "w": 960,
+   "h": 480
+  },
+  "prop": {
+   "label": "brochure",
+   "point": {
+    "x": 700,
+    "y": 1180
+   }
+  }
+ },
+ "videoModes": [
+  {
+   "t": 0,
+   "mode": "full"
+  },
+  {
+   "t": 3.4,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 540,
+    "y": 900
+   },
+   "zoomScale": 1.6
+  },
+  {
+   "t": 4.6,
+   "mode": "full"
+  },
+  {
+   "t": 9.0,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 540,
+    "y": 900
+   },
+   "zoomScale": 1.5
+  },
+  {
+   "t": 11.0,
+   "mode": "card"
+  },
+  {
+   "t": 15.4,
+   "mode": "full"
+  },
+  {
+   "t": 17.4,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 700,
+    "y": 1180
+   },
+   "zoomScale": 2.0
+  },
+  {
+   "t": 19.0,
+   "mode": "full"
+  },
+  {
+   "t": 21.5,
+   "mode": "arch"
+  }
+ ],
+ "captions": {
+  "enabled": true,
+  "y": 1400,
+  "gold": [
+   "stop",
+   "nobody",
+   "real"
+  ],
+  "accent": [
+   "gurgaon",
+   "three",
+   "twelve",
+   "brochure"
+  ]
+ },
+ "elements": [
+  {
+   "id": "t1",
+   "type": "posterText",
+   "t0": 0.3,
+   "t1": 1.05,
+   "anchorWordIndex": 0,
+   "top": 300,
+   "lines": [
+    {
+     "text": "Buying",
+     "font": "anton",
+     "size": 170
+    }
+   ],
+   "anim": "pop"
+  },
+  {
+   "id": "t2",
+   "type": "posterText",
+   "t0": 1.1,
+   "t1": 3.3,
+   "anchorWordIndex": 2,
+   "top": 300,
+   "lines": [
+    {
+     "text": "your first flat?",
+     "font": "anton",
+     "size": 120
+    }
+   ]
+  },
+  {
+   "id": "t3",
+   "type": "posterText",
+   "t0": 3.5,
+   "t1": 4.6,
+   "anchorWordIndex": 8,
+   "top": 280,
+   "lines": [
+    {
+     "text": "STOP.",
+     "font": "anton",
+     "size": 230,
+     "color": "ter"
+    }
+   ],
+   "anim": "pop"
+  },
+  {
+   "id": "t4",
+   "type": "counter",
+   "t0": 4.7,
+   "t1": 6.6,
+   "anchorWordIndex": 11,
+   "from": 0,
+   "to": 3,
+   "label": "numbers",
+   "top": 240,
+   "size": 260,
+   "duration": 0.35
+  },
+  {
+   "id": "t5",
+   "type": "posterText",
+   "t0": 6.7,
+   "t1": 7.8,
+   "anchorWordIndex": 16,
+   "top": 300,
+   "lines": [
+    {
+     "text": "maintenance",
+     "font": "anton",
+     "size": 120
+    }
+   ]
+  },
+  {
+   "id": "t6",
+   "type": "posterText",
+   "t0": 7.9,
+   "t1": 9.0,
+   "anchorWordIndex": 19,
+   "top": 300,
+   "lines": [
+    {
+     "text": "loading",
+     "font": "anton",
+     "size": 140,
+     "color": "gold"
+    }
+   ]
+  },
+  {
+   "id": "t7",
+   "type": "posterText",
+   "t0": 9.1,
+   "t1": 11.0,
+   "anchorWordIndex": 22,
+   "top": 300,
+   "lines": [
+    {
+     "text": "lock-in",
+     "font": "anton",
+     "size": 150,
+     "color": "ter"
+    }
+   ]
+  },
+  {
+   "id": "t8",
+   "type": "posterText",
+   "t0": 11.1,
+   "t1": 13.8,
+   "anchorWordIndex": 27,
+   "top": 300,
+   "lines": [
+    {
+     "text": "the real one",
+     "font": "serif",
+     "size": 96
+    },
+    {
+     "text": "at the end",
+     "font": "anton",
+     "size": 110
+    }
+   ]
+  },
+  {
+   "id": "t9",
+   "type": "counter",
+   "t0": 15.5,
+   "t1": 17.4,
+   "anchorWordIndex": 38,
+   "from": 0,
+   "to": 12,
+   "label": "% more",
+   "top": 230,
+   "size": 300,
+   "duration": 0.45,
+   "color": "ter"
+  },
+  {
+   "id": "t10",
+   "type": "stamp",
+   "t0": 17.9,
+   "t1": 19.9,
+   "anchorWordIndex": 44,
+   "text": "HIDDEN"
+  },
+  {
+   "id": "t11",
+   "type": "posterText",
+   "t0": 19.1,
+   "t1": 20.6,
+   "anchorWordIndex": 47,
+   "top": 300,
+   "lines": [
+    {
+     "text": "avoid it",
+     "font": "anton",
+     "size": 150,
+     "color": "gold"
+    }
+   ],
+   "anim": "pop"
+  },
+  {
+   "id": "t12",
+   "type": "chips",
+   "t0": 20.7,
+   "t1": 23.4,
+   "anchorWordIndex": 51,
+   "x": 110,
+   "y": 250,
+   "size": 62,
+   "items": [
+    {
+     "text": "SAVE",
+     "color": "ink",
+     "bg": "gold",
+     "at": 0
+    },
+    {
+     "text": "SEND",
+     "color": "iv",
+     "bg": "ter",
+     "at": 0.7
+    }
+   ]
+  }
+ ],
+ "sfx": {
+  "auto": true,
+  "intensity": 0.7
+ },
+ "endCard": {
+  "brand": "HOMEWISE",
+  "line1": "Buy with the numbers.",
+  "handle": "@homewise"
+ }
+}

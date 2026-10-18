@@ -1,0 +1,257 @@
+{
+ "version": 1,
+ "meta": {
+  "durationSec": 24.0,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "language": "en"
+ },
+ "style": "<the style tokens, verbatim>",
+ "subject": {
+  "faceBox": {
+   "x": 330,
+   "y": 640,
+   "w": 420,
+   "h": 520
+  },
+  "freeZone": {
+   "x": 60,
+   "y": 150,
+   "w": 960,
+   "h": 480
+  },
+  "prop": {
+   "label": "brochure",
+   "point": {
+    "x": 700,
+    "y": 1180
+   }
+  }
+ },
+ "videoModes": [
+  {
+   "t": 0,
+   "mode": "full"
+  },
+  {
+   "t": 2.5,
+   "mode": "pip"
+  },
+  {
+   "t": 6.6,
+   "mode": "full"
+  },
+  {
+   "t": 11.0,
+   "mode": "card"
+  },
+  {
+   "t": 18.2,
+   "mode": "full"
+  },
+  {
+   "t": 21.5,
+   "mode": "arch"
+  }
+ ],
+ "captions": {
+  "enabled": true,
+  "y": 1400,
+  "gold": [
+   "stop",
+   "nobody",
+   "real"
+  ],
+  "accent": [
+   "gurgaon",
+   "three",
+   "twelve",
+   "brochure"
+  ]
+ },
+ "elements": [
+  {
+   "id": "l1",
+   "type": "posterText",
+   "t0": 0.3,
+   "t1": 3.4,
+   "anchorWordIndex": 0,
+   "top": 300,
+   "lines": [
+    {
+     "text": "Your first flat,",
+     "font": "anton",
+     "size": 104
+    },
+    {
+     "text": "with the numbers.",
+     "font": "serif",
+     "size": 80
+    }
+   ],
+   "anim": "pop"
+  },
+  {
+   "id": "l2",
+   "type": "posterText",
+   "t0": 3.5,
+   "t1": 4.6,
+   "anchorWordIndex": 8,
+   "top": 320,
+   "lines": [
+    {
+     "text": "Stop.",
+     "font": "anton",
+     "size": 160,
+     "color": "ter"
+    }
+   ],
+   "anim": "pop"
+  },
+  {
+   "id": "l3",
+   "type": "chips",
+   "t0": 4.7,
+   "t1": 11.0,
+   "anchorWordIndex": 11,
+   "x": 110,
+   "y": 250,
+   "size": 54,
+   "items": [
+    {
+     "text": "Maintenance",
+     "color": "iv",
+     "bg": "ter",
+     "at": 2.0
+    },
+    {
+     "text": "Loading",
+     "color": "iv",
+     "bg": "ter",
+     "at": 3.2
+    },
+    {
+     "text": "Lock-in",
+     "color": "iv",
+     "bg": "ter",
+     "at": 4.4
+    }
+   ]
+  },
+  {
+   "id": "l4",
+   "type": "imageCard",
+   "t0": 1.5,
+   "t1": 6.6,
+   "anchorWordIndex": 3,
+   "imageId": "flat",
+   "label": "2 BHK, Sector 57",
+   "x": 70,
+   "y": 1180,
+   "w": 940,
+   "h": 560,
+   "tilt": 0
+  },
+  {
+   "id": "l5",
+   "type": "lockCard",
+   "t0": 11.1,
+   "t1": 13.8,
+   "anchorWordIndex": 27,
+   "kicker": "THE REAL NUMBER",
+   "word": "12 %",
+   "sub": "at the end",
+   "blurred": true,
+   "dark": true
+  },
+  {
+   "id": "l6",
+   "type": "splitCards",
+   "t0": 14.7,
+   "t1": 15.4,
+   "anchorWordIndex": 36,
+   "stagger": 0.25,
+   "cards": [
+    {
+     "imageId": "flat",
+     "label": "Flat",
+     "x": 60,
+     "y": 190,
+     "w": 460,
+     "h": 520,
+     "tilt": 0
+    },
+    {
+     "imageId": "brochure",
+     "label": "Brochure",
+     "x": 560,
+     "y": 190,
+     "w": 460,
+     "h": 520,
+     "tilt": 1
+    }
+   ]
+  },
+  {
+   "id": "l7",
+   "type": "counter",
+   "t0": 15.5,
+   "t1": 18.2,
+   "anchorWordIndex": 38,
+   "from": 0,
+   "to": 12,
+   "label": "% over the brochure price",
+   "top": 240,
+   "size": 150,
+   "duration": 0.6,
+   "color": "ter"
+  },
+  {
+   "id": "l8",
+   "type": "reveal",
+   "t0": 19.9,
+   "t1": 21.4,
+   "anchorWordIndex": 49,
+   "word": "12 %",
+   "definition": "Ask for the loading before the token.",
+   "top": 280,
+   "burst": {
+    "cx": 540,
+    "cy": 430,
+    "count": 24,
+    "seed": 3
+   }
+  },
+  {
+   "id": "l9",
+   "type": "posterText",
+   "t0": 20.7,
+   "t1": 23.4,
+   "anchorWordIndex": 51,
+   "top": 300,
+   "lines": [
+    {
+     "text": "Save this.",
+     "font": "anton",
+     "size": 96
+    },
+    {
+     "text": "Send it to family.",
+     "font": "serif",
+     "size": 72
+    }
+   ],
+   "anim": "pop"
+  }
+ ],
+ "sfx": {
+  "auto": true,
+  "intensity": 0.7
+ },
+ "endCard": {
+  "brand": "HOMEWISE",
+  "line1": "Buy with the numbers.",
+  "handle": "@homewise"
+ }
+}

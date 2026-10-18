@@ -1,0 +1,58 @@
+{
+  "id": "brand-bar",
+  "name": "Brand Bar",
+  "tagline": "html-animation's type-led brand clip: bone ground, tight bold sans, an accent bar that travels.",
+  "palette": {
+    "stage": "#f5f5f2",
+    "mar": "#141414",
+    "ter": "#2f6feb",
+    "gold": "#2f6feb",
+    "goldd": "#6b6b6b",
+    "iv": "#141414",
+    "ink": "#141414"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Inter",
+    "ui": "Inter",
+    "devanagari": "Tiro Devanagari Hindi",
+    "caption": "Inter"
+  },
+  "grain": 0.03,
+  "pace": 0.55,
+  "captionStyle": "phrase",
+  "captionSize": 58,
+  "captionAccent": "ter",
+  "endCardShape": "square",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "strikeLine",
+    "counter",
+    "chips",
+    "imageCard",
+    "equation"
+  ],
+  "motion": {
+    "family": "kinetic",
+    "enter": "pop",
+    "exit": "dive",
+    "easing": "spring",
+    "speed": 0.9,
+    "camera": "push",
+    "sfxKit": "click",
+    "texture": "vignette",
+    "direction": "Type-led brand clip. One entrance language for the whole piece: lines pop in (scale 0.4 → 1.08 → 1), exit by scaling down. Mixed case, weight 700, 2–4 words per line that fill the measure; the key word of each statement marked with a `strikeLine` used as an underline bar (strikeAt 0.15, strikeDur 0.3, `ter`). A slow push runs under every hold — nothing is ever still, so beats are 2.3–2.7 s and similar beats have equal lengths. Counters for numbers. Straight image cards. No stamps, no patterns, no tilted cards, no photos bleeding the frame, no chips stacks.",
+    "avoidElements": [
+      "stamp",
+      "patternCard",
+      "bleedPlate",
+      "filmStrip",
+      "feedPhone",
+      "splitCards",
+      "lockCard",
+      "reveal",
+      "propPunchIn"
+    ]
+  }
+}

@@ -66,6 +66,8 @@ class Family(StrEnum):
     hype = "hype"
     launch = "launch"
     collage = "collage"
+    blocks = "blocks"
+    beat = "beat"
 
 
 class Enter(StrEnum):
@@ -76,6 +78,8 @@ class Enter(StrEnum):
     fade = "fade"
     draw = "draw"
     blur = "blur"
+    letters = "letters"
+    mask = "mask"
 
 
 class Exit(StrEnum):
@@ -98,6 +102,7 @@ class Camera(StrEnum):
     cut = "cut"
     whip = "whip"
     still = "still"
+    push = "push"
 
 
 class SfxKit(StrEnum):
@@ -326,6 +331,8 @@ class PatternId(StrEnum):
     arches = "arches"
     bandhani = "bandhani"
     leheriya = "leheriya"
+    solid = "solid"
+    blocks = "blocks"
 
 
 class ImageId(RootModel[str]):

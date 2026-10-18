@@ -21,6 +21,7 @@ log = structlog.get_logger("rasika.worker.planner")
 
 HERE = Path(__file__).resolve().parent
 PROMPT = HERE.parents[0] / "prompts" / "planner.md"
+EXAMPLES_DIR = PROMPT.parent / "examples"
 _REPO = HERE.parents[2] if len(HERE.parents) > 2 else None
 SCHEMA_CANDIDATES = [
     (_REPO / "packages" / "schema" / "plan.schema.json") if _REPO else None,
@@ -119,26 +120,47 @@ class Planner:
             client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
         self.client: Any = client
         self.schema = load_plan_schema()
-        self.system_prefix = self._system_prefix()
+        self._prefixes: dict[str, list[dict[str, Any]]] = {}
+        self.system_prefix = self._prefix_for("editorial")
+
+    def _prefix_for(self, family: str) -> list[dict[str, Any]]:
+        """One cached system prefix per motion family (prompt + craft guide + that family's example)."""
+        key = family if (EXAMPLES_DIR / f"{family}.json").exists() else "editorial"
+        if key not in self._prefixes:
+            self._prefixes[key] = self._system_prefix(key)
+        return self._prefixes[key]
 
     # ── the cached prefix: prompt + style guide + schema + few-shot ──
-    def _system_prefix(self) -> list[dict[str, Any]]:
+    def _system_prefix(self, family: str = "editorial") -> list[dict[str, Any]]:
         prompt = PROMPT.read_text(encoding="utf-8")
         try:
             guide = _first(STYLE_GUIDE).read_text(encoding="utf-8")
         except FileNotFoundError:
             guide = ""
-        fewshot_plan = json.loads(_first(FEWSHOT_CANDIDATES).read_text(encoding="utf-8"))
-        fewshot_plan.pop("$schema", None)
-        fewshot_words = json.loads(_first(FEWSHOT_WORDS).read_text(encoding="utf-8"))["words"]
-        excerpt = compact_words(fewshot_words[:60]) + "\n…"
+        example = EXAMPLES_DIR / f"{family}.json"
+        if example.exists():
+            # a 24 s realtor clip planned in this family's vocabulary — the craft *and* the moves
+            fewshot_plan = json.loads(example.read_text(encoding="utf-8"))
+            fewshot_words = json.loads((EXAMPLES_DIR / "words.json").read_text(encoding="utf-8"))[
+                "words"
+            ]
+            excerpt = compact_words(fewshot_words)
+            label = f"Plan (realtor, 24 s, **{family}** family — the moves this family makes):"
+        else:
+            fewshot_plan = json.loads(_first(FEWSHOT_CANDIDATES).read_text(encoding="utf-8"))
+            fewshot_plan.pop("$schema", None)
+            fewshot_words = json.loads(_first(FEWSHOT_WORDS).read_text(encoding="utf-8"))["words"]
+            excerpt = compact_words(fewshot_words[:60]) + "\n…"
+            label = "Plan (jewellery brand, 90 s, editorial family):"
         text = (
             prompt
             + "\n\n---\n\n# Reference style guide (the craft; vocabulary is the example's, not yours)\n\n"
             + guide
             + "\n\n---\n\n# Worked example\n\nTranscript excerpt (`index|start|word`):\n\n"
             + excerpt
-            + "\n\nPlan (jewellery brand, 90 s):\n\n```json\n"
+            + "\n\n"
+            + label
+            + "\n\n```json\n"
             + json.dumps(fewshot_plan, ensure_ascii=False)
             + "\n```\n"
         )
@@ -235,13 +257,16 @@ class Planner:
         return parts
 
     def _call(
-        self, messages: list[dict[str, Any]], max_tokens: int = 32000
+        self,
+        messages: list[dict[str, Any]],
+        family: str = "editorial",
+        max_tokens: int = 32000,
     ) -> tuple[dict[str, Any] | None, dict[str, int], str]:
         # Streaming is mandatory for large outputs (the SDK refuses >10-minute non-streamed calls).
         with self.client.messages.stream(
             model=self.s.anthropic_planner_model,
             max_tokens=max_tokens,
-            system=self.system_prefix,
+            system=self._prefix_for(family),
             tools=[
                 {
                     "name": "emit_plan",
@@ -282,8 +307,9 @@ class Planner:
             "cache_write": 0,
         }
         user = self._user_content(inp)
+        family = str((inp.style.get("motion") or {}).get("family") or "editorial")
         messages: list[dict[str, Any]] = [{"role": "user", "content": user}]
-        plan, usage, stop = self._call(messages)
+        plan, usage, stop = self._call(messages, family)
         for k in total:
             total[k] += usage.get(k, 0)
         log.info("planner_call", attempt=1, stop=stop, **usage)
@@ -298,7 +324,7 @@ class Planner:
                     "no more than ~45 elements.",
                 }
             )
-            plan, usage, stop = self._call(messages)
+            plan, usage, stop = self._call(messages, family)
             for k in total:
                 total[k] += usage.get(k, 0)
             log.info("planner_call", attempt="1b", stop=stop, **usage)
@@ -350,7 +376,7 @@ class Planner:
                     ],
                 }
             )
-            plan2, usage, stop = self._call(messages)
+            plan2, usage, stop = self._call(messages, family)
             for k in total:
                 total[k] += usage.get(k, 0)
             attempts = 2
@@ -359,9 +385,15 @@ class Planner:
                 plan2 = self._normalise(plan2, inp)
                 report2 = validator(plan2, inp.words, image_ids)
                 errors2 = [i for i in report2["issues"] if i["level"] == "error"]
-                if len(errors2) <= len(errors):
+                if len(errors2) <= len(errors) and report2.get("plan"):
                     plan, report = plan2, report2
-        fixed = report["plan"]
+        fixed = report.get("plan")
+        if not fixed:
+            # the validator could not even parse it (schema-level failure) — say so, don't crash
+            msgs = "; ".join(
+                str(i.get("message", "")) for i in report["issues"] if i["level"] == "error"
+            )[:400]
+            raise RuntimeError(f"plan fails the schema after {attempts} attempt(s): {msgs}")
         if inp.wall_is_dark:
             swapped = swap_wall_tokens(fixed)
             if swapped:
@@ -440,7 +472,16 @@ class Planner:
         return plan
 
 
-MIXED_CASE_FAMILIES = {"kinetic", "whiteboard", "chalk", "launch"}
+MIXED_CASE_FAMILIES = {"kinetic", "whiteboard", "chalk", "launch", "blocks"}
+
+
+def hex_luma(hex_colour: str) -> float:
+    """Relative luma 0..1 of #rrggbb (same weights as the engine's hexLuma)."""
+    try:
+        n = int(hex_colour.lstrip("#"), 16)
+    except ValueError:
+        return 0.0
+    return (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255
 
 
 def sentence_case(text: str) -> str:
@@ -463,10 +504,19 @@ def motion_brief(style: dict[str, Any], motion: dict[str, Any]) -> str:
     )
     prefer = ", ".join(style.get("preferredElements") or []) or "any"
     never = ", ".join(motion.get("avoidElements") or []) or "none"
+    stage = str((style.get("palette") or {}).get("stage") or "#000000")
+    stage_note = (
+        "The stage behind the framed modes is DARK: `iv` / `gold` there."
+        if hex_luma(stage) < 0.5
+        else "The stage behind the framed modes is LIGHT: use `mar` / `ter` / `goldd` in every mode, "
+        "never `iv` / `gold`."
+    )
     return (
         f"## Motion direction for this style (family: {family})\n\n"
         + direction
-        + f"\n\n**Prefer:** {prefer}\n**Never use:** {never}\n"
+        + "\n\n"
+        + stage_note
+        + f"\n\n**Prefer:** {prefer}\n**Never use:** {never}\n\\n"
         + f"Entrance: {motion.get('enter', 'rise')} · exit: {motion.get('exit', 'lift')} · "
         + f"camera: {motion.get('camera', 'glide')} · sound kit: {motion.get('sfxKit', 'pop')}."
     )

@@ -1,27 +1,27 @@
 {
   "id": "hype-cut",
   "name": "Hype Cut",
-  "tagline": "The TikTok retention cut: slams, punch-ins, stamps, boxed captions.",
+  "tagline": "TikTok retention cut: hook from frame 1, karaoke captions with a yellow word, punch-ins, stamps.",
   "palette": {
-    "stage": "#0f0f10",
+    "stage": "#0b0b0f",
     "mar": "#111111",
-    "ter": "#ff2e63",
-    "gold": "#ffe600",
-    "goldd": "#00e5ff",
+    "ter": "#ff4d4d",
+    "gold": "#FFE45E",
+    "goldd": "#39d2ff",
     "iv": "#ffffff",
     "ink": "#000000"
   },
   "fonts": {
-    "poster": "Anton",
+    "poster": "Montserrat",
     "accent": "Bangers",
-    "ui": "Poppins",
+    "ui": "Inter",
     "devanagari": "Mukta",
-    "caption": "Poppins"
+    "caption": "Montserrat"
   },
   "grain": 0.05,
   "pace": 0.95,
-  "captionStyle": "box",
-  "captionSize": 84,
+  "captionStyle": "karaoke",
+  "captionSize": 72,
   "captionAccent": "gold",
   "endCardShape": "rounded",
   "pattern": "none",

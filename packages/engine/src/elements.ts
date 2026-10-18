@@ -41,6 +41,8 @@ export interface BuildCtx {
   bl: HTMLElement;
   durationSec: number;
   modeAt: (t: number) => VideoModeName;
+  /** false for light-stage styles: framed modes then take the light-wall colours */
+  stageDark: boolean;
 }
 
 const FONT_CLASS: Record<TextFont, string> = {
@@ -197,7 +199,7 @@ function lineExtra(line: TextLine): string {
 
 export function buildElement(el: PlanElement, ctx: BuildCtx): Item[] {
   const { C } = ctx;
-  const dark = DARK.has(ctx.modeAt(el.t0 + 0.05));
+  const dark = DARK.has(ctx.modeAt(el.t0 + 0.05)) && ctx.stageDark;
   const tok = (c: ColorToken | undefined, fallback: string) => (c ? C[c] : fallback);
 
   switch (el.type) {
@@ -348,9 +350,9 @@ export function buildElement(el: PlanElement, ctx: BuildCtx): Item[] {
     case "chapterCard":
       return [
         T(ctx, el.t0, el.t1, 150, [
-          [el.number, "an", 210, C.gold],
-          [el.line, "an", 84, C.iv],
-          [el.italicLine, "se", 90, C.gold],
+          [el.number, "an", 210, dark ? C.gold : C.ter],
+          [el.line, "an", 84, dark ? C.iv : C.mar],
+          [el.italicLine, "se", 90, dark ? C.gold : C.goldd],
         ]),
       ];
 
@@ -471,12 +473,12 @@ export function buildElement(el: PlanElement, ctx: BuildCtx): Item[] {
     case "reveal": {
       const b = el.burst;
       const html =
-        `<div class="it" style="top:${el.top}px"><div class="an big" style="font-size:250px;color:${C.gold};line-height:1">${esc(el.word)}</div>` +
+        `<div class="it" style="top:${el.top}px"><div class="an big" style="font-size:250px;color:${dark ? C.gold : C.ter};line-height:1">${esc(el.word)}</div>` +
         (el.devanagari
-          ? `<div class="dv" style="font-size:120px;line-height:1.3;color:${C.iv}">${esc(el.devanagari)}</div>`
+          ? `<div class="dv" style="font-size:120px;line-height:1.3;color:${dark ? C.iv : C.mar}">${esc(el.devanagari)}</div>`
           : "") +
         (el.definition
-          ? `<div class="se" style="font-size:64px;line-height:1.2;color:${C.iv}">${esc(el.definition)}</div>`
+          ? `<div class="se" style="font-size:64px;line-height:1.2;color:${dark ? C.iv : C.mar}">${esc(el.definition)}</div>`
           : "") +
         `</div><canvas class="burst" width="1080" height="1920" style="position:absolute;left:0;top:0"></canvas>`;
       return [
@@ -602,8 +604,38 @@ function typoEnter(el: HTMLElement, a: number, m: Motion, perWord: boolean): Tra
     });
     return {};
   }
+  if (m.enter === "letters" && perWord) {
+    // per-letter stagger: split each word once, then pop the letters in on the beat
+    for (const w of words) {
+      if (!w.dataset["split"]) {
+        w.innerHTML = [...(w.textContent ?? "")]
+          .map((ch) => `<span class="ch" style="display:inline-block">${esc(ch)}</span>`)
+          .join("");
+        w.dataset["split"] = "1";
+      }
+      w.style.transform = "";
+    }
+    let i = 0;
+    el.querySelectorAll<HTMLElement>(".ch").forEach((ch) => {
+      const p = prog(a, i * 0.028 * sp, i * 0.028 * sp + 0.32 * sp, ease);
+      ch.style.transform = `translateY(${(1 - p) * 60}%) scale(${0.6 + 0.4 * p})`;
+      ch.style.opacity = String(prog(a, i * 0.028 * sp, i * 0.028 * sp + 0.08 * sp));
+      i++;
+    });
+    return {};
+  }
+  if (m.enter === "mask" && perWord) {
+    // the whole line rises under its mask at once — no per-word stagger
+    words.forEach((w) => {
+      const p = prog(a, 0, 0.55 * sp, ease);
+      w.style.transform = `translateY(${(1 - p) * 125}%)`;
+    });
+    return {};
+  }
   words.forEach((w) => (w.style.transform = ""));
   switch (m.enter) {
+    case "letters":
+    case "mask":
     case "rise":
     case "pop": {
       const p = prog(a, 0, 0.45 * sp, ease);
@@ -716,6 +748,17 @@ export function updateItem(it: Item, t: number, m: Motion = DEFAULT_MOTION): voi
         case "hype": {
           const p = prog(a, 0, 0.3 * sp, E.outExpo);
           tr = { s: 1.9 - 0.9 * p, r: r * p, blur: (1 - p) * 8, o: prog(a, 0, 0.06) };
+          break;
+        }
+        case "blocks": {
+          // flat graphics slide in from the side on a hard beat, no tilt, no overshoot
+          const p = prog(a, 0, 0.36 * sp, E.outExpo);
+          tr = { x: (1 - p) * (r >= 0 ? 700 : -700), r: 0, o: 1 };
+          break;
+        }
+        case "beat": {
+          const p = prog(a, 0, 0.28 * sp, E.outBack);
+          tr = { s: 0.5 + 0.5 * p, r: r * p, o: prog(a, 0, 0.05) };
           break;
         }
         default: {

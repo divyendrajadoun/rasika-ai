@@ -239,7 +239,9 @@
                 "chalk",
                 "hype",
                 "launch",
-                "collage"
+                "collage",
+                "blocks",
+                "beat"
               ]
             },
             "enter": {
@@ -252,7 +254,9 @@
                 "slide",
                 "fade",
                 "draw",
-                "blur"
+                "blur",
+                "letters",
+                "mask"
               ]
             },
             "exit": {
@@ -289,7 +293,8 @@
                 "glide",
                 "cut",
                 "whip",
-                "still"
+                "still",
+                "push"
               ]
             },
             "sfxKit": {
@@ -1384,7 +1389,9 @@
         "jaali",
         "arches",
         "bandhani",
-        "leheriya"
+        "leheriya",
+        "solid",
+        "blocks"
       ]
     },
     "FilmStrip": {

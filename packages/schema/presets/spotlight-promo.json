@@ -1,0 +1,58 @@
+{
+  "id": "spotlight-promo",
+  "name": "Spotlight Promo",
+  "tagline": "Spotlight's premium social ad: footage first, short captions low over a scrim, one gold accent.",
+  "palette": {
+    "stage": "#111827",
+    "mar": "#1f2937",
+    "ter": "#E4B53B",
+    "gold": "#E4B53B",
+    "goldd": "#9ca3af",
+    "iv": "#ffffff",
+    "ink": "#0b1020"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Tiro Devanagari Hindi",
+    "caption": "Inter"
+  },
+  "grain": 0.06,
+  "pace": 0.45,
+  "captionStyle": "clean",
+  "captionSize": 58,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chips",
+    "imageCard",
+    "splitCards",
+    "chapterCard",
+    "equation"
+  ],
+  "motion": {
+    "family": "launch",
+    "enter": "fade",
+    "exit": "fade",
+    "easing": "smooth",
+    "speed": 1.2,
+    "camera": "push",
+    "sfxKit": "click",
+    "texture": "vignette",
+    "direction": "Spotlight promo. Footage first: at most one graphic at a time, low in the free zone, 2–5 words per line in sentence case with a small uppercase kicker above (`kicker` font, letter-spaced) and the headline below. Each line fades in with a short rise, holds 0.3 s per word (never under 1 s), fades out. A `counter` for any exact number with a source-like label; a numbered `chips` list (01 / 02 / 03) for benefits; straight `imageCard`s (tilt 0) for products. The camera pushes slowly on every shot. Sparse: 2–4 graphics per 20 s. No stamps, no slams, no patterns, no lock/reveal games, no film strips.",
+    "avoidElements": [
+      "stamp",
+      "patternCard",
+      "filmStrip",
+      "bleedPlate",
+      "feedPhone",
+      "lockCard",
+      "reveal",
+      "propPunchIn"
+    ]
+  }
+}

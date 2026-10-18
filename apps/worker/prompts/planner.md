@@ -37,8 +37,10 @@ industry's words.
    "show when I say" hint). Never label an image as something it isn't. If a beat needs a visual and
    no image fits, use a `patternCard`, a `counter`, `chips`, an `equation` or plain typography.
 4. **Zones.** Poster type lives in the free zone above the head (y 150–650); in `card`, `pip` and
-   `arch` modes the top of the stage is the dark backdrop, so poster text must end above y ≈ 680 and
-   use `iv` / `gold`. On the light wall (`full` / `zoom`) use `mar` / `ter` / `goldd`. Image cards go
+   `arch` modes the top of the stage is the style's backdrop, so poster text must end above y ≈ 680.
+   On a **dark stage** use `iv` / `gold` there; on a **light stage** (the Motion direction says which)
+   the framed modes are a light context too — `mar` / `ter` / `goldd` everywhere. On the light wall
+   (`full` / `zoom`) use `mar` / `ter` / `goldd`. Image cards go
    top-left (x ≈ 40–70) or top-right (x ≈ 570–590), 420–470 wide, y 170–760, tilt ±4–9°. Never
    cover the face.
 5. **Rhythm.** Something new every 2–4 s; a layout change at least every 6 s; rotate

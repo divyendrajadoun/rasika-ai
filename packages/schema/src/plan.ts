@@ -152,7 +152,7 @@ export const SplitCards = z.object({
   stagger: z.number().min(0).max(1).default(0.15),
 });
 
-export const PatternId = z.enum(["jaali", "arches", "bandhani", "leheriya"]);
+export const PatternId = z.enum(["jaali", "arches", "bandhani", "leheriya", "solid", "blocks"]);
 export type PatternId = z.infer<typeof PatternId>;
 
 export const BleedPlate = z

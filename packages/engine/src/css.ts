@@ -31,6 +31,7 @@ export const FONTS: Record<string, FontFile> = {
   "DM Serif Display Italic": { file: "DMSerifDisplay-Italic.ttf", style: "italic" },
   Kalam: { file: "Kalam-Bold.ttf", weight: "700" },
   "Permanent Marker": { file: "PermanentMarker-Regular.ttf" },
+  "JetBrains Mono": { file: "JetBrainsMono.ttf", weight: "100 800" },
 };
 
 /** Legacy aliases used by older plans / the reference composition. */
@@ -119,12 +120,12 @@ export function engineCss(o: EngineCssOptions): string {
   const posterWeight =
     poster === "Montserrat" || poster === "Poppins" || poster === "Inter"
       ? "800"
-      : poster === "Kalam"
+      : poster === "Kalam" || poster === "JetBrains Mono" || poster === "Caveat"
         ? "700"
         : "400";
   const m = o.motion ?? motionOf({});
   // mixed-case families: the hand, the board and the recap never shout in caps
-  const upper = ["kinetic", "launch", "whiteboard", "chalk"].includes(m.family)
+  const upper = ["kinetic", "launch", "whiteboard", "chalk", "blocks"].includes(m.family)
     ? "none"
     : "uppercase";
   const posterTracking = poster === "Bebas Neue" ? ".03em" : poster === "Anton" ? ".01em" : "0";
@@ -132,7 +133,7 @@ export function engineCss(o: EngineCssOptions): string {
   const capWeight =
     capFont === "Inter" || capFont === "Montserrat" || capFont === "Poppins"
       ? "800"
-      : capFont === "Kalam"
+      : capFont === "Kalam" || capFont === "JetBrains Mono"
         ? "700"
         : "400";
   const capUpper =
@@ -254,6 +255,26 @@ export function familyCss(
 .rk.fam-chalk .lock .t,.rk.fam-chalk .lock .s{color:var(--iv)}
 .rk.fam-chalk .lock .b{color:var(--gold)}
 .rk.fam-chalk .stamp{background:transparent;border-color:var(--gold);color:var(--gold);border-radius:4px;text-transform:none;font-family:"${f.poster}"}`,
+    blocks: `
+.rk.fam-blocks .card{border-radius:0;padding:0;background:var(--iv);box-shadow:none;border:0}
+.rk.fam-blocks .card img,.rk.fam-blocks .card svg{border-radius:0}
+.rk.fam-blocks .card .lb{bottom:-66px;left:0;right:auto;background:var(--ter);color:var(--iv);padding:10px 22px;font-size:34px;text-transform:none;letter-spacing:0;font-family:"${f.ui}";font-weight:800}
+.rk.fam-blocks .lock{border:0;border-radius:0;background:var(--ter)}
+.rk.fam-blocks .lock .t,.rk.fam-blocks .lock .s{color:var(--iv)}
+.rk.fam-blocks .lock .b{color:var(--iv)}
+.rk.fam-blocks .stamp{border:0;border-radius:0;background:var(--gold);color:var(--ink);padding:14px 40px}
+.rk.fam-blocks .chip{border-radius:0!important}
+.rk.fam-blocks .se{font-style:normal;font-weight:700}`,
+    beat: `
+.rk.fam-beat .an{letter-spacing:-.02em}
+.rk.fam-beat .card{border-radius:14px;padding:0;background:transparent;box-shadow:0 30px 70px rgba(0,0,0,.5)}
+.rk.fam-beat .card img,.rk.fam-beat .card svg{border-radius:14px}
+.rk.fam-beat .card .lb{bottom:-62px;color:var(--gold);font-size:40px}
+.rk.fam-beat .stamp{border-radius:999px;border-width:6px;background:var(--gold);color:var(--ink);border-color:var(--gold)}
+.rk.fam-beat .chip{border-radius:999px!important}
+.rk.fam-beat .lock{border:3px solid var(--gold);border-radius:20px;background:rgba(0,0,0,.6)}
+.rk.fam-beat .lock .t,.rk.fam-beat .lock .s{color:var(--gold)}
+.rk.fam-beat .lock .b{color:var(--iv)}`,
     hype: `
 .rk.fam-hype .card{border-radius:24px;border:8px solid var(--gold);padding:0;background:var(--gold);box-shadow:0 30px 60px rgba(0,0,0,.5)}
 .rk.fam-hype .card img,.rk.fam-hype .card svg{border-radius:16px}

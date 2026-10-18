@@ -1,0 +1,58 @@
+{
+  "id": "motionmaxxed",
+  "name": "Motionmaxxed",
+  "tagline": "Motionmaxxing's film: near-black ground, sentence-case neo-grotesk, one accent, cuts every 0.3–2.3 s.",
+  "palette": {
+    "stage": "#110f14",
+    "mar": "#20201e",
+    "ter": "#ff5a1f",
+    "gold": "#ff5a1f",
+    "goldd": "#a6a09e",
+    "iv": "#f7f7f7",
+    "ink": "#000000"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Inter",
+    "ui": "Inter",
+    "devanagari": "Tiro Devanagari Hindi",
+    "caption": "Inter"
+  },
+  "grain": 0.05,
+  "pace": 0.75,
+  "captionStyle": "clean",
+  "captionSize": 56,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "imageCard",
+    "equation",
+    "strikeLine"
+  ],
+  "motion": {
+    "family": "kinetic",
+    "enter": "slam",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 0.7,
+    "camera": "push",
+    "sfxKit": "click",
+    "texture": "none",
+    "direction": "Made by a motion designer, not a deck. Sentence case or lowercase, weight 500 feel: headline lines of 2–4 words at 9 % of the frame (about 170 px), a supporting line at 5–7 % (100–130 px), one hero number (`counter`, 300–420 px) used once. Nothing grows from zero: arrivals start oversize and decelerate into place; exits accelerate out; cut on motion every 0.3–2.3 s. A new word may flash in `ter` then the next line returns to `iv`. Centre the statements (left 70, w 940, align center). No kickers, no uppercase tracked labels, no corner labels, no \"02 / 05\" chapter numbering, no stamps, no patterns, no cards floating on a void.",
+    "avoidElements": [
+      "stamp",
+      "patternCard",
+      "bleedPlate",
+      "filmStrip",
+      "feedPhone",
+      "chapterCard",
+      "chips",
+      "lockCard",
+      "reveal",
+      "splitCards"
+    ]
+  }
+}

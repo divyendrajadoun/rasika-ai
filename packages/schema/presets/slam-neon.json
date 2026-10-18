@@ -1,0 +1,55 @@
+{
+  "id": "slam-neon",
+  "name": "Slam Neon",
+  "tagline": "Shenghua's kinetic short: dark stage, one neon accent, giant slams with shake and flash.",
+  "palette": {
+    "stage": "#0f0f17",
+    "mar": "#15151f",
+    "ter": "#ff3d5a",
+    "gold": "#ff3d5a",
+    "goldd": "#9a9aa8",
+    "iv": "#e8e8ee",
+    "ink": "#07070c"
+  },
+  "fonts": {
+    "poster": "Archivo Black",
+    "accent": "Anton",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.09,
+  "pace": 0.9,
+  "captionStyle": "box",
+  "captionSize": 74,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "stamp",
+    "chips",
+    "strikeLine",
+    "imageCard",
+    "chapterCard",
+    "propPunchIn"
+  ],
+  "motion": {
+    "family": "hype",
+    "enter": "slam",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 0.8,
+    "camera": "whip",
+    "sfxKit": "hype",
+    "texture": "vignette",
+    "direction": "Shenghua kinetic short. A new shot lands on each spoken line: giant uppercase slam words (2–4 words per line, 150–220 px, the key word in `ter`), a counter or year roll on every number, `strikeLine` drawn through the wrong idea, a `stamp` verdict (NOT READY / SCAM / TRUE) on judgement words, tilted `imageCard`s as taped polaroids with a typed label, `chips` for lists. Cut every 1–4 s; any hold over 4 s needs a punch-in (`zoom`). Keep the speaker's face for the opening and closing lines (full mode), animate everything between. Hard cuts only; no serif lines, no patterns, no film strips.",
+    "avoidElements": [
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone"
+    ]
+  }
+}

@@ -41,9 +41,9 @@ function basePlan(overrides: Partial<PlanInput> = {}): PlanInput {
 }
 
 describe("@rasika/schema presets", () => {
-  it("ships nineteen valid presets with Mikku Royal as default", () => {
-    expect(presets).toHaveLength(19);
-    expect(new Set(presets.map((p) => p.id)).size).toBe(19);
+  it("ships twenty-six valid presets with Mikku Royal as default", () => {
+    expect(presets).toHaveLength(26);
+    expect(new Set(presets.map((p) => p.id)).size).toBe(26);
     for (const p of presets) expect(() => StyleTokens.parse(p)).not.toThrow();
     expect(defaultPreset.id).toBe("mikku-royal");
     expect(defaultPreset.palette.stage).toBe("#3a0a11");

@@ -1,0 +1,57 @@
+{
+  "id": "beat-type",
+  "name": "Beat Type",
+  "tagline": "Kinetic-typography poster type on warm paper: condensed caps, italic serif, colour bands.",
+  "palette": {
+    "stage": "#f4f1ea",
+    "mar": "#14110f",
+    "ter": "#e8503a",
+    "gold": "#f2a93b",
+    "goldd": "#2f6df0",
+    "iv": "#14110f",
+    "ink": "#14110f"
+  },
+  "fonts": {
+    "poster": "Anton",
+    "accent": "Playfair Display",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Archivo Black"
+  },
+  "grain": 0.06,
+  "pace": 0.85,
+  "captionStyle": "one-word",
+  "captionSize": 78,
+  "captionAccent": "ter",
+  "endCardShape": "square",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "stamp",
+    "chips",
+    "strikeLine",
+    "patternCard"
+  ],
+  "motion": {
+    "family": "beat",
+    "enter": "letters",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 0.75,
+    "camera": "whip",
+    "sfxKit": "pop",
+    "texture": "gradient",
+    "direction": "Beat-synced kinetic typography. Lines are 1–3 words, huge (140–230 px), mixed per line: condensed caps (`anton`) next to an italic serif (`serif`) word; a new line every 0.8–1.6 s on the stressed word, letters popping in, cut out. One-word punches (\"STOP.\", \"TWELVE\") at 220 px. `counter`s for numbers, a `stamp` on verdict words, `chips` for lists in the band colours (`ter` red, `gold` amber, `goldd` blue), `patternCard` with `\"solid\"` as a colour band behind a word. Whip camera moves on the big hits. No photo bleeds, no film strips, no lock/reveal, no long sentences.",
+    "avoidElements": [
+      "bleedPlate",
+      "filmStrip",
+      "feedPhone",
+      "lockCard",
+      "reveal",
+      "imageCard",
+      "splitCards",
+      "chapterCard"
+    ]
+  }
+}

@@ -222,3 +222,29 @@ edit in beige. The community looks section showed other tools' videos and linked
 counter → tease) so the first seconds of some demos rhyme; the families diverge after. A per-family
 worked example in the planner prefix would widen that further. The `/dashboard/new?style=` deep
 link and the industry hints still work for the new ids.
+
+## Follow-up (19 Oct, later): the twelve community looks, from their own rule files
+
+The owner wanted the styles from the awesome-claude-video-skills list in the dashboard, built
+from the skills themselves, and pointed out that edits still shared one pattern.
+
+- **Research.** All twelve repos were shallow-cloned and read (SKILL.md, references, templates);
+  four read-only agents extracted typography, colour, motion numbers, transitions, structure, sound
+  and bans per repo. The numbers are in `docs/engine.md` → Presets and in each preset's
+  `motion.direction`.
+- **Nine families, 26 presets.** Two new families — `blocks` (flat colour-block graphics: Showreel,
+  Shenghua-adjacent) and `beat` (beat-synced kinetic type) — plus `letters` / `mask` entrances, a
+  `push` camera, `solid` / `blocks` plate patterns and JetBrains Mono. Seven new presets (Slam Neon,
+  Spotlight Promo, Showreel Blocks, Brand Bar, Beat Type, Motionmaxxed, Sky Cards); the five earlier
+  community presets re-tuned to the measured values.
+- **Why edits looked alike:** every family was shown the same jewellery worked example, so the
+  planner reproduced its hook → counter → lock → reveal spine. The planner now carries **one worked
+  example per family** (`apps/worker/prompts/examples/*.json`, a 24 s realtor clip planned seven
+  ways, each validated) and caches one system prefix per family.
+- **Light stages were broken:** framed modes always took the dark-stage tokens, so a light-stage
+  style put ivory type on cream in `card` mode. Engine, validator and planner now read the stage
+  luma.
+- Dashboard: the style step lists all 26 with their real demo renders; the landing says 26.
+
+Verified: schema 10 · engine 14 · web 12 · worker 23 tests; golden 0 failures; all seven family
+examples validate; 26 per-style plans regenerated with the family prefixes and rendered as demos.

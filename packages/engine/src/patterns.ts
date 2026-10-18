@@ -34,6 +34,20 @@ export function patternSvg(id: PatternId, w: number, h: number, C: Colors): stri
 <circle cx="0" cy="0" r="4" fill="${C.iv}" fill-opacity=".7"/><circle cx="90" cy="0" r="4" fill="${C.iv}" fill-opacity=".7"/><circle cx="0" cy="90" r="4" fill="${C.iv}" fill-opacity=".7"/><circle cx="90" cy="90" r="4" fill="${C.iv}" fill-opacity=".7"/></pattern></defs>
 <rect width="${w}" height="${h}" fill="url(#${pid})"/></svg>`;
     }
+    case "solid":
+      // a flat accent plate — the colour-block families use it as a full-bleed ground
+      return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block"><rect width="${w}" height="${h}" fill="${C.ter}"/></svg>`;
+    case "blocks": {
+      // a mosaic of flat blocks in the palette (deterministic layout)
+      const cols = [C.ter, C.gold, C.mar, C.goldd, C.iv];
+      const cw = Math.ceil(w / 3);
+      const ch = Math.ceil(h / 5);
+      let rects = "";
+      for (let r = 0; r < 5; r++)
+        for (let c = 0; c < 3; c++)
+          rects += `<rect x="${c * cw}" y="${r * ch}" width="${cw}" height="${ch}" fill="${cols[(r * 3 + c * 2) % cols.length]}"/>`;
+      return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block">${rects}</svg>`;
+    }
     case "leheriya": {
       const wave = (y: number, col: string, sw: number) =>
         `<path d="M-20 ${y} Q 20 ${y - 14} 60 ${y} T 140 ${y} T 220 ${y}" fill="none" stroke="${col}" stroke-width="${sw}"/>`;

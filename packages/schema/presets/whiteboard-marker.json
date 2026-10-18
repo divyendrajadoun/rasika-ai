@@ -1,18 +1,18 @@
 {
   "id": "whiteboard-marker",
   "name": "Whiteboard Marker",
-  "tagline": "A marker draws each thought as you say it. Red, blue, black on white.",
+  "tagline": "A marker draws each thought on paper: Caveat hand, ink, blue, gold, red, green.",
   "palette": {
-    "stage": "#f7f3ea",
-    "mar": "#1b1b1b",
-    "ter": "#d7263d",
-    "gold": "#1f6feb",
-    "goldd": "#1f8a4c",
-    "iv": "#ffffff",
-    "ink": "#1b1b1b"
+    "stage": "#fbfbf8",
+    "mar": "#1f2328",
+    "ter": "#d6453b",
+    "gold": "#5b6fe0",
+    "goldd": "#2f9a58",
+    "iv": "#1f2328",
+    "ink": "#1f2328"
   },
   "fonts": {
-    "poster": "Permanent Marker",
+    "poster": "Caveat",
     "accent": "Caveat",
     "ui": "Kalam",
     "devanagari": "Kalam",
@@ -20,8 +20,8 @@
   },
   "grain": 0.08,
   "pace": 0.5,
-  "captionStyle": "phrase",
-  "captionSize": 66,
+  "captionStyle": "clean",
+  "captionSize": 56,
   "captionAccent": "ter",
   "endCardShape": "square",
   "pattern": "none",
