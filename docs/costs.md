@@ -41,6 +41,20 @@ it; a GPU (`WHISPER_DEVICE=cuda`, `float16`) brings it under 15 s _(est.)_.
 The 22.5 K-token prefix (prompt + style guide + schema + few-shot) is cached for 5 minutes, so
 back-to-back jobs on a busy worker pay for it once.
 
+## Measured — Docker worker with the host GPU (2026-10-18, RTX 3060, 44.8 s Hindi clip)
+
+| Stage                                   | Seconds |
+| --------------------------------------- | ------- |
+| probe + audio + proxy + keyframes       | 12.3    |
+| transcribe (large-v3 float16 on CUDA, incl. cold model load + en/hi probes) | 71.9 (CPU int8 on the same clip: 179) |
+| transcript fixes (Haiku)                | 5.9     |
+| plan (Opus, cold cache)                 | 85.0    |
+| preview + final render (8 chunks)       | 85.0 + 8.9 derivatives |
+| **total, upload → final MP4**           | **≈ 4.5 min** |
+
+Warm transcription (model already resident) is ≈ 10 s for a minute of speech; the cold load of the
+3 GB model from the volume is most of the 72 s above.
+
 ## Levers
 
 - Chunk count = min(vCPUs, ceil(duration / 12 s)); more vCPUs → near-linear speed-up up to 8.

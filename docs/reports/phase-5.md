@@ -129,6 +129,21 @@ Token use per plan (Opus): ≈ 10–17 K input (≈ 22 K more from cache on repa
   shown as avatars in the industry index and as a polaroid beside each beat. They are labelled
   as the kind of person each beat is for — the phone next to them still plays a real render.
 
+### Follow-up 3: the Docker worker on a real user clip, and "it hangs"
+
+Running a user's own Hindi clip through the compose worker exposed container-only gaps that the dev
+venv never hit — all fixed and committed: PyAV 19 vs faster-whisper (pinned <19), a blank
+`ENGINE_DIR=` from `.env.example` overriding the image path, secrets not loaded from `.env`, the
+Playwright base image (v1.49) not matching the package (now both 1.63), Python 3.12's
+`communicate()` after a manual `stdin.close()`, and fork-started chunk processes on Linux (now spawn).
+Full tracebacks are now logged and kept under `work/_failures/`.
+
+"Hangs": CPU transcription at ~5× real time with progress only per 30 s window. Fixes: the worker
+transcribes on the host GPU (CUDA libs in the image, `deploy.resources` GPU reservation, automatic
+CPU fallback), every stage publishes a heartbeat every 15 s with elapsed time, and the project page
+shows a **Retry** button when a run fails or reports nothing for 2 minutes. A dark-wall check from
+the keyframes now switches poster text to ivory/gold when the speaker's wall is dark.
+
 ## Mocked / deferred
 
 - The transcript **review UI** (SPEC §7.3) is Phase 6 with the editor; suggestions are stored,

@@ -29,6 +29,10 @@ pnpm --filter web db:migrate  # create the tables (Drizzle)
 pnpm dev                      # web on http://localhost:3000
 ```
 
+GPU: `docker compose up -d` passes the host NVIDIA GPU to the worker (`deploy.resources` in
+`docker-compose.yml`); transcription then takes seconds instead of minutes. Without a GPU the worker
+falls back to CPU automatically (set `WHISPER_MODEL=medium` for a lighter box).
+
 Checks: `pnpm check` (lint · typecheck · test · build), `pnpm worker:check`, and the engine golden
 test `pnpm golden` (needs the worker venv: Playwright Chromium, Pillow, scikit-image; add
 `-- --video <file>` for real footage). `/dev/engine` plays any plan against any video.
