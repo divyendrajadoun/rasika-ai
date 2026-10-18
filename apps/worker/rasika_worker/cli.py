@@ -418,7 +418,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--project", required=True)
     p.add_argument("--type", default="probe")
     p.add_argument("--lang", default="auto")
-    p.add_argument("--payload", help='extra JSON payload, e.g. '{"then_final": true}'')
+    p.add_argument("--payload", help='extra JSON payload, for example {"then_final": true}')
     p.set_defaults(fn=cmd_enqueue)
 
     p = sub.add_parser("plan-local")
