@@ -149,7 +149,7 @@ the keyframes now switches poster text to ivory/gold when the speaker's wall is 
 - The transcript **review UI** (SPEC §7.3) is Phase 6 with the editor; suggestions are stored,
   not yet shown. Safe fixes are applied automatically so captions already carry casing.
 - Watermark on the free tier, credits deduction/refund: Phase 7.
-- `HostedTranscriber` remains a labelled stub.
+- Transcription moved to Deepgram Nova-3 (`DeepgramTranscriber`, `language=multi` so Hinglish keeps English words in Latin script; language inferred from the Devanagari share). `TRANSCRIBER=auto` uses it whenever `DEEPGRAM_API_KEY` is set and falls back to faster-whisper on any API error (`FallbackTranscriber`, reason recorded in the transcript notes). Measured on the owner's 42 s clip inside the container: 3.1 s vs 72 s (GPU, cold) / 179 s (CPU).
 
 ## Decisions to review
 

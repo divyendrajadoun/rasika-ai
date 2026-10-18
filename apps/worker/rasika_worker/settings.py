@@ -55,8 +55,11 @@ class Settings(BaseSettings):
     whisper_device: str = Field(default="cpu", alias="WHISPER_DEVICE")
     whisper_compute_type: str = Field(default="int8", alias="WHISPER_COMPUTE_TYPE")
     whisper_cache_dir: Path | None = Field(default=None, alias="WHISPER_CACHE_DIR")
-    # "faster-whisper" (default, local) or "hosted" (adapter stub, see transcribe.py)
-    transcriber: str = Field(default="faster-whisper", alias="TRANSCRIBER")
+    # "auto" (Deepgram when DEEPGRAM_API_KEY is set, else faster-whisper) | "deepgram" |
+    # "faster-whisper" — see transcribe.py
+    transcriber: str = Field(default="auto", alias="TRANSCRIBER")
+    deepgram_api_key: str = Field(default="", alias="DEEPGRAM_API_KEY")
+    deepgram_model: str = Field(default="nova-3", alias="DEEPGRAM_MODEL")
 
     # Optional licensed music bed (wav/mp3). Mixed only when the project asked for music and
     # ENABLE_MUSIC_BED is on.

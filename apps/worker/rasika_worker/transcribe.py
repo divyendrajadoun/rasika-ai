@@ -1,7 +1,8 @@
 """Transcription with word-level timestamps (SPEC §7.2).
 
-`Transcriber` is the interface; `FasterWhisperTranscriber` is the default (local, CPU int8 or
-GPU); `HostedTranscriber` is the adapter stub for a vendor API. Language is auto-detected and then
+`Transcriber` is the interface. `DeepgramTranscriber` (hosted, seconds per reel, Hinglish-aware)
+is used when a key is set, with `FasterWhisperTranscriber` (local, GPU or CPU int8) as the automatic
+fallback; both produce the same word list. Language is auto-detected and then
 **verified** by decoding a short window in both `en` and `hi` — Whisper forced to the wrong language
 emits low-confidence non-words, which the score below catches.
 """
@@ -249,17 +250,26 @@ class FasterWhisperTranscriber:
         return TranscriptResult(language, detected_p, words, self.name, notes)
 
 
-class HostedTranscriber:
-    """// MOCK: adapter stub for a hosted speech-to-text API with word timestamps + Hindi.
+class DeepgramTranscriber:
+    """Hosted transcription with word timestamps (Deepgram Nova-3): seconds per reel, no model
+    to load. `language=multi` keeps code-switched speech honest — Hindi in Devanagari, English words
+    in Latin script — which is what Hinglish captions need."""
 
-    The vendor is the user's choice (SPEC §7.2). Until it is configured this raises a clear
-    error so a job fails loudly rather than returning fake words.
-    """
-
-    name = "hosted"
+    name = "deepgram"
+    URL = "https://api.deepgram.com/v1/listen"
 
     def __init__(self, settings: Settings) -> None:
         self.s = settings
+        if not settings.deepgram_api_key:
+            raise RuntimeError("DEEPGRAM_API_KEY is not set")
+
+    def _params(self, language_hint: str) -> dict[str, str]:
+        p = {"model": self.s.deepgram_model, "smart_format": "true", "punctuate": "true"}
+        if language_hint == "en":
+            p["language"] = "en"
+        else:  # auto / hi / hinglish: multilingual keeps English words in Latin script
+            p["language"] = "multi"
+        return p
 
     def transcribe(
         self,
@@ -268,14 +278,101 @@ class HostedTranscriber:
         on_progress: Progress | None = None,
         vocabulary: list[str] | None = None,
     ) -> TranscriptResult:
-        raise NotImplementedError(
-            "TRANSCRIBER=hosted is an adapter stub; set TRANSCRIBER=faster-whisper or implement the vendor call"
+        import json
+        import urllib.error
+        import urllib.parse
+        import urllib.request
+
+        report = on_progress or (lambda p, m: None)
+        report(0.1, "Sending the audio to Deepgram…")
+        params = self._params(language_hint)
+        if vocabulary:
+            # keyterm prompting: brand names and photo labels spelled the way the user wrote them
+            params["keyterm"] = " ".join(v for v in vocabulary if v)[:200]
+        url = self.URL + "?" + urllib.parse.urlencode(params)
+        req = urllib.request.Request(
+            url,
+            data=audio16k.read_bytes(),
+            method="POST",
+            headers={
+                "Authorization": f"Token {self.s.deepgram_api_key}",
+                "Content-Type": "audio/wav",
+            },
         )
+        try:
+            with urllib.request.urlopen(req, timeout=180) as r:
+                data = json.load(r)
+        except urllib.error.HTTPError as exc:
+            raise RuntimeError(f"Deepgram {exc.code}: {exc.read().decode()[:200]}") from exc
+        report(0.9, "Timing every word…")
+        return parse_deepgram(data, language_hint)
+
+
+def parse_deepgram(data: dict[str, Any], language_hint: str = "auto") -> TranscriptResult:
+    """Deepgram JSON → words; the transcript language is inferred from the script actually used
+    (≥ 40 % Devanagari letters → hi), which also covers Hinglish correctly."""
+    ch = (data.get("results", {}).get("channels") or [{}])[0]
+    alt = (ch.get("alternatives") or [{}])[0]
+    words: list[Word] = []
+    for w in alt.get("words", []) or []:
+        txt = str(w.get("punctuated_word") or w.get("word") or "").strip()
+        if not txt:
+            continue
+        words.append(
+            Word(
+                txt,
+                round(float(w["start"]), 3),
+                round(float(w["end"]), 3),
+                round(float(w.get("confidence", 0.0)), 3),
+            )
+        )
+    text = " ".join(w.w for w in words)
+    ratio = script_ratio(text, "hi")
+    if language_hint in ("en", "hi"):
+        language = language_hint
+    else:
+        language = "hi" if ratio >= 0.4 else "en"
+    conf = float(ch.get("language_confidence") or alt.get("confidence") or 0.0)
+    notes = [f"deepgram {language}: devanagari share {ratio:.2f}"]
+    if ch.get("detected_language"):
+        notes.append(f"deepgram detected {ch['detected_language']}")
+    return TranscriptResult(language, conf, words, "deepgram", notes)
+
+
+class FallbackTranscriber:
+    """Try the fast hosted engine first; on any error fall back to local faster-whisper so a
+    network or quota problem never fails a job."""
+
+    name = "deepgram+faster-whisper"
+
+    def __init__(self, primary: Transcriber, secondary: Transcriber) -> None:
+        self.primary = primary
+        self.secondary = secondary
+
+    def transcribe(
+        self,
+        audio16k: Path,
+        language_hint: str = "auto",
+        on_progress: Progress | None = None,
+        vocabulary: list[str] | None = None,
+    ) -> TranscriptResult:
+        try:
+            return self.primary.transcribe(audio16k, language_hint, on_progress, vocabulary)
+        except Exception as exc:
+            log.warning("transcriber_fallback", primary=self.primary.name, error=str(exc)[:200])
+            res = self.secondary.transcribe(audio16k, language_hint, on_progress, vocabulary)
+            res.notes.append(f"fell back from {self.primary.name}: {str(exc)[:120]}")
+            return res
 
 
 def make_transcriber(settings: Settings) -> Transcriber:
-    if settings.transcriber == "hosted":
-        return HostedTranscriber(settings)
+    mode = settings.transcriber
+    if mode == "deepgram":
+        return DeepgramTranscriber(settings)
+    if mode == "auto" and settings.deepgram_api_key:
+        return FallbackTranscriber(
+            DeepgramTranscriber(settings), FasterWhisperTranscriber(settings)
+        )
     return FasterWhisperTranscriber(settings)
 
 

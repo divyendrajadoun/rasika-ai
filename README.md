@@ -11,7 +11,7 @@ from lives in [`reference/mikku`](./reference/mikku) (golden composition:
 
 ```
 apps/web         Next.js 15 (App Router) · TypeScript · Tailwind v4 · shadcn/ui · Framer Motion
-apps/worker      Python 3.11 worker: probe · faster-whisper transcription · chunked Chromium render · sfx mix
+apps/worker      Python 3.11 worker: probe · Deepgram transcription (faster-whisper fallback) · chunked Chromium render · sfx mix
 packages/engine  Deterministic motion engine (plan JSON → frames); headless harness in dist/
 packages/schema  Plan v1 (Zod) · validatePlan · JSON Schema export · style presets
 plans/           hand-written plans (baisa_bling.json = the golden reference)
