@@ -123,6 +123,11 @@ Token use per plan (Opus): ≈ 10–17 K input (≈ 22 K more from cache on repa
   `not_enough_credits`; the eight per-industry portraits generate in about a minute once it is
   topped up.
 - Lighthouse mobile after the section: perf 82 · a11y 100 · seo 100 · best practices 100.
+- **Industry portraits generated** once the Higgsfield platform account had credit: eight
+  selfie-style photorealistic portraits (SOUL v2, one per industry, Indian subjects in their own
+  settings), cropped to 4:5 and optimised to 50–110 KB (`tools/portraits/prepare_portraits.py`),
+  shown as avatars in the industry index and as a polaroid beside each beat. They are labelled
+  as the kind of person each beat is for — the phone next to them still plays a real render.
 
 ## Mocked / deferred
 

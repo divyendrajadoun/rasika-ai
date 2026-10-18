@@ -6,6 +6,12 @@ import { PhoneMockup } from "@/components/brand/phone-mockup";
 import { Section } from "@/components/brand/section";
 import { presetCards } from "@/config/presets";
 import { industries as c } from "@/content/landing";
+import portraits from "@/content/portraits.json";
+
+const PORTRAITS = portraits as Record<
+  string,
+  { src: string; width: number; height: number; color: string }
+>;
 
 type Item = (typeof c.items)[number];
 
@@ -47,6 +53,22 @@ export function Industries() {
                         : "text-iv/70 hover:text-iv lg:hover:bg-transparent")
                     }
                   >
+                    {PORTRAITS[it.id] && (
+                      // eslint-disable-next-line @next/next/no-img-element -- static portrait
+                      <img
+                        src={PORTRAITS[it.id]!.src}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        width={40}
+                        height={40}
+                        className={
+                          "size-8 shrink-0 self-center rounded-full object-cover object-top ring-1 transition lg:size-10 " +
+                          (on ? "ring-gold" : "opacity-80 ring-white/20 group-hover:opacity-100")
+                        }
+                        style={{ background: PORTRAITS[it.id]!.color }}
+                      />
+                    )}
                     <span className="kicker shrink-0 text-[0.6rem] opacity-70">
                       {String(i + 1).padStart(2, "0")}
                     </span>
@@ -92,9 +114,27 @@ export function Industries() {
 /** The beat Rasika designs from this industry's sentence: poster lines, the counter, a chapter. */
 function Beat({ item }: { item: Item }) {
   const n = useCounter(item.counter.from, item.counter.to);
+  const photo = PORTRAITS[item.id];
   return (
     <div className="border-gold/20 bg-ink/40 mt-8 rounded-2xl border p-5">
-      <p className="font-accent text-iv/85 text-2xl italic leading-snug">{item.line}</p>
+      <div className="flex items-start gap-4">
+        {photo && (
+          <div className="polaroid w-24 shrink-0 !p-1 !pb-3 sm:w-28">
+            {/* eslint-disable-next-line @next/next/no-img-element -- static portrait */}
+            <img
+              src={photo.src}
+              alt={`${item.who}: the kind of person this beat is designed for`}
+              loading="lazy"
+              decoding="async"
+              width={photo.width}
+              height={photo.height}
+              className="aspect-[4/5] w-full rounded-sm object-cover"
+              style={{ background: photo.color }}
+            />
+          </div>
+        )}
+        <p className="font-accent text-iv/85 text-2xl italic leading-snug">{item.line}</p>
+      </div>
       <div className="mt-4 grid grid-cols-[1fr_auto] items-end gap-4">
         <div>
           <p className="kicker text-gold/70 text-[0.55rem]">Poster above the head</p>
