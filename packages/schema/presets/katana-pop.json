@@ -1,7 +1,7 @@
 {
   "id": "katana-pop",
   "name": "Katana Pop",
-  "tagline": "Pink paper, cobalt ink, doodle arrows and a yellow highlighter.",
+  "tagline": "Pink paper, cobalt ink, comic type and a yellow highlighter.",
   "palette": {
     "stage": "#2B0303",
     "mar": "#2A5CC4",
@@ -12,16 +12,17 @@
     "ink": "#160a0a"
   },
   "fonts": {
-    "poster": "Anton",
-    "accent": "Instrument Serif",
+    "poster": "Bangers",
+    "accent": "Caveat",
     "ui": "Inter",
     "devanagari": "Tiro Devanagari Hindi",
-    "caption": "Inter"
+    "caption": "Montserrat"
   },
   "grain": 0.03,
   "pace": 0.75,
-  "captionStyle": "one-word",
+  "captionStyle": "box",
   "captionSize": 80,
+  "captionAccent": "gold",
   "endCardShape": "rounded",
   "pattern": "none",
   "preferredElements": ["posterText", "chips", "stamp", "imageCard", "strikeLine"]

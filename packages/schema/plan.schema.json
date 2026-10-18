@@ -179,7 +179,21 @@
           "enum": [
             "one-word",
             "phrase",
+            "karaoke",
+            "box",
+            "clean",
             "off"
+          ]
+        },
+        "captionAccent": {
+          "default": "gold",
+          "type": "string",
+          "enum": [
+            "gold",
+            "goldd",
+            "ter",
+            "mar",
+            "iv"
           ]
         },
         "captionSize": {

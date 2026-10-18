@@ -3,6 +3,16 @@ import mikkuRoyal from "../presets/mikku-royal.json";
 import katanaPop from "../presets/katana-pop.json";
 import noirMinimal from "../presets/noir-minimal.json";
 import boldCreator from "../presets/bold-creator.json";
+import boardroomNavy from "../presets/boardroom-navy.json";
+import brutalistAcid from "../presets/brutalist-acid.json";
+import cinemaBebas from "../presets/cinema-bebas.json";
+import clinicClean from "../presets/clinic-clean.json";
+import creatorYellow from "../presets/creator-yellow.json";
+import editorialIvory from "../presets/editorial-ivory.json";
+import festiveBandhani from "../presets/festive-bandhani.json";
+import neonPop from "../presets/neon-pop.json";
+import paperCollage from "../presets/paper-collage.json";
+import sageWellness from "../presets/sage-wellness.json";
 
 /** The shipped presets, validated once at module load so a bad JSON fails fast. */
 export const presets: readonly StyleTokens[] = [
@@ -10,6 +20,19 @@ export const presets: readonly StyleTokens[] = [
   katanaPop,
   noirMinimal,
   boldCreator,
+  boardroomNavy,
+  brutalistAcid,
+  cinemaBebas,
+  clinicClean,
+  creatorYellow,
+  editorialIvory,
+  festiveBandhani,
+  neonPop,
+  paperCollage,
+  sageWellness,
 ].map((p) => StyleTokens.parse(p));
 
 export const defaultPreset: StyleTokens = presets[0] as StyleTokens;
+
+/** Preset ids in display order (default first). */
+export const presetIds = presets.map((p) => p.id);

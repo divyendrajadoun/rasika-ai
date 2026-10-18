@@ -1,0 +1,29 @@
+{
+  "id": "editorial-ivory",
+  "name": "Editorial Ivory",
+  "tagline": "Magazine white. Serif display, one red accent, captions as a clean lower third.",
+  "palette": {
+    "stage": "#efe9df",
+    "mar": "#1c1b19",
+    "ter": "#c0392b",
+    "gold": "#1c1b19",
+    "goldd": "#7a3b2e",
+    "iv": "#faf7f2",
+    "ink": "#1c1b19"
+  },
+  "fonts": {
+    "poster": "DM Serif Display",
+    "accent": "Playfair Display",
+    "ui": "Inter",
+    "devanagari": "Tiro Devanagari Hindi",
+    "caption": "Inter"
+  },
+  "grain": 0.02,
+  "pace": 0.4,
+  "captionStyle": "clean",
+  "captionSize": 62,
+  "captionAccent": "ter",
+  "endCardShape": "square",
+  "pattern": "none",
+  "preferredElements": ["posterText", "equation", "imageCard", "bleedPlate", "filmStrip"]
+}

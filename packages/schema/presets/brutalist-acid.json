@@ -1,0 +1,29 @@
+{
+  "id": "brutalist-acid",
+  "name": "Brutalist Acid",
+  "tagline": "Acid yellow on black, slab-heavy type, boxed captions. For founders who ship.",
+  "palette": {
+    "stage": "#111111",
+    "mar": "#111111",
+    "ter": "#d8ff00",
+    "gold": "#d8ff00",
+    "goldd": "#5f6b00",
+    "iv": "#f4f4f4",
+    "ink": "#000000"
+  },
+  "fonts": {
+    "poster": "Archivo Black",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Tiro Devanagari Hindi",
+    "caption": "Archivo Black"
+  },
+  "grain": 0.08,
+  "pace": 0.9,
+  "captionStyle": "box",
+  "captionSize": 84,
+  "captionAccent": "ter",
+  "endCardShape": "square",
+  "pattern": "none",
+  "preferredElements": ["posterText", "counter", "stamp", "chips", "strikeLine", "reveal"]
+}

@@ -30,7 +30,18 @@ class Fonts(BaseModel):
 class CaptionStyle(StrEnum):
     one_word = "one-word"
     phrase = "phrase"
+    karaoke = "karaoke"
+    box = "box"
+    clean = "clean"
     off = "off"
+
+
+class CaptionAccent(StrEnum):
+    gold = "gold"
+    goldd = "goldd"
+    ter = "ter"
+    mar = "mar"
+    iv = "iv"
 
 
 class EndCardShape(StrEnum):
@@ -400,6 +411,7 @@ class StyleTokens(BaseModel):
     grain: float = Field(..., ge=0.0, le=1.0)
     pace: float = Field(..., ge=0.0, le=1.0)
     captionStyle: CaptionStyle
+    captionAccent: CaptionAccent | None = "gold"
     captionSize: int = Field(..., ge=40, le=140)
     endCardShape: EndCardShape
     pattern: Pattern

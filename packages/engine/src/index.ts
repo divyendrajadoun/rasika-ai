@@ -11,7 +11,15 @@ export * from "./sfx";
 export { captionWindows, captionAt, normaliseKey } from "./captions";
 export { buildSegments, vstate, modeAt, zoomState, MODES, DEFAULT_ZOOM_SCALE } from "./modes";
 export { patternSvg } from "./patterns";
-export { FONT_FILES, FONT_LOADS, engineCss, fontFaceCss } from "./css";
+export {
+  FONT_FILES,
+  FONT_LOADS,
+  FONTS,
+  engineCss,
+  fontFaceCss,
+  fontsForStyle,
+  fontLoadDescriptor,
+} from "./css";
 export { autoColor, type Item } from "./elements";
 export { framePattern, mountHarness, type HarnessConfig } from "./harness";
 

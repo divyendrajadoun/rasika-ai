@@ -1,0 +1,29 @@
+{
+  "id": "neon-pop",
+  "name": "Neon Pop",
+  "tagline": "Deep violet, magenta and cyan. Comic caps, karaoke captions, fastest pace.",
+  "palette": {
+    "stage": "#15082a",
+    "mar": "#1d0c38",
+    "ter": "#ff2e88",
+    "gold": "#2ee6ff",
+    "goldd": "#b8188a",
+    "iv": "#ffffff",
+    "ink": "#0a0414"
+  },
+  "fonts": {
+    "poster": "Bangers",
+    "accent": "Caveat",
+    "ui": "Inter",
+    "devanagari": "Tiro Devanagari Hindi",
+    "caption": "Montserrat"
+  },
+  "grain": 0.05,
+  "pace": 1,
+  "captionStyle": "karaoke",
+  "captionSize": 90,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": ["posterText", "stamp", "chips", "propPunchIn", "reveal", "counter"]
+}

@@ -1,0 +1,29 @@
+{
+  "id": "clinic-clean",
+  "name": "Clinic Clean",
+  "tagline": "Calm white and navy for doctors, dentists and advisors. Boxed captions, no stamps.",
+  "palette": {
+    "stage": "#eef3f7",
+    "mar": "#12345a",
+    "ter": "#1f8a8a",
+    "gold": "#12345a",
+    "goldd": "#1f8a8a",
+    "iv": "#ffffff",
+    "ink": "#0b1d33"
+  },
+  "fonts": {
+    "poster": "Poppins",
+    "accent": "Instrument Serif",
+    "ui": "Poppins",
+    "devanagari": "Tiro Devanagari Hindi",
+    "caption": "Poppins"
+  },
+  "grain": 0,
+  "pace": 0.45,
+  "captionStyle": "box",
+  "captionSize": 72,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": ["posterText", "counter", "chapterCard", "equation", "imageCard"]
+}

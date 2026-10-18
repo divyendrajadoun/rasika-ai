@@ -1,0 +1,29 @@
+{
+  "id": "paper-collage",
+  "name": "Paper Collage",
+  "tagline": "Kraft paper, marker type, red tape. The Vox-style explainer feel.",
+  "palette": {
+    "stage": "#e8dcc3",
+    "mar": "#2b2520",
+    "ter": "#d7263d",
+    "gold": "#2b2520",
+    "goldd": "#8c4a1f",
+    "iv": "#fbf6ec",
+    "ink": "#2b2520"
+  },
+  "fonts": {
+    "poster": "Archivo Black",
+    "accent": "Caveat",
+    "ui": "Inter",
+    "devanagari": "Tiro Devanagari Hindi",
+    "caption": "Inter"
+  },
+  "grain": 0.1,
+  "pace": 0.55,
+  "captionStyle": "box",
+  "captionSize": 70,
+  "captionAccent": "ter",
+  "endCardShape": "square",
+  "pattern": "none",
+  "preferredElements": ["posterText", "imageCard", "splitCards", "chips", "equation", "patternCard"]
+}

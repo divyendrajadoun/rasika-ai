@@ -1,0 +1,29 @@
+{
+  "id": "cinema-bebas",
+  "name": "Cinema Bebas",
+  "tagline": "Charcoal, tall condensed caps, warm gold. Documentary realism for travel and food.",
+  "palette": {
+    "stage": "#1b1917",
+    "mar": "#2a2420",
+    "ter": "#e0a458",
+    "gold": "#e0a458",
+    "goldd": "#8a5a1e",
+    "iv": "#f3ede4",
+    "ink": "#0e0c0b"
+  },
+  "fonts": {
+    "poster": "Bebas Neue",
+    "accent": "Playfair Display",
+    "ui": "Inter",
+    "devanagari": "Tiro Devanagari Hindi",
+    "caption": "Bebas Neue"
+  },
+  "grain": 0.12,
+  "pace": 0.5,
+  "captionStyle": "karaoke",
+  "captionSize": 88,
+  "captionAccent": "gold",
+  "endCardShape": "arch",
+  "pattern": "none",
+  "preferredElements": ["posterText", "bleedPlate", "filmStrip", "chapterCard", "propPunchIn"]
+}

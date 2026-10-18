@@ -7,7 +7,7 @@
  */
 import type { ColorToken, Plan, TranscriptWord, VideoModeName } from "@rasika/schema";
 import { captionAt, captionWindows, type CaptionWindow } from "./captions";
-import { FONT_LOADS, engineCss, fontFaceCss } from "./css";
+import { engineCss, fontFaceCss, fontLoadDescriptor, fontsForStyle } from "./css";
 import { div } from "./dom";
 import {
   applyTransform,
@@ -75,9 +75,16 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
   // ── stage + layers ──
   const stage = div("rk");
   const style = document.createElement("style");
+  const families = fontsForStyle(plan.style.fonts);
   style.textContent =
-    (opts.fontBaseUrl === null ? "" : fontFaceCss(opts.fontBaseUrl ?? "fonts")) +
-    engineCss(palette, plan.style.captionSize);
+    (opts.fontBaseUrl === null ? "" : fontFaceCss(opts.fontBaseUrl ?? "fonts", families)) +
+    engineCss({
+      palette,
+      captionSize: plan.style.captionSize,
+      fonts: plan.style.fonts,
+      captionStyle: plan.style.captionStyle,
+      captionAccent: plan.style.captionAccent ?? "gold",
+    });
   stage.appendChild(style);
 
   const pattern = div(`L rk-pattern${plan.style.pattern === "none" ? " none" : ""}`);
@@ -156,7 +163,7 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
   const ready: Promise<void> = (async () => {
     const fontsApi = (document as Document & { fonts?: FontFaceSet }).fonts;
     if (fontsApi) {
-      await Promise.all(FONT_LOADS.map((f) => fontsApi.load(f)));
+      await Promise.all(families.map((f) => fontsApi.load(fontLoadDescriptor(f))));
       await fontsApi.ready;
     }
     await Promise.all(
@@ -214,6 +221,22 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
     const c = captionAt(cw, plan.captions, t);
     if (!c) {
       capi.style.visibility = "hidden";
+    } else if (c.words) {
+      const clean = plan.style.captionStyle === "clean";
+      if (clean) {
+        // a plain sentence: no per-word spans, so word spacing is the font's own
+        if (capi.textContent !== c.txt) capi.textContent = c.txt;
+        capi.className = `rk-capi clean${c.hindi ? " hi" : ""}`;
+        applyTransform(capi, { o: 1 });
+      } else {
+        const styleCls = plan.style.captionStyle === "box" ? " box" : "";
+        const html = c.words
+          .map((w) => `<span class="cw${w.on ? " on" : ""}">${escapeHtml(w.txt)}</span>`)
+          .join(" ");
+        if (capi.innerHTML !== html) capi.innerHTML = html;
+        capi.className = `rk-capi grp${styleCls}${c.hindi ? " hi" : ""}`;
+        applyTransform(capi, { s: c.s, y: c.y, o: 1 });
+      }
     } else {
       if (capi.textContent !== c.txt) capi.textContent = c.txt;
       capi.className = `rk-capi${c.cls ? ` ${c.cls}` : ""}${c.hindi ? " hi" : ""}`;
@@ -256,4 +279,8 @@ export function fitStage(root: HTMLElement, boxW: number, boxH: number): number 
   const stage = root.querySelector<HTMLElement>(".rk");
   if (stage) stage.style.transform = `scale(${s})`;
   return s;
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }

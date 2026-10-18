@@ -1,0 +1,29 @@
+{
+  "id": "creator-yellow",
+  "name": "Creator Yellow",
+  "tagline": "The podcast-clip look: black stage, white caps, one yellow word lit at a time.",
+  "palette": {
+    "stage": "#000000",
+    "mar": "#0d0d0d",
+    "ter": "#7cf5c4",
+    "gold": "#ffd300",
+    "goldd": "#b89600",
+    "iv": "#ffffff",
+    "ink": "#000000"
+  },
+  "fonts": {
+    "poster": "Montserrat",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Tiro Devanagari Hindi",
+    "caption": "Montserrat"
+  },
+  "grain": 0,
+  "pace": 0.85,
+  "captionStyle": "karaoke",
+  "captionSize": 96,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": ["posterText", "counter", "chips", "chapterCard", "stamp"]
+}

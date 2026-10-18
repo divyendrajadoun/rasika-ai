@@ -30,7 +30,14 @@ export const StyleTokens = z.object({
   }),
   grain: z.number().min(0).max(1),
   pace: z.number().min(0).max(1),
-  captionStyle: z.enum(["one-word", "phrase", "off"]),
+  /**
+   * one-word: the mikku pop, one word at a time · phrase: up to three words, no highlight ·
+   * karaoke: 2–3 words with the spoken word lit in `captionAccent` · box: the spoken word on a
+   * solid box · clean: full sentences in the lower third, no animation · off
+   */
+  captionStyle: z.enum(["one-word", "phrase", "karaoke", "box", "clean", "off"]),
+  /** Colour token for the highlighted caption word / box (default gold). */
+  captionAccent: z.enum(["gold", "goldd", "ter", "mar", "iv"]).default("gold"),
   captionSize: z.number().int().min(40).max(140),
   endCardShape: z.enum(["arch", "rounded", "square"]),
   pattern: z.enum(["jaali", "arches", "bandhani", "leheriya", "none"]),

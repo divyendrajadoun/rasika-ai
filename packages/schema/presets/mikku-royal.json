@@ -22,6 +22,7 @@
   "pace": 0.6,
   "captionStyle": "one-word",
   "captionSize": 74,
+  "captionAccent": "gold",
   "endCardShape": "arch",
   "pattern": "jaali",
   "preferredElements": [

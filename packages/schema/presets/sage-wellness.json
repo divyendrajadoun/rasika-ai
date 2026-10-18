@@ -1,0 +1,29 @@
+{
+  "id": "sage-wellness",
+  "name": "Sage Wellness",
+  "tagline": "Sage, cream and terracotta. Serif calm for yoga, nutrition and skincare.",
+  "palette": {
+    "stage": "#cfd8c8",
+    "mar": "#2f3d2e",
+    "ter": "#c9653e",
+    "gold": "#2f3d2e",
+    "goldd": "#8a5a3a",
+    "iv": "#f7f5ef",
+    "ink": "#1f2a1f"
+  },
+  "fonts": {
+    "poster": "Playfair Display",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Tiro Devanagari Hindi",
+    "caption": "Inter"
+  },
+  "grain": 0.03,
+  "pace": 0.35,
+  "captionStyle": "clean",
+  "captionSize": 60,
+  "captionAccent": "ter",
+  "endCardShape": "arch",
+  "pattern": "none",
+  "preferredElements": ["posterText", "equation", "imageCard", "bleedPlate", "chapterCard"]
+}

@@ -1,30 +1,30 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
+import { PhoneMockup } from "@/components/brand/phone-mockup";
 import { Section } from "@/components/brand/section";
+import { presetCards } from "@/config/presets";
 import { industries as c } from "@/content/landing";
-import "@/styles/demos.css";
 
-const v = (o: Record<string, number | string>) => o as CSSProperties;
 type Item = (typeof c.items)[number];
 
 /**
- * "Every industry" — an editorial index on the left (01 · REAL ESTATE …) and a live mini stage on
- * the right that re-plays the beat for the chosen industry: poster lines rising, a counter rolling
- * in, a polaroid landing on the word, a one-word caption. Pure CSS loops + one counter effect.
+ * "Every industry" — an editorial index (01 · REAL ESTATE …) on the left; on the right a phone
+ * playing a REAL render (the engine's output on a real take) in the style we suggest for that
+ * industry, with the beat Rasika would design from the speaker's words underneath.
  */
 export function Industries() {
   const [active, setActive] = useState(0);
   const item = c.items[active]!;
   const baseId = useId();
+  const preset = presetCards.find((p) => p.tokens.id === item.preset) ?? presetCards[0]!;
 
   return (
     <Section id="industries" eyebrow={c.eyebrow} title={c.title} sub={c.sub} tone="maroon">
       <div className="grid min-w-0 items-start gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
-        {/* index */}
         <div className="min-w-0">
-          <ol
+          <div
             role="tablist"
             aria-label="Industries"
             className="-mx-4 flex snap-x gap-2 overflow-x-auto px-4 pb-2 lg:mx-0 lg:block lg:space-y-0 lg:overflow-visible lg:px-0"
@@ -32,7 +32,7 @@ export function Industries() {
             {c.items.map((it, i) => {
               const on = i === active;
               return (
-                <li key={it.id} className="lg:border-gold/20 snap-start lg:border-b">
+                <div key={it.id} className="lg:border-gold/20 snap-start lg:border-b">
                   <button
                     type="button"
                     role="tab"
@@ -57,108 +57,97 @@ export function Industries() {
                       {it.who}
                     </span>
                   </button>
-                </li>
+                </div>
               );
             })}
-          </ol>
-          <p className="font-accent text-iv/85 mt-8 max-w-md text-2xl italic leading-snug">
-            {item.line}
-          </p>
-          <p className="text-iv/60 mt-3 text-sm">
-            That is the whole brief. Rasika hears the number, the ordinal and the thing you name,
-            and builds the beat around them.
-          </p>
+          </div>
+
+          <Beat key={item.id} item={item} />
+
           <Link
-            href={`/dashboard/new?industry=${item.id}`}
+            href={`/dashboard/new?industry=${item.id}&style=${preset.tokens.id}`}
             className="btn-outline-gold mt-6 inline-flex"
           >
-            Start a {item.label.toLowerCase()} reel
+            Start a {item.label.toLowerCase()} reel in {preset.tokens.name}
           </Link>
         </div>
 
-        {/* stage */}
         <div
           id={`${baseId}-panel`}
           role="tabpanel"
           aria-labelledby={`${baseId}-tab-${item.id}`}
-          className="mx-auto w-full min-w-0 max-w-[320px]"
+          className="mx-auto w-full min-w-0 max-w-[300px] sm:max-w-[330px]"
         >
-          <Stage key={item.id} item={item} />
+          <RealDemo key={preset.tokens.id} presetId={preset.tokens.id} name={preset.tokens.name} />
           <p className="kicker text-gold/70 mt-3 text-center text-[0.6rem]">
-            {item.who} · designed from the words
+            {item.who} · suggested style: {preset.tokens.name}
           </p>
+          <p className="text-iv/55 mt-2 text-center text-xs">{c.realNote}</p>
         </div>
       </div>
     </Section>
   );
 }
 
-function Stage({ item }: { item: Item }) {
+/** The beat Rasika designs from this industry's sentence: poster lines, the counter, a chapter. */
+function Beat({ item }: { item: Item }) {
   const n = useCounter(item.counter.from, item.counter.to);
   return (
-    <div className="demo" data-play>
-      <div className="d-stage shadow-[0_40px_90px_rgba(0,0,0,.45)] ring-1 ring-black/20">
-        {/* poster type above the head */}
-        <div className="absolute inset-x-3 top-[5%] text-center">
-          <div className="d-mask">
-            <span
-              className="d-rise poster text-mar text-[13px]"
-              style={v({ "--i": 0, "--dur": "5s" })}
-            >
-              {item.poster[0]}
-            </span>
-          </div>
-          <div className="d-mask">
-            <span
-              className="d-rise poster text-ter text-[30px] leading-none"
-              style={v({ "--i": 1, "--dur": "5s" })}
-            >
-              {item.poster[1]}
-            </span>
-          </div>
-          <div className="d-mask">
-            <span
-              className="d-rise font-accent text-goldd text-[15px] italic"
-              style={v({ "--i": 2, "--dur": "5s" })}
-            >
-              {item.poster[2]}
-            </span>
-          </div>
+    <div className="border-gold/20 bg-ink/40 mt-8 rounded-2xl border p-5">
+      <p className="font-accent text-iv/85 text-2xl italic leading-snug">{item.line}</p>
+      <div className="mt-4 grid grid-cols-[1fr_auto] items-end gap-4">
+        <div>
+          <p className="kicker text-gold/70 text-[0.55rem]">Poster above the head</p>
+          <p className="poster text-iv mt-1 text-2xl leading-none">{item.poster[0]}</p>
+          <p className="poster text-gold text-4xl leading-none">{item.poster[1]}</p>
+          <p className="font-accent text-iv/80 text-xl italic">{item.poster[2]}</p>
         </div>
-        {/* rolling counter, bottom-left of the free zone */}
-        <div className="absolute left-3 top-[31%] text-left">
-          <div className="poster text-ter text-[26px] tabular-nums leading-none">
+        <div className="text-right">
+          <p className="kicker text-gold/70 text-[0.55rem]">Counter</p>
+          <p className="poster text-ter text-4xl tabular-nums leading-none">
             {n.toLocaleString("en-IN")}
             {item.counter.suffix}
-          </div>
-          <div className="kicker text-mar/80 text-[7px]">{item.counter.label}</div>
-        </div>
-        {/* chapter stamp */}
-        <div className="absolute right-3 top-[31%]">
-          <span className="kicker bg-mar text-iv rounded-sm px-1.5 py-0.5 text-[7px]">
+          </p>
+          <p className="kicker text-iv/60 text-[0.5rem]">{item.counter.label}</p>
+          <span className="kicker bg-gold text-ink mt-2 inline-block rounded-sm px-1.5 py-0.5 text-[0.5rem]">
             {item.chapter}
           </span>
         </div>
-        {/* polaroid landing on the word */}
-        <div
-          className="d-polaroid absolute right-2 top-[42%] w-[44%]"
-          style={v({ "--tilt": "6deg" })}
-        >
-          <div className="polaroid !p-1 !pb-4">
-            <div className="aspect-[4/5] w-full rounded-sm bg-[linear-gradient(135deg,#c8452f,#9a6a14)] opacity-90" />
-            <p className="poster text-mar mt-1 text-center text-[8px]">{item.card}</p>
-          </div>
-        </div>
-        <div className="d-head" />
-        {/* one-word caption */}
-        <div className="absolute inset-x-0 bottom-[20%] text-center">
-          <span className="d-cap-once caption-red text-[16px]">{item.caption}</span>
-        </div>
-        <div className="absolute inset-x-0 bottom-[3%] text-center">
-          <span className="kicker text-mar/60 text-[6px]">rasika · 1080 × 1920</span>
-        </div>
       </div>
+      <p className="text-iv/60 mt-4 text-sm">
+        The number becomes a counter, the ordinal a chapter, the thing you name a photo on that
+        word. Caption: <span className="text-gold">{item.caption}</span>.
+      </p>
     </div>
+  );
+}
+
+function RealDemo({ presetId, name }: { presetId: string; name: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    const io = new IntersectionObserver(
+      ([e]) => (e?.isIntersecting ? void v.play().catch(() => undefined) : v.pause()),
+      { threshold: 0.3 },
+    );
+    io.observe(v);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <PhoneMockup>
+      <video
+        ref={ref}
+        src={`/demo/styles/${presetId}.mp4`}
+        poster={`/demo/styles/${presetId}.jpg`}
+        muted
+        loop
+        playsInline
+        preload="none"
+        className="absolute inset-0 h-full w-full object-cover"
+        aria-label={`A real take rendered in the ${name} style`}
+      />
+    </PhoneMockup>
   );
 }
 

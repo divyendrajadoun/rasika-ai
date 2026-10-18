@@ -18,24 +18,24 @@ export { captionWindows } from "./captions";
 export { buildSegments, vstate, MODES } from "./modes";
 
 /** Canvas-based text measurement for validatePlan (the same fonts the render uses). */
-export function measureTextCanvas(): (
-  text: string,
-  font: string,
-  size: number,
-  tracking?: number,
-) => number {
+export function measureTextCanvas(fonts?: {
+  poster: string;
+  accent: string;
+  ui: string;
+  devanagari: string;
+}): (text: string, font: string, size: number, tracking?: number) => number {
   const ctx = document.createElement("canvas").getContext("2d");
   const family: Record<string, string> = {
-    anton: "Anton",
-    serif: "Serif",
-    kicker: "Inter",
-    devanagari: "Tiro",
+    anton: fonts?.poster ?? "Anton",
+    serif: fonts?.accent ?? "Instrument Serif",
+    kicker: fonts?.ui ?? "Inter",
+    devanagari: fonts?.devanagari ?? "Tiro Devanagari Hindi",
   };
   return (text, font, size, tracking = 0) => {
     if (!ctx) return text.length * size * 0.5;
     const weight = font === "kicker" ? "800 " : "";
     const style = font === "serif" ? "italic " : "";
-    ctx.font = `${style}${weight}${size}px ${family[font] ?? "Inter"}`;
+    ctx.font = `${style}${weight}${size}px "${family[font] ?? "Inter"}"`;
     const base = font === "kicker" ? 0.14 : font === "anton" ? 0.01 : 0;
     const txt = font === "anton" || font === "kicker" ? text.toUpperCase() : text;
     return ctx.measureText(txt).width + text.length * (base + tracking) * size;

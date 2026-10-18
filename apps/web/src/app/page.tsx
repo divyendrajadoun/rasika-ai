@@ -3,7 +3,7 @@ import { Hero } from "@/components/landing/hero";
 import { BeforeAfter } from "@/components/landing/before-after";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { Features } from "@/components/landing/features";
-import { StyleGallery } from "@/components/landing/style-gallery";
+import { StyleShowcase } from "@/components/landing/style-showcase";
 import { Industries } from "@/components/landing/industries";
 import { Pricing } from "@/components/landing/pricing";
 import { Faq } from "@/components/landing/faq";
@@ -44,7 +44,7 @@ export default function LandingPage() {
         <BeforeAfter />
         <HowItWorks />
         <Features />
-        <StyleGallery />
+        <StyleShowcase />
         <Pricing />
         <Faq />
         <FinalCta />

@@ -52,9 +52,10 @@ export function Hero() {
         </div>
 
         <div
-          className="card-in mx-auto w-full max-w-[300px] sm:max-w-[330px]"
+          className="card-in relative mx-auto w-full max-w-[300px] sm:max-w-[340px]"
           style={{ animationDelay: "0.3s" }}
         >
+          <div aria-hidden className="bg-gold/25 absolute -inset-10 -z-[1] rounded-full blur-3xl" />
           <PhoneMockup>
             <div className="jaali absolute inset-0" aria-hidden />
             <div className="absolute inset-x-[9%] bottom-[8%] top-[8%]">
@@ -70,7 +71,7 @@ export function Hero() {
               </ArchFrame>
             </div>
             <div className="absolute inset-x-0 bottom-[3.5%] text-center">
-              <p className="kicker text-gold text-[0.55rem]">Rasika · 1080 × 1920</p>
+              <p className="kicker text-gold text-[0.55rem]">Real take · rendered by Rasika</p>
             </div>
           </PhoneMockup>
         </div>

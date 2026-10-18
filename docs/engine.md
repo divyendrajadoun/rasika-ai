@@ -49,10 +49,33 @@ A line without a `color` auto-flips by context: light wall → `mar/ter/goldd`, 
 
 ## Captions
 
-One word at a time from the transcript: strip `. , ? !`, hold until the next word or 0.85 s,
-pop in (scale .72→1, outBack, 0.19 s). `captions.gold` words → gold serif italic, `captions.accent`
-→ terracotta Anton; Devanagari switches to Mukta. `captionStyle: "phrase"` groups up to three
-words; `"off"` hides them.
+Five formats, chosen by the style's `captionStyle`:
+
+| Style      | Behaviour                                                                                  |
+| ---------- | ------------------------------------------------------------------------------------------ |
+| `one-word` | the mikku pop: one word at a time, hold until the next word or 0.85 s, scale .72→1 outBack; `captions.gold` words → accent serif italic, `captions.accent` → poster face in terracotta; Devanagari switches to Mukta |
+| `phrase`   | up to three words, no highlight                                                             |
+| `karaoke`  | 2–3 words set together; the spoken word is lit in `captionAccent` and scaled 1.08           |
+| `box`      | as karaoke, but the spoken word sits on a solid rounded box in `captionAccent`              |
+| `clean`    | full sentences (≤ 7 words, split at punctuation) in the lower third, no animation, soft shadow |
+| `off`      | none                                                                                       |
+
+## Fonts
+
+Every style names real families (`style.fonts.poster / accent / ui / devanagari / caption`) from
+the bundled OFL set in `packages/engine/fonts`: Anton, Inter, Instrument Serif, Tiro Devanagari
+Hindi, Mukta, Montserrat, Bebas Neue, Playfair Display (italic), Archivo Black, Caveat, Bangers,
+Poppins, DM Serif Display. `css.ts` maps names to files, emits only the needed `@font-face`
+rules and waits for exactly those families in `engine.ready`. Poster weight/tracking adapt to the
+family (Montserrat/Poppins 800, Bebas +.03em).
+
+## Presets
+
+Fourteen presets live in `packages/schema/presets`: Mikku Royal (default), Katana Pop, Noir
+Minimal, Bold Creator, Creator Yellow, Editorial Ivory, Clinic Clean, Brutalist Acid, Cinema Bebas,
+Paper Collage, Neon Pop, Sage Wellness, Boardroom Navy, Festive Bandhani. The landing page shows
+each one rendered by the engine on the same real 12 s take (`tools/styledemos/make_styledemos.py`
+→ `apps/web/public/demo/styles`).
 
 ## Validation (`validatePlan`)
 

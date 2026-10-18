@@ -53,3 +53,6 @@ out/
 .dashboard.png
 .landing-*.png
 .worker-local.err
+.lh.json
+.wizard-*.png
+.work-styledemos/

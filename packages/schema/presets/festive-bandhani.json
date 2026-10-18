@@ -1,0 +1,29 @@
+{
+  "id": "festive-bandhani",
+  "name": "Festive Bandhani",
+  "tagline": "Hot pink, marigold and bandhani dots. Weddings, festivals, Indian retail.",
+  "palette": {
+    "stage": "#8a0f3a",
+    "mar": "#5a0a26",
+    "ter": "#ff6a00",
+    "gold": "#ffc83d",
+    "goldd": "#b4731a",
+    "iv": "#fff4e0",
+    "ink": "#2a0511"
+  },
+  "fonts": {
+    "poster": "Anton",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Tiro Devanagari Hindi",
+    "caption": "Inter"
+  },
+  "grain": 0.06,
+  "pace": 0.7,
+  "captionStyle": "one-word",
+  "captionSize": 80,
+  "captionAccent": "gold",
+  "endCardShape": "arch",
+  "pattern": "bandhani",
+  "preferredElements": ["posterText", "imageCard", "splitCards", "bleedPlate", "reveal", "stamp"]
+}

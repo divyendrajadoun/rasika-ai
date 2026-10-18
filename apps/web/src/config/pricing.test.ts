@@ -50,13 +50,11 @@ describe("landing content", () => {
     expect(landing.footer.madeIn).toBe("Made in India");
   });
 
-  it("exposes the four presets with Mikku Royal first", () => {
-    expect(presetCards.map((p) => p.tokens.id)).toEqual([
-      "mikku-royal",
-      "katana-pop",
-      "noir-minimal",
-      "bold-creator",
-    ]);
+  it("exposes all fourteen presets with the original four first", () => {
+    const ids = presetCards.map((p) => p.tokens.id);
+    expect(ids).toHaveLength(14);
+    expect(ids.slice(0, 4)).toEqual(["mikku-royal", "katana-pop", "noir-minimal", "bold-creator"]);
+    for (const p of presetCards) expect(p.preview.big.length).toBeGreaterThan(0);
     expect(presetCards[0]?.badge).toBe("Default");
   });
 });

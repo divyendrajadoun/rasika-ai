@@ -4,12 +4,12 @@
   "tagline": "Black, white and one accent. Slow, calm, founder-friendly.",
   "palette": {
     "stage": "#0b0b0c",
-    "mar": "#111113",
-    "ter": "#e4572e",
-    "gold": "#f2f2f0",
-    "goldd": "#8a8a86",
-    "iv": "#f7f7f5",
-    "ink": "#050505"
+    "mar": "#111111",
+    "ter": "#e63946",
+    "gold": "#f1f1f1",
+    "goldd": "#333333",
+    "iv": "#f7f7f7",
+    "ink": "#000000"
   },
   "fonts": {
     "poster": "Inter",
@@ -20,8 +20,9 @@
   },
   "grain": 0,
   "pace": 0.3,
-  "captionStyle": "phrase",
+  "captionStyle": "clean",
   "captionSize": 64,
+  "captionAccent": "gold",
   "endCardShape": "square",
   "pattern": "none",
   "preferredElements": ["posterText", "counter", "equation", "chapterCard"]

@@ -85,6 +85,29 @@ Token use per plan (Opus): ≈ 10–17 K input (≈ 22 K more from cache on repa
    back to the raw transcript, so nothing broke). Budget is now 8 K with a compact-output
    instruction.
 
+## Follow-up (same day): 14 styles, real demos, premium landing
+
+- **Ten new presets** (Creator Yellow, Editorial Ivory, Clinic Clean, Brutalist Acid, Cinema Bebas,
+  Paper Collage, Neon Pop, Sage Wellness, Boardroom Navy, Festive Bandhani) next to the four from
+  the spec, informed by the caption styles short-form editors use in 2026 (word-by-word karaoke
+  with one lit accent word, boxed active word, clean lower-third sentences) and the "editing
+  aesthetics" lists; nine new OFL fonts bundled.
+- **Engine**: per-style fonts (real family names, only the needed `@font-face` rules, loaded in
+  `ready`), three new caption formats (`karaoke`, `box`, `clean`) plus `captionAccent`; the golden
+  test is unchanged (Mikku Royal renders pixel-identical).
+- **Landing**: the Styles section is now a real compare — the same 12 s of the owner's take rendered
+  in all 14 styles by the engine (`tools/styledemos`), with a draggable raw-vs-style phone and
+  hover-to-play cards; the Industries phone plays the real render in the style suggested for that
+  industry; glass nav, glow behind the hero phone, honest "real take · rendered by Rasika" labels.
+- **Real images**: every image-generation provider reachable from this machine was out of credit
+  (Gemini quota, OpenAI, fal, Replicate, Higgsfield 1.2 credits), so the "real" imagery is the
+  owner's real footage rendered by the engine rather than generated portraits. A one-command
+  generator (`scratchpad/genimg.py`, Gemini → OpenAI fallback) is ready for per-industry portraits
+  once a key has credit.
+- The awesome-claude-video-skills list the owner sent is a catalogue of code-video *tools* (HyperFrames,
+  Remotion, collage/explainer skills), not of caption/motion presets; the useful signal from it was
+  the kinetic-caption and collage looks, which fed Paper Collage and the karaoke/box formats.
+
 ## Mocked / deferred
 
 - The transcript **review UI** (SPEC §7.3) is Phase 6 with the editor; suggestions are stored,

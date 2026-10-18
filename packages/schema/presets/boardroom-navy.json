@@ -1,0 +1,29 @@
+{
+  "id": "boardroom-navy",
+  "name": "Boardroom Navy",
+  "tagline": "Navy, ivory and brass. Serious chapters for lawyers, CAs and advisors.",
+  "palette": {
+    "stage": "#0f1f3d",
+    "mar": "#0f1f3d",
+    "ter": "#c9a227",
+    "gold": "#c9a227",
+    "goldd": "#7a5c10",
+    "iv": "#f2ede3",
+    "ink": "#070e1c"
+  },
+  "fonts": {
+    "poster": "Anton",
+    "accent": "Playfair Display",
+    "ui": "Inter",
+    "devanagari": "Tiro Devanagari Hindi",
+    "caption": "Inter"
+  },
+  "grain": 0.04,
+  "pace": 0.4,
+  "captionStyle": "phrase",
+  "captionSize": 70,
+  "captionAccent": "gold",
+  "endCardShape": "square",
+  "pattern": "arches",
+  "preferredElements": ["posterText", "chapterCard", "counter", "equation", "strikeLine"]
+}

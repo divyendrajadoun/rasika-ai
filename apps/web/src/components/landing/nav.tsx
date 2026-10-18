@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 export function Nav() {
   const [open, setOpen] = useState(false);
   return (
-    <header className="border-gold/15 bg-stage/85 text-iv sticky top-0 z-50 border-b backdrop-blur-md">
+    <header className="border-gold/10 bg-stage/70 text-iv sticky top-0 z-50 border-b backdrop-blur-xl backdrop-saturate-150">
       <nav
         className="container-x flex h-16 items-center justify-between gap-4"
         aria-label="Primary"

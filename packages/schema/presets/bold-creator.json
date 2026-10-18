@@ -1,27 +1,28 @@
 {
   "id": "bold-creator",
   "name": "Bold Creator",
-  "tagline": "High energy. Big captions, more punch-ins, faster cuts.",
+  "tagline": "High energy. Big karaoke captions, more punch-ins, faster cuts.",
   "palette": {
-    "stage": "#120b1f",
-    "mar": "#3b1a6b",
-    "ter": "#ff4d6d",
-    "gold": "#ffd166",
-    "goldd": "#c99a1e",
-    "iv": "#fff8e7",
-    "ink": "#0b0612"
+    "stage": "#101010",
+    "mar": "#121212",
+    "ter": "#ff3d3d",
+    "gold": "#ffd300",
+    "goldd": "#c79a00",
+    "iv": "#ffffff",
+    "ink": "#000000"
   },
   "fonts": {
-    "poster": "Anton",
+    "poster": "Montserrat",
     "accent": "Instrument Serif",
     "ui": "Inter",
     "devanagari": "Tiro Devanagari Hindi",
-    "caption": "Inter"
+    "caption": "Montserrat"
   },
   "grain": 0.04,
   "pace": 0.95,
-  "captionStyle": "one-word",
-  "captionSize": 96,
+  "captionStyle": "karaoke",
+  "captionSize": 92,
+  "captionAccent": "gold",
   "endCardShape": "rounded",
   "pattern": "none",
   "preferredElements": ["posterText", "propPunchIn", "stamp", "chips", "imageCard", "reveal"]

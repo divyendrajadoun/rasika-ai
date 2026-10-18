@@ -42,10 +42,13 @@ export const beforeAfter = {
 export const industries = {
   eyebrow: "Every industry",
   title: "You already know what to say. We make it look like you hired a studio.",
-  sub: "Pick your world. Each example is a beat Rasika designs from your own words — titles above your head, a number that rolls in, your photo landing on the word that names it.",
+  sub: "Pick your world. The phone shows a real take rendered by Rasika in the style we suggest for that industry; the beat on the left is what it designs from your words.",
+  realNote:
+    "Real footage, real render — a jewellery founder's take. Your listing, clinic or kitchen gets the same craft in the style you pick.",
   items: [
     {
       id: "real-estate",
+      preset: "bold-creator",
       label: "Real estate",
       who: "Realtors & builders",
       line: "“Three bedrooms, east-facing balcony, one crore eighteen.”",
@@ -57,6 +60,7 @@ export const industries = {
     },
     {
       id: "doctors",
+      preset: "clinic-clean",
       label: "Doctors & clinics",
       who: "Doctors, dentists, physios",
       line: "“Three reasons you wake up at 3 am — and the one nobody tells you.”",
@@ -68,6 +72,7 @@ export const industries = {
     },
     {
       id: "coaches",
+      preset: "creator-yellow",
       label: "Coaches & educators",
       who: "Tutors, trainers, course creators",
       line: "“The rule I give every student before an exam.”",
@@ -79,6 +84,7 @@ export const industries = {
     },
     {
       id: "founders",
+      preset: "noir-minimal",
       label: "Founders & D2C",
       who: "Product, fashion, food brands",
       line: "“We went from zero to ten thousand orders without an ad.”",
@@ -90,6 +96,7 @@ export const industries = {
     },
     {
       id: "food",
+      preset: "cinema-bebas",
       label: "Restaurants & chefs",
       who: "Cafés, cloud kitchens, home chefs",
       line: "“The secret to our butter chicken is forty minutes, not cream.”",
@@ -101,6 +108,7 @@ export const industries = {
     },
     {
       id: "fitness",
+      preset: "sage-wellness",
       label: "Fitness & wellness",
       who: "Trainers, yoga, nutrition",
       line: "“Lose the belly without losing your lunch: three swaps.”",
@@ -112,6 +120,7 @@ export const industries = {
     },
     {
       id: "law-finance",
+      preset: "boardroom-navy",
       label: "Lawyers & finance",
       who: "CAs, advisors, legal explainers",
       line: "“Before you sign a rent agreement, read clause eleven.”",
@@ -123,6 +132,7 @@ export const industries = {
     },
     {
       id: "agencies",
+      preset: "editorial-ivory",
       label: "Agencies",
       who: "Social teams running many clients",
       line: "“Forty client reels a month, one brand kit each, no editor on payroll.”",
@@ -208,9 +218,10 @@ export const features = {
 };
 
 export const styles = {
-  eyebrow: "Styles",
-  title: "Pick a look, or describe one.",
-  sub: "Every preset is a full design system: palette, type, captions, pace, end card. Type “clean clinic white, navy accents, fewer effects” and we map it to the nearest safe tokens.",
+  eyebrow: "14 styles, one take",
+  title: "Pick a look. Drag to compare it with the raw clip.",
+  sub: "Every style you see here was rendered by Rasika from the same real 12-second phone clip — not a mock-up. Each is a full design system: palette, type, caption format, pace, end card.",
+  note: "Caption formats across the set: one-word pop, karaoke highlight, boxed word, clean lower third. Describe a look in the wizard (“clinic white, navy, fewer effects”) and we map it to the nearest preset.",
   ctaLabel: "Use this style",
 };
 
