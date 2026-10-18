@@ -221,9 +221,10 @@ class Planner:
         return parts
 
     def _call(
-        self, messages: list[dict[str, Any]], max_tokens: int = 16000
+        self, messages: list[dict[str, Any]], max_tokens: int = 32000
     ) -> tuple[dict[str, Any] | None, dict[str, int], str]:
-        resp = self.client.messages.create(
+        # Streaming is mandatory for large outputs (the SDK refuses >10-minute non-streamed calls).
+        with self.client.messages.stream(
             model=self.s.anthropic_planner_model,
             max_tokens=max_tokens,
             system=self.system_prefix,
@@ -238,7 +239,8 @@ class Planner:
             # to a JSON block in text if the model answers in prose.
             tool_choice={"type": "auto"},
             messages=messages,
-        )
+        ) as stream:
+            resp = stream.get_final_message()
         usage = {
             "input_tokens": resp.usage.input_tokens,
             "output_tokens": resp.usage.output_tokens,
@@ -271,8 +273,29 @@ class Planner:
         for k in total:
             total[k] += usage.get(k, 0)
         log.info("planner_call", attempt=1, stop=stop, **usage)
+        if stop == "max_tokens":
+            # A truncated tool call comes back as a partial/empty input that would validate as an
+            # empty plan — never accept it. One retry asking for a tighter answer.
+            messages.append(
+                {
+                    "role": "user",
+                    "content": "Your previous answer was cut off by the output limit. Answer again with the "
+                    "complete plan, more compactly: short ids, no optional fields at their defaults, "
+                    "no more than ~45 elements.",
+                }
+            )
+            plan, usage, stop = self._call(messages)
+            for k in total:
+                total[k] += usage.get(k, 0)
+            log.info("planner_call", attempt="1b", stop=stop, **usage)
+            if stop == "max_tokens":
+                raise RuntimeError("planner output exceeded the token limit twice")
         if plan is None:
             raise RuntimeError(f"planner returned no tool call (stop={stop})")
+        if len(plan.get("elements") or []) < self.min_elements(inp.duration_sec):
+            raise RuntimeError(
+                f"planner returned {len(plan.get('elements') or [])} elements for {inp.duration_sec:.0f} s"
+            )
         raw_first = json.loads(json.dumps(plan))
         plan = self._normalise(plan, inp)
         image_ids = [im["id"] for im in inp.images]
@@ -346,6 +369,11 @@ class Planner:
         return PlannerResult(
             fixed, summary, bool(report["ok"]), total, attempts, summary["seconds"], raw_first
         )
+
+    @staticmethod
+    def min_elements(duration_sec: float) -> int:
+        """Below this the plan is a failure, not a style: roughly one element per 8 s, at least 3."""
+        return max(3, int(duration_sec / 8))
 
     def _normalise(self, plan: dict[str, Any], inp: PlannerInput) -> dict[str, Any]:
         """Pin the fields the model must not change."""

@@ -64,14 +64,26 @@ itself is still one file (`apps/web/src/config/brand.ts`).
 | Check                                                                                  | Result |
 | -------------------------------------------------------------------------------------- | ------ |
 | Plans pass validation on 3 test reels                                                  | ✅ Baisa (2 attempts, 0 errors), realtor (1 attempt, 0 errors), doctor (1 attempt, 0 errors) |
-| Every on-screen phrase complete, fragment-free                                         | see `docs/planner-eval.md` — SCORE_TEXT |
+| Every on-screen phrase complete, fragment-free                                         | ✅ Baisa 5/5 and realtor 4/5; doctor 3/5 (two borderline lines, prompt rule added) — `docs/planner-eval.md` |
 | `docs/planner-eval.md` with rubric + scores                                            | ✅     |
-| Full chain through the queue on the uploaded project (probe → transcribe → fix → plan → preview → final) | QUEUE_RESULT |
-| Landing renders at 390 / 1440 with no console errors, no horizontal overflow          | LANDING_RESULT |
+| Full chain through the queue on the uploaded project (probe → transcribe → fix → plan → preview → final) | ✅ transcript v4 (289 words), plan v4 (47 elements, 2 attempts, 0 errors), 540p preview then 1080p + 720p + thumbnail; plan 181 s, render 113 s |
+| Landing renders at 390 / 1440 with no console errors, no horizontal overflow          | ✅ (one overflow found and fixed: `min-w-0` on the industries grid) |
 | Worker: ruff · mypy strict · 18 tests; web: lint · typecheck · 12 tests · build; schema 10 · engine 14 tests | ✅ |
 
 Token use per plan (Opus): ≈ 10–17 K input (≈ 22 K more from cache on repairs), 8–14 K output,
 73–176 s. See `docs/costs.md`.
+
+### Two silent failures found by the queue run, and their guards
+
+1. The planner hit the 16 K output cap on the 90 s reel; the SDK handed back an *empty* tool input,
+   which validated as a plan with zero elements and rendered a reel with no graphics. Now:
+   32 K output budget via **streaming** (the SDK refuses large non-streamed calls), a retry asking
+   for a tighter answer when `stop_reason == max_tokens`, and a hard floor of one element per 8 s
+   (min 3) — below it the job fails loudly instead of rendering nothing. Covered by three unit
+   tests with a fake client.
+2. The Haiku fix pass overflowed its 4 K budget on 289 words and returned unusable JSON (it fell
+   back to the raw transcript, so nothing broke). Budget is now 8 K with a compact-output
+   instruction.
 
 ## Mocked / deferred
 

@@ -93,9 +93,13 @@ def suggest_fixes(
     if industry:
         ctx.append(f"industry: {industry}")
     body = "\n".join(ctx) + "\n\nwords:\n" + "\n".join(f"{i}|{w['w']}" for i, w in enumerate(words))
+    body += (
+        "\n\nReply with the JSON object only, no prose; `words` is a flat array of strings; "
+        "keep `suggestions` short."
+    )
     resp = client.messages.create(
         model=model,
-        max_tokens=4096,
+        max_tokens=8192,
         system=system,
         messages=[{"role": "user", "content": body}],
     )
