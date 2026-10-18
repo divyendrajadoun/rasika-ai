@@ -216,8 +216,8 @@ def render_chunk(args: dict[str, Any]) -> dict[str, Any]:
                     progress_file.write_text(str(i - start + 1))
             browser.close()
     finally:
-        with contextlib.suppress(Exception):
-            ff.stdin.close()
+        pass  # communicate() below flushes and closes stdin itself (closing it first makes
+        # Python 3.12's communicate raise "flush of closed file")
     _, err = ff.communicate()
     if ff.returncode != 0:
         raise media.MediaError(
