@@ -13,7 +13,9 @@
     "build": "tsc -p tsconfig.json --noEmit",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src",
-    "test": "vitest run"
+    "test": "vitest run",
+    "export": "tsx scripts/export.ts",
+    "validate": "tsx scripts/validate-plan.ts"
   },
   "dependencies": {
     "zod": "^4.0.0"
@@ -23,6 +25,7 @@
     "eslint": "^9.0.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.0.0",
-    "vitest": "^3.0.0"
+    "vitest": "^3.0.0",
+    "tsx": "^4.19.0"
   }
 }

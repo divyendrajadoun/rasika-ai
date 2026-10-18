@@ -18,7 +18,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["ruff>=0.6", "mypy>=1.10", "pytest>=8.2", "types-redis"]
+dev = ["ruff>=0.6", "mypy>=1.10", "pytest>=8.2", "types-redis", "datamodel-code-generator>=0.26"]
 # Phase 4+: transcription + vision deps (heavy; installed in the Docker image)
 ml = ["faster-whisper>=1.0", "mediapipe>=0.10", "opencv-python-headless>=4.9", "Pillow>=10"]
 
@@ -35,6 +35,7 @@ ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 "rasika_worker/sfx.py" = ["N", "E", "SIM", "B"]
+"rasika_worker/plan.py" = ["N", "E", "UP"]  # generated from plan.schema.json
 
 [tool.mypy]
 python_version = "3.11"
@@ -44,7 +45,7 @@ ignore_missing_imports = true
 exclude = ["tests/"]
 
 [[tool.mypy.overrides]]
-module = "rasika_worker.sfx"
+module = ["rasika_worker.sfx", "rasika_worker.plan"]
 ignore_errors = true
 
 [tool.pytest.ini_options]

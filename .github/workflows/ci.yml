@@ -26,6 +26,10 @@ jobs:
         env:
           SITE_URL: http://localhost:3000
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      - name: JSON Schema is up to date with the Zod source
+        run: |
+          pnpm schema:export
+          git diff --exit-code -- packages/schema/plan.schema.json
       - name: Lighthouse (mobile, landing page)
         run: |
           pnpm --filter web exec next start -p 3000 &
@@ -51,6 +55,37 @@ jobs:
       - run: ruff format --check .
       - run: mypy rasika_worker
       - run: pytest -q
+      - name: pydantic models are up to date with plan.schema.json
+        working-directory: .
+        run: |
+          python tools/gen_plan_models.py
+          git diff --exit-code -- apps/worker/rasika_worker/plan.py
+
+  golden:
+    name: Engine golden test (SSIM vs reference composition)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @rasika/engine build
+      - run: pip install -r tools/golden/requirements.txt
+      - run: python -m playwright install --with-deps chromium
+      - run: python tools/golden/golden.py --report golden-report
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: golden-report
+          path: golden-report
+          retention-days: 14
 
   docker:
     name: Docker images build

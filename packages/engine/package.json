@@ -10,7 +10,7 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json --noEmit",
+    "build": "esbuild src/harness.ts --bundle --format=iife --global-name=RasikaEngine --target=es2020 --outfile=dist/rasika-engine.js --minify --log-level=warning && tsc -p tsconfig.json --noEmit",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src",
     "test": "vitest run"
@@ -20,6 +20,10 @@
     "eslint": "^9.0.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.0.0",
-    "vitest": "^3.0.0"
+    "vitest": "^3.0.0",
+    "esbuild": "^0.25.0"
+  },
+  "dependencies": {
+    "@rasika/schema": "workspace:*"
   }
 }

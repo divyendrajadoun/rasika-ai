@@ -37,3 +37,10 @@ lighthouse-*.json
 test-results/
 playwright-report/
 *.egg-info/
+
+# golden test scratch
+.golden-work*/
+.golden-report*/
+.golden-report*.log
+.dev-engine*.png
+.next-server.log

@@ -18,7 +18,11 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "worker:dev": "cd apps/worker && python -m rasika_worker.main",
-    "worker:check": "cd apps/worker && ruff check . && ruff format --check . && mypy rasika_worker && pytest -q"
+    "worker:check": "cd apps/worker && ruff check . && ruff format --check . && mypy rasika_worker && pytest -q",
+    "schema:export": "pnpm --filter @rasika/schema export",
+    "schema:pydantic": "python tools/gen_plan_models.py",
+    "golden": "python tools/golden/golden.py",
+    "validate:plan": "pnpm --filter @rasika/schema validate"
   },
   "devDependencies": {
     "@eslint/js": "^9",

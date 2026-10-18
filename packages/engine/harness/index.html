@@ -1,0 +1,23 @@
+<!doctype html>
+<!-- Rasika engine headless harness. Contract: window.COMP, window.renderFrame(t), window.__ready.
+     config.js must set window.HARNESS = { plan, words, images, frames, fontBaseUrl?, grain? } -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Rasika engine</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #000;
+        overflow: hidden;
+        width: 1080px;
+        height: 1920px;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="config.js"></script>
+    <script src="rasika-engine.js"></script>
+  </body>
+</html>

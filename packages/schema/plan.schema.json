@@ -1,0 +1,1907 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "plan": {
+      "$ref": "#/$defs/Plan"
+    },
+    "transcript": {
+      "$ref": "#/$defs/Transcript"
+    },
+    "sfxCue": {
+      "$ref": "#/$defs/SfxCue"
+    }
+  },
+  "required": [
+    "plan",
+    "transcript",
+    "sfxCue"
+  ],
+  "$defs": {
+    "Plan": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "number",
+          "const": 1
+        },
+        "meta": {
+          "$ref": "#/$defs/PlanMeta"
+        },
+        "style": {
+          "$ref": "#/$defs/StyleTokens"
+        },
+        "subject": {
+          "$ref": "#/$defs/Subject"
+        },
+        "videoModes": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VideoMode"
+          }
+        },
+        "captions": {
+          "$ref": "#/$defs/Captions"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PlanElement"
+          }
+        },
+        "sfx": {
+          "type": "object",
+          "properties": {
+            "auto": {
+              "default": true,
+              "type": "boolean"
+            },
+            "intensity": {
+              "default": 0.8,
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "extra": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/SfxCue"
+              }
+            }
+          }
+        },
+        "endCard": {
+          "$ref": "#/$defs/EndCard"
+        }
+      },
+      "required": [
+        "version",
+        "meta",
+        "style",
+        "subject",
+        "videoModes",
+        "captions",
+        "elements",
+        "sfx"
+      ]
+    },
+    "PlanMeta": {
+      "type": "object",
+      "properties": {
+        "durationSec": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 600
+        },
+        "fps": {
+          "type": "number",
+          "const": 30
+        },
+        "width": {
+          "type": "number",
+          "const": 1080
+        },
+        "height": {
+          "type": "number",
+          "const": 1920
+        },
+        "language": {
+          "type": "string",
+          "minLength": 2,
+          "description": "'en' | 'hi' | 'hinglish' | BCP-47 tag"
+        }
+      },
+      "required": [
+        "durationSec",
+        "fps",
+        "width",
+        "height",
+        "language"
+      ]
+    },
+    "StyleTokens": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tagline": {
+          "type": "string"
+        },
+        "palette": {
+          "$ref": "#/$defs/Palette"
+        },
+        "fonts": {
+          "type": "object",
+          "properties": {
+            "poster": {
+              "type": "string"
+            },
+            "accent": {
+              "type": "string"
+            },
+            "ui": {
+              "type": "string"
+            },
+            "devanagari": {
+              "type": "string"
+            },
+            "caption": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "poster",
+            "accent",
+            "ui",
+            "devanagari",
+            "caption"
+          ]
+        },
+        "grain": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "pace": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "captionStyle": {
+          "type": "string",
+          "enum": [
+            "one-word",
+            "phrase",
+            "off"
+          ]
+        },
+        "captionSize": {
+          "type": "integer",
+          "minimum": 40,
+          "maximum": 140
+        },
+        "endCardShape": {
+          "type": "string",
+          "enum": [
+            "arch",
+            "rounded",
+            "square"
+          ]
+        },
+        "pattern": {
+          "type": "string",
+          "enum": [
+            "jaali",
+            "arches",
+            "bandhani",
+            "leheriya",
+            "none"
+          ]
+        },
+        "preferredElements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "tagline",
+        "palette",
+        "fonts",
+        "grain",
+        "pace",
+        "captionStyle",
+        "captionSize",
+        "endCardShape",
+        "pattern",
+        "preferredElements"
+      ]
+    },
+    "Palette": {
+      "type": "object",
+      "properties": {
+        "stage": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "mar": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "ter": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "gold": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "goldd": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "iv": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "ink": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        }
+      },
+      "required": [
+        "stage",
+        "mar",
+        "ter",
+        "gold",
+        "goldd",
+        "iv",
+        "ink"
+      ]
+    },
+    "Subject": {
+      "type": "object",
+      "properties": {
+        "faceBox": {
+          "$ref": "#/$defs/Rect"
+        },
+        "freeZone": {
+          "description": "where poster type may go — the wall above the head",
+          "$ref": "#/$defs/Rect"
+        },
+        "prop": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string",
+              "maxLength": 40
+            },
+            "point": {
+              "$ref": "#/$defs/Point"
+            }
+          },
+          "required": [
+            "label",
+            "point"
+          ]
+        }
+      },
+      "required": [
+        "faceBox",
+        "freeZone"
+      ]
+    },
+    "Rect": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        },
+        "y": {
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        },
+        "w": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 4000
+        },
+        "h": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 4000
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h"
+      ]
+    },
+    "Point": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        },
+        "y": {
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ]
+    },
+    "VideoMode": {
+      "type": "object",
+      "properties": {
+        "t": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "mode": {
+          "$ref": "#/$defs/VideoModeName"
+        },
+        "zoomPoint": {
+          "description": "zoom only — the stage point (px) the punch-in centres on",
+          "$ref": "#/$defs/Point"
+        },
+        "zoomScale": {
+          "type": "number",
+          "minimum": 1.2,
+          "maximum": 3.5
+        }
+      },
+      "required": [
+        "t",
+        "mode"
+      ]
+    },
+    "VideoModeName": {
+      "type": "string",
+      "enum": [
+        "full",
+        "zoom",
+        "card",
+        "pip",
+        "arch"
+      ]
+    },
+    "Captions": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "y": {
+          "default": 1400,
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        },
+        "gold": {
+          "default": [],
+          "description": "emotion / theme words → gold serif italic",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "accent": {
+          "default": [],
+          "description": "nouns, names, numbers → terracotta Anton",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "PlanElement": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/PosterText"
+        },
+        {
+          "$ref": "#/$defs/Counter"
+        },
+        {
+          "$ref": "#/$defs/LockCard"
+        },
+        {
+          "$ref": "#/$defs/PropPunchIn"
+        },
+        {
+          "$ref": "#/$defs/FeedPhone"
+        },
+        {
+          "$ref": "#/$defs/Stamp"
+        },
+        {
+          "$ref": "#/$defs/ChapterCard"
+        },
+        {
+          "$ref": "#/$defs/ImageCard"
+        },
+        {
+          "$ref": "#/$defs/SplitCards"
+        },
+        {
+          "$ref": "#/$defs/BleedPlate"
+        },
+        {
+          "$ref": "#/$defs/FilmStrip"
+        },
+        {
+          "$ref": "#/$defs/PatternCard"
+        },
+        {
+          "$ref": "#/$defs/Equation"
+        },
+        {
+          "$ref": "#/$defs/Reveal"
+        },
+        {
+          "$ref": "#/$defs/StrikeLine"
+        },
+        {
+          "$ref": "#/$defs/Chips"
+        }
+      ]
+    },
+    "PosterText": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "t0": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "t1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "anchorWordIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "type": {
+          "type": "string",
+          "const": "posterText"
+        },
+        "lines": {
+          "minItems": 1,
+          "maxItems": 4,
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TextLine"
+          }
+        },
+        "top": {
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        },
+        "anim": {
+          "default": "rise",
+          "type": "string",
+          "enum": [
+            "rise",
+            "pop"
+          ]
+        },
+        "left": {
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        },
+        "w": {
+          "type": "number",
+          "minimum": 100,
+          "maximum": 4000
+        },
+        "align": {
+          "type": "string",
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "accent": {
+          "description": "sfx hint for this line",
+          "type": "string",
+          "enum": [
+            "glitch",
+            "sub"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "t0",
+        "t1",
+        "type",
+        "lines",
+        "top"
+      ]
+    },
+    "TextLine": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "font": {
+          "$ref": "#/$defs/TextFont"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 20,
+          "maximum": 320
+        },
+        "color": {
+          "description": "omitted → auto by context (light wall vs dark stage)",
+          "$ref": "#/$defs/ColorToken"
+        },
+        "tracking": {
+          "description": "letter-spacing in em",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "lineHeight": {
+          "type": "number",
+          "minimum": 0.8,
+          "maximum": 2
+        }
+      },
+      "required": [
+        "text",
+        "font",
+        "size"
+      ]
+    },
+    "TextFont": {
+      "type": "string",
+      "enum": [
+        "anton",
+        "serif",
+        "kicker",
+        "devanagari"
+      ]
+    },
+    "ColorToken": {
+      "type": "string",
+      "enum": [
+        "mar",
+        "ter",
+        "gold",
+        "goldd",
+        "iv",
+        "stage",
+        "ink"
+      ]
+    },
+    "Counter": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "t0": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "t1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "anchorWordIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "type": {
+          "type": "string",
+          "const": "counter"
+        },
+        "from": {
+          "type": "number"
+        },
+        "to": {
+          "type": "number"
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "top": {
+          "default": 215,
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        },
+        "size": {
+          "default": 250,
+          "type": "integer",
+          "minimum": 60,
+          "maximum": 320
+        },
+        "duration": {
+          "default": 1,
+          "type": "number",
+          "minimum": 0.2,
+          "maximum": 5
+        },
+        "color": {
+          "$ref": "#/$defs/ColorToken"
+        }
+      },
+      "required": [
+        "id",
+        "t0",
+        "t1",
+        "type",
+        "from",
+        "to",
+        "label"
+      ]
+    },
+    "LockCard": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "t0": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "t1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "anchorWordIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "type": {
+          "type": "string",
+          "const": "lockCard"
+        },
+        "word": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 24
+        },
+        "kicker": {
+          "default": "THE WORD",
+          "type": "string",
+          "maxLength": 40
+        },
+        "sub": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "blurred": {
+          "default": true,
+          "type": "boolean"
+        },
+        "dark": {
+          "default": false,
+          "description": "dark variant for the payoff on the stage",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "t0",
+        "t1",
+        "type",
+        "word",
+        "sub"
+      ]
+    },
+    "PropPunchIn": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "t0": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "t1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "anchorWordIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "type": {
+          "type": "string",
+          "const": "propPunchIn"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "ring": {
+          "type": "object",
+          "properties": {
+            "cx": {
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            },
+            "cy": {
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            },
+            "rx": {
+              "type": "number",
+              "minimum": 10,
+              "maximum": 4000
+            },
+            "ry": {
+              "type": "number",
+              "minimum": 10,
+              "maximum": 4000
+            }
+          },
+          "required": [
+            "cx",
+            "cy",
+            "rx",
+            "ry"
+          ]
+        },
+        "labelTop": {
+          "default": 600,
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        }
+      },
+      "required": [
+        "id",
+        "t0",
+        "t1",
+        "type",
+        "label",
+        "ring"
+      ]
+    },
+    "FeedPhone": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "t0": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "t1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "anchorWordIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "type": {
+          "type": "string",
+          "const": "feedPhone"
+        },
+        "imageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "posts": {
+          "default": 10,
+          "type": "integer",
+          "minimum": 3,
+          "maximum": 14
+        },
+        "dayFrom": {
+          "default": 1,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "dayTo": {
+          "default": 30,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "postDays": {
+          "description": "explicit per-post day labels",
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "handle": {
+          "default": "trending.jewels",
+          "type": "string",
+          "maxLength": 32
+        },
+        "postCaption": {
+          "default": "you saw this again",
+          "type": "string",
+          "maxLength": 60
+        },
+        "title": {
+          "default": "ON YOUR FEED",
+          "type": "string",
+          "maxLength": 40
+        },
+        "dayLabel": {
+          "default": "DAY",
+          "type": "string",
+          "maxLength": 12
+        }
+      },
+      "required": [
+        "id",
+        "t0",
+        "t1",
+        "type",
+        "imageId"
+      ]
+    },
+    "Stamp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "t0": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "t1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "anchorWordIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "type": {
+          "type": "string",
+          "const": "stamp"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 24
+        }
+      },
+      "required": [
+        "id",
+        "t0",
+        "t1",
+        "type",
+        "text"
+      ]
+    },
+    "ChapterCard": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "t0": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "t1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "anchorWordIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "type": {
+          "type": "string",
+          "const": "chapterCard"
+        },
+        "number": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4
+        },
+        "line": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "italicLine": {
+          "type": "string",
+          "maxLength": 60
+        }
+      },
+      "required": [
+        "id",
+        "t0",
+        "t1",
+        "type",
+        "number",
+        "line",
+        "italicLine"
+      ]
+    },
+    "ImageCard": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "t0": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "t1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "anchorWordIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "type": {
+          "type": "string",
+          "const": "imageCard"
+        },
+        "imageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "label": {
+          "default": "",
+          "type": "string",
+          "maxLength": 40
+        },
+        "x": {
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        },
+        "y": {
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        },
+        "w": {
+          "type": "number",
+          "minimum": 100,
+          "maximum": 4000
+        },
+        "h": {
+          "type": "number",
+          "minimum": 100,
+          "maximum": 4000
+        },
+        "tilt": {
+          "default": 0,
+          "type": "number",
+          "minimum": -20,
+          "maximum": 20
+        },
+        "objectPosition": {
+          "default": "50% 50%",
+          "type": "string",
+          "maxLength": 20
+        }
+      },
+      "required": [
+        "id",
+        "t0",
+        "t1",
+        "type",
+        "imageId",
+        "x",
+        "y",
+        "w",
+        "h"
+      ]
+    },
+    "SplitCards": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "t0": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "t1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "anchorWordIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "type": {
+          "type": "string",
+          "const": "splitCards"
+        },
+        "cards": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/ImageCardSpec"
+            },
+            {
+              "$ref": "#/$defs/ImageCardSpec"
+            }
+          ],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "stagger": {
+          "default": 0.15,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "required": [
+        "id",
+        "t0",
+        "t1",
+        "type",
+        "cards"
+      ]
+    },
+    "ImageCardSpec": {
+      "type": "object",
+      "properties": {
+        "imageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "label": {
+          "default": "",
+          "type": "string",
+          "maxLength": 40
+        },
+        "x": {
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        },
+        "y": {
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        },
+        "w": {
+          "type": "number",
+          "minimum": 100,
+          "maximum": 4000
+        },
+        "h": {
+          "type": "number",
+          "minimum": 100,
+          "maximum": 4000
+        },
+        "tilt": {
+          "default": 0,
+          "type": "number",
+          "minimum": -20,
+          "maximum": 20
+        },
+        "objectPosition": {
+          "default": "50% 50%",
+          "type": "string",
+          "maxLength": 20
+        }
+      },
+      "required": [
+        "imageId",
+        "x",
+        "y",
+        "w",
+        "h"
+      ]
+    },
+    "BleedPlate": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "t0": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "t1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "anchorWordIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "type": {
+          "type": "string",
+          "const": "bleedPlate"
+        },
+        "imageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "patternId": {
+          "$ref": "#/$defs/PatternId"
+        },
+        "kicker": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "objectPosition": {
+          "default": "50% 50%",
+          "type": "string",
+          "maxLength": 20
+        },
+        "labelTop": {
+          "default": 210,
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        }
+      },
+      "required": [
+        "id",
+        "t0",
+        "t1",
+        "type",
+        "kicker",
+        "title"
+      ]
+    },
+    "PatternId": {
+      "type": "string",
+      "enum": [
+        "jaali",
+        "arches",
+        "bandhani",
+        "leheriya"
+      ]
+    },
+    "FilmStrip": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "t0": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "t1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "anchorWordIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "type": {
+          "type": "string",
+          "const": "filmStrip"
+        },
+        "imageIds": {
+          "minItems": 1,
+          "maxItems": 3,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "objectPositions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 20
+          }
+        },
+        "kicker": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "focusRing": {
+          "type": "object",
+          "properties": {
+            "cx": {
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            },
+            "cy": {
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            },
+            "r": {
+              "type": "number",
+              "minimum": 10,
+              "maximum": 4000
+            },
+            "at": {
+              "type": "number",
+              "minimum": 0
+            },
+            "dur": {
+              "type": "number",
+              "minimum": 0.1
+            }
+          },
+          "required": [
+            "cx",
+            "cy",
+            "r",
+            "at",
+            "dur"
+          ]
+        },
+        "travel": {
+          "default": 160,
+          "description": "how far the strip slides left over its life",
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        }
+      },
+      "required": [
+        "id",
+        "t0",
+        "t1",
+        "type",
+        "imageIds",
+        "kicker",
+        "title"
+      ]
+    },
+    "PatternCard": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "t0": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "t1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "anchorWordIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "type": {
+          "type": "string",
+          "const": "patternCard"
+        },
+        "pattern": {
+          "$ref": "#/$defs/PatternId"
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "x": {
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        },
+        "y": {
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        },
+        "w": {
+          "type": "number",
+          "minimum": 100,
+          "maximum": 4000
+        },
+        "h": {
+          "type": "number",
+          "minimum": 100,
+          "maximum": 4000
+        },
+        "tilt": {
+          "default": 0,
+          "type": "number",
+          "minimum": -20,
+          "maximum": 20
+        }
+      },
+      "required": [
+        "id",
+        "t0",
+        "t1",
+        "type",
+        "pattern",
+        "label",
+        "x",
+        "y",
+        "w",
+        "h"
+      ]
+    },
+    "Equation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "t0": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "t1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "anchorWordIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "type": {
+          "type": "string",
+          "const": "equation"
+        },
+        "left": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 30
+        },
+        "right": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 30
+        },
+        "top": {
+          "default": 230,
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        },
+        "leftSize": {
+          "default": 150,
+          "type": "integer",
+          "minimum": 40,
+          "maximum": 320
+        },
+        "rightSize": {
+          "default": 130,
+          "type": "integer",
+          "minimum": 40,
+          "maximum": 320
+        },
+        "leftColor": {
+          "$ref": "#/$defs/ColorToken"
+        },
+        "rightColor": {
+          "$ref": "#/$defs/ColorToken"
+        }
+      },
+      "required": [
+        "id",
+        "t0",
+        "t1",
+        "type",
+        "left",
+        "right"
+      ]
+    },
+    "Reveal": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "t0": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "t1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "anchorWordIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "type": {
+          "type": "string",
+          "const": "reveal"
+        },
+        "word": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 24
+        },
+        "devanagari": {
+          "type": "string",
+          "maxLength": 24
+        },
+        "definition": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "top": {
+          "default": 170,
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        },
+        "burst": {
+          "default": {
+            "seed": 7,
+            "count": 46,
+            "cx": 540,
+            "cy": 330
+          },
+          "type": "object",
+          "properties": {
+            "seed": {
+              "default": 7,
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "count": {
+              "default": 46,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 200
+            },
+            "cx": {
+              "default": 540,
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            },
+            "cy": {
+              "default": 330,
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            }
+          }
+        }
+      },
+      "required": [
+        "id",
+        "t0",
+        "t1",
+        "type",
+        "word"
+      ]
+    },
+    "StrikeLine": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "t0": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "t1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "anchorWordIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "type": {
+          "type": "string",
+          "const": "strikeLine"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "top": {
+          "default": 520,
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        },
+        "size": {
+          "default": 72,
+          "type": "integer",
+          "minimum": 30,
+          "maximum": 200
+        },
+        "strikeAt": {
+          "default": 1.3,
+          "description": "seconds after t0 the strike starts",
+          "type": "number",
+          "minimum": 0
+        },
+        "strikeDur": {
+          "default": 0.5,
+          "type": "number",
+          "minimum": 0.1
+        },
+        "strikeWidth": {
+          "default": 640,
+          "type": "number",
+          "minimum": 50,
+          "maximum": 4000
+        },
+        "color": {
+          "$ref": "#/$defs/ColorToken"
+        }
+      },
+      "required": [
+        "id",
+        "t0",
+        "t1",
+        "type",
+        "text"
+      ]
+    },
+    "Chips": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "t0": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "t1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "anchorWordIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "type": {
+          "type": "string",
+          "const": "chips"
+        },
+        "items": {
+          "minItems": 1,
+          "maxItems": 6,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 24
+              },
+              "at": {
+                "type": "number",
+                "minimum": 0,
+                "description": "seconds after t0 this chip pops"
+              },
+              "bg": {
+                "default": "mar",
+                "$ref": "#/$defs/ColorToken"
+              },
+              "color": {
+                "default": "iv",
+                "$ref": "#/$defs/ColorToken"
+              }
+            },
+            "required": [
+              "text",
+              "at"
+            ]
+          }
+        },
+        "x": {
+          "default": 60,
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        },
+        "y": {
+          "default": 230,
+          "type": "number",
+          "minimum": -4000,
+          "maximum": 4000
+        },
+        "size": {
+          "default": 76,
+          "type": "integer",
+          "minimum": 30,
+          "maximum": 160
+        }
+      },
+      "required": [
+        "id",
+        "t0",
+        "t1",
+        "type",
+        "items"
+      ]
+    },
+    "SfxCue": {
+      "type": "object",
+      "properties": {
+        "t": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "type": {
+          "$ref": "#/$defs/SfxType"
+        },
+        "dur": {
+          "type": "number",
+          "minimum": 0.05,
+          "maximum": 5
+        },
+        "gain": {
+          "default": 0.8,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1.5
+        },
+        "repeat": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 40
+        },
+        "every": {
+          "type": "number",
+          "minimum": 0.03,
+          "maximum": 2
+        }
+      },
+      "required": [
+        "t",
+        "type"
+      ]
+    },
+    "SfxType": {
+      "type": "string",
+      "enum": [
+        "whoosh",
+        "pop",
+        "tick",
+        "glitch",
+        "impact",
+        "riser",
+        "sub"
+      ]
+    },
+    "EndCard": {
+      "type": "object",
+      "properties": {
+        "brand": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "line1": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "line2": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "handle": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "bgImageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "t0": {
+          "description": "defaults to the last 'arch' mode switch, else duration − 2.5",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        }
+      },
+      "required": [
+        "brand",
+        "line1"
+      ]
+    },
+    "Transcript": {
+      "type": "object",
+      "properties": {
+        "language": {
+          "type": "string",
+          "minLength": 2
+        },
+        "words": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TranscriptWord"
+          }
+        }
+      },
+      "required": [
+        "language",
+        "words"
+      ]
+    },
+    "TranscriptWord": {
+      "type": "object",
+      "properties": {
+        "w": {
+          "type": "string"
+        },
+        "t": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "end": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "conf": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "required": [
+        "w",
+        "t"
+      ]
+    }
+  },
+  "$id": "https://rasika.app/schema/plan-v1.json",
+  "title": "RasikaPlanBundle",
+  "description": "Rasika Plan v1 (edit description), word-level Transcript and SFX cue. Generated — do not edit."
+}

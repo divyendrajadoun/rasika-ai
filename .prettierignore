@@ -7,3 +7,5 @@ reference/
 apps/worker/
 *.md
 public/
+plans/*.words.json
+packages/schema/plan.schema.json
