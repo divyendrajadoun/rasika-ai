@@ -23,6 +23,12 @@ class Subject:
     free_zone: dict[str, int]
     detections: int
     prop_point: dict[str, int] | None = None
+    # mean luminance (0-255) of the free zone across keyframes; None when unknown
+    wall_luma: float | None = None
+
+    @property
+    def wall_is_dark(self) -> bool:
+        return self.wall_luma is not None and self.wall_luma < 125
 
     def as_plan_subject(self, prop_label: str | None = None) -> dict[str, Any]:
         out: dict[str, Any] = {"faceBox": self.face_box, "freeZone": self.free_zone}
@@ -71,7 +77,8 @@ def subject_from_keyframes(keyframes: list[Path], frame_width: int | None = None
     if not boxes:
         log.info("face_not_found", keyframes=len(keyframes))
         fb: dict[str, int] = dict(DEFAULT_FACE)
-        return Subject(fb, free_zone_for(fb), 0, prop_point_for(fb))
+        fz = free_zone_for(fb)
+        return Subject(fb, fz, 0, prop_point_for(fb), wall_luma(keyframes, fz))
     boxes.sort(key=lambda b: b[1])
     mid = boxes[len(boxes) // 2]
     # Haar boxes hug the face; widen a little for hair and chin so text keeps clear of it.
@@ -82,8 +89,10 @@ def subject_from_keyframes(keyframes: list[Path], frame_width: int | None = None
         "w": int(min(STAGE_W, bw * 1.24)),
         "h": int(min(STAGE_H, bh * 1.5)),
     }
-    log.info("face_found", detections=len(boxes), face=fb2)
-    return Subject(fb2, free_zone_for(fb2), len(boxes), prop_point_for(fb2))
+    fz = free_zone_for(fb2)
+    luma = wall_luma(keyframes, fz)
+    log.info("face_found", detections=len(boxes), face=fb2, wall_luma=luma)
+    return Subject(fb2, fz, len(boxes), prop_point_for(fb2), luma)
 
 
 def free_zone_for(face: dict[str, int]) -> dict[str, int]:
@@ -99,3 +108,27 @@ def prop_point_for(face: dict[str, int]) -> dict[str, int]:
         "x": int(face["x"] + face["w"] * 0.45),
         "y": int(min(STAGE_H - 200, face["y"] + face["h"] * 1.15)),
     }
+
+
+def wall_luma(keyframes: list[Path], free_zone: dict[str, int]) -> float | None:
+    """Mean brightness of the free zone (the wall above the head) across the keyframes, so the
+    planner can pick ivory/gold on a dark wall. None when OpenCV or the frames are missing."""
+    try:
+        import cv2
+    except ImportError:  # pragma: no cover
+        return None
+    vals: list[float] = []
+    for kf in keyframes:
+        img = cv2.imread(str(kf))
+        if img is None:
+            continue
+        h, w = img.shape[:2]
+        k = w / STAGE_W
+        y0, y1 = int(free_zone["y"] * k), int((free_zone["y"] + free_zone["h"]) * k)
+        x0, x1 = int(free_zone["x"] * k), int((free_zone["x"] + free_zone["w"]) * k)
+        crop = img[max(0, y0) : min(h, y1), max(0, x0) : min(w, x1)]
+        if crop.size == 0:
+            continue
+        gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
+        vals.append(float(gray.mean()))
+    return round(sum(vals) / len(vals), 1) if vals else None

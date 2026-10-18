@@ -69,6 +69,8 @@ class PlannerInput:
     options: dict[str, Any] = field(
         default_factory=dict
     )  # captions / sfxIntensity / music / language
+    # the wall behind the speaker is dark → ivory/gold tokens even in full/zoom modes
+    wall_is_dark: bool = False
 
 
 @dataclass
@@ -164,11 +166,20 @@ class Planner:
                 "text": "## Style tokens\n\n" + json.dumps(inp.style, ensure_ascii=False),
             }
         )
+        wall = (
+            "The wall behind the speaker is DARK: use `iv` / `gold` for every poster line, "
+            "including in `full` and `zoom` modes, never `mar` / `ter` / `goldd`."
+            if inp.wall_is_dark
+            else "The wall behind the speaker is light: `mar` / `ter` / `goldd` in `full` / "
+            "`zoom`, `iv` / `gold` on the dark stage modes."
+        )
         parts.append(
             {
                 "type": "text",
                 "text": "## Subject (stage pixels, from face detection)\n\n"
-                + json.dumps(inp.subject),
+                + json.dumps(inp.subject)
+                + "\n\n"
+                + wall,
             }
         )
         parts.append(
@@ -348,6 +359,16 @@ class Planner:
                 if len(errors2) <= len(errors):
                     plan, report = plan2, report2
         fixed = report["plan"]
+        if inp.wall_is_dark:
+            swapped = swap_wall_tokens(fixed)
+            if swapped:
+                report["issues"].append(
+                    {
+                        "level": "fixed",
+                        "code": "color.darkWall",
+                        "message": f"{swapped} colours switched to ivory/gold for the dark wall",
+                    }
+                )
         summary = {
             "ok": report["ok"],
             "attempts": attempts,
@@ -466,3 +487,20 @@ class ChromiumValidator:
                 self._pw.stop()
         finally:
             self._page = self._browser = self._pw = None
+
+
+def swap_wall_tokens(plan: dict[str, Any]) -> int:
+    """On a dark wall the light-wall tokens are unreadable in every mode: mar→iv, ter→gold,
+    goldd→gold on poster lines, counters, equations and strike lines."""
+    swap = {"mar": "iv", "ter": "gold", "goldd": "gold"}
+    n = 0
+    for el in plan.get("elements", []):
+        for line in el.get("lines", []) or []:
+            if line.get("color") in swap:
+                line["color"] = swap[line["color"]]
+                n += 1
+        for key in ("color", "leftColor", "rightColor"):
+            if el.get(key) in swap:
+                el[key] = swap[el[key]]
+                n += 1
+    return n

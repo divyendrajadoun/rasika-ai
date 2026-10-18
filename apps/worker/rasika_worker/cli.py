@@ -303,6 +303,7 @@ def cmd_plan_local(a: argparse.Namespace, s: Settings) -> int:
         keyframes=keyframes,
         industry=a.industry,
         options={"captions": True, "sfxIntensity": 0.8},
+        wall_is_dark=subject.wall_is_dark,
     )
     validator = ChromiumValidator(s)
     try:

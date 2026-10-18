@@ -402,7 +402,9 @@ class Pipeline:
             images=images,
             keyframes=keyframes,
             options=options,
+            wall_is_dark=subject.wall_is_dark,
         )
+        timings["wall_luma"] = float(subject.wall_luma if subject.wall_luma is not None else -1)
         pub.update(JobStatus.PLANNING, 20, "Designing your edit…", **timings)
         t0 = time.time()
         validator = ChromiumValidator(self.s)
