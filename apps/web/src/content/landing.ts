@@ -225,6 +225,14 @@ export const styles = {
   ctaLabel: "Use this style",
 };
 
+export const communityLooks = {
+  eyebrow: "More looks, from the open community",
+  title: "Styles we're adding next.",
+  sub: "These previews come from the open-source video-skills list on GitHub — kinetic captions, paper collage, Apple-style motion, b-roll engines. They are other tools' renders, shown with credit, and the looks we are porting into Rasika presets.",
+  credit:
+    "Previews © their authors, from github.com/zhuyansen/awesome-claude-video-skills. Each card links to the repo and shows its licence. Rasika's own styles are the ones rendered on the real take above.",
+};
+
 export const pricing = {
   eyebrow: "Pricing",
   title: "Start free. Pay when it pays off.",

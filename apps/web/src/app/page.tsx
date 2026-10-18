@@ -4,6 +4,7 @@ import { BeforeAfter } from "@/components/landing/before-after";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { Features } from "@/components/landing/features";
 import { StyleShowcase } from "@/components/landing/style-showcase";
+import { CommunityLooks } from "@/components/landing/community-looks";
 import { Industries } from "@/components/landing/industries";
 import { Pricing } from "@/components/landing/pricing";
 import { Faq } from "@/components/landing/faq";
@@ -45,6 +46,7 @@ export default function LandingPage() {
         <HowItWorks />
         <Features />
         <StyleShowcase />
+        <CommunityLooks />
         <Pricing />
         <Faq />
         <FinalCta />

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { presetIds } from "@rasika/schema";
 import { creditsForDuration } from "@/config/pricing";
 
 /** What the "Create my edit" step submits. Shared by the client wizard and the server action. */
@@ -15,7 +16,9 @@ export const WizardSubmission = z.object({
   sourceAssetId: z.string().uuid(),
   durationSec: z.number().positive().max(180),
   photos: z.array(WizardPhoto).max(15).default([]),
-  stylePreset: z.enum(["mikku-royal", "katana-pop", "noir-minimal", "bold-creator"]),
+  stylePreset: z.string().refine((id) => presetIds.includes(id), {
+    message: "Unknown style preset",
+  }),
   styleText: z.string().max(300).default(""),
   options: z.object({
     captions: z.boolean().default(true),

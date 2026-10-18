@@ -108,6 +108,22 @@ Token use per plan (Opus): ≈ 10–17 K input (≈ 22 K more from cache on repa
   Remotion, collage/explainer skills), not of caption/motion presets; the useful signal from it was
   the kinetic-caption and collage looks, which fed Paper Collage and the karaoke/box formats.
 
+### Follow-up 2: wizard bug, community looks, Higgsfield key
+
+- **Bug fixed**: the wizard's submission schema still hard-coded the four original preset ids, so
+  picking any new style failed with "Invalid option". It now validates against `presetIds` from
+  `@rasika/schema`, so new presets work everywhere automatically (checked both ways).
+- **Community looks section**: twelve preview clips from the owner's
+  `awesome-claude-video-skills` list (kinetic captions, Apple-style motion, whiteboard, 3Blue1Brown
+  explainers, launch kits…), converted from the list's GIF previews to ~20 KB MP4 loops, shown
+  with owner/repo credit and a link to each repo, labelled honestly as other tools' renders and
+  "styles we're adding next" — never presented as Rasika output.
+- **Higgsfield platform key** stored in `.env` (`HIGGSFIELD_API_KEY/SECRET`, never committed). The
+  SOUL v2 text-to-image call is wired (`scratchpad/hf.py`) but the account answered
+  `not_enough_credits`; the eight per-industry portraits generate in about a minute once it is
+  topped up.
+- Lighthouse mobile after the section: perf 82 · a11y 100 · seo 100 · best practices 100.
+
 ## Mocked / deferred
 
 - The transcript **review UI** (SPEC §7.3) is Phase 6 with the editor; suggestions are stored,
