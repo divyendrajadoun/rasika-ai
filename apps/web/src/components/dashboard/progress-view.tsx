@@ -1,6 +1,8 @@
 "use client";
 
 import { Check, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { retryEdit } from "@/app/dashboard/actions";
 import { STATUS_LABEL, useJobEvents } from "@/components/dashboard/status-pill";
 import { cn } from "@/lib/utils";
 
@@ -31,16 +33,21 @@ const ACTIVE = new Set([
   "rendering_final",
 ]);
 
+/** No progress report for this long while a stage is active → offer a retry. */
+const STALE_AFTER_SEC = 120;
+
 export function ProgressView({
   projectId,
   initial,
 }: {
   projectId: string;
-  initial: { status: string; progress: number; message: string };
+  initial: { status: string; progress: number; message: string; updatedAt?: string | null };
 }) {
   const s = useJobEvents(projectId, initial);
   const idx = stageIndex(s.status);
   const failed = s.status === "failed";
+  const staleFor = useStaleSeconds(s.updatedAt ?? null, ACTIVE.has(s.status));
+  const stale = staleFor >= STALE_AFTER_SEC;
   return (
     <section className="bg-card mt-8 rounded-2xl border p-6" aria-live="polite">
       <div className="flex items-center justify-between gap-4">
@@ -52,6 +59,22 @@ export function ProgressView({
       <p className="font-accent text-muted-foreground mt-1 text-xl italic">
         {s.message || STAGES[Math.floor(idx)]?.copy}
       </p>
+      {(stale || failed) && (
+        <form
+          action={retryEdit}
+          className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-dashed p-3 text-sm"
+        >
+          <input type="hidden" name="id" value={projectId} />
+          <span className="text-muted-foreground">
+            {failed
+              ? "This run failed. Retrying starts again from the video check; nothing is charged twice."
+              : `No progress report for ${Math.round(staleFor / 60)} min. The worker may have been restarted.`}
+          </span>
+          <button type="submit" className="btn-outline-gold h-9 px-4 text-xs">
+            Retry this edit
+          </button>
+        </form>
+      )}
       {ACTIVE.has(s.status) && (
         <div className="bg-muted mt-4 h-2 overflow-hidden rounded-full">
           <div
@@ -99,4 +122,15 @@ export function ProgressView({
       </p>
     </section>
   );
+}
+
+function useStaleSeconds(updatedAt: string | null, active: boolean): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!active) return;
+    const id = window.setInterval(() => setNow(Date.now()), 5000);
+    return () => window.clearInterval(id);
+  }, [active]);
+  if (!active || !updatedAt) return 0;
+  return Math.max(0, (now - new Date(updatedAt).getTime()) / 1000);
 }

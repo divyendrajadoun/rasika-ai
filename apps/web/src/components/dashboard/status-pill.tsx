@@ -30,7 +30,7 @@ const ACTIVE = new Set([
 
 export function useJobEvents(
   projectId: string,
-  initial: { status: string; progress: number; message?: string },
+  initial: { status: string; progress: number; message?: string; updatedAt?: string | null },
 ) {
   const [state, setState] = useState(initial);
   useEffect(() => {
@@ -43,8 +43,14 @@ export function useJobEvents(
           progress: number;
           message: string;
           error: string | null;
+          updatedAt: string | null;
         };
-        setState({ status: d.status, progress: d.progress, message: d.error ?? d.message });
+        setState({
+          status: d.status,
+          progress: d.progress,
+          message: d.error ?? d.message,
+          updatedAt: d.updatedAt,
+        });
       } catch {
         /* ignore */
       }

@@ -57,6 +57,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
               status: job?.status ?? project.status,
               progress: job?.progress ?? 0,
               message: job?.message ?? "",
+              updatedAt: job?.updatedAt?.toISOString() ?? null,
             }}
           />
         )}

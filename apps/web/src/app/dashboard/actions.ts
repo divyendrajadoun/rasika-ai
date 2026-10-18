@@ -152,3 +152,48 @@ export async function duplicateProject(formData: FormData) {
   revalidatePath("/dashboard");
   redirect(`/dashboard/p/${newId}`);
 }
+
+/** Re-run the pipeline from the video check (idempotent: outputs are overwritten, credits are not
+ * charged again). Used when a run failed or the worker stopped reporting. */
+export async function retryEdit(formData: FormData) {
+  const user = await requireUser();
+  const id = String(formData.get("id") ?? "");
+  const [project] = await db
+    .select()
+    .from(schema.projects)
+    .where(and(eq(schema.projects.id, id), eq(schema.projects.userId, user.id)));
+  if (!project) return;
+  const [source] = await db
+    .select()
+    .from(schema.assets)
+    .where(and(eq(schema.assets.projectId, id), eq(schema.assets.kind, "source_video")));
+  if (!source) return;
+  const plan = plans.find((p) => p.id === user.plan) ?? plans[0]!;
+  const [job] = await db
+    .insert(schema.jobs)
+    .values({ projectId: id, userId: user.id, type: "probe", status: "uploaded" })
+    .returning();
+  await db
+    .update(schema.projects)
+    .set({ status: "uploaded", updatedAt: schema.now })
+    .where(eq(schema.projects.id, id));
+  await db.insert(schema.auditLog).values({
+    userId: user.id,
+    action: "project.retry",
+    entity: "project",
+    entityId: id,
+    meta: { job: job!.id },
+  });
+  await enqueueJob({
+    job_id: job!.id,
+    project_id: id,
+    user_id: user.id,
+    type: "probe",
+    payload: {
+      source_key: source.storageKey,
+      language_hint: project.styleOptions.language,
+      max_duration_sec: plan.maxSeconds,
+    },
+  });
+  revalidatePath(`/dashboard/p/${id}`);
+}
