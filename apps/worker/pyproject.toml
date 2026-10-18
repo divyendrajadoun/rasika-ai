@@ -23,6 +23,7 @@ dev = ["ruff>=0.6", "mypy>=1.10", "pytest>=8.2", "types-redis", "types-boto3", "
 # Phase 4+: transcription + vision deps (heavy; installed in the Docker image)
 ml = [
     "faster-whisper>=1.1",
+    "av>=14,<19",  # faster-whisper 1.2 calls av.open(metadata_errors=...), removed in PyAV 19
     "Pillow>=10",
     "anthropic>=0.40",
     "opencv-python-headless>=4.9,<5",
