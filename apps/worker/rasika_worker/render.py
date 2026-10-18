@@ -188,25 +188,35 @@ def render_chunk(args: dict[str, Any]) -> dict[str, Any]:
         stderr=subprocess.PIPE,
     )
     assert ff.stdin is not None
-    with sync_playwright() as p:
-        browser, page, cdp = _open(p, html, (size[0], size[1]))
-        for i in range(start, end):
-            t = i / fps
-            page.evaluate(SEEK_JS, t)
-            data = cdp.send(
-                "Page.captureScreenshot",
-                {
-                    "format": "jpeg",
-                    "quality": quality,
-                    "optimizeForSpeed": True,
-                    "captureBeyondViewport": False,
-                },
-            )["data"]
-            ff.stdin.write(base64.b64decode(data))
-            if (i - start) % 15 == 0:
-                progress_file.write_text(str(i - start + 1))
-        browser.close()
-    ff.stdin.close()
+    try:
+        with sync_playwright() as p:
+            browser, page, cdp = _open(p, html, (size[0], size[1]))
+            for i in range(start, end):
+                t = i / fps
+                page.evaluate(SEEK_JS, t)
+                data = cdp.send(
+                    "Page.captureScreenshot",
+                    {
+                        "format": "jpeg",
+                        "quality": quality,
+                        "optimizeForSpeed": True,
+                        "captureBeyondViewport": False,
+                    },
+                )["data"]
+                try:
+                    ff.stdin.write(base64.b64decode(data))
+                except (BrokenPipeError, ValueError, OSError) as exc:
+                    # ffmpeg died: surface its own message instead of "flush of closed file"
+                    _, err = ff.communicate(timeout=30)
+                    raise media.MediaError(
+                        f"ffmpeg chunk {dest.name} died at frame {i}: {err.decode('utf-8', 'replace')[-600:] or exc}"
+                    ) from exc
+                if (i - start) % 15 == 0:
+                    progress_file.write_text(str(i - start + 1))
+            browser.close()
+    finally:
+        with contextlib.suppress(Exception):
+            ff.stdin.close()
     _, err = ff.communicate()
     if ff.returncode != 0:
         raise media.MediaError(

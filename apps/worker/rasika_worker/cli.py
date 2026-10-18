@@ -237,7 +237,7 @@ def cmd_enqueue(a: argparse.Namespace, s: Settings) -> int:
     user_id = str(project["user_id"])
     job_type = JobType(a.type)
     job_id = repo.insert_job(a.project, user_id, job_type.value)
-    payload: dict[str, Any] = {}
+    payload: dict[str, Any] = json.loads(a.payload) if a.payload else {}
     if job_type == JobType.PROBE:
         srcs = repo.assets(a.project, "source_video")
         if srcs:
@@ -418,6 +418,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--project", required=True)
     p.add_argument("--type", default="probe")
     p.add_argument("--lang", default="auto")
+    p.add_argument("--payload", help='extra JSON payload, e.g. '{"then_final": true}'')
     p.set_defaults(fn=cmd_enqueue)
 
     p = sub.add_parser("plan-local")
