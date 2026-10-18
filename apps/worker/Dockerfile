@@ -12,7 +12,7 @@ RUN pnpm install --frozen-lockfile --filter @rasika/engine... \
  && pnpm --filter @rasika/engine build
 
 # ── stage 2: the worker ──
-FROM mcr.microsoft.com/playwright/python:v1.64.0-noble
+FROM mcr.microsoft.com/playwright/python:v1.63.0-noble
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
