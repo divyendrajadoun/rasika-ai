@@ -1,4 +1,4 @@
-# Rasika worker — Python 3.11 + Playwright Chromium + ffmpeg + faster-whisper (CPU).
+# Rasika worker — Playwright Chromium + ffmpeg + faster-whisper (GPU when passed through, CPU otherwise).
 # Build from the repo root:  docker build -f apps/worker/Dockerfile .
 
 # ── stage 1: build the engine harness bundle (dist/rasika-engine.js) ──
@@ -43,7 +43,11 @@ COPY packages/schema/presets /app/presets
 COPY plans/baisa_bling.json plans/baisa_bling.words.json /app/plans/
 COPY reference/mikku/references/style-guide.md /app/prompts/style-guide.md
 RUN pip install --no-cache-dir -e ".[ml]" \
+ && pip install --no-cache-dir "nvidia-cublas-cu12" "nvidia-cudnn-cu12==9.*" \
  && mkdir -p /work /models
+# CUDA runtime libraries for faster-whisper on a GPU host (docker compose passes the GPU through);
+# without a GPU the worker falls back to CPU int8 automatically.
+ENV LD_LIBRARY_PATH=/usr/local/lib/python3.12/dist-packages/nvidia/cublas/lib:/usr/local/lib/python3.12/dist-packages/nvidia/cudnn/lib:/usr/local/lib/python3.12/dist-packages/nvidia/cuda_nvrtc/lib
 
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
   CMD python -m rasika_worker.main --healthcheck || exit 1
