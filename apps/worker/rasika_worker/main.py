@@ -9,6 +9,7 @@ import logging
 import signal
 import sys
 import time
+import traceback
 from collections.abc import Callable
 
 import redis
@@ -126,8 +127,16 @@ class Worker:
             )
         except Exception as exc:
             user_facing = type(exc).__name__ == "PipelineError"
+            tb = traceback.format_exc()
             pub.fail(str(exc) if user_facing else f"{type(exc).__name__}: {exc}")
-            log.exception("job_exception", job_id=job.job_id, type=job.type)
+            log.error("job_exception", job_id=job.job_id, type=job.type, traceback=tb)
+            # a copy on disk as well, in case the process's stdout is what broke
+            try:
+                tb_dir = self.settings.work_dir / "_failures"
+                tb_dir.mkdir(parents=True, exist_ok=True)
+                (tb_dir / f"{job.job_id}.txt").write_text(tb, encoding="utf-8")
+            except OSError:
+                pass
 
     def run(self) -> None:
         s = self.settings
