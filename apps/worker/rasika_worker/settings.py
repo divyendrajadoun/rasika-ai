@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from pydantic import Field, field_validator
+from pydantic import Field, ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _HERE = Path(__file__).resolve().parent
@@ -80,6 +80,15 @@ class Settings(BaseSettings):
     def _blank_is_none(cls, v: object) -> object:
         """`.env` files often carry `KEY=` for unset values; treat blank as None."""
         return None if isinstance(v, str) and v.strip() == "" else v
+
+    @field_validator("engine_dir", "fonts_dir", mode="before")
+    @classmethod
+    def _blank_path_is_default(cls, v: object, info: ValidationInfo) -> object:
+        """A blank ENGINE_DIR / FONTS_DIR (as in .env.example) must fall back to the default
+        path, not become the relative path '' — the Docker image sets the real locations."""
+        if isinstance(v, str) and v.strip() == "":
+            return cls.model_fields[info.field_name or ""].default
+        return v
 
     @property
     def effective_parallelism(self) -> int:
