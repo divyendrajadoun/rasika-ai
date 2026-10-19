@@ -60,6 +60,8 @@ class Settings(BaseSettings):
     transcriber: str = Field(default="auto", alias="TRANSCRIBER")
     deepgram_api_key: str = Field(default="", alias="DEEPGRAM_API_KEY")
     deepgram_model: str = Field(default="nova-3", alias="DEEPGRAM_MODEL")
+    # Narration voice for script-only reels (Deepgram Aura-2, same key); the wizard can override
+    deepgram_tts_model: str = Field(default="aura-2-thalia-en", alias="DEEPGRAM_TTS_MODEL")
 
     # Optional licensed music bed (wav/mp3). Mixed only when the project asked for music and
     # ENABLE_MUSIC_BED is on.

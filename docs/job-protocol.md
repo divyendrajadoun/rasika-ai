@@ -12,7 +12,7 @@ live updates: Redis pub/sub channel `rasika:progress:<job_id>` → Next.js SSE r
   "job_id": "uuid",
   "project_id": "uuid",
   "user_id": "uuid",
-  "type": "probe | transcribe | plan | render_preview | render_final | cleanup",
+  "type": "synth | probe | transcribe | analyse_reference | plan | render_preview | render_final | cleanup",
   "attempt": 1,
   "payload": {},
   "enqueued_at": "2026-10-18T00:00:00Z"
@@ -23,11 +23,13 @@ live updates: Redis pub/sub channel `rasika:progress:<job_id>` → Next.js SSE r
 
 | type             | payload                                                                 |
 | ---------------- | ----------------------------------------------------------------------- |
+| `synth`          | `{ script, voice, language_hint: "en", max_duration_sec? }` — script-only reels: Deepgram Aura narrates the script (`tts.py`), ffmpeg builds a stage-coloured 1080×1920 clip carrying it, uploaded as the project's `source_video` (`meta.synthetic = true`); then enqueues `probe`. The project's `style_options.faceless = true` makes the planner treat the whole stage as free |
 | `probe`          | `{ source_key, language_hint: "auto"\|"en"\|"hi"\|"hinglish", max_duration_sec? }` |
 | `transcribe`     | `{ source_key, language_hint }` (enqueued by `probe` with the same `job_id`); applies safe transcript fixes, then enqueues `plan` when `AUTO_PLAN` |
 | `plan`           | `{ transcript_version }` → Claude plan, validated in Chromium, saved as `edit_plans` version; enqueues `render_preview` with `then_final` when `AUTO_RENDER` |
 | `render_preview` | `{ plan_version?, then_final? }` → 540×960, ultrafast, no grain → asset `preview_540`; with `then_final` it enqueues `render_final` |
 | `render_final`   | `{ plan_version?, watermark?: bool }` → `output_1080`, `output_720`, `thumbnail` |
+| `analyse_reference` | `{ transcript_version }` — reference matching: enqueued by `transcribe` instead of `plan` when `style_options.source = "reference"` and no `referenceStyle` exists yet. Measures the `reference_video` asset (ffmpeg scene cuts, 8 stills, Pillow colour stats), asks the planner model for a matched `StyleTokens` within the project's `fidelity` (`pace` → direction only · `camera` → + enter/exit/easing/camera/sfx · `look` → + palette/fonts/texture), stores it in `style_options.referenceStyle` (+ `referenceReport`) and enqueues `plan`, which reads the override instead of the preset |
 | `cleanup`        | `{ keep_outputs: bool }`                                                |
 
 One `jobs` row follows a pipeline run through its stages; the worker re-enqueues the next stage with

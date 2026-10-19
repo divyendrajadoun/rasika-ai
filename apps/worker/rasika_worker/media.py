@@ -169,6 +169,43 @@ def extract_audio(ffmpeg: str, src: Path, voice: Path, audio16k: Path) -> None:
     )
 
 
+def make_stage_video(ffmpeg: str, voice: Path, dest: Path, colour: str, duration_sec: float) -> None:
+    """A plain 1080×1920 clip in the style's stage colour carrying the narration — the *source*
+    for a script-only reel, so probe → transcribe → plan → render run unchanged."""
+    run(
+        [
+            ffmpeg,
+            "-v",
+            "error",
+            "-y",
+            "-f",
+            "lavfi",
+            "-i",
+            f"color=c={colour}:s={STAGE_W}x{STAGE_H}:r={FPS}:d={duration_sec:.3f}",
+            "-i",
+            str(voice),
+            "-shortest",
+            "-c:v",
+            "libx264",
+            "-tune",
+            "stillimage",
+            "-preset",
+            "veryfast",
+            "-crf",
+            "28",
+            "-pix_fmt",
+            "yuv420p",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "160k",
+            "-movflags",
+            "+faststart",
+            str(dest),
+        ]
+    )
+
+
 def make_proxy(ffmpeg: str, src: Path, dest: Path) -> None:
     """Normalised H.264 1080×1920 30 fps proxy with AAC audio (editor preview)."""
     run(

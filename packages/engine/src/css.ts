@@ -32,6 +32,15 @@ export const FONTS: Record<string, FontFile> = {
   Kalam: { file: "Kalam-Bold.ttf", weight: "700" },
   "Permanent Marker": { file: "PermanentMarker-Regular.ttf" },
   "JetBrains Mono": { file: "JetBrainsMono.ttf", weight: "100 800" },
+  "Space Grotesk": { file: "SpaceGrotesk.ttf", weight: "300 700" },
+  Oswald: { file: "Oswald.ttf", weight: "200 700" },
+  // upright Playfair (the italic face above keeps the historic key)
+  "Playfair Display Roman": { file: "PlayfairDisplay.ttf", weight: "400 900" },
+  Jost: { file: "Jost.ttf", weight: "100 900" },
+  "Press Start 2P": { file: "PressStart2P-Regular.ttf" },
+  Fraunces: { file: "Fraunces.ttf", weight: "100 900" },
+  "IBM Plex Sans": { file: "IBMPlexSans.ttf", weight: "100 700" },
+  "IBM Plex Mono": { file: "IBMPlexMono-Medium.ttf", weight: "500" },
 };
 
 /** Legacy aliases used by older plans / the reference composition. */
@@ -107,6 +116,23 @@ export interface EngineCssOptions {
   motion?: Motion;
 }
 
+/** Display weight per poster family (static faces fall back to 400). */
+const POSTER_WEIGHT: Record<string, string> = {
+  Montserrat: "800",
+  Poppins: "800",
+  Inter: "800",
+  Kalam: "700",
+  "JetBrains Mono": "700",
+  Caveat: "700",
+  "Space Grotesk": "700",
+  Oswald: "700",
+  "Playfair Display Roman": "900",
+  Jost: "700",
+  Fraunces: "900",
+  "IBM Plex Sans": "700",
+  "IBM Plex Mono": "500",
+};
+
 export function engineCss(o: EngineCssOptions): string {
   const p = o.palette;
   const cs = o.captionSize;
@@ -117,12 +143,7 @@ export function engineCss(o: EngineCssOptions): string {
   const dev = fontFamily(o.fonts.devanagari);
   const capFont = fontFamily(o.fonts.caption);
   const accentStyle = ITALIC_FACES.has(accent) ? "italic" : "italic";
-  const posterWeight =
-    poster === "Montserrat" || poster === "Poppins" || poster === "Inter"
-      ? "800"
-      : poster === "Kalam" || poster === "JetBrains Mono" || poster === "Caveat"
-        ? "700"
-        : "400";
+  const posterWeight = POSTER_WEIGHT[poster] ?? "400";
   const m = o.motion ?? motionOf({});
   // mixed-case families: the hand, the board and the recap never shout in caps
   const upper = ["kinetic", "launch", "whiteboard", "chalk", "blocks"].includes(m.family)
@@ -131,7 +152,13 @@ export function engineCss(o: EngineCssOptions): string {
   const posterTracking = poster === "Bebas Neue" ? ".03em" : poster === "Anton" ? ".01em" : "0";
   const capAccent = `var(--${o.captionAccent})`;
   const capWeight =
-    capFont === "Inter" || capFont === "Montserrat" || capFont === "Poppins"
+    capFont === "Inter" ||
+    capFont === "Montserrat" ||
+    capFont === "Poppins" ||
+    capFont === "Space Grotesk" ||
+    capFont === "Oswald" ||
+    capFont === "Jost" ||
+    capFont === "IBM Plex Sans"
       ? "800"
       : capFont === "Kalam" || capFont === "JetBrains Mono"
         ? "700"
@@ -215,7 +242,12 @@ export function familyCss(
 .rk .rk-pattern.none.tex-grid{background-image:linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);background-size:80px 80px,80px 80px;background-position:0 0,0 0}
 .rk .rk-pattern.none.tex-dots{background-image:radial-gradient(circle,rgba(255,255,255,.16) 3px,transparent 4px);background-size:48px 48px;background-position:0 0}
 .rk .rk-pattern.none.tex-vignette{background-image:radial-gradient(ellipse at 50% 42%,rgba(255,255,255,.04) 0,transparent 45%,rgba(0,0,0,.6) 100%);background-size:auto;background-position:0 0}
-.rk .rk-pattern.none.tex-gradient{background-image:linear-gradient(160deg,var(--mar) 0%,var(--stage) 55%,var(--ink) 100%);background-size:auto;background-position:0 0}`;
+.rk .rk-pattern.none.tex-gradient{background-image:linear-gradient(160deg,var(--mar) 0%,var(--stage) 55%,var(--ink) 100%);background-size:auto;background-position:0 0}
+.rk .rk-pattern.none.tex-halftone{background-image:radial-gradient(circle,rgba(0,0,0,.22) 0 2.2px,transparent 3px),radial-gradient(circle,rgba(255,255,255,.07) 0 1px,transparent 2px);background-size:11px 11px,29px 29px;background-position:0 0,5px 7px;transform:rotate(0deg)}
+.rk .rk-pattern.none.tex-scan{background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 2px,transparent 2px 5px),radial-gradient(ellipse at 50% 45%,rgba(255,255,255,.07),rgba(0,0,0,.5) 100%);background-size:auto,auto;background-position:0 0,0 0}
+.rk .rk-pattern.none.tex-lines{background-image:repeating-linear-gradient(0deg,transparent 0 58px,rgba(0,0,0,.14) 58px 60px),linear-gradient(90deg,transparent 0 120px,rgba(200,40,40,.25) 120px 123px,transparent 123px)}
+.rk .rk-pattern.none.tex-grain{background-image:radial-gradient(circle,rgba(255,255,255,.12) 0 1px,transparent 1.6px),radial-gradient(circle,rgba(0,0,0,.18) 0 1px,transparent 1.6px),radial-gradient(ellipse at 50% 40%,transparent 40%,rgba(0,0,0,.55) 100%);background-size:7px 7px,5px 5px,auto;background-position:0 0,3px 2px,0 0}
+.rk .ch.cur::after{content:"";display:inline-block;width:.55em;height:1em;margin-left:.06em;vertical-align:-.12em;background:currentColor;opacity:.9}`;
   const fam: Record<Motion["family"], string> = {
     editorial: "",
     collage: `

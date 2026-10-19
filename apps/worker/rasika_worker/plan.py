@@ -80,6 +80,7 @@ class Enter(StrEnum):
     blur = "blur"
     letters = "letters"
     mask = "mask"
+    type = "type"
 
 
 class Exit(StrEnum):
@@ -95,6 +96,7 @@ class Easing(StrEnum):
     snap = "snap"
     smooth = "smooth"
     soft = "soft"
+    steps = "steps"
 
 
 class Camera(StrEnum):
@@ -123,6 +125,10 @@ class Texture(StrEnum):
     dots = "dots"
     vignette = "vignette"
     gradient = "gradient"
+    halftone = "halftone"
+    scan = "scan"
+    lines = "lines"
+    grain = "grain"
 
 
 class Motion(BaseModel):

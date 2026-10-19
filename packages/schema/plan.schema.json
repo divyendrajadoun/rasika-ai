@@ -256,7 +256,8 @@
                 "draw",
                 "blur",
                 "letters",
-                "mask"
+                "mask",
+                "type"
               ]
             },
             "exit": {
@@ -277,7 +278,8 @@
                 "spring",
                 "snap",
                 "smooth",
-                "soft"
+                "soft",
+                "steps"
               ]
             },
             "speed": {
@@ -320,7 +322,11 @@
                 "grid",
                 "dots",
                 "vignette",
-                "gradient"
+                "gradient",
+                "halftone",
+                "scan",
+                "lines",
+                "grain"
               ]
             },
             "direction": {

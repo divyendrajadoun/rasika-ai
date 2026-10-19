@@ -24,6 +24,12 @@ export const E = {
 
 export const clamp = (x: number, a = 0, b = 1): number => Math.min(b, Math.max(a, x));
 
+/** Stop-motion easing: the move lands in `n` held poses (GSAP `steps(n)`). */
+export const steps =
+  (n = 4) =>
+  (t: number): number =>
+    t >= 1 ? 1 : Math.floor(t * n) / n;
+
 /** Relative luma 0..1 of a #rrggbb colour (sRGB weights, no gamma — enough to tell light from dark). */
 export function hexLuma(hex: string): number {
   const n = parseInt(hex.replace("#", ""), 16);

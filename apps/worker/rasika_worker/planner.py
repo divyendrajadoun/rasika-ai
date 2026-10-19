@@ -191,22 +191,38 @@ class Planner:
             }
         )
         parts.append({"type": "text", "text": motion_brief(inp.style, motion)})
-        wall = (
-            "The wall behind the speaker is DARK: use `iv` / `gold` for every poster line, "
-            "including in `full` and `zoom` modes, never `mar` / `ter` / `goldd`."
-            if inp.wall_is_dark
-            else "The wall behind the speaker is light: `mar` / `ter` / `goldd` in `full` / "
-            "`zoom`, `iv` / `gold` on the dark stage modes."
-        )
-        parts.append(
-            {
-                "type": "text",
-                "text": "## Subject (stage pixels, from face detection)\n\n"
-                + json.dumps(inp.subject)
-                + "\n\n"
-                + wall,
-            }
-        )
+        if inp.options.get("faceless"):
+            stage = str((inp.style.get("palette") or {}).get("stage") or "#000000")
+            tokens = "`iv` / `gold`" if hex_luma(stage) < 0.5 else "`mar` / `ter` / `goldd`"
+            parts.append(
+                {
+                    "type": "text",
+                    "text": "## Subject\n\nThere is NO speaker on screen: this is a narrated, "
+                    "script-only film. The footage is a plain stage-coloured plate in every mode, "
+                    "so the whole frame (y 150–1500) is yours. Carry every line with typography and "
+                    "cards — a poster line, counter, chapter card or image should be on screen for "
+                    "every sentence; never leave the plate empty for more than 1.5 s. Use `card` / "
+                    "`pip` / `arch` modes only when an imageCard or chapterCard fills them; otherwise "
+                    f"stay in `full`. Text colours: {tokens} throughout.",
+                }
+            )
+        else:
+            wall = (
+                "The wall behind the speaker is DARK: use `iv` / `gold` for every poster line, "
+                "including in `full` and `zoom` modes, never `mar` / `ter` / `goldd`."
+                if inp.wall_is_dark
+                else "The wall behind the speaker is light: `mar` / `ter` / `goldd` in `full` / "
+                "`zoom`, `iv` / `gold` on the dark stage modes."
+            )
+            parts.append(
+                {
+                    "type": "text",
+                    "text": "## Subject (stage pixels, from face detection)\n\n"
+                    + json.dumps(inp.subject)
+                    + "\n\n"
+                    + wall,
+                }
+            )
         parts.append(
             {
                 "type": "text",

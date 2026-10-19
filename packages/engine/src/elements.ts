@@ -16,7 +16,7 @@ import type {
 import { DEFAULT_MOTION, type EasingKind, type ExitKind, type Motion } from "@rasika/schema";
 import { div, esc, nextId, px, rgba } from "./dom";
 import { patternSvg, type Colors } from "./patterns";
-import { E, lerp, prog, rng, transformStyle, type Easing, type Transform } from "./toolkit";
+import { E, lerp, prog, rng, transformStyle, type Easing, type Transform, steps } from "./toolkit";
 
 export type ItemKind =
   "rise" | "pop" | "fade" | "slide" | "stamp" | "card" | "cardx" | "bleed" | "none";
@@ -580,6 +580,7 @@ const EASE: Record<EasingKind, Easing> = {
   snap: E.outExpo,
   smooth: E.outCubic,
   soft: E.outQuint,
+  steps: steps(4),
 };
 
 /**
@@ -624,6 +625,29 @@ function typoEnter(el: HTMLElement, a: number, m: Motion, perWord: boolean): Tra
     });
     return {};
   }
+  if (m.enter === "type" && perWord) {
+    // typewriter: letters appear left to right, 2 frames each, a block cursor rides the end
+    for (const w of words) {
+      if (!w.dataset["split"]) {
+        w.innerHTML = [...(w.textContent ?? "")]
+          .map((ch) => `<span class="ch" style="display:inline-block">${esc(ch)}</span>`)
+          .join("");
+        w.dataset["split"] = "1";
+      }
+      w.style.transform = "";
+    }
+    const chars = el.querySelectorAll<HTMLElement>(".ch");
+    const per = 0.07 * sp;
+    let cursorAt: HTMLElement | null = null;
+    chars.forEach((ch, i) => {
+      const on = a >= i * per;
+      ch.style.opacity = on ? "1" : "0";
+      ch.classList.remove("cur");
+      if (on) cursorAt = ch;
+    });
+    if (cursorAt && a < chars.length * per + 0.4) (cursorAt as HTMLElement).classList.add("cur");
+    return {};
+  }
   if (m.enter === "mask" && perWord) {
     // the whole line rises under its mask at once — no per-word stagger
     words.forEach((w) => {
@@ -634,6 +658,7 @@ function typoEnter(el: HTMLElement, a: number, m: Motion, perWord: boolean): Tra
   }
   words.forEach((w) => (w.style.transform = ""));
   switch (m.enter) {
+    case "type":
     case "letters":
     case "mask":
     case "rise":

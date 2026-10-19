@@ -55,7 +55,9 @@ class Pipeline:
     @property
     def handlers(self) -> dict[JobType, Callable[[JobMessage, Publisher], None]]:
         return {
+            JobType.SYNTH: self.synth,
             JobType.PROBE: self.probe,
+            JobType.ANALYSE_REFERENCE: self.analyse_reference,
             JobType.TRANSCRIBE: self.transcribe,
             JobType.PLAN: self.plan,
             JobType.RENDER_PREVIEW: lambda j, p: self.render(j, p, preview=True),
@@ -130,6 +132,66 @@ class Pipeline:
         size = self.storage.upload(src, key, mime)
         return self.repo.insert_asset(
             job.project_id, job.user_id, kind, key, src.name, mime, size, meta, asset_id
+        )
+
+    # ── script-only reels: narration + stage clip, then the normal chain ──
+    def synth(self, job: JobMessage, pub: Publisher) -> None:
+        from rasika_worker.tts import VOICES, DeepgramTTS
+
+        pub.update(JobStatus.PROBING, 1, "Reading your script…")
+        work = self.work(job.project_id)
+        project = self.repo.project(job.project_id)
+        if not project:
+            raise PipelineError("Project not found.")
+        script = str(job.payload.get("script") or "").strip()
+        if not script:
+            raise PipelineError("The script is empty.")
+        if not self.s.deepgram_api_key:
+            raise PipelineError("Narration is not configured on this server (DEEPGRAM_API_KEY).")
+        voice_id = str(job.payload.get("voice") or self.s.deepgram_tts_model)
+        if voice_id not in VOICES:
+            voice_id = self.s.deepgram_tts_model
+        max_dur = float(str(job.payload.get("max_duration_sec") or MAX_DURATION_DEFAULT))
+
+        t0 = time.time()
+        pub.update(JobStatus.PROBING, 5, f"Recording the narration ({VOICES[voice_id][0]})…")
+        voice = work / "narration.wav"
+        try:
+            duration = DeepgramTTS(self.s.deepgram_api_key, voice_id).speak(script, voice)
+        except RuntimeError as exc:
+            raise PipelineError(f"Narration failed: {exc}") from exc
+        if duration > max_dur + 0.5:
+            raise PipelineError(
+                f"Spoken, this script runs {duration:.0f} s; your plan allows {max_dur:.0f} s. Shorten it."
+            )
+        timings = {"tts_sec": round(time.time() - t0, 2), "narration_sec": round(duration, 2)}
+        pub.update(JobStatus.PROBING, 40, "Building the stage…", **timings)
+
+        t0 = time.time()
+        style = self._style_tokens(project)
+        colour = str((style.get("palette") or {}).get("stage") or "#000000")
+        src = work / "source.mp4"
+        media.make_stage_video(self.s.ffmpeg_bin, voice, src, colour, duration)
+        prefix = project_prefix(job.user_id, job.project_id)
+        key = f"{prefix}/source.mp4"
+        self.upload_asset(
+            job,
+            "source_video",
+            src,
+            key,
+            {"width": 1080, "height": 1920, "fps": 30, "durationSec": duration, "synthetic": True},
+        )
+        self.repo.update_project(job.project_id, duration_sec=duration)
+        timings["stage_sec"] = round(time.time() - t0, 2)
+        pub.update(JobStatus.PROBING, 60, "Narration ready.", **timings)
+        self.enqueue(
+            job,
+            JobType.PROBE,
+            {
+                "source_key": key,
+                "language_hint": job.payload.get("language_hint") or "en",
+                "max_duration_sec": max_dur,
+            },
         )
 
     # ── 7.1 probe & prep ──
@@ -309,9 +371,14 @@ class Pipeline:
             except Exception as exc:  # never block the pipeline on suggestions
                 log.warning("transcript_fix_failed", error=str(exc))
 
+        opts = dict(project.get("style_options") or {})
         if self.s.auto_plan and self.s.anthropic_api_key:
-            pub.update(JobStatus.PLANNING, 0, "Designing your edit…", **timings)
-            self.enqueue(job, JobType.PLAN, {"transcript_version": version})
+            if opts.get("source") == "reference" and not opts.get("referenceStyle"):
+                pub.update(JobStatus.PLANNING, 0, "Studying the reference reel…", **timings)
+                self.enqueue(job, JobType.ANALYSE_REFERENCE, {"transcript_version": version})
+            else:
+                pub.update(JobStatus.PLANNING, 0, "Designing your edit…", **timings)
+                self.enqueue(job, JobType.PLAN, {"transcript_version": version})
         else:
             pub.update(
                 JobStatus.AWAITING_TRANSCRIPT_REVIEW,
@@ -319,6 +386,70 @@ class Pipeline:
                 f"Transcript ready: {len(words)} words ({result.language}).",
                 **timings,
             )
+
+    # ── reference matching (reelmimic-style analyse → style) ──
+    def analyse_reference(self, job: JobMessage, pub: Publisher) -> None:
+        from rasika_worker import reference
+
+        pub.update(JobStatus.PLANNING, 2, "Studying the reference reel…")
+        work = self.work(job.project_id)
+        project = self.repo.project(job.project_id)
+        if not project:
+            raise PipelineError("Project not found.")
+        refs = self.repo.assets(job.project_id, "reference_video")
+        if not refs:
+            raise PipelineError("No reference reel was uploaded for this project.")
+        ref = refs[-1]
+        dest = work / ("reference" + Path(ref["storage_key"]).suffix.lower())
+        if not dest.exists():
+            self.storage.download(ref["storage_key"], dest)
+        opts = dict(project.get("style_options") or {})
+        fidelity = str(opts.get("fidelity") or "camera")
+
+        t0 = time.time()
+        report = reference.analyse(self.s.ffmpeg_bin, self.s.ffprobe_bin, dest, work / "ref")
+        timings: dict[str, float] = {
+            "reference_analyse_sec": round(time.time() - t0, 2),
+            "reference_cuts": float(len(report.cuts)),
+            "reference_mean_shot_sec": report.mean_shot_sec,
+        }
+        pub.update(
+            JobStatus.PLANNING,
+            10,
+            f"Reference: {len(report.cuts)} cuts, {report.mean_shot_sec:.1f} s shots. Writing the style…",
+            **timings,
+        )
+        t0 = time.time()
+        preset = self._style_tokens(project, use_override=False)
+        try:
+            tokens, usage = reference.propose_style(
+                self.anthropic(),
+                self.s.anthropic_planner_model,
+                report,
+                preset,
+                fidelity,
+                project.get("style_text"),
+            )
+        except Exception as exc:
+            raise PipelineError(f"Could not write a style from the reference: {exc}") from exc
+        timings["reference_style_sec"] = round(time.time() - t0, 2)
+        timings["reference_input_tokens"] = float(usage["input_tokens"])
+        timings["reference_output_tokens"] = float(usage["output_tokens"])
+        opts["referenceStyle"] = tokens
+        opts["referenceReport"] = {k: v for k, v in report.as_dict().items() if k != "stills"}
+        self.repo.exec(
+            "UPDATE projects SET style_options = %s::jsonb, updated_at = now() WHERE id = %s::uuid",
+            (json.dumps(opts), job.project_id),
+        )
+        self.repo.audit(
+            job.user_id,
+            "reference_style",
+            "project",
+            job.project_id,
+            {"fidelity": fidelity, "usage": usage, "report": opts["referenceReport"]},
+        )
+        pub.update(JobStatus.PLANNING, 15, "Designing your edit in that rhythm…", **timings)
+        self.enqueue(job, JobType.PLAN, {"transcript_version": job.payload.get("transcript_version")})
 
     # ── 7.4 planning ──
     def anthropic(self) -> Any:
@@ -443,8 +574,12 @@ class Pipeline:
                 JobStatus.AWAITING_PLAN_REVIEW, 100, "Your edit is ready to preview", **timings
             )
 
-    def _style_tokens(self, project: dict[str, Any]) -> dict[str, Any]:
-        """The preset's tokens (packages/schema/presets) for the project's style_preset."""
+    def _style_tokens(self, project: dict[str, Any], use_override: bool = True) -> dict[str, Any]:
+        """The preset's tokens (packages/schema/presets) for the project's style_preset — or the
+        style written from a reference reel, when the project has one."""
+        override = (project.get("style_options") or {}).get("referenceStyle")
+        if use_override and isinstance(override, dict) and override.get("palette"):
+            return dict(override)
         preset = str(project.get("style_preset") or "mikku-royal")
         candidates = [
             (_REPO_ROOT / "packages" / "schema" / "presets" / f"{preset}.json")

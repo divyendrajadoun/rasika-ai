@@ -91,3 +91,5 @@ INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
 DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.
+
+Also bundled under the SIL Open Font License 1.1 (same terms as above): Space Grotesk (Florian Karsten), Oswald (Vernon Adams), Playfair Display (Claus Eggers Sørensen), Jost (indestructible type*), Press Start 2P (CodeMan38), Fraunces (Undercase Type), IBM Plex Sans and IBM Plex Mono (IBM).

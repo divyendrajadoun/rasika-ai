@@ -38,6 +38,7 @@ export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 
 export const ASSET_KINDS = [
   "source_video",
+  "reference_video",
   "image",
   "proxy",
   "frame_bundle",
@@ -51,7 +52,9 @@ export const ASSET_KINDS = [
 export type AssetKind = (typeof ASSET_KINDS)[number];
 
 export const JOB_TYPES = [
+  "synth",
   "probe",
+  "analyse_reference",
   "transcribe",
   "plan",
   "render_preview",
@@ -91,6 +94,17 @@ export interface StyleOptions {
   sfxIntensity: number; // 0..1
   music: boolean;
   language: "auto" | "en" | "hi" | "hinglish";
+  /** where the reel came from (default "take": an uploaded clip) */
+  source?: "take" | "script" | "reference";
+  /** script-only reels: no speaker on screen, the planner fills the whole stage */
+  faceless?: boolean;
+  /** script-only reels: the narration voice id (Deepgram Aura) */
+  voice?: string;
+  /** reference matching: how much of the reference to honour */
+  fidelity?: "pace" | "camera" | "look";
+  /** reference matching: the style the worker wrote from the reference (StyleTokens) */
+  referenceStyle?: Record<string, unknown>;
+  referenceReport?: Record<string, unknown>;
 }
 export interface BrandInfo {
   name?: string;

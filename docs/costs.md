@@ -10,6 +10,8 @@ Kept up to date per phase. Numbers marked _(est.)_ are estimates until the admin
 | Planner call (Claude Opus)   | worker `plan`              | measured: 10–17 K input + 22.5 K cached prefix, 8–14 K output per attempt; a repair round doubles output |
 | Cheap Claude pass (Haiku)    | transcript fixes           | ≈ 2–3 K in / 1–2 K out for a 90 s reel                       |
 | Transcription                | worker `transcribe`        | Deepgram Nova-3 ≈ $0.0043 / audio-minute (3 s for a 42 s reel); faster-whisper fallback (GPU 72 s cold / CPU 179 s) |
+| Narration (script-only reels) | worker `synth`            | Deepgram Aura-2 TTS on the same key, billed per character (list price ≈ $0.030 / 1 000 chars → a 60 s script of ~900 chars ≈ $0.03); English voices only — Hindi narration needs a second provider (not approved) |
+| Reference matching           | worker `analyse_reference` | one planner-model vision call with 8 stills: measured 18 s, 4.2 k input + 1.7 k output tokens (≈ $0.15 at Opus list price); the ffmpeg/Pillow analysis is free (8 s for a 90 s clip) |
 | Render compute               | worker `render_final`      | the biggest one: headless Chromium frame capture + x264      |
 | Storage                      | R2                         | source + proxy + outputs for 30 days; frames never stored    |
 

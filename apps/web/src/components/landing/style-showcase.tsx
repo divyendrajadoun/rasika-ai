@@ -7,6 +7,7 @@ import { PhoneMockup } from "@/components/brand/phone-mockup";
 import { Reveal } from "@/components/motion/reveal";
 import { Section } from "@/components/brand/section";
 import { presetCards, type PresetCard } from "@/config/presets";
+import { FamilyChips, useStyleFilter } from "@/components/style-filter";
 import { styles as c } from "@/content/landing";
 
 const DEMO = (id: string) => ({
@@ -21,8 +22,9 @@ const RAW = { video: "/demo/styles/raw.mp4", poster: "/demo/styles/raw.jpg" };
  * divider, both playing in sync. Right: the style index; hovering a card plays its loop.
  */
 export function StyleShowcase() {
-  const [active, setActive] = useState(0);
-  const card = presetCards[active]!;
+  const [activeId, setActiveId] = useState(presetCards[0]!.tokens.id);
+  const card = presetCards.find((p) => p.tokens.id === activeId) ?? presetCards[0]!;
+  const filter = useStyleFilter(presetCards);
   return (
     <Section id="styles" eyebrow={c.eyebrow} title={c.title} sub={c.sub} tone="maroon">
       <div className="grid min-w-0 items-start gap-10 lg:grid-cols-[400px_1fr] lg:gap-14">
@@ -33,10 +35,24 @@ export function StyleShowcase() {
           <Compare key={card.tokens.id} card={card} />
         </Reveal>
         <div className="min-w-0">
+          <div className="mb-4">
+            <FamilyChips
+              counts={filter.counts}
+              total={presetCards.length}
+              value={filter.family}
+              onChange={filter.setFamily}
+              tone="dark"
+            />
+          </div>
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-            {presetCards.map((p, i) => (
+            {filter.filtered.map((p) => (
               <li key={p.tokens.id}>
-                <StyleCard card={p} active={i === active} onPick={() => setActive(i)} index={i} />
+                <StyleCard
+                  card={p}
+                  active={p.tokens.id === activeId}
+                  onPick={() => setActiveId(p.tokens.id)}
+                  index={presetCards.indexOf(p)}
+                />
               </li>
             ))}
           </ul>

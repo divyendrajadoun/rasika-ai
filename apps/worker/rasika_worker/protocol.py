@@ -17,7 +17,11 @@ PROTOCOL_VERSION: Final[Literal[1]] = 1
 
 
 class JobType(StrEnum):
+    # script-only reels: narrate the script and build the stage clip, then the normal chain
+    SYNTH = "synth"
     PROBE = "probe"
+    # reference matching: measure the reference reel, write a matched style, then PLAN
+    ANALYSE_REFERENCE = "analyse_reference"
     TRANSCRIBE = "transcribe"
     PLAN = "plan"
     RENDER_PREVIEW = "render_preview"

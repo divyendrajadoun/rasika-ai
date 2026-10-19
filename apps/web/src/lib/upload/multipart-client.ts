@@ -61,8 +61,9 @@ async function api<T>(url: string, init?: RequestInit): Promise<T> {
 export async function openSession(
   file: File,
   projectId?: string,
+  kind: "source_video" | "reference_video" = "source_video",
 ): Promise<{ session: UploadSession; remaining: PartRange[]; complete: boolean }> {
-  const fingerprint = fileFingerprint(file);
+  const fingerprint = `${kind === "reference_video" ? "ref:" : ""}${fileFingerprint(file)}`;
   const existing = loadSessions()[fingerprint];
   if (existing && (!projectId || existing.projectId === projectId)) {
     try {
@@ -89,7 +90,7 @@ export async function openSession(
     parts: PartRange[];
   }>("/api/uploads/create", {
     method: "POST",
-    body: JSON.stringify({ projectId, filename: file.name, size: file.size, mime: file.type }),
+    body: JSON.stringify({ projectId, filename: file.name, size: file.size, mime: file.type, kind }),
   });
   const session: UploadSession = { ...created, plan: created.parts, fingerprint };
   saveSession(session);

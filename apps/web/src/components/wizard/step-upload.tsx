@@ -33,12 +33,19 @@ export function StepUpload({
   maxSeconds,
   planName,
   onChange,
+  kind = "source_video",
+  projectId,
 }: {
   value: UploadResult | null;
   maxSeconds: number;
   planName: string;
   onChange: (v: UploadResult | null) => void;
+  /** the reel itself, or the reference reel the edit should match */
+  kind?: "source_video" | "reference_video";
+  /** reference uploads attach to the project the source created */
+  projectId?: string;
 }) {
+  const isRef = kind === "reference_video";
   const [phase, setPhase] = useState<Phase>(value?.complete ? "done" : "idle");
   const [progress, setProgress] = useState<UploadProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -67,7 +74,11 @@ export function StepUpload({
             `This clip is ${Math.round(probe.durationSec)} s. Your ${planName} plan allows up to ${maxSeconds} s.`,
           );
         }
-        const { session, remaining, complete } = await openSession(file, value?.projectId);
+        const { session, remaining, complete } = await openSession(
+          file,
+          value?.projectId ?? projectId,
+          kind,
+        );
         sessionRef.current = session;
         onChange({
           projectId: session.projectId,
@@ -92,7 +103,7 @@ export function StepUpload({
           width: probe.width ?? undefined,
           height: probe.height ?? undefined,
         });
-        if (probe.thumbnail) {
+        if (probe.thumbnail && !isRef) {
           await uploadSmall(session.projectId, "thumbnail", probe.thumbnail, "thumb.jpg").catch(
             () => {},
           );
@@ -118,7 +129,7 @@ export function StepUpload({
         setPhase("error");
       }
     },
-    [maxSeconds, onChange, planName, value?.projectId],
+    [maxSeconds, onChange, planName, value?.projectId, projectId, kind, isRef],
   );
 
   const pick = (file: File | undefined) => {
@@ -150,7 +161,7 @@ export function StepUpload({
     return (
       <div>
         <label
-          htmlFor="reel"
+          htmlFor={isRef ? "reference-reel" : "reel"}
           onDragOver={(e) => {
             e.preventDefault();
             setDragOver(true);
@@ -167,15 +178,19 @@ export function StepUpload({
           }
         >
           <Upload className="text-gold size-10" aria-hidden />
-          <p className="poster mt-4 text-3xl">Drop your reel here</p>
+          <p className="poster mt-4 text-3xl">
+            {isRef ? "Drop the reel you want to match" : "Drop your reel here"}
+          </p>
           <p className="font-accent text-muted-foreground mt-1 text-xl italic">
-            or tap to choose · MP4, MOV, HEVC · up to {maxSeconds} s on {planName}
+            {isRef
+              ? "or tap to choose · MP4, MOV · up to 3 min · we measure it, we never reuse it"
+              : `or tap to choose · MP4, MOV, HEVC · up to ${maxSeconds} s on ${planName}`}
           </p>
           <p className="text-muted-foreground mt-3 text-xs">
             Uploads resume automatically if your connection drops.
           </p>
           <input
-            id="reel"
+            id={isRef ? "reference-reel" : "reel"}
             type="file"
             accept="video/*,.mp4,.mov,.m4v,.hevc"
             className="sr-only"

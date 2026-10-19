@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { FAMILY_LABEL, SFX_LABEL, presetCards, type PresetCard } from "@/config/presets";
+import { FamilyChips, useStyleFilter } from "@/components/style-filter";
 import { cn } from "@/lib/utils";
 
 export interface StyleState {
@@ -21,6 +22,7 @@ export function StepStyle({
   onChange: (v: StyleState) => void;
 }) {
   const set = (patch: Partial<StyleState>) => onChange({ ...value, ...patch });
+  const filter = useStyleFilter(presetCards);
   return (
     <div className="space-y-8">
       <div>
@@ -30,12 +32,31 @@ export function StepStyle({
             Each style has its own motion and sound — hover a card to watch it on a real take.
           </p>
         </div>
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          <FamilyChips
+            counts={filter.counts}
+            total={presetCards.length}
+            value={filter.family}
+            onChange={filter.setFamily}
+          />
+          <input
+            type="search"
+            className="input ml-auto h-9 w-full max-w-xs text-sm"
+            placeholder="Search styles…"
+            aria-label="Search styles"
+            value={filter.query}
+            onChange={(e) => filter.setQuery(e.target.value)}
+          />
+        </div>
+        {filter.filtered.length === 0 && (
+          <p className="text-muted-foreground mb-3 text-sm">No style matches that — try another word.</p>
+        )}
         <ul
           className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
           role="radiogroup"
           aria-label="Style preset"
         >
-          {presetCards.map((c) => (
+          {filter.filtered.map((c) => (
             <li key={c.tokens.id}>
               <PresetButton
                 card={c}

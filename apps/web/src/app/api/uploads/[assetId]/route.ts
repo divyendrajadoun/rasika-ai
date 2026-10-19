@@ -93,7 +93,7 @@ export async function POST(req: Request, { params }: Ctx) {
   await completeMultipart(asset.storageKey, body.uploadId, uploaded);
   const meta = { ...asset.meta, ...(body.meta ?? {}) };
   await db.update(schema.assets).set({ meta }).where(eq(schema.assets.id, asset.id));
-  if (body.meta?.durationSec) {
+  if (body.meta?.durationSec && asset.kind === "source_video") {
     await db
       .update(schema.projects)
       .set({ durationSec: body.meta.durationSec, updatedAt: schema.now })

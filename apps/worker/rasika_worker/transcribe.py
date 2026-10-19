@@ -328,10 +328,7 @@ def parse_deepgram(data: dict[str, Any], language_hint: str = "auto") -> Transcr
         )
     text = " ".join(w.w for w in words)
     ratio = script_ratio(text, "hi")
-    if language_hint in ("en", "hi"):
-        language = language_hint
-    else:
-        language = "hi" if ratio >= 0.4 else "en"
+    language = language_hint if language_hint in ("en", "hi") else ("hi" if ratio >= 0.4 else "en")
     conf = float(ch.get("language_confidence") or alt.get("confidence") or 0.0)
     notes = [f"deepgram {language}: devanagari share {ratio:.2f}"]
     if ch.get("detected_language"):

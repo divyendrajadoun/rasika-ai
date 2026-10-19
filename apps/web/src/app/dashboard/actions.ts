@@ -7,7 +7,12 @@ import { db, schema } from "@/db";
 import { plans } from "@/config/pricing";
 import { requireUser } from "@/lib/auth";
 import { enqueueJob } from "@/lib/jobs/queue";
-import { WizardSubmission, creditCost } from "@/lib/wizard-schema";
+import {
+  ScriptSubmission,
+  WizardSubmission,
+  creditCost,
+  estimateSpokenSeconds,
+} from "@/lib/wizard-schema";
 
 export type ActionResult = { ok: true; projectId: string } | { ok: false; error: string };
 
@@ -30,6 +35,16 @@ export async function createEdit(input: unknown): Promise<ActionResult> {
     .where(and(eq(schema.assets.id, w.sourceAssetId), eq(schema.assets.projectId, w.projectId)));
   if (!source || source.kind !== "source_video")
     return { ok: false, error: "Upload the reel first" };
+  if (w.referenceAssetId) {
+    const [ref] = await db
+      .select({ kind: schema.assets.kind })
+      .from(schema.assets)
+      .where(
+        and(eq(schema.assets.id, w.referenceAssetId), eq(schema.assets.projectId, w.projectId)),
+      );
+    if (!ref || ref.kind !== "reference_video")
+      return { ok: false, error: "Upload the reference reel first" };
+  }
 
   const plan = plans.find((p) => p.id === user.plan) ?? plans[0]!;
   if (w.durationSec > plan.maxSeconds) {
@@ -50,7 +65,9 @@ export async function createEdit(input: unknown): Promise<ActionResult> {
         status: "uploaded",
         stylePreset: w.stylePreset,
         styleText: w.styleText || null,
-        styleOptions: w.options,
+        styleOptions: w.referenceAssetId
+          ? { ...w.options, source: "reference", fidelity: w.fidelity }
+          : { ...w.options, source: "take" },
         brand: w.brand,
         durationSec: w.durationSec,
         creditsCost: cost,
@@ -88,6 +105,100 @@ export async function createEdit(input: unknown): Promise<ActionResult> {
       payload: {
         source_key: source.storageKey,
         language_hint: w.options.language,
+        max_duration_sec: plan.maxSeconds,
+      },
+    });
+  });
+  revalidatePath("/dashboard");
+  return { ok: true, projectId: w.projectId };
+}
+
+/** Script-only reels need a project before the photos step (images upload against a project id). */
+export async function createDraftProject(title: string): Promise<ActionResult> {
+  const user = await requireUser("/dashboard/new");
+  const clean = String(title || "Untitled reel")
+    .trim()
+    .slice(0, 120);
+  const [p] = await db
+    .insert(schema.projects)
+    .values({ userId: user.id, title: clean || "Untitled reel" })
+    .returning({ id: schema.projects.id });
+  return { ok: true, projectId: p!.id };
+}
+
+/** "Create my edit" for a script-only reel: enqueue the narration job; it hands off to probe. */
+export async function createScriptEdit(input: unknown): Promise<ActionResult> {
+  const user = await requireUser("/dashboard/new");
+  const parsed = ScriptSubmission.safeParse(input);
+  if (!parsed.success)
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid form" };
+  const w = parsed.data;
+
+  const [project] = await db
+    .select()
+    .from(schema.projects)
+    .where(and(eq(schema.projects.id, w.projectId), eq(schema.projects.userId, user.id)));
+  if (!project) return { ok: false, error: "Project not found" };
+
+  const plan = plans.find((p) => p.id === user.plan) ?? plans[0]!;
+  const est = estimateSpokenSeconds(w.script);
+  if (est > plan.maxSeconds) {
+    return {
+      ok: false,
+      error: `Spoken, this script runs about ${Math.round(est)} s; your ${plan.name} plan allows ${plan.maxSeconds} s.`,
+    };
+  }
+  const cost = creditCost(Math.max(1, est));
+  if (user.credits < cost)
+    return { ok: false, error: `This edit needs ${cost} credit(s); you have ${user.credits}.` };
+
+  await db.transaction(async (tx) => {
+    await tx
+      .update(schema.projects)
+      .set({
+        title: w.title,
+        status: "uploaded",
+        stylePreset: w.stylePreset,
+        styleText: w.styleText || null,
+        styleOptions: { ...w.options, language: "en", source: "script", faceless: true, voice: w.voice },
+        brand: w.brand,
+        durationSec: Math.round(est),
+        creditsCost: cost,
+        updatedAt: schema.now,
+      })
+      .where(eq(schema.projects.id, w.projectId));
+    for (const [i, ph] of w.photos.entries()) {
+      await tx
+        .update(schema.assets)
+        .set({ meta: { label: ph.label, sayWhen: ph.sayWhen, crop: ph.crop, order: i } })
+        .where(and(eq(schema.assets.id, ph.assetId), eq(schema.assets.projectId, w.projectId)));
+    }
+    const [job] = await tx
+      .insert(schema.jobs)
+      .values({
+        projectId: w.projectId,
+        userId: user.id,
+        type: "synth",
+        status: "uploaded",
+        message: "Queued",
+      })
+      .returning({ id: schema.jobs.id });
+    await tx.insert(schema.auditLog).values({
+      userId: user.id,
+      action: "project.create_script_edit",
+      entity: "project",
+      entityId: w.projectId,
+      meta: { cost, preset: w.stylePreset, photos: w.photos.length, voice: w.voice, words: w.script.split(/\s+/).length },
+    });
+    await enqueueJob({
+      job_id: job!.id,
+      project_id: w.projectId,
+      user_id: user.id,
+      type: "synth",
+      payload: {
+        script: w.script,
+        voice: w.voice,
+        language_hint: "en",
         max_duration_sec: plan.maxSeconds,
       },
     });

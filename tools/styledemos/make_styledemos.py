@@ -41,7 +41,9 @@ OUT = ROOT / "apps" / "web" / "public" / "demo" / "styles"
 WIDTH_SCALE = {
     "Montserrat": 0.68, "Poppins": 0.7, "Archivo Black": 0.66, "Bangers": 0.9, "Bebas Neue": 1.05,
     "DM Serif Display": 0.82, "Playfair Display": 0.8, "Inter": 0.72, "Caveat": 0.95,
-    "Kalam": 0.8, "Permanent Marker": 0.75,
+    "Kalam": 0.8, "Permanent Marker": 0.75, "Space Grotesk": 0.7, "Oswald": 1.0,
+    "Playfair Display Roman": 0.78, "Jost": 0.74, "Press Start 2P": 0.55, "Fraunces": 0.74,
+    "IBM Plex Sans": 0.7, "IBM Plex Mono": 0.62,
 }
 
 

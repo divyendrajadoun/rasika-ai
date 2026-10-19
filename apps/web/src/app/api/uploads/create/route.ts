@@ -11,6 +11,8 @@ const Body = z.object({
   filename: z.string().min(1).max(255),
   size: z.number().int().positive(),
   mime: z.string().max(100),
+  /** source_video (default) or the reference reel the edit should match */
+  kind: z.enum(["source_video", "reference_video"]).default("source_video"),
 });
 
 /** Starts a resumable multipart upload for the source video (creates a draft project if needed). */
@@ -19,7 +21,7 @@ export async function POST(req: Request) {
   if (user instanceof Response) return user;
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "Bad request" }, { status: 400 });
-  const { filename, size, mime } = parsed.data;
+  const { filename, size, mime, kind } = parsed.data;
   if (size > env.maxUploadBytes) {
     return Response.json(
       { error: `File is larger than ${env.maxUploadBytes / 1024 / 1024} MB` },
@@ -48,14 +50,17 @@ export async function POST(req: Request) {
   }
 
   const ext = extensionFor(filename, mime);
-  const key = storageKey.source(user.id, projectId, ext);
+  const key =
+    kind === "reference_video"
+      ? storageKey.reference(user.id, projectId, ext)
+      : storageKey.source(user.id, projectId, ext);
   const uploadId = await createMultipart(key, mime || "application/octet-stream");
   const [asset] = await db
     .insert(schema.assets)
     .values({
       projectId,
       userId: user.id,
-      kind: "source_video",
+      kind,
       storageKey: key,
       filename,
       mime: mime || "application/octet-stream",

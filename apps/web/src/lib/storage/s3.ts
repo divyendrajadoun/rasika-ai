@@ -38,6 +38,8 @@ const PRESIGN_TTL = 60 * 60; // 1 h
 export const storageKey = {
   source: (userId: string, projectId: string, ext: string) =>
     `u/${userId}/p/${projectId}/source.${ext}`,
+  reference: (userId: string, projectId: string, ext: string) =>
+    `u/${userId}/p/${projectId}/reference.${ext}`,
   image: (userId: string, projectId: string, assetId: string, ext: string) =>
     `u/${userId}/p/${projectId}/img/${assetId}.${ext}`,
   thumbnail: (userId: string, projectId: string) => `u/${userId}/p/${projectId}/thumb.jpg`,

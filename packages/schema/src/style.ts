@@ -29,13 +29,17 @@ export type FontRole = z.infer<typeof FontRole>;
  *             collage    paper cut-outs, tape, marker notes
  *             blocks     flat colour-block motion graphics: solid plates, chips, square cards, hard cuts
  *             beat       beat-synced kinetic type: per-letter entrances, scale pops, nothing holds still
- * enter/exit  how typography and cards arrive and leave
- * easing      spring (overshoot) · snap (fast decel) · smooth (cubic) · soft (slow quint)
+ * enter/exit  how typography and cards arrive and leave (`type` = typewriter, letter by letter
+ *             left to right with a cursor; `letters` = per-letter pop)
+ * easing      spring (overshoot) · snap (fast decel) · smooth (cubic) · soft (slow quint) ·
+ *             steps (stop-motion: every move lands in 4 held poses — paper / print looks)
  * speed       entrance duration multiplier (0.6 twice as fast … 1.6 slower)
  * camera      how video modes change: glide (0.5 s) · cut (hard) · whip (0.22 s) · still (no breathing) ·
  *             push (hard cuts plus a slow push-in on every unframed shot — motion on every frame)
  * sfxKit      the sound palette the worker synthesises the cues with
- * texture     stage backdrop behind the framed video (replaces the dot pattern)
+ * texture     stage backdrop behind the framed video (replaces the dot pattern): paper, board,
+ *             grid, dots, vignette, gradient, halftone (print dots), scan (CRT lines), lines
+ *             (ruled notebook), grain (coarse film)
  * direction   markdown for the planner: beat structure + vocabulary for this style
  */
 export const MotionFamily = z.enum([
@@ -61,11 +65,12 @@ export const EnterKind = z.enum([
   "blur",
   "letters",
   "mask",
+  "type",
 ]);
 export type EnterKind = z.infer<typeof EnterKind>;
 export const ExitKind = z.enum(["lift", "dive", "cut", "wipe", "fade"]);
 export type ExitKind = z.infer<typeof ExitKind>;
-export const EasingKind = z.enum(["spring", "snap", "smooth", "soft"]);
+export const EasingKind = z.enum(["spring", "snap", "smooth", "soft", "steps"]);
 export type EasingKind = z.infer<typeof EasingKind>;
 export const CameraKind = z.enum(["glide", "cut", "whip", "still", "push"]);
 export type CameraKind = z.infer<typeof CameraKind>;
@@ -79,6 +84,10 @@ export const TextureKind = z.enum([
   "dots",
   "vignette",
   "gradient",
+  "halftone",
+  "scan",
+  "lines",
+  "grain",
 ]);
 export type TextureKind = z.infer<typeof TextureKind>;
 
