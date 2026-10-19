@@ -236,12 +236,14 @@ class Repo:
             "thumbnail_asset_id": "thumbnail_asset_id",
             "status": "status",
             "title": "title",
+            "style_options": "style_options",
         }
+        casts = {"thumbnail_asset_id": "::uuid", "style_options": "::jsonb"}
         sets: list[str] = []
         vals: list[Any] = []
         for k, v in fields.items():
-            sets.append(f"{cols[k]} = %s" + ("::uuid" if k == "thumbnail_asset_id" else ""))
-            vals.append(v)
+            sets.append(f"{cols[k]} = %s" + casts.get(k, ""))
+            vals.append(json.dumps(v) if k == "style_options" else v)
         if not sets:
             return
         vals.append(project_id)
