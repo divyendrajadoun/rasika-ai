@@ -130,6 +130,10 @@ export interface StyleOptions {
   cleanCut?: boolean;
   /** recorded takes: the strongest line moves to the first two seconds (worker cleancut.pick_hook) */
   hookFirst?: boolean;
+  /** after transcription, AI draws pictures for the key moments (worker imagegen.py, Higgsfield) */
+  aiImages?: boolean;
+  aiImageCount?: number;
+  aiImageStyle?: string;
   /** reference matching: how much of the reference to honour */
   fidelity?: "pace" | "camera" | "look";
   /** reference matching: the style the worker wrote from the reference (StyleTokens) */
@@ -169,6 +173,10 @@ export const projects = pgTable(
 
 export interface AssetMeta {
   label?: string;
+  /** "ai": drawn by the image service (prompt + request kept for the record), "site": a website capture */
+  source?: string;
+  prompt?: string;
+  requestId?: string;
   sayWhen?: string;
   width?: number;
   height?: number;

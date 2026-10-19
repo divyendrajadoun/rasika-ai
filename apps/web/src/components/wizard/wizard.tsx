@@ -11,6 +11,7 @@ import {
 } from "@/app/dashboard/actions";
 import { StepBrand } from "@/components/wizard/step-brand";
 import { StepPhotos, type PhotoItem } from "@/components/wizard/step-photos";
+import { defaultAiImages, type AiImageSettings } from "@/components/wizard/ai-images";
 import {
   StepScript,
   defaultScriptState,
@@ -88,6 +89,7 @@ interface Draft {
   brief: BriefState;
   photos: PhotoItem[];
   style: StyleState;
+  ai: AiImageSettings;
   brand: BrandState;
   title: string;
 }
@@ -105,6 +107,7 @@ export function Wizard({
   maxSeconds,
   planName,
   stockEnabled = false,
+  aiImagesEnabled = false,
   presenterEnabled = false,
   voices = [],
   looks = [],
@@ -123,6 +126,8 @@ export function Wizard({
   planName: string;
   /** the worker can fetch stock B-roll */
   stockEnabled?: boolean;
+  /** the workspace can draw AI images (Higgsfield keys set) */
+  aiImagesEnabled?: boolean;
   /** the worker can render AI presenters (HeyGen) */
   presenterEnabled?: boolean;
   voices?: HeyGenVoice[];
@@ -156,6 +161,7 @@ export function Wizard({
       cleanCut: false,
       hookFirst: false,
     },
+    ai: defaultAiImages,
     brand: { name: "", handle: "", endLine: "", cta: "" },
     title: (initialTitle ?? "").slice(0, 80),
   });
@@ -326,6 +332,7 @@ export function Wizard({
         sfxIntensity: draft.style.sfxIntensity,
         music: draft.style.music,
         broll: draft.style.broll && stockEnabled,
+        ...(aiImagesEnabled ? { aiImages: (draft.ai ?? defaultAiImages).aiImages, aiImageCount: (draft.ai ?? defaultAiImages).aiImageCount, aiImageStyle: (draft.ai ?? defaultAiImages).aiImageStyle } : {}),
         language: draft.style.language,
       },
       brand: draft.brand,
@@ -375,6 +382,7 @@ export function Wizard({
         music: draft.style.music,
         language: draft.style.language,
         broll: draft.style.broll && stockEnabled,
+        ...(aiImagesEnabled ? { aiImages: (draft.ai ?? defaultAiImages).aiImages, aiImageCount: (draft.ai ?? defaultAiImages).aiImageCount, aiImageStyle: (draft.ai ?? defaultAiImages).aiImageStyle } : {}),
         cleanCut: Boolean(draft.style.cleanCut || draft.style.hookFirst),
         hookFirst: Boolean(draft.style.hookFirst),
       },
@@ -417,6 +425,7 @@ export function Wizard({
         sfxIntensity: draft.style.sfxIntensity,
         music: draft.style.music,
         broll: draft.style.broll && stockEnabled,
+        ...(aiImagesEnabled ? { aiImages: (draft.ai ?? defaultAiImages).aiImages, aiImageCount: (draft.ai ?? defaultAiImages).aiImageCount, aiImageStyle: (draft.ai ?? defaultAiImages).aiImageStyle } : {}),
       },
       brand: draft.brand,
       consent,
@@ -537,6 +546,10 @@ export function Wizard({
           <StepPhotos
             projectId={projectId}
             purpose={draft.mode === "brief" && draft.brief.kind === "animate" ? "style" : "photos"}
+            ai={draft.ai ?? defaultAiImages}
+            onAi={(ai) => setDraft((d) => ({ ...d, ai }))}
+            aiEnabled={aiImagesEnabled && draft.mode !== "brief"}
+            script={draft.mode === "script" ? draft.script.text : draft.mode === "presenter" ? draft.presenter.text : undefined}
             value={draft.photos}
             onChange={(photos) => setDraft((d) => ({ ...d, photos }))}
           />

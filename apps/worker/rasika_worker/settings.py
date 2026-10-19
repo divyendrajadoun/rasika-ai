@@ -70,6 +70,9 @@ class Settings(BaseSettings):
 
     # Stock B-roll (free Pexels API; https://www.pexels.com/api/). Empty = the wizard hides the option.
     pexels_api_key: str = Field(default="", alias="PEXELS_API_KEY")
+    # AI images for a reel's key moments (imagegen.py); paid per image from the Higgsfield account
+    higgsfield_api_key: str = Field(default="", alias="HIGGSFIELD_API_KEY")
+    higgsfield_api_secret: str = Field(default="", alias="HIGGSFIELD_API_SECRET")
     # AI presenter videos (HeyGen v3, paid per video from the account wallet). Empty = option hidden.
     heygen_api_key: str = Field(default="", alias="HEYGEN_API_KEY")
     stock_cache_dir: Path | None = Field(default=None, alias="STOCK_CACHE_DIR")

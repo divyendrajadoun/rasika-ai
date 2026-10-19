@@ -6,6 +6,7 @@ import { CropDialog, type CropRect } from "@/components/wizard/crop-dialog";
 import { readImageSize } from "@/lib/media/probe-client";
 import { uploadSmall } from "@/lib/upload/multipart-client";
 import { ACCEPTED_IMAGE } from "@/lib/upload/plan";
+import { AiImages, type AiImageSettings } from "@/components/wizard/ai-images";
 
 export interface PhotoItem {
   assetId: string;
@@ -23,12 +24,22 @@ export function StepPhotos({
   value,
   onChange,
   purpose = "photos",
+  ai,
+  onAi,
+  aiEnabled = false,
+  script,
 }: {
   projectId: string;
   value: PhotoItem[];
   onChange: (v: PhotoItem[]) => void;
   /** "style": 1–3 references for an /animate film (they guide the look, they are never shown) */
   purpose?: "photos" | "style";
+  /** AI image generation (Higgsfield), when the workspace has it */
+  ai?: AiImageSettings;
+  onAi?: (v: AiImageSettings) => void;
+  aiEnabled?: boolean;
+  /** the script, when the words are known before the edit (script-only and presenter reels) */
+  script?: string;
 }) {
   const MAX = purpose === "style" ? 3 : 15;
   const [busy, setBusy] = useState(0);
@@ -187,6 +198,9 @@ export function StepPhotos({
             setCropping(null);
           }}
         />
+      )}
+      {purpose === "photos" && aiEnabled && ai && onAi && (
+        <AiImages projectId={projectId} photos={value} onPhotos={onChange} value={ai} onChange={onAi} script={script} />
       )}
     </div>
   );

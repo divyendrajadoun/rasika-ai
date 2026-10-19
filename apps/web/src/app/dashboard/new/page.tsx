@@ -4,6 +4,7 @@ import { plans } from "@/config/pricing";
 import { requireUser } from "@/lib/auth";
 import { env } from "@/lib/env";
 import { heygenCatalogue } from "@/lib/heygen";
+import { aiImagesEnabled } from "@/lib/ai-images";
 
 export const metadata: Metadata = { title: "New edit", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -31,6 +32,7 @@ export default async function NewEditPage({
       maxSeconds={plan.maxSeconds}
       planName={plan.name}
       stockEnabled={env.stockEnabled}
+      aiImagesEnabled={aiImagesEnabled()}
       presenterEnabled={env.presenterEnabled && catalogue.voices.length > 0}
       voices={catalogue.voices}
       looks={catalogue.looks}

@@ -769,6 +769,8 @@ class Pipeline:
             and self._clean_cut(job, pub, work, words, timings)
         ):
             return  # the cut goes back through probe → transcribe; planning waits for it
+        if opts.get("aiImages") and words and self.s.higgsfield_api_key:
+            self._ai_images(job, pub, work, words, opts, timings)
         if self.s.auto_plan and self.s.anthropic_api_key:
             if opts.get("source") == "reference" and not opts.get("referenceStyle"):
                 pub.update(JobStatus.PLANNING, 0, "Studying the reference reel…", **timings)
@@ -783,6 +785,92 @@ class Pipeline:
                 f"Transcript ready: {len(words)} words ({result.language}).",
                 **timings,
             )
+
+    def _ai_images(
+        self,
+        job: JobMessage,
+        pub: Publisher,
+        work: Path,
+        words: list[dict[str, Any]],
+        opts: dict[str, Any],
+        timings: dict[str, float],
+    ) -> None:
+        """Up to 6 AI images for the key moments of what is said (Higgsfield); never blocks the edit."""
+        from concurrent.futures import ThreadPoolExecutor
+
+        from rasika_worker import imagegen
+
+        have = [
+            a
+            for a in self.repo.assets(job.project_id, "image")
+            if (a.get("meta") or {}).get("source") == "ai"
+        ]
+        want = min(imagegen.MAX_PER_REEL, int(opts.get("aiImageCount") or imagegen.MAX_PER_REEL))
+        n = want - len(have)
+        if n <= 0:
+            return
+        t0 = time.time()
+        pub.update(
+            JobStatus.TRANSCRIBING, 97, "Choosing the moments that want a picture…", **timings
+        )
+        try:
+            moments = imagegen.pick_moments(
+                self.anthropic(),
+                self.s.anthropic_planner_model,
+                words,
+                n,
+                str(opts.get("aiImageStyle") or ""),
+                str(opts.get("styleText") or ""),
+            )
+        except Exception as exc:
+            log.warning("ai_images_pick_failed", error=str(exc))
+            return
+        if not moments:
+            return
+        pub.update(JobStatus.TRANSCRIBING, 98, f"Drawing {len(moments)} images with AI…", **timings)
+        hf = imagegen.Higgsfield(self.s.higgsfield_api_key, self.s.higgsfield_api_secret)
+        out_dir = work / "ai_images"
+        out_dir.mkdir(exist_ok=True)
+
+        def draw(i: int) -> tuple[int, Path | None, str]:
+            try:
+                return i, hf.generate(moments[i]["prompt"], out_dir / f"ai_{i + 1}.jpg"), ""
+            except Exception as exc:
+                return i, None, str(exc)
+
+        with ThreadPoolExecutor(max_workers=3) as pool:
+            done = list(pool.map(draw, range(len(moments))))
+        prefix = project_prefix(job.user_id, job.project_id)
+        made = 0
+        for i, path, err in done:
+            if not path:
+                log.warning("ai_image_failed", error=err)
+                continue
+            m = moments[i]
+            self.upload_asset(
+                job,
+                "image",
+                path,
+                f"{prefix}/img/ai_{int(time.time())}_{i + 1}.jpg",
+                {
+                    "label": m["label"],
+                    "sayWhen": m["say_when"],
+                    "order": 50 + i,
+                    "source": "ai",
+                    "prompt": m["prompt"],
+                },
+                replace=False,
+            )
+            made += 1
+        timings["ai_images"] = float(made)
+        timings["ai_images_sec"] = round(time.time() - t0, 2)
+        self.repo.audit(
+            job.user_id,
+            "ai_images",
+            "project",
+            job.project_id,
+            {"made": made, "moments": moments, "errors": [e for _, p, e in done if not p]},
+        )
 
     def _clean_cut(
         self,
