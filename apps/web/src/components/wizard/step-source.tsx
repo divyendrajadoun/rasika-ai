@@ -47,7 +47,8 @@ const OPTIONS: Option[] = [
     id: "brief",
     title: "From a brief",
     blurb: "No footage at all. Give a website, a recipe, two contenders or a line, and we write, score and design the film.",
-    detail: "Launch films, showreels, Apple-style app films, recipe explainers, comic fights, music machines, storybook journeys.",
+    detail:
+      "15 films: product, launch, hype, referral and Apple-style films and a 3D fly-over from your website; diagram, animated and editorial explainers and recipes from a topic; fights, tier lists, music machines and storybooks.",
     icon: Sparkles,
   },
   {
@@ -78,7 +79,7 @@ export function StepSource({
   return (
     <div className="space-y-4">
       <p className="text-muted">
-        Three ways in. Every one of them ends in the same editor and the same styles.
+        Five ways in. Footage, a script, a presenter and a reference all end in the same editor and the same styles; a brief makes a whole film.
       </p>
       <ul className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Source">
         {options.map((o) => {
