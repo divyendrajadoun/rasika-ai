@@ -80,11 +80,19 @@ export async function heygenCatalogue(): Promise<{ voices: HeyGenVoice[]; looks:
     const pub = await get<{ data: VoiceRow[] }>(`/v3/voices?language=${lang}&limit=24`);
     pushVoices(pub.data ?? [], false);
   }
-  const looksRes = await get<{ data: LookRow[] }>(
-    "/v3/avatars/looks?avatar_type=photo_avatar&ownership=public&limit=50",
-  );
-  const looks: HeyGenLook[] = (looksRes.data ?? [])
-    .filter((l) => l.status === "completed" || !l.status)
+  // the account's own looks first (photo avatars and digital twins, often portrait), then stock
+  const lookRows: LookRow[] = [];
+  for (const q of ["ownership=private&limit=50", "avatar_type=photo_avatar&ownership=public&limit=50"]) {
+    try {
+      const res = await get<{ data: LookRow[] }>(`/v3/avatars/looks?${q}`);
+      lookRows.push(...(res.data ?? []));
+    } catch {
+      /* one of the lists is optional */
+    }
+  }
+  const seenLook = new Set<string>();
+  const looks: HeyGenLook[] = lookRows
+    .filter((l) => (l.status === "completed" || !l.status) && !seenLook.has(l.id) && seenLook.add(l.id))
     .map((l) => ({
       id: l.id,
       name: l.name,
@@ -95,7 +103,7 @@ export async function heygenCatalogue(): Promise<{ voices: HeyGenVoice[]; looks:
         (l.image_width !== undefined && l.image_height !== undefined && l.image_height > l.image_width),
     }))
     .sort((a, b) => Number(b.portrait) - Number(a.portrait))
-    .slice(0, 24);
+    .slice(0, 36);
   cache = { at: Date.now(), voices, looks };
   return cache;
 }
