@@ -38,7 +38,7 @@
     "camera": "cut",
     "sfxKit": "none",
     "texture": "none",
-    "direction": "heditor `nativo`. Nothing but the take and its words: Inter 900 sentence-case captions on a pill, the spoken word black on `gold`; jump-cut zooms 1.0 ↔ 1.075 centred on the face at sentence starts (`zoom` mode); at most ONE `posterText` for the single biggest line, 2–3 words, fading in and out. No counters, no cards, no stamps, no SFX, no music, no end card beyond the handle. Hold the face.",
+    "direction": "heditor `nativo`. Nothing but the take and its words: Inter 900 sentence-case captions on a pill, the spoken word black on `gold`; jump-cut zooms 1.0 ↔ 1.075 centred on the face at sentence starts (`zoom` mode). Typography stays minimal: ONE `posterText` of 2–4 words for each key sentence (about 6–10 per minute), fading in and out, small (90–120 px), never stacked. No counters, no cards, no stamps, no SFX, no music, no end card beyond the handle. Hold the face.",
     "avoidElements": [
       "counter",
       "stamp",

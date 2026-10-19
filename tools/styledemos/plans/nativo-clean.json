@@ -1,0 +1,547 @@
+{
+ "version": 1,
+ "meta": {
+  "durationSec": 90.1,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "language": "en"
+ },
+ "style": {
+  "id": "nativo-clean",
+  "name": "Nativo",
+  "tagline": "heditor's nativo: only the take, jump-cut zooms and Inter captions on a pill — no graphics, no music, no end card.",
+  "palette": {
+   "stage": "#0b0b0f",
+   "mar": "#f4f4f6",
+   "ter": "#ffffff",
+   "gold": "#ffd84d",
+   "goldd": "#9a9aa8",
+   "iv": "#ffffff",
+   "ink": "#050508"
+  },
+  "fonts": {
+   "poster": "Inter",
+   "accent": "Instrument Serif",
+   "ui": "Inter",
+   "devanagari": "Mukta",
+   "caption": "Inter"
+  },
+  "grain": 0,
+  "pace": 0.3,
+  "captionStyle": "box",
+  "captionAccent": "gold",
+  "captionSize": 82,
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+   "posterText"
+  ],
+  "motion": {
+   "family": "kinetic",
+   "caseStyle": "sentence",
+   "enter": "fade",
+   "exit": "fade",
+   "easing": "smooth",
+   "speed": 1,
+   "camera": "cut",
+   "sfxKit": "none",
+   "texture": "none",
+   "direction": "heditor `nativo`. Nothing but the take and its words: Inter 900 sentence-case captions on a pill, the spoken word black on `gold`; jump-cut zooms 1.0 ↔ 1.075 centred on the face at sentence starts (`zoom` mode). Typography stays minimal: ONE `posterText` of 2–4 words for each key sentence (about 6–10 per minute), fading in and out, small (90–120 px), never stacked. No counters, no cards, no stamps, no SFX, no music, no end card beyond the handle. Hold the face.",
+   "avoidElements": [
+    "counter",
+    "stamp",
+    "chips",
+    "strikeLine",
+    "imageCard",
+    "chapterCard",
+    "propPunchIn",
+    "lockCard",
+    "ring",
+    "filmStrip",
+    "bleedPlate",
+    "patternCard",
+    "feedPhone",
+    "focusRing"
+   ]
+  }
+ },
+ "subject": {
+  "faceBox": {
+   "x": 145,
+   "y": 626,
+   "w": 622,
+   "h": 753
+  },
+  "freeZone": {
+   "x": 0,
+   "y": 150,
+   "w": 1080,
+   "h": 436
+  },
+  "prop": {
+   "label": "prop",
+   "point": {
+    "x": 424,
+    "y": 1491
+   }
+  }
+ },
+ "videoModes": [
+  {
+   "t": 0,
+   "mode": "full"
+  },
+  {
+   "t": 2.76,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 456,
+    "y": 1002
+   },
+   "zoomScale": 1.2
+  },
+  {
+   "t": 7.58,
+   "mode": "full"
+  },
+  {
+   "t": 12.2,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 456,
+    "y": 1002
+   },
+   "zoomScale": 1.2
+  },
+  {
+   "t": 16.74,
+   "mode": "full"
+  },
+  {
+   "t": 19.72,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 456,
+    "y": 1002
+   },
+   "zoomScale": 1.2
+  },
+  {
+   "t": 23.64,
+   "mode": "full"
+  },
+  {
+   "t": 29.32,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 456,
+    "y": 1002
+   },
+   "zoomScale": 1.2
+  },
+  {
+   "t": 34.14,
+   "mode": "full"
+  },
+  {
+   "t": 39.8,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 456,
+    "y": 1002
+   },
+   "zoomScale": 1.2
+  },
+  {
+   "t": 43.3,
+   "mode": "full"
+  },
+  {
+   "t": 49.76,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 456,
+    "y": 1002
+   },
+   "zoomScale": 1.2
+  },
+  {
+   "t": 54.63,
+   "mode": "full"
+  },
+  {
+   "t": 57.32,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 456,
+    "y": 1002
+   },
+   "zoomScale": 1.2
+  },
+  {
+   "t": 61.64,
+   "mode": "full"
+  },
+  {
+   "t": 66.1,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 456,
+    "y": 1002
+   },
+   "zoomScale": 1.2
+  },
+  {
+   "t": 67.97,
+   "mode": "full"
+  },
+  {
+   "t": 69.58,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 456,
+    "y": 1002
+   },
+   "zoomScale": 1.2
+  },
+  {
+   "t": 75.5,
+   "mode": "full"
+  },
+  {
+   "t": 78.22,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 456,
+    "y": 1002
+   },
+   "zoomScale": 1.2
+  },
+  {
+   "t": 80.55,
+   "mode": "full"
+  },
+  {
+   "t": 87.56,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 456,
+    "y": 1002
+   },
+   "zoomScale": 1.2
+  }
+ ],
+ "captions": {
+  "enabled": true,
+  "y": 1400,
+  "gold": [
+   "taste",
+   "love",
+   "pretty",
+   "familiar",
+   "beauty",
+   "feel",
+   "ras",
+   "rasika"
+  ],
+  "accent": [
+   "2000",
+   "india",
+   "choker",
+   "polki",
+   "jaali",
+   "amrapali",
+   "jaipur",
+   "jhumkas",
+   "payal",
+   "baisa",
+   "bling",
+   "rajasthan"
+  ]
+ },
+ "elements": [
+  {
+   "id": "p1",
+   "t0": 0.22,
+   "t1": 2.8,
+   "anchorWordIndex": 0,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "What is your taste?",
+     "font": "anton",
+     "size": 90
+    }
+   ],
+   "top": 320,
+   "anim": "rise",
+   "align": "center"
+  },
+  {
+   "id": "p2",
+   "t0": 3.9,
+   "t1": 6,
+   "anchorWordIndex": 14,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "India had a word",
+     "font": "anton",
+     "size": 103
+    }
+   ],
+   "top": 320,
+   "anim": "rise",
+   "align": "center"
+  },
+  {
+   "id": "p3",
+   "t0": 8.92,
+   "t1": 12.2,
+   "anchorWordIndex": 34,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "Our taste isn't ours",
+     "font": "anton",
+     "size": 89
+    }
+   ],
+   "top": 320,
+   "anim": "rise",
+   "align": "center"
+  },
+  {
+   "id": "p4",
+   "t0": 17.94,
+   "t1": 23.6,
+   "anchorWordIndex": 63,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "The mere exposure effect",
+     "font": "anton",
+     "size": 69
+    }
+   ],
+   "top": 320,
+   "anim": "rise",
+   "align": "center"
+  },
+  {
+   "id": "p5",
+   "t0": 23.72,
+   "t1": 28.3,
+   "anchorWordIndex": 84,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "Real taste knows why",
+     "font": "anton",
+     "size": 79
+    }
+   ],
+   "top": 320,
+   "anim": "rise",
+   "align": "center"
+  },
+  {
+   "id": "p6",
+   "t0": 29.4,
+   "t1": 34.1,
+   "anchorWordIndex": 102,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "Don't stop at pretty",
+     "font": "anton",
+     "size": 88
+    }
+   ],
+   "top": 320,
+   "anim": "rise",
+   "align": "center"
+  },
+  {
+   "id": "p7",
+   "t0": 41.08,
+   "t1": 43.3,
+   "anchorWordIndex": 136,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "Name it, find it",
+     "font": "anton",
+     "size": 106
+    }
+   ],
+   "top": 320,
+   "anim": "rise",
+   "align": "center"
+  },
+  {
+   "id": "p8",
+   "t0": 43.38,
+   "t1": 49.7,
+   "anchorWordIndex": 145,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "Look where algorithms won't",
+     "font": "anton",
+     "size": 58
+    }
+   ],
+   "top": 320,
+   "anim": "rise",
+   "align": "center"
+  },
+  {
+   "id": "p9",
+   "t0": 49.84,
+   "t1": 54.6,
+   "anchorWordIndex": 162,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "Amrapali Museum, Jaipur",
+     "font": "anton",
+     "size": 71
+    }
+   ],
+   "top": 320,
+   "anim": "rise",
+   "align": "center"
+  },
+  {
+   "id": "p10",
+   "t0": 54.71,
+   "t1": 61.6,
+   "anchorWordIndex": 177,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "Play with what's yours",
+     "font": "anton",
+     "size": 76
+    }
+   ],
+   "top": 320,
+   "anim": "rise",
+   "align": "center"
+  },
+  {
+   "id": "p11",
+   "t0": 66.49,
+   "t1": 68.9,
+   "anchorWordIndex": 211,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "That's your taste",
+     "font": "anton",
+     "size": 101
+    }
+   ],
+   "top": 320,
+   "anim": "rise",
+   "align": "center"
+  },
+  {
+   "id": "p12",
+   "t0": 68.99,
+   "t1": 74.9,
+   "anchorWordIndex": 218,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "The word is रस",
+     "font": "devanagari",
+     "size": 110
+    }
+   ],
+   "top": 300,
+   "anim": "rise",
+   "align": "center"
+  },
+  {
+   "id": "p13",
+   "t0": 74.98,
+   "t1": 77.7,
+   "anchorWordIndex": 232,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "रसिक",
+     "font": "devanagari",
+     "size": 120
+    },
+    {
+     "text": "One who feels beauty",
+     "font": "serif",
+     "size": 72
+    }
+   ],
+   "top": 300,
+   "anim": "rise",
+   "align": "center"
+  },
+  {
+   "id": "p14",
+   "t0": 77.76,
+   "t1": 80.55,
+   "anchorWordIndex": 241,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "Baisa Bling",
+     "font": "serif",
+     "size": 120
+    }
+   ],
+   "top": 320,
+   "anim": "rise",
+   "align": "center"
+  },
+  {
+   "id": "p15",
+   "t0": 80.63,
+   "t1": 89,
+   "anchorWordIndex": 252,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "We look at Rajasthan",
+     "font": "anton",
+     "size": 81
+    }
+   ],
+   "top": 320,
+   "anim": "rise",
+   "align": "center"
+  },
+  {
+   "id": "p16",
+   "t0": 89.08,
+   "t1": 90.1,
+   "anchorWordIndex": 279,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "A little bit of you",
+     "font": "serif",
+     "size": 104
+    }
+   ],
+   "top": 320,
+   "anim": "rise",
+   "align": "center"
+  }
+ ],
+ "sfx": {
+  "auto": false,
+  "intensity": 0.8,
+  "extra": []
+ }
+}

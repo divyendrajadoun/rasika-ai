@@ -1,0 +1,852 @@
+{
+ "version": 1,
+ "meta": {
+  "durationSec": 90.1,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "language": "en"
+ },
+ "style": {
+  "id": "glass-violet",
+  "name": "Glass Violet",
+  "tagline": "favstash's adaptive-glass: the speaker with moving proof in frosted violet glass panels, soft-violet palette.",
+  "palette": {
+   "stage": "#875ec1",
+   "mar": "#aa86dc",
+   "ter": "#f7f8fc",
+   "gold": "#f7f8fc",
+   "goldd": "#6b42a3",
+   "iv": "#f7f8fc",
+   "ink": "#271139"
+  },
+  "fonts": {
+   "poster": "Inter",
+   "accent": "Instrument Serif",
+   "ui": "Inter",
+   "devanagari": "Mukta",
+   "caption": "Inter"
+  },
+  "grain": 0,
+  "pace": 0.55,
+  "captionStyle": "phrase",
+  "captionAccent": "iv",
+  "captionSize": 54,
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+   "posterText",
+   "imageCard",
+   "chips",
+   "counter",
+   "lockCard",
+   "chapterCard"
+  ],
+  "motion": {
+   "family": "launch",
+   "caseStyle": "sentence",
+   "enter": "slide",
+   "exit": "fade",
+   "easing": "smooth",
+   "speed": 1,
+   "camera": "cut",
+   "sfxKit": "click",
+   "texture": "gradient",
+   "direction": "favstash `adaptive-glass`, soft-violet. The speaker plus \"moving proof\" in frosted glass panels (`card` / `pip` modes = half and third splits, hard seam), palette taken from the room: violet `stage`, glow `mar`, deep `goldd`, heading ink `ink`, text `iv`. Panels arrive by moving ~18 px over 0.42 s ease-out (never fade an ancestor), shared-shape transitions 0.45–0.8 s, at most one low sweep after settling. Headings 52–76 px, captions ~54 px 1–2 lines on a dark backing when over footage; artefacts \"enter on the noun, act on the verb\". Camera shutter 4 frames before a layout cut; frame 1 already shows proof moving.",
+   "avoidElements": [
+    "stamp",
+    "strikeLine",
+    "filmStrip",
+    "bleedPlate",
+    "patternCard",
+    "feedPhone",
+    "propPunchIn",
+    "ring"
+   ]
+  }
+ },
+ "subject": {
+  "faceBox": {
+   "x": 145,
+   "y": 626,
+   "w": 622,
+   "h": 753
+  },
+  "freeZone": {
+   "x": 0,
+   "y": 150,
+   "w": 1080,
+   "h": 436
+  },
+  "prop": {
+   "label": "prop",
+   "point": {
+    "x": 424,
+    "y": 1491
+   }
+  }
+ },
+ "videoModes": [
+  {
+   "t": 0,
+   "mode": "full"
+  },
+  {
+   "t": 2.78,
+   "mode": "card"
+  },
+  {
+   "t": 8.85,
+   "mode": "full"
+  },
+  {
+   "t": 12.75,
+   "mode": "pip"
+  },
+  {
+   "t": 16.75,
+   "mode": "card"
+  },
+  {
+   "t": 23.65,
+   "mode": "full"
+  },
+  {
+   "t": 29.32,
+   "mode": "card"
+  },
+  {
+   "t": 34.15,
+   "mode": "full"
+  },
+  {
+   "t": 39.8,
+   "mode": "card"
+  },
+  {
+   "t": 45.95,
+   "mode": "pip"
+  },
+  {
+   "t": 54.63,
+   "mode": "card"
+  },
+  {
+   "t": 57.32,
+   "mode": "pip"
+  },
+  {
+   "t": 61.64,
+   "mode": "full"
+  },
+  {
+   "t": 66.1,
+   "mode": "card"
+  },
+  {
+   "t": 69.58,
+   "mode": "full"
+  },
+  {
+   "t": 74.9,
+   "mode": "card"
+  },
+  {
+   "t": 77.42,
+   "mode": "full"
+  },
+  {
+   "t": 80.55,
+   "mode": "pip"
+  },
+  {
+   "t": 84.66,
+   "mode": "full"
+  },
+  {
+   "t": 87.56,
+   "mode": "arch"
+  }
+ ],
+ "captions": {
+  "enabled": true,
+  "y": 1400,
+  "gold": [
+   "taste",
+   "love",
+   "pretty",
+   "familiar",
+   "beauty",
+   "feel",
+   "ras",
+   "rasika",
+   "excitement"
+  ],
+  "accent": [
+   "2000",
+   "india",
+   "choker",
+   "polki",
+   "jaali",
+   "gold",
+   "silver",
+   "amrapali",
+   "jaipur",
+   "jhumkas",
+   "payal",
+   "first",
+   "second",
+   "third",
+   "baisa",
+   "bling",
+   "rajasthan"
+  ]
+ },
+ "elements": [
+  {
+   "id": "hook",
+   "t0": 0.22,
+   "t1": 2.8,
+   "anchorWordIndex": 0,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "How do you know",
+     "font": "anton",
+     "size": 72,
+     "color": "goldd"
+    },
+    {
+     "text": "your taste in jewellery?",
+     "font": "serif",
+     "size": 100,
+     "color": "goldd"
+    }
+   ],
+   "top": 220,
+   "anim": "rise"
+  },
+  {
+   "id": "years",
+   "t0": 2.84,
+   "t1": 6.1,
+   "anchorWordIndex": 11,
+   "type": "counter",
+   "from": 0,
+   "to": 2000,
+   "label": "years ago, India had a word",
+   "top": 215,
+   "size": 220,
+   "duration": 1,
+   "color": "iv"
+  },
+  {
+   "id": "lock",
+   "t0": 6.22,
+   "t1": 8.8,
+   "anchorWordIndex": 24,
+   "type": "lockCard",
+   "word": "Rasika",
+   "kicker": "The word",
+   "sub": "Revealed at the end",
+   "blurred": true,
+   "dark": true
+  },
+  {
+   "id": "notours",
+   "t0": 8.92,
+   "t1": 12.7,
+   "anchorWordIndex": 34,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "Most of our taste today",
+     "font": "anton",
+     "size": 70,
+     "color": "goldd"
+    },
+    {
+     "text": "truly isn't ours.",
+     "font": "serif",
+     "size": 104,
+     "color": "goldd"
+    }
+   ],
+   "top": 220,
+   "anim": "rise"
+  },
+  {
+   "id": "choker",
+   "t0": 12.84,
+   "t1": 16.7,
+   "anchorWordIndex": 44,
+   "type": "imageCard",
+   "imageId": "choker",
+   "label": "The same choker",
+   "x": 60,
+   "y": 200,
+   "w": 620,
+   "h": 620,
+   "tilt": 0,
+   "objectPosition": "50% 50%"
+  },
+  {
+   "id": "feedchips",
+   "t0": 14,
+   "t1": 16.7,
+   "anchorWordIndex": 49,
+   "type": "chips",
+   "items": [
+    {
+     "text": "On your feed",
+     "at": 0,
+     "bg": "goldd",
+     "color": "iv"
+    },
+    {
+     "text": "Every day",
+     "at": 0.56,
+     "bg": "goldd",
+     "color": "iv"
+    },
+    {
+     "text": "For a month",
+     "at": 1.04,
+     "bg": "goldd",
+     "color": "iv"
+    },
+    {
+     "text": "Suddenly you need it",
+     "at": 1.85,
+     "bg": "ink",
+     "color": "iv"
+    }
+   ],
+   "x": 60,
+   "y": 870,
+   "size": 54
+  },
+  {
+   "id": "mere",
+   "t0": 16.82,
+   "t1": 19.75,
+   "anchorWordIndex": 60,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "Psychologists call this",
+     "font": "kicker",
+     "size": 44,
+     "color": "iv"
+    },
+    {
+     "text": "The mere exposure effect.",
+     "font": "serif",
+     "size": 96,
+     "color": "gold"
+    }
+   ],
+   "top": 230,
+   "anim": "rise"
+  },
+  {
+   "id": "eq",
+   "t0": 19.8,
+   "t1": 23.6,
+   "anchorWordIndex": 67,
+   "type": "equation",
+   "left": "Seen more",
+   "right": "liked more",
+   "top": 250,
+   "leftSize": 130,
+   "rightSize": 110,
+   "leftColor": "iv",
+   "rightColor": "gold"
+  },
+  {
+   "id": "real",
+   "t0": 23.72,
+   "t1": 26.2,
+   "anchorWordIndex": 84,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "Real taste is knowing",
+     "font": "anton",
+     "size": 72,
+     "color": "goldd"
+    },
+    {
+     "text": "why you love something.",
+     "font": "serif",
+     "size": 96,
+     "color": "goldd"
+    }
+   ],
+   "top": 220,
+   "anim": "rise"
+  },
+  {
+   "id": "nobuy",
+   "t0": 26.28,
+   "t1": 29.3,
+   "anchorWordIndex": 92,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "You can find it",
+     "font": "anton",
+     "size": 72,
+     "color": "goldd"
+    },
+    {
+     "text": "without buying a thing.",
+     "font": "serif",
+     "size": 96,
+     "color": "goldd"
+    }
+   ],
+   "top": 220,
+   "anim": "rise"
+  },
+  {
+   "id": "ch1",
+   "t0": 29.4,
+   "t1": 34.1,
+   "anchorWordIndex": 102,
+   "type": "chapterCard",
+   "number": "01",
+   "line": "Don't stop at pretty.",
+   "italicLine": "Ask what exactly you love."
+  },
+  {
+   "id": "lovechips",
+   "t0": 34.22,
+   "t1": 39.75,
+   "anchorWordIndex": 113,
+   "type": "chips",
+   "items": [
+    {
+     "text": "The shape",
+     "at": 0.34,
+     "bg": "goldd",
+     "color": "iv"
+    },
+    {
+     "text": "The weight",
+     "at": 1.14,
+     "bg": "goldd",
+     "color": "iv"
+    },
+    {
+     "text": "Warm gold",
+     "at": 1.74,
+     "bg": "goldd",
+     "color": "iv"
+    },
+    {
+     "text": "Oxidised silver",
+     "at": 2.58,
+     "bg": "goldd",
+     "color": "iv"
+    },
+    {
+     "text": "Jaali work",
+     "at": 3.78,
+     "bg": "goldd",
+     "color": "iv"
+    },
+    {
+     "text": "The glow of a polki",
+     "at": 5.3,
+     "bg": "ink",
+     "color": "iv"
+    }
+   ],
+   "x": 60,
+   "y": 200,
+   "size": 56
+  },
+  {
+   "id": "nameit",
+   "t0": 39.88,
+   "t1": 43.3,
+   "anchorWordIndex": 131,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "Name it clearly,",
+     "font": "anton",
+     "size": 76,
+     "color": "iv"
+    },
+    {
+     "text": "and it's easier to find.",
+     "font": "serif",
+     "size": 96,
+     "color": "gold"
+    }
+   ],
+   "top": 240,
+   "anim": "rise"
+  },
+  {
+   "id": "ch2",
+   "t0": 43.38,
+   "t1": 45.9,
+   "anchorWordIndex": 145,
+   "type": "chapterCard",
+   "number": "02",
+   "line": "Look where your algorithm never will.",
+   "italicLine": ""
+  },
+  {
+   "id": "mini",
+   "t0": 46.26,
+   "t1": 49.8,
+   "anchorWordIndex": 153,
+   "type": "imageCard",
+   "imageId": "i6",
+   "label": "Old miniature paintings",
+   "x": 90,
+   "y": 220,
+   "w": 900,
+   "h": 800,
+   "tilt": 0,
+   "objectPosition": "50% 50%"
+  },
+  {
+   "id": "museum",
+   "t0": 49.84,
+   "t1": 51.73,
+   "anchorWordIndex": 162,
+   "type": "imageCard",
+   "imageId": "i9",
+   "label": "Amrapali Museum, Jaipur",
+   "x": 90,
+   "y": 260,
+   "w": 900,
+   "h": 600,
+   "tilt": 1,
+   "objectPosition": "50% 50%"
+  },
+  {
+   "id": "film",
+   "t0": 51.73,
+   "t1": 54.35,
+   "anchorWordIndex": 168,
+   "type": "imageCard",
+   "imageId": "i2",
+   "label": "An old Hindi film",
+   "x": 60,
+   "y": 180,
+   "w": 600,
+   "h": 960,
+   "tilt": -1,
+   "objectPosition": "50% 50%"
+  },
+  {
+   "id": "ch3",
+   "t0": 54.71,
+   "t1": 57.3,
+   "anchorWordIndex": 177,
+   "type": "chapterCard",
+   "number": "03",
+   "line": "Play with what you already have.",
+   "italicLine": ""
+  },
+  {
+   "id": "jhumka",
+   "t0": 57.4,
+   "t1": 59.15,
+   "anchorWordIndex": 185,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "Your mum's jhumkas,",
+     "font": "anton",
+     "size": 70,
+     "color": "iv"
+    },
+    {
+     "text": "with a plain shirt.",
+     "font": "serif",
+     "size": 90,
+     "color": "gold"
+    }
+   ],
+   "top": 200,
+   "anim": "rise"
+  },
+  {
+   "id": "shirt",
+   "t0": 58.88,
+   "t1": 59.95,
+   "anchorWordIndex": 191,
+   "type": "imageCard",
+   "imageId": "i5",
+   "label": "With a plain shirt",
+   "x": 60,
+   "y": 520,
+   "w": 580,
+   "h": 780,
+   "tilt": 0,
+   "objectPosition": "50% 50%"
+  },
+  {
+   "id": "nani",
+   "t0": 59.2,
+   "t1": 61.6,
+   "anchorWordIndex": 192,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "Your nani's payal.",
+     "font": "serif",
+     "size": 96,
+     "color": "gold"
+    }
+   ],
+   "top": 200,
+   "anim": "rise"
+  },
+  {
+   "id": "payal",
+   "t0": 60,
+   "t1": 61.6,
+   "anchorWordIndex": 194,
+   "type": "imageCard",
+   "imageId": "i4",
+   "label": "Payal",
+   "x": 60,
+   "y": 520,
+   "w": 600,
+   "h": 660,
+   "tilt": 1,
+   "objectPosition": "50% 50%"
+  },
+  {
+   "id": "reach",
+   "t0": 61.72,
+   "t1": 66.1,
+   "anchorWordIndex": 199,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "Notice which pieces",
+     "font": "anton",
+     "size": 72,
+     "color": "goldd"
+    },
+    {
+     "text": "you keep reaching for.",
+     "font": "serif",
+     "size": 96,
+     "color": "goldd"
+    }
+   ],
+   "top": 220,
+   "anim": "rise"
+  },
+  {
+   "id": "yourtaste",
+   "t0": 66.17,
+   "t1": 67.5,
+   "anchorWordIndex": 210,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "And that's your taste.",
+     "font": "serif",
+     "size": 104,
+     "color": "gold"
+    }
+   ],
+   "top": 300,
+   "anim": "rise"
+  },
+  {
+   "id": "ras",
+   "t0": 67.56,
+   "t1": 69.5,
+   "anchorWordIndex": 214,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "So the word is ras.",
+     "font": "anton",
+     "size": 72,
+     "color": "iv"
+    },
+    {
+     "text": "रस",
+     "font": "devanagari",
+     "size": 160,
+     "color": "gold"
+    }
+   ],
+   "top": 220,
+   "anim": "rise"
+  },
+  {
+   "id": "feel",
+   "t0": 69.66,
+   "t1": 74.85,
+   "anchorWordIndex": 219,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "Someone who could truly feel beauty,",
+     "font": "anton",
+     "size": 45,
+     "color": "goldd"
+    },
+    {
+     "text": "not just see it.",
+     "font": "serif",
+     "size": 104,
+     "color": "goldd"
+    }
+   ],
+   "top": 220,
+   "anim": "rise"
+  },
+  {
+   "id": "rasika",
+   "t0": 74.98,
+   "t1": 77.4,
+   "anchorWordIndex": 232,
+   "type": "reveal",
+   "word": "Rasika",
+   "devanagari": "रसिक",
+   "definition": "Someone who could truly feel beauty.",
+   "top": 170,
+   "burst": {
+    "seed": 7,
+    "count": 40,
+    "cx": 540,
+    "cy": 330
+   }
+  },
+  {
+   "id": "brand",
+   "t0": 77.76,
+   "t1": 80.5,
+   "anchorWordIndex": 241,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "At Baisa Bling,",
+     "font": "serif",
+     "size": 112,
+     "color": "goldd"
+    },
+    {
+     "text": "we don't design from the feed.",
+     "font": "anton",
+     "size": 57,
+     "color": "goldd"
+    }
+   ],
+   "top": 210,
+   "anim": "rise"
+  },
+  {
+   "id": "rajasthan",
+   "t0": 80.63,
+   "t1": 82.25,
+   "anchorWordIndex": 252,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "We look at Rajasthan.",
+     "font": "serif",
+     "size": 104,
+     "color": "gold"
+    }
+   ],
+   "top": 300,
+   "anim": "rise"
+  },
+  {
+   "id": "palpaint",
+   "t0": 82.3,
+   "t1": 84,
+   "anchorWordIndex": 257,
+   "type": "splitCards",
+   "cards": [
+    {
+     "imageId": "i8",
+     "label": "Its palaces",
+     "x": 60,
+     "y": 220,
+     "w": 460,
+     "h": 640,
+     "tilt": 0,
+     "objectPosition": "50% 50%"
+    },
+    {
+     "imageId": "i6",
+     "label": "Its paintings",
+     "x": 560,
+     "y": 220,
+     "w": 460,
+     "h": 640,
+     "tilt": 1,
+     "objectPosition": "50% 50%"
+    }
+   ],
+   "stagger": 1
+  },
+  {
+   "id": "crafts",
+   "t0": 84.02,
+   "t1": 84.7,
+   "anchorWordIndex": 261,
+   "type": "imageCard",
+   "imageId": "i3",
+   "label": "Its crafts",
+   "x": 90,
+   "y": 220,
+   "w": 800,
+   "h": 900,
+   "tilt": 0,
+   "objectPosition": "50% 50%"
+  },
+  {
+   "id": "wear",
+   "t0": 84.74,
+   "t1": 87.5,
+   "anchorWordIndex": 263,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "Bring that ras into",
+     "font": "anton",
+     "size": 72,
+     "color": "goldd"
+    },
+    {
+     "text": "jewellery you wear every day.",
+     "font": "serif",
+     "size": 83,
+     "color": "goldd"
+    }
+   ],
+   "top": 220,
+   "anim": "rise"
+  }
+ ],
+ "sfx": {
+  "auto": true,
+  "intensity": 0.8
+ },
+ "endCard": {
+  "brand": "Baisa Bling",
+  "line1": "A little bit of Rajasthan,",
+  "line2": "and a little bit of you.",
+  "handle": "@baisabling",
+  "bgImageId": "i8",
+  "t0": 87.6
+ }
+}

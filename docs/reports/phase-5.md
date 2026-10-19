@@ -283,3 +283,13 @@ empty framed modes; fixed with `plan.meta.faceless` → ink captions, full mode 
 lines). `tools/e2e/reference_reel.py` — a 12 s take matched to the Slam Neon demo at fidelity `look` in
 116 s: 2 cuts measured, the written style "Coral Hook" took the coral `#ff3d5a` accent, kinetic / pop /
 cut, and the render shows coral slam words, a pip tease card and coral karaoke.
+
+**Demos (19 Oct, late):** all 67 new presets planned on the reference take (66 first pass; Nativo's
+minimal direction tripped the planner's element floor and was re-planned with one small poster line
+per key sentence) and all 93 demos re-rendered with the final engine — the material layer, 12 fps
+stop-motion for `steps`, linear SFX gain. 0 render errors, 10–16 s each at 540p.
+
+**Two bugs the owner hit while testing, both fixed:** (1) a preset missing from a stale worker image
+fell back silently to the house tokens — now a job error naming the style; (2) the SFX slider had a
+40 % floor (`0.4 + 0.6·intensity`) — now linear. And the honest reason paper looks did not read even
+with the right tokens: the texture only sat behind framed shots; the material now rides the footage.
