@@ -559,6 +559,12 @@ def motion_brief(style: dict[str, Any], motion: dict[str, Any]) -> str:
             else ""
         )
         + (
+            "\n\nPaper look: the footage carries the paper material and torn strata in every mode, and "
+            "the `card` / `arch` modes show the paper stage — spend at least half the reel framed."
+            if family == "collage"
+            else ""
+        )
+        + (
             "\n\nThis style sets poster type in SENTENCE CASE: write lines as sentences, not shouts."
             if motion.get("caseStyle") == "sentence"
             else (

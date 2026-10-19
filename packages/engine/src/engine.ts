@@ -128,6 +128,11 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
     vw.appendChild(img);
   }
 
+  // the material rides the footage: texture over the picture in every mode, plus the family's
+  // frame (paper strata, taped border) — scaled and rounded with the wrapper
+  const mat = div(`rk-mat tex-${motion.texture}`);
+  const frameEl = div("rk-frame");
+  vw.append(mat, frameEl);
   const grain = createGrain(STAGE_W, STAGE_H, fps);
   stage.append(pattern, bl, vw, fx, cap, grain.canvas);
   root.appendChild(stage);
@@ -200,7 +205,11 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
   })();
 
   // ── frame source ──
-  async function showFrame(t: number, seek: boolean) {
+  // stop-motion styles hold the picture on a 12 fps grid (poses, not motion)
+  const quant = (t: number) => (motion.easing === "steps" ? Math.floor(t * 12) / 12 : t);
+
+  async function showFrame(t0: number, seek: boolean) {
+    const t = quant(t0);
     if (img && assets.frames) {
       const n = clamp(Math.round(t * fps) + 1, 1, assets.frames.count);
       const src = assets.frames.url(n);
@@ -226,11 +235,21 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
 
   const grainOn = opts.grain ?? true;
 
+  // paper boil: on `steps` styles the whole picture jumps ±2 px / ±0.3° per pose
+  const boil = (t: number): string => {
+    if (motion.easing !== "steps") return "";
+    const k = Math.floor(t * 12);
+    const dx = ((k * 7919) % 5) - 2;
+    const dy = ((k * 104729) % 5) - 2;
+    const rot = (((k * 1299709) % 7) - 3) * 0.1;
+    return ` translate(${dx}px,${dy}px) rotate(${rot}deg)`;
+  };
+
   async function renderFrame(t: number, o: { seek?: boolean } = {}) {
     await showFrame(t, o.seek ?? true);
     const v = vstate(segs, t, motion.camera);
     const vs = videoWrapperStyle(v, t, C.gold, motion.camera);
-    vw.style.transform = vs.transform;
+    vw.style.transform = vs.transform + boil(t);
     vw.style.borderRadius = vs.borderRadius;
     vw.style.boxShadow = vs.boxShadow;
     // the dot pattern drifts; textures are static backdrops

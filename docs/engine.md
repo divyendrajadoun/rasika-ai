@@ -91,6 +91,13 @@ A preset is a look *and* a way of moving. `StyleTokens.motion` (schema `style.ts
 Everything defaults to the house editorial motion, so plans written before this field existed
 render exactly as before (the golden test guards it). `motionOf(style)` fills partial blocks.
 
+**Materials on the footage.** The texture no longer lives only on the stage behind framed shots:
+a `.rk-mat` overlay rides the video wrapper in every mode (halftone screen, paper fibre + warm vignette,
+grain, scanlines, vignette, gradient foot), and a `.rk-frame` layer gives the paper families their
+frame — torn kraft/cream strata with tape (`collage`), a taped white border (`whiteboard`), an ink
+border (`chalk`). `steps` easing also quantises the footage to 12 fps and boils it ±2 px / ±0.3° per
+pose, so cut-paper and comic styles move like stop-motion instead of video with a caption on top.
+
 **Light stages.** `card` / `pip` / `arch` modes used to be treated as a dark context everywhere.
 Now the engine (`stageDark` in `BuildCtx`), the validator's colour-context swap and the planner's
 Motion direction all read the stage luma: on a light stage (Whiteboard Marker, Brand Bar, Sky

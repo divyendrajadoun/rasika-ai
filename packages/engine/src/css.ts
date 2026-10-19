@@ -183,6 +183,22 @@ export function engineCss(o: EngineCssOptions): string {
 .rk .rk-pattern.none{background-image:none}
 .rk .rk-vw{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:50% 50%;overflow:hidden;background:#000}
 .rk .rk-vid{width:1080px;height:1920px;display:block;object-fit:cover}
+.rk .rk-mat,.rk .rk-frame{position:absolute;inset:0;pointer-events:none}
+.rk .rk-mat.tex-halftone{background-image:radial-gradient(circle,rgba(0,0,0,.6) 0 1.5px,transparent 2.4px);background-size:9px 9px;mix-blend-mode:multiply;opacity:.38}
+.rk .rk-mat.tex-paper{background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.06) 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,rgba(255,255,255,.07) 0 1px,transparent 1px 4px),radial-gradient(ellipse at 50% 50%,transparent 55%,rgba(60,40,20,.45) 100%);mix-blend-mode:multiply;opacity:.75}
+.rk .rk-mat.tex-grain{background-image:radial-gradient(circle,rgba(0,0,0,.35) 0 .8px,transparent 1.4px),radial-gradient(circle,rgba(255,255,255,.25) 0 .8px,transparent 1.4px),radial-gradient(ellipse at 50% 45%,transparent 50%,rgba(0,0,0,.5) 100%);background-size:5px 5px,7px 7px,auto;background-position:0 0,2px 3px,0 0;opacity:.55}
+.rk .rk-mat.tex-scan{background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 2px,transparent 2px 5px),radial-gradient(ellipse at 50% 45%,transparent 55%,rgba(0,0,0,.45) 100%)}
+.rk .rk-mat.tex-vignette{background-image:radial-gradient(ellipse at 50% 42%,transparent 50%,rgba(0,0,0,.5) 100%)}
+.rk .rk-mat.tex-gradient{background-image:linear-gradient(180deg,rgba(0,0,0,0) 60%,rgba(0,0,0,.35) 100%)}
+.rk.fam-collage .rk-frame{background:
+  linear-gradient(var(--mar),var(--mar)) top/100% 96px no-repeat,
+  linear-gradient(var(--mar),var(--mar)) bottom/100% 120px no-repeat;
+  clip-path:polygon(0 0,100% 0,100% 72px,96% 90px,90% 70px,83% 96px,76% 78px,68% 98px,60% 74px,52% 94px,44% 70px,36% 96px,28% 76px,20% 98px,12% 72px,5% 92px,0 70px,0 calc(100% - 92px),6% calc(100% - 118px),13% calc(100% - 88px),21% calc(100% - 120px),30% calc(100% - 94px),39% calc(100% - 122px),47% calc(100% - 90px),56% calc(100% - 118px),65% calc(100% - 86px),74% calc(100% - 120px),83% calc(100% - 92px),92% calc(100% - 116px),100% calc(100% - 88px),100% 100%,0 100%)}
+.rk.fam-collage .rk-frame::before,.rk.fam-collage .rk-frame::after{content:"";position:absolute;width:190px;height:44px;background:var(--ter);opacity:.58;left:60px;top:58px;transform:rotate(-7deg)}
+.rk.fam-collage .rk-frame::after{left:auto;right:64px;top:auto;bottom:78px;transform:rotate(6deg)}
+.rk.fam-whiteboard .rk-frame,.rk.fam-chalk .rk-frame{box-shadow:inset 0 0 0 22px var(--iv),inset 0 0 0 26px var(--ink)}
+.rk.fam-whiteboard .rk-frame::before{content:"";position:absolute;width:170px;height:40px;background:var(--ter);opacity:.55;left:50%;margin-left:-85px;top:4px;transform:rotate(-3deg)}
+.rk.fam-chalk .rk-frame{box-shadow:inset 0 0 0 18px var(--ink)}
 .rk .it{position:absolute;left:0;width:1080px;text-align:center}
 .rk .ln{display:block;line-height:1.04}
 .rk .w{display:inline-block;overflow:hidden;padding:.14em .04em .1em;margin:-.14em 0 -.1em;vertical-align:bottom}
