@@ -15,7 +15,7 @@ const RAW = { video: "/demo/styles/raw.mp4", poster: "/demo/styles/raw.jpg" };
 const FIRST = 23;
 
 /**
- * Proof — "Large marks on tiles". The board is the 93 real renders of one 12-second take: each tile
+ * Proof — "Large marks on tiles". The board is the 94 real renders of one 12-second take: each tile
  * a style's demo poster that plays on hover, the first tile the heading. Pick a tile and the compare
  * plate on the left shows that style over the raw clip, split by a handle.
  */
@@ -198,7 +198,7 @@ function Compare({ card }: { card: PresetCard }) {
 function StyleTile({ card, active, onPick }: { card: PresetCard; active: boolean; onPick: () => void }) {
   const vid = useRef<HTMLVideoElement>(null);
   const demo = DEMO(card.tokens.id);
-  // the clip is attached on first hover/focus so 93 tiles cost 93 lazy posters, not 93 videos
+  // the clip is attached on first hover/focus so every tile costs a lazy poster, not a video
   const play = () => {
     const v = vid.current;
     if (!v) return;

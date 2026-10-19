@@ -345,7 +345,8 @@ export const SFX_LABEL: Record<StyleTokens["motion"]["sfxKit"], string> = {
   none: "Silent",
 };
 
-export const presetCards: PresetCard[] = schemaPresets.map((tokens) => ({
+/** Every preset, for lookups (a project's style, a brief film's look). */
+export const allPresetCards: PresetCard[] = schemaPresets.map((tokens) => ({
   tokens,
   preview: previewCopy[tokens.id] ?? {
     kicker: "YOUR STORY",
@@ -355,6 +356,19 @@ export const presetCards: PresetCard[] = schemaPresets.map((tokens) => ({
   },
   badge: tokens.id === "mikku-royal" ? "Default" : NEW_IDS.has(tokens.id) ? "New" : undefined,
 }));
+
+/**
+ * Looks made for one kind of brief film (config/briefs.ts); they are chosen with the film, not in
+ * the style grid of an edit. Mirrors BRIEF_PRESET_IDS there (kept here to avoid an import cycle).
+ */
+const BRIEF_ONLY = new Set(["saas-launch", "showreel-kinetic", "recipe-explainer", "versus-arcade", "music-machine", "grand-budapest"]);
+/** Styles whose demo render (public/demo/styles/<id>.mp4) is not made yet: not offered in a grid until it is. */
+const DEMO_PENDING = new Set<string>([]);
+
+/** The styles offered for an edit (a take, a script, a presenter): every one has a real demo render. */
+export const presetCards: PresetCard[] = allPresetCards.filter(
+  (c) => !BRIEF_ONLY.has(c.tokens.id) && !DEMO_PENDING.has(c.tokens.id),
+);
 
 export const defaultPresetId = "mikku-royal";
 
@@ -368,5 +382,5 @@ export function projectStyleLabel(stylePreset: string, styleOptions: unknown): s
     const name = o.referenceStyle?.name;
     return name ? `${name} (from your reference)` : "Matched from your reference";
   }
-  return presetCards.find((c) => c.tokens.id === stylePreset)?.tokens.name ?? stylePreset;
+  return allPresetCards.find((c) => c.tokens.id === stylePreset)?.tokens.name ?? stylePreset;
 }

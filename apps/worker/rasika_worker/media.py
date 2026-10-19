@@ -348,7 +348,10 @@ def mix(
 ) -> None:
     """voice 1.0 + sfx (0.45) [+ music bed ducked under the voice], then a limiter."""
     inputs = ["-i", str(voice)]
-    chains = ["[0:a]volume=1.0[v]"]
+    # with a music bed the voice feeds two places (the mix and the bed's ducking key): split it,
+    # a filtergraph label can be read only once
+    fmt = "aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo"
+    chains = [f"[0:a]volume=1.0,{fmt},asplit=2[v][vk]" if music is not None else "[0:a]volume=1.0[v]"]
     mix_in = ["[v]"]
     idx = 1
     if sfx is not None:
@@ -358,8 +361,8 @@ def mix(
         idx += 1
     if music is not None:
         inputs += ["-stream_loop", "-1", "-i", str(music)]
-        chains.append(f"[{idx}:a]volume={music_gain},aresample=48000[m0]")
-        chains.append("[m0][v]sidechaincompress=threshold=0.05:ratio=8:attack=20:release=400[m]")
+        chains.append(f"[{idx}:a]volume={music_gain},{fmt}[m0]")
+        chains.append("[m0][vk]sidechaincompress=threshold=0.05:ratio=8:attack=20:release=400[m]")
         mix_in.append("[m]")
         idx += 1
     n = len(mix_in)

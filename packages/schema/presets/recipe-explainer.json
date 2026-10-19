@@ -1,0 +1,54 @@
+{
+  "id": "recipe-explainer",
+  "name": "Recipe Explainer",
+  "tagline": "From an empty glass to the finished drink, every measure on screen as it pours.",
+  "palette": {
+    "stage": "#f6efe4",
+    "mar": "#5a1a12",
+    "ter": "#c8102e",
+    "gold": "#f2a541",
+    "goldd": "#b8741a",
+    "iv": "#fffaf2",
+    "ink": "#2a1d14"
+  },
+  "fonts": {
+    "devanagari": "Tiro Devanagari Hindi",
+    "poster": "DM Serif Display",
+    "accent": "Instrument Serif",
+    "ui": "Poppins",
+    "caption": "Poppins"
+  },
+  "grain": 0.0,
+  "pace": 0.6,
+  "captionStyle": "off",
+  "captionSize": 70,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "pourGlass",
+    "posterText",
+    "chips"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "sentence",
+    "enter": "rise",
+    "exit": "fade",
+    "easing": "smooth",
+    "speed": 1.0,
+    "camera": "still",
+    "sfxKit": "click",
+    "texture": "none",
+    "direction": "Explainer, step by step: one glass fills ingredient by ingredient with each measure set beside its layer, the drink's name in a warm display serif at the top, the method as small chips at the end. Calm, appetising, nothing flashy; the pour is the show.",
+    "avoidElements": [
+      "stamp",
+      "lockCard",
+      "filmStrip",
+      "ring",
+      "feedPhone",
+      "broll"
+    ],
+    "framing": "any"
+  }
+}

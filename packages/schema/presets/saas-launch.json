@@ -1,0 +1,56 @@
+{
+  "id": "saas-launch",
+  "name": "SaaS Launch",
+  "tagline": "The launch film founders post on X: real screens, crisp type, a confident beat.",
+  "palette": {
+    "stage": "#0a0b0f",
+    "mar": "#1b1f2a",
+    "ter": "#5b8cff",
+    "gold": "#e8ff5a",
+    "goldd": "#c5dc3f",
+    "iv": "#f5f7fa",
+    "ink": "#050608"
+  },
+  "fonts": {
+    "devanagari": "Tiro Devanagari Hindi",
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.6,
+  "captionStyle": "off",
+  "captionSize": 70,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "browserCard",
+    "posterText",
+    "chips",
+    "imageCard",
+    "reveal"
+  ],
+  "motion": {
+    "family": "launch",
+    "caseStyle": "sentence",
+    "enter": "mask",
+    "exit": "fade",
+    "easing": "smooth",
+    "speed": 0.9,
+    "camera": "push",
+    "sfxKit": "cinematic",
+    "texture": "none",
+    "direction": "Product launch film. The real product carries it: browser windows of the actual site that scroll on their own, feature titles set large in tight sentence-case Inter with one benefit line each, lime on the single word that matters. Clean dark stage, soft pushes, every 2 s something new. Never invent claims; the site's own words only.",
+    "avoidElements": [
+      "stamp",
+      "lockCard",
+      "patternCard",
+      "filmStrip",
+      "ring",
+      "equation"
+    ],
+    "framing": "any"
+  }
+}

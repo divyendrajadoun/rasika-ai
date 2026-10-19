@@ -42,8 +42,8 @@ function basePlan(overrides: Partial<PlanInput> = {}): PlanInput {
 
 describe("@rasika/schema presets", () => {
   it("ships twenty-six valid presets with Mikku Royal as default", () => {
-    expect(presets).toHaveLength(93);
-    expect(new Set(presets.map((p) => p.id)).size).toBe(93);
+    expect(presets).toHaveLength(100);
+    expect(new Set(presets.map((p) => p.id)).size).toBe(100);
     for (const p of presets) expect(() => StyleTokens.parse(p)).not.toThrow();
     expect(defaultPreset.id).toBe("mikku-royal");
     expect(defaultPreset.palette.stage).toBe("#3a0a11");
@@ -62,7 +62,7 @@ describe("@rasika/schema presets", () => {
 });
 
 describe("Plan v1", () => {
-  it("knows all 17 element types (16 from the spec + stock broll)", () => {
+  it("knows all 22 element types (16 from the spec, stock broll, and 5 for brief films)", () => {
     expect([...ELEMENT_TYPES].sort()).toEqual(
       [
         "posterText",
@@ -82,6 +82,11 @@ describe("Plan v1", () => {
         "strikeLine",
         "chips",
         "broll",
+        "browserCard",
+        "pourGlass",
+        "fightHud",
+        "seasonWindow",
+        "noteMachine",
       ].sort(),
     );
   });
@@ -304,5 +309,101 @@ describe("validatePlan", () => {
     );
     expect(r.plan.videoModes[1]!.zoomPoint).toEqual({ x: 480, y: 1310 });
     expect(r.plan.endCard!.t0).toBe(7.3);
+  });
+});
+
+describe("brief-film elements", () => {
+  it("accepts a recipe glass and rejects an overfilled one or a pour after its end", () => {
+    const glass = {
+      id: "g",
+      type: "pourGlass" as const,
+      t0: 0.22,
+      t1: 7,
+      glass: "coupe" as const,
+      layers: [
+        { name: "Gin", amount: "45 ml", color: "#e8e2c8", fill: 0.5, at: 0.5 },
+        { name: "Campari", amount: "30 ml", color: "#c8102e", fill: 0.3, at: 2 },
+      ],
+    };
+    expect(validatePlan(basePlan({ elements: [glass] }), words).ok).toBe(true);
+    const over = { ...glass, layers: [{ ...glass.layers[0]!, fill: 0.8 }, { ...glass.layers[1]!, fill: 0.4 }] };
+    expect(validatePlan(basePlan({ elements: [over] }), words).issues.map((i) => i.code)).toContain("overfill");
+    const late = { ...glass, layers: [{ ...glass.layers[0]!, at: 9 }] };
+    expect(validatePlan(basePlan({ elements: [late] }), words).issues.map((i) => i.code)).toContain(
+      "inner-timing",
+    );
+  });
+
+  it("keeps machine notes after the drop and fight hits inside the element", () => {
+    const machine = {
+      id: "m",
+      type: "noteMachine" as const,
+      t0: 0.22,
+      t1: 9,
+      dropAt: 4,
+      notes: [{ at: 3, key: 2 }],
+    };
+    expect(validatePlan(basePlan({ elements: [machine] }), words).issues.map((i) => i.code)).toContain(
+      "note-before-drop",
+    );
+    const fight = {
+      id: "f",
+      type: "fightHud" as const,
+      t0: 0.22,
+      t1: 6,
+      a: { name: "Red" },
+      b: { name: "Blue" },
+      hits: [{ at: 1, by: "a" as const, dmg: 40 }],
+      koAt: 5,
+      winner: "a" as const,
+    };
+    expect(validatePlan(basePlan({ elements: [fight] }), words).ok).toBe(true);
+  });
+
+  it("only lets real colours (#rrggbb) into liquids and corners", () => {
+    const bad = Plan.safeParse(
+      basePlan({
+        elements: [
+          {
+            id: "g",
+            type: "pourGlass",
+            t0: 0.22,
+            t1: 5,
+            layers: [{ name: "Gin", amount: "45 ml", color: "clear", fill: 0.5, at: 0.5 }],
+          } as never,
+        ],
+      }),
+    );
+    expect(bad.success).toBe(false);
+  });
+});
+
+describe("colour context without a speaker", () => {
+  it("keeps light ink on a dark stage plate and dark ink on a light one", () => {
+    const dark = { ...defaultPreset, palette: { ...defaultPreset.palette, stage: "#0a0b0f" } };
+    const r = validatePlan(
+      basePlan({
+        meta: { durationSec: 10, fps: 30, width: 1080, height: 1920, language: "en", faceless: true },
+        style: dark,
+        elements: [
+          { id: "t", type: "posterText", t0: 0.22, t1: 3, top: 300, anim: "rise", lines: [{ text: "HELLO", font: "anton", size: 120, color: "iv" }] },
+        ],
+      }),
+      words,
+    );
+    const line = (r.plan.elements[0] as { lines: Array<{ color?: string }> }).lines[0]!;
+    expect(line.color).toBe("iv");
+    const light = { ...defaultPreset, palette: { ...defaultPreset.palette, stage: "#f6efe4" } };
+    const r2 = validatePlan(
+      basePlan({
+        meta: { durationSec: 10, fps: 30, width: 1080, height: 1920, language: "en", faceless: true },
+        style: light,
+        elements: [
+          { id: "t", type: "posterText", t0: 0.22, t1: 3, top: 300, anim: "pop", lines: [{ text: "HELLO", font: "anton", size: 120, color: "iv" }] },
+        ],
+      }),
+      words,
+    );
+    expect((r2.plan.elements[0] as { lines: Array<{ color?: string }> }).lines[0]!.color).toBe("mar");
   });
 });

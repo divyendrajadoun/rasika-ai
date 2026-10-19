@@ -700,6 +700,540 @@
         },
         {
           "$ref": "#/$defs/Chips"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "t0": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "t1": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "anchorWordIndex": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "type": {
+              "type": "string",
+              "const": "browserCard"
+            },
+            "imageId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "url": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "description": "shown in the address bar, e.g. linear.app"
+            },
+            "x": {
+              "default": 60,
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            },
+            "y": {
+              "default": 420,
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            },
+            "w": {
+              "default": 960,
+              "type": "number",
+              "minimum": 300,
+              "maximum": 1080
+            },
+            "h": {
+              "default": 720,
+              "type": "number",
+              "minimum": 240,
+              "maximum": 1700
+            },
+            "scroll": {
+              "default": 0.35,
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "tilt": {
+              "default": 0,
+              "type": "number",
+              "minimum": -12,
+              "maximum": 12
+            }
+          },
+          "required": [
+            "id",
+            "t0",
+            "t1",
+            "type",
+            "imageId",
+            "url"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "t0": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "t1": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "anchorWordIndex": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "type": {
+              "type": "string",
+              "const": "pourGlass"
+            },
+            "glass": {
+              "default": "rocks",
+              "type": "string",
+              "enum": [
+                "rocks",
+                "highball",
+                "coupe",
+                "martini",
+                "wine",
+                "mug"
+              ]
+            },
+            "cx": {
+              "default": 540,
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            },
+            "top": {
+              "default": 520,
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            },
+            "size": {
+              "default": 760,
+              "description": "height of the glass in px",
+              "type": "integer",
+              "minimum": 300,
+              "maximum": 1100
+            },
+            "ice": {
+              "default": false,
+              "type": "boolean"
+            },
+            "layers": {
+              "minItems": 1,
+              "maxItems": 8,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "amount": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16,
+                    "description": "the measure as written, e.g. \"45 ml\", \"2 dashes\""
+                  },
+                  "color": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "description": "a real colour (#rrggbb), for things that have one: a liquid, a fighter's corner"
+                  },
+                  "fill": {
+                    "type": "number",
+                    "minimum": 0.01,
+                    "maximum": 1
+                  },
+                  "at": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "seconds after t0 the pour starts"
+                  },
+                  "dur": {
+                    "default": 1.2,
+                    "type": "number",
+                    "minimum": 0.3,
+                    "maximum": 6
+                  }
+                },
+                "required": [
+                  "name",
+                  "amount",
+                  "color",
+                  "fill",
+                  "at"
+                ]
+              }
+            },
+            "garnish": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "citrus",
+                    "cherry",
+                    "leaf",
+                    "olive",
+                    "peel"
+                  ]
+                },
+                "at": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "name",
+                "kind",
+                "at"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "t0",
+            "t1",
+            "type",
+            "layers"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "t0": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "t1": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "anchorWordIndex": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "type": {
+              "type": "string",
+              "const": "fightHud"
+            },
+            "a": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20
+                },
+                "color": {
+                  "default": "#e2403a",
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$",
+                  "description": "a real colour (#rrggbb), for things that have one: a liquid, a fighter's corner"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "b": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20
+                },
+                "color": {
+                  "default": "#2f6fe0",
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$",
+                  "description": "a real colour (#rrggbb), for things that have one: a liquid, a fighter's corner"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "top": {
+              "default": 150,
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            },
+            "hits": {
+              "minItems": 1,
+              "maxItems": 24,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "at": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "by": {
+                    "type": "string",
+                    "enum": [
+                      "a",
+                      "b"
+                    ]
+                  },
+                  "dmg": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 100
+                  },
+                  "word": {
+                    "default": "POW!",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 14
+                  }
+                },
+                "required": [
+                  "at",
+                  "by",
+                  "dmg"
+                ]
+              }
+            },
+            "koAt": {
+              "description": "seconds after t0; the loser's bar is empty by then",
+              "type": "number",
+              "minimum": 0
+            },
+            "winner": {
+              "type": "string",
+              "enum": [
+                "a",
+                "b"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "t0",
+            "t1",
+            "type",
+            "a",
+            "b",
+            "hits",
+            "winner"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "t0": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "t1": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "anchorWordIndex": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "type": {
+              "type": "string",
+              "const": "seasonWindow"
+            },
+            "seasons": {
+              "minItems": 1,
+              "maxItems": 4,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "spring",
+                  "summer",
+                  "autumn",
+                  "winter"
+                ]
+              }
+            },
+            "x": {
+              "default": 140,
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            },
+            "y": {
+              "default": 360,
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            },
+            "w": {
+              "default": 800,
+              "type": "number",
+              "minimum": 300,
+              "maximum": 1080
+            },
+            "h": {
+              "default": 980,
+              "type": "number",
+              "minimum": 300,
+              "maximum": 1700
+            },
+            "shape": {
+              "default": "arch",
+              "type": "string",
+              "enum": [
+                "arch",
+                "rect"
+              ]
+            },
+            "frame": {
+              "default": "goldd",
+              "$ref": "#/$defs/ColorToken"
+            },
+            "cup": {
+              "default": true,
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "t0",
+            "t1",
+            "type",
+            "seasons"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "t0": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "t1": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "anchorWordIndex": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "type": {
+              "type": "string",
+              "const": "noteMachine"
+            },
+            "top": {
+              "default": 420,
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            },
+            "dropAt": {
+              "type": "number",
+              "minimum": 0
+            },
+            "notes": {
+              "minItems": 1,
+              "maxItems": 40,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "at": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "key": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 7
+                  }
+                },
+                "required": [
+                  "at",
+                  "key"
+                ]
+              }
+            },
+            "drums": {
+              "default": [],
+              "maxItems": 40,
+              "type": "array",
+              "items": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          },
+          "required": [
+            "id",
+            "t0",
+            "t1",
+            "type",
+            "dropAt",
+            "notes"
+          ]
         }
       ]
     },
@@ -2032,6 +2566,12 @@
           "type": "number",
           "minimum": 0.03,
           "maximum": 2
+        },
+        "pitch": {
+          "description": "semitones above C5, for `note`",
+          "type": "integer",
+          "minimum": -12,
+          "maximum": 24
         }
       },
       "required": [
@@ -2048,7 +2588,9 @@
         "glitch",
         "impact",
         "riser",
-        "sub"
+        "sub",
+        "note",
+        "pour"
       ]
     },
     "EndCard": {

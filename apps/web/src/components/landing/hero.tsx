@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 /**
  * Hero — "Controls on the sentence". A flat field in the chosen style's stage colour, the headline
  * on two authored lines, and three of the product's own controls beside it, each live:
- *  Style        a range over the 93 presets; the field, the ink and the lit word take that preset's tokens
+ *  Style        a range over the 94 edit styles; the field, the ink and the lit word take that preset's tokens
  *  Caption pace words per minute; the words of the sentence light one by one at that pace
  *  Language     English ↔ Hindi; the sentence is set in Devanagari, as the reel would set it
  * The three controls are panes of liquid glass in a row under the sentence, lit faintly from inside

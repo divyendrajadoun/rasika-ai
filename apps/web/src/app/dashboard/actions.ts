@@ -7,7 +7,9 @@ import { db, schema } from "@/db";
 import { plans } from "@/config/pricing";
 import { requireUser } from "@/lib/auth";
 import { enqueueJob } from "@/lib/jobs/queue";
+import { briefKind } from "@/config/briefs";
 import {
+  BriefSubmission,
   PresenterSubmission,
   ScriptSubmission,
   WizardSubmission,
@@ -205,6 +207,97 @@ export async function createScriptEdit(input: unknown): Promise<ActionResult> {
         language_hint: "en",
         max_duration_sec: plan.maxSeconds,
       },
+    });
+  });
+  revalidatePath("/dashboard");
+  return { ok: true, projectId: w.projectId };
+}
+
+/** "Create my film" for a film made from a brief: enqueue the compose job; it hands off to probe. */
+export async function createBriefEdit(input: unknown): Promise<ActionResult> {
+  const user = await requireUser("/dashboard/new");
+  const parsed = BriefSubmission.safeParse(input);
+  if (!parsed.success)
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid form" };
+  const w = parsed.data;
+  const kind = briefKind(w.kind);
+  if (!kind) return { ok: false, error: "Unknown kind of film" };
+
+  const [project] = await db
+    .select()
+    .from(schema.projects)
+    .where(and(eq(schema.projects.id, w.projectId), eq(schema.projects.userId, user.id)));
+  if (!project) return { ok: false, error: "Project not found" };
+
+  const plan = plans.find((p) => p.id === user.plan) ?? plans[0]!;
+  const seconds = Math.min(kind.maxSeconds, plan.maxSeconds);
+  const cost = creditCost(seconds);
+  if (user.credits < cost)
+    return { ok: false, error: `This film needs ${cost} credit(s); you have ${user.credits}.` };
+
+  const brief = {
+    kind: w.kind,
+    ...(w.url ? { url: w.url } : {}),
+    ...(w.recipe ? { recipe: w.recipe } : {}),
+    ...(w.subject ? { subject: w.subject } : {}),
+    ...(w.a ? { a: w.a, b: w.b, winner: w.winner } : {}),
+    ...(w.line ? { line: w.line, end: w.end || "ONE PROMPT" } : {}),
+    narrate: kind.narrate,
+    ...(w.voice ? { voice: w.voice } : {}),
+  };
+
+  await db.transaction(async (tx) => {
+    await tx
+      .update(schema.projects)
+      .set({
+        title: w.title || kind.title,
+        status: "uploaded",
+        stylePreset: kind.preset,
+        styleText: null,
+        styleOptions: {
+          captions: kind.narrate,
+          sfxIntensity: w.options.sfxIntensity,
+          music: true,
+          language: "en",
+          source: "brief",
+          faceless: true,
+          brief,
+        },
+        brand: w.brand,
+        durationSec: seconds,
+        creditsCost: cost,
+        updatedAt: schema.now,
+      })
+      .where(eq(schema.projects.id, w.projectId));
+    for (const [i, ph] of w.photos.entries()) {
+      await tx
+        .update(schema.assets)
+        .set({ meta: { label: ph.label, sayWhen: ph.sayWhen, crop: ph.crop, order: i } })
+        .where(and(eq(schema.assets.id, ph.assetId), eq(schema.assets.projectId, w.projectId)));
+    }
+    const [job] = await tx
+      .insert(schema.jobs)
+      .values({
+        projectId: w.projectId,
+        userId: user.id,
+        type: "compose",
+        status: "uploaded",
+        message: "Queued",
+      })
+      .returning({ id: schema.jobs.id });
+    await tx.insert(schema.auditLog).values({
+      userId: user.id,
+      action: "project.create_brief_film",
+      entity: "project",
+      entityId: w.projectId,
+      meta: { cost, kind: w.kind, preset: kind.preset, photos: w.photos.length },
+    });
+    await enqueueJob({
+      job_id: job!.id,
+      project_id: w.projectId,
+      user_id: user.id,
+      type: "compose",
+      payload: { max_duration_sec: plan.maxSeconds },
     });
   });
   revalidatePath("/dashboard");

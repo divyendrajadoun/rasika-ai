@@ -8,6 +8,7 @@ export const nav = {
   links: [
     { label: "How it works", href: "#how-it-works" },
     { label: "Styles", href: "#styles" },
+    { label: "Films", href: "#films" },
     { label: "Pricing", href: "#pricing" },
     { label: "FAQ", href: "#faq" },
   ],
@@ -114,7 +115,7 @@ export const features = {
 };
 
 export const styles = {
-  title: "93 styles, one take",
+  title: "94 styles, one take",
   sub: "Pick a look. Drag to compare it with the raw clip.",
   note2: "Every style here was planned and rendered by Rasika from the same real 12-second phone clip — not a mock-up. Each one is a full design system: palette, type, caption format, and its own motion — how lines enter, how the camera cuts, which sounds land.",
   note: "Nine motion families — editorial, kinetic type, whiteboard, chalkboard, hype cut, launch film, paper collage, colour blocks, beat type — each with its own sound kit. Seventy-nine of the styles were built from the measured rules of the open video-skills community's looks — Apple-style recaps, whiteboard and chalkboard explainers, TikTok retention cuts, launch films, heditor's cinema and podcast sets, ravyn's window and tabloid, ghost-editor's seven looks, Vox paper collages, halftone zines, retro terminals, pixel RPG boxes, Swiss posters, glass keynotes and more — every one planned and rendered inside Rasika, nothing redirected elsewhere. Describe a look in the wizard (“clinic white, navy, fewer effects”) and we map it to the nearest preset.",
@@ -202,7 +203,7 @@ export const showcase = {
   examples: ["Three bedrooms, east facing", "Forty minutes, not cream", "Zero to ten thousand orders"],
   /** The presets offered under the line; all four set their poster in Anton, the face this page has. */
   styleIds: ["mikku-royal", "boardroom-navy", "tabloid-headline", "festive-bandhani"],
-  note: "The poster line, the caption and the lit word use the style's own tokens. The 93 reels below are the full renders.",
+  note: "The poster line, the caption and the lit word use the style's own tokens. The 94 reels below are the full renders.",
 };
 
 export const seo = {

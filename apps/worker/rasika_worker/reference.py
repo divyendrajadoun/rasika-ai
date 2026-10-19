@@ -196,7 +196,12 @@ changing only what the fidelity allows:
   `motion.sfxKit` chosen to match how the reference moves (hard cuts → `cut`, punchy → `whip`/`push`),
   and `motion.framing` read from the stills: `full` when the speaker fills the frame edge to edge in
   (nearly) every still, `framed` when the footage mostly sits in a window or card on a coloured
-  stage, `any` when it mixes both. Say the same in `motion.direction`.
+  stage, `any` when it mixes both. `motion.framing` MUST agree with what `motion.direction` says
+  about framing (a direction that says the speaker is edge to edge means `framing: "full"`).
+  In `motion.direction`, also describe the TYPE TREATMENT precisely enough to rebuild: how big the
+  key word is against the frame width (e.g. "one word at about 40% of the width, condensed red
+  caps"), the second face used for asides, where the type sits relative to the person, and the
+  stickers, cut-outs or cards that recur.
 - look: camera + `palette`, `fonts` (ONLY from the allowed list), `grain`, `captionStyle`,
   `captionSize`, `captionAccent`, `motion.texture`, `motion.family`, `motion.caseStyle`, `name`,
   `tagline`, `pace`, `endCardShape`, `preferredElements`, `motion.avoidElements`. At this level the

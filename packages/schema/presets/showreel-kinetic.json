@@ -1,0 +1,53 @@
+{
+  "id": "showreel-kinetic",
+  "name": "Showreel Kinetic",
+  "tagline": "Fifteen seconds of motion design: slams on the beat, screens flying through.",
+  "palette": {
+    "stage": "#0e0e0e",
+    "mar": "#1c1c1c",
+    "ter": "#ff4d2e",
+    "gold": "#ffd23f",
+    "goldd": "#e0b000",
+    "iv": "#ffffff",
+    "ink": "#000000"
+  },
+  "fonts": {
+    "devanagari": "Tiro Devanagari Hindi",
+    "poster": "Archivo Black",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.9,
+  "captionStyle": "off",
+  "captionSize": 70,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "browserCard",
+    "reveal",
+    "chips"
+  ],
+  "motion": {
+    "family": "kinetic",
+    "caseStyle": "upper",
+    "enter": "slam",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 0.7,
+    "camera": "whip",
+    "sfxKit": "hype",
+    "texture": "none",
+    "direction": "A motion designer's showreel: one to three words slammed in on every beat (about every second), huge and tight; real screens fly through at bold angles and overlap the type for a moment; one big reveal of the brand name to close. More motion than words.",
+    "avoidElements": [
+      "lockCard",
+      "patternCard",
+      "chapterCard",
+      "equation"
+    ],
+    "framing": "any"
+  }
+}

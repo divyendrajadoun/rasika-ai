@@ -1,3 +1,4 @@
+import { BriefFilms } from "@/components/landing/brief-films";
 import { Faq } from "@/components/landing/faq";
 import { Features } from "@/components/landing/features";
 import { FinalCta } from "@/components/landing/final-cta";
@@ -18,7 +19,7 @@ import { siteUrl } from "@/lib/site";
 /**
  * The landing page, in the order of its argument: the sentence set live (hero), a line you can type
  * (showcase), call and response (how it works), the real before/after with notes (features), the
- * 93 renders (styles), the plans table, the questions, the first step already open, one quiet line.
+ * 94 renders (styles), the plans table, the questions, the first step already open, one quiet line.
  */
 export default function LandingPage() {
   const jsonLd = {
@@ -50,6 +51,7 @@ export default function LandingPage() {
         <HowItWorks />
         <Features />
         <StyleShowcase />
+        <BriefFilms />
         <Pricing />
         <Faq />
         <FinalCta presenterEnabled={env.presenterEnabled} />

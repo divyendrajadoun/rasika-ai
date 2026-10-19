@@ -1,0 +1,54 @@
+{
+  "id": "music-machine",
+  "name": "Music Machine",
+  "tagline": "Warm paper, ink, cobalt and sunflower: a line becomes a machine, and every hit is a note.",
+  "palette": {
+    "stage": "#f3e9d6",
+    "mar": "#1f2f7a",
+    "ter": "#2346d4",
+    "gold": "#f7c313",
+    "goldd": "#d9a400",
+    "iv": "#fffdf6",
+    "ink": "#111111"
+  },
+  "fonts": {
+    "devanagari": "Tiro Devanagari Hindi",
+    "poster": "Archivo Black",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "caption": "Inter"
+  },
+  "grain": 0.04,
+  "pace": 0.6,
+  "captionStyle": "off",
+  "captionSize": 70,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "noteMachine"
+  ],
+  "motion": {
+    "family": "blocks",
+    "caseStyle": "sentence",
+    "enter": "type",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 1.0,
+    "camera": "still",
+    "sfxKit": "pop",
+    "texture": "paper",
+    "direction": "Bold geometric shapes in ink black, cobalt blue and sunflower yellow on warm paper. Silence until the ball drops; then every sound is a movement you can see: keys play notes, the drum kicks, gears tick. It ends on the closing words and a final hit, then silence.",
+    "avoidElements": [
+      "stamp",
+      "lockCard",
+      "filmStrip",
+      "chips",
+      "counter",
+      "imageCard",
+      "broll"
+    ],
+    "framing": "any"
+  }
+}

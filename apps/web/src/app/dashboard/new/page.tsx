@@ -11,10 +11,10 @@ export const dynamic = "force-dynamic";
 export default async function NewEditPage({
   searchParams,
 }: {
-  searchParams: Promise<{ style?: string; project?: string; industry?: string; source?: string; title?: string }>;
+  searchParams: Promise<{ style?: string; project?: string; industry?: string; source?: string; title?: string; kind?: string }>;
 }) {
   const user = await requireUser("/dashboard/new");
-  const { style, project, industry, source, title } = await searchParams;
+  const { style, project, industry, source, title, kind } = await searchParams;
   const plan = plans.find((p) => p.id === user.plan) ?? plans[0]!;
   const catalogue = env.presenterEnabled
     ? await heygenCatalogue().catch(() => ({ voices: [], looks: [] }))
@@ -25,6 +25,7 @@ export default async function NewEditPage({
       initialIndustry={industry}
       initialSource={source}
       initialTitle={title}
+      initialKind={kind}
       resumeProjectId={project}
       credits={user.credits}
       maxSeconds={plan.maxSeconds}

@@ -44,7 +44,7 @@ export default async function OgImage() {
           {hero.lines[1]}
         </span>
         <span style={{ fontWeight: 400, fontSize: 34, marginTop: 28, opacity: 0.9 }}>
-          Poster type · captions on the exact word · your photos when you say them · 93 styles
+          Poster type · captions on the exact word · your photos when you say them · 94 styles
         </span>
       </div>
     </div>,

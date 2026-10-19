@@ -1,0 +1,54 @@
+{
+  "id": "punchy-fun",
+  "name": "Punchy Fun",
+  "tagline": "A raw talking-head clip cut punchy and fun: bold subtitles, stickers, sound on every beat.",
+  "palette": {
+    "stage": "#101010",
+    "mar": "#2a2a2a",
+    "ter": "#ff5a1f",
+    "gold": "#ffe14d",
+    "goldd": "#e8c400",
+    "iv": "#ffffff",
+    "ink": "#050505"
+  },
+  "fonts": {
+    "devanagari": "Tiro Devanagari Hindi",
+    "poster": "Montserrat",
+    "accent": "Instrument Serif",
+    "ui": "Montserrat",
+    "caption": "Montserrat"
+  },
+  "grain": 0.0,
+  "pace": 0.9,
+  "captionStyle": "box",
+  "captionSize": 70,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "chips",
+    "stamp",
+    "counter",
+    "posterText",
+    "imageCard"
+  ],
+  "motion": {
+    "family": "hype",
+    "caseStyle": "upper",
+    "enter": "pop",
+    "exit": "cut",
+    "easing": "spring",
+    "speed": 0.8,
+    "camera": "push",
+    "sfxKit": "hype",
+    "texture": "none",
+    "direction": "Punchy and fun: boxed word-by-word subtitles with the spoken word lit yellow, punch-in zooms on every joke or key point, stickers (chips) and stamps for reactions, a counter for any number, short poster slams on the hook and the payoff, a sound on every visual beat. Something new every 1.5–2 s.",
+    "avoidElements": [
+      "lockCard",
+      "patternCard",
+      "filmStrip",
+      "equation"
+    ],
+    "framing": "any"
+  }
+}

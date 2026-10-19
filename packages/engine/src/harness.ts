@@ -13,6 +13,8 @@ export * from "./engine";
 export * from "./sfx";
 /** Exposed for the worker: validate a plan inside Chromium with real canvas font metrics. */
 export { validatePlan, Plan as PlanSchema };
+// the validator page loads a plan's own fonts before measuring (planner.ChromiumValidator)
+export { fontFaceCss, fontFamily, fontLoadDescriptor, fontsForStyle } from "./css";
 export * from "./toolkit";
 export { captionWindows } from "./captions";
 export { buildSegments, vstate, MODES } from "./modes";

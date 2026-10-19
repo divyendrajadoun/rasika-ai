@@ -19,6 +19,8 @@ PROTOCOL_VERSION: Final[Literal[1]] = 1
 class JobType(StrEnum):
     # script-only reels: narrate the script and build the stage clip, then the normal chain
     SYNTH = "synth"
+    # brief-driven films: gather the materials (a website…), write and score the film, then probe
+    COMPOSE = "compose"
     # AI presenter: HeyGen renders script + photo / stock look into the source clip, then probe
     PRESENTER = "presenter"
     PROBE = "probe"

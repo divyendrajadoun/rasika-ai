@@ -132,3 +132,77 @@ def test_camera_fidelity_carries_framing() -> None:
     proposed = {**PROPOSED, "motion": {**PROPOSED["motion"], "framing": "full"}}
     assert merge_by_fidelity(PRESET, proposed, "camera")["motion"]["framing"] == "full"
     assert merge_by_fidelity(PRESET, proposed, "pace")["motion"].get("framing") != "full"
+
+
+def test_image_media_type_follows_the_bytes(tmp_path) -> None:
+    """A large PNG is re-encoded to JPEG for the model; its declared type must say JPEG."""
+    from PIL import Image
+
+    from rasika_worker.planner import _b64_image
+
+    big = tmp_path / "shot.png"
+    Image.effect_noise((1600, 1600), 90).convert("RGB").save(big)  # noise: large on disk
+    assert big.stat().st_size > 1_500_000
+    assert _b64_image(big)["source"]["media_type"] == "image/jpeg"
+    small = tmp_path / "small.png"
+    Image.new("RGB", (40, 40), "red").save(small)
+    assert _b64_image(small)["source"]["media_type"] == "image/png"
+
+
+def test_mix_with_a_music_bed_runs(tmp_path) -> None:
+    """voice + sfx + a ducked music bed: the voice feeds both the mix and the ducking key."""
+    import shutil
+
+    import numpy as np
+    import pytest
+
+    from rasika_worker import media, music
+
+    ff = shutil.which("ffmpeg")
+    if not ff:
+        pytest.skip("ffmpeg not installed")
+    voice, bed, sfxw, out = tmp_path / "v.wav", tmp_path / "m.wav", tmp_path / "s.wav", tmp_path / "out.wav"
+    music.write(voice, np.sin(np.linspace(0, 2000, 48000 * 2)) * 0.3)
+    music.write(sfxw, np.zeros(48000 * 2))
+    music.write(bed, music.compose("launch", 2.0))
+    media.mix(ff, voice, sfxw, out, music=bed)
+    assert out.exists() and out.stat().st_size > 1000
+
+
+def test_validator_measures_with_the_styles_own_fonts() -> None:
+    """The validator page must really load the fonts: a wide grotesk fits at a smaller size than
+    Anton, and Anton is not shrunk as if it were a fallback face."""
+    import json
+    from pathlib import Path
+
+    import pytest
+
+    from rasika_worker.planner import ChromiumValidator
+    from rasika_worker.settings import Settings
+
+    s = Settings()
+    if not s.engine_bundle.exists():
+        pytest.skip("engine bundle not built")
+    root = Path(__file__).resolve().parents[3]
+    words = [{"w": "x", "t": 0.3, "end": 0.5, "conf": 1}]
+    sizes = {}
+    v = ChromiumValidator(s)
+    try:
+        for pid in ("mikku-royal", "showreel-kinetic"):
+            style = json.loads((root / "packages" / "schema" / "presets" / f"{pid}.json").read_text(encoding="utf-8"))
+            plan = {
+                "version": 1,
+                "meta": {"durationSec": 5, "fps": 30, "width": 1080, "height": 1920, "language": "en", "faceless": True},
+                "style": style,
+                "subject": {"faceBox": {"x": 0, "y": 0, "w": 1, "h": 1}, "freeZone": {"x": 0, "y": 150, "w": 1080, "h": 1500}},
+                "videoModes": [{"t": 0, "mode": "full"}],
+                "captions": {"enabled": False, "y": 1400, "gold": [], "accent": []},
+                "sfx": {"auto": True, "intensity": 1},
+                "elements": [{"id": "t", "type": "posterText", "t0": 0.3, "t1": 3, "top": 300,
+                              "lines": [{"text": "INFRASTRUCTURE", "font": "anton", "size": 300, "color": "iv"}]}],
+            }
+            sizes[pid] = v(plan, words, [])["plan"]["elements"][0]["lines"][0]["size"]
+    finally:
+        v.close()
+    assert sizes["mikku-royal"] >= 150  # Anton's real width, not a fallback face
+    assert sizes["showreel-kinetic"] < sizes["mikku-royal"] * 0.75  # Archivo Black is much wider

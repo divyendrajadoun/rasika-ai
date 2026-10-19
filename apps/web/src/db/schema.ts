@@ -54,6 +54,7 @@ export type AssetKind = (typeof ASSET_KINDS)[number];
 
 export const JOB_TYPES = [
   "synth",
+  "compose",
   "presenter",
   "probe",
   "analyse_reference",
@@ -97,7 +98,25 @@ export interface StyleOptions {
   music: boolean;
   language: "auto" | "en" | "hi" | "hinglish";
   /** where the reel came from (default "take": an uploaded clip) */
-  source?: "take" | "script" | "reference" | "presenter";
+  source?: "take" | "script" | "reference" | "presenter" | "brief";
+  /** films made from a brief: the kind of film and the user's inputs (config/briefs.ts) */
+  brief?: {
+    kind: string;
+    url?: string;
+    recipe?: string;
+    subject?: string;
+    a?: string;
+    b?: string;
+    winner?: string;
+    line?: string;
+    end?: string;
+    narrate?: boolean;
+    voice?: string;
+  };
+  /** written by the worker's compose step: the film's script and data */
+  film?: Record<string, unknown>;
+  unspokenWords?: Array<Record<string, unknown>> | null;
+  musicBed?: Record<string, unknown> | null;
   /** AI presenter: HeyGen voice id and the stock look (or none when a photo was uploaded) */
   presenterVoice?: string;
   presenterLook?: string | null;

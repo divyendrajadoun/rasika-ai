@@ -92,6 +92,13 @@ import ghostPop from "../presets/ghost-pop.json";
 import palavra from "../presets/palavra.json";
 import kurguInk from "../presets/kurgu-ink.json";
 import voxPaper from "../presets/vox-paper.json";
+import saasLaunch from "../presets/saas-launch.json";
+import showreelKinetic from "../presets/showreel-kinetic.json";
+import recipeExplainer from "../presets/recipe-explainer.json";
+import versusArcade from "../presets/versus-arcade.json";
+import musicMachine from "../presets/music-machine.json";
+import grandBudapest from "../presets/grand-budapest.json";
+import punchyFun from "../presets/punchy-fun.json";
 
 /** The shipped presets, validated once at module load so a bad JSON fails fast. */
 export const presets: readonly StyleTokens[] = [
@@ -188,6 +195,13 @@ export const presets: readonly StyleTokens[] = [
   palavra,
   kurguInk,
   voxPaper,
+  saasLaunch,
+  showreelKinetic,
+  recipeExplainer,
+  versusArcade,
+  musicMachine,
+  grandBudapest,
+  punchyFun,
 ].map((p) => StyleTokens.parse(p));
 
 export const defaultPreset: StyleTokens = presets[0] as StyleTokens;

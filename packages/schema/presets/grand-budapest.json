@@ -1,0 +1,55 @@
+{
+  "id": "grand-budapest",
+  "name": "Grand Budapest",
+  "tagline": "Pastel, symmetrical, chaptered: a whimsical storybook told through a window.",
+  "palette": {
+    "stage": "#f4c6c9",
+    "mar": "#5b2340",
+    "ter": "#7a2e4f",
+    "gold": "#c9a14a",
+    "goldd": "#8e6b2c",
+    "iv": "#fff6f0",
+    "ink": "#3a1f2b"
+  },
+  "fonts": {
+    "devanagari": "Tiro Devanagari Hindi",
+    "poster": "Jost",
+    "accent": "Playfair Display",
+    "ui": "Jost",
+    "caption": "Jost"
+  },
+  "grain": 0.05,
+  "pace": 0.6,
+  "captionStyle": "clean",
+  "captionSize": 70,
+  "captionAccent": "gold",
+  "endCardShape": "arch",
+  "pattern": "none",
+  "preferredElements": [
+    "seasonWindow",
+    "chapterCard",
+    "posterText"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "upper",
+    "enter": "fade",
+    "exit": "fade",
+    "easing": "soft",
+    "speed": 1.2,
+    "camera": "still",
+    "sfxKit": "click",
+    "texture": "grain",
+    "direction": "Wes Anderson storybook: perfect symmetry, everything centred, pastel pink and plum with gold, chapter title cards in spaced capitals (\"PART ONE: SPRING\"), deadpan lines in a small serif, a window onto the passing world. Slow, precise, whimsical; nothing tilts.",
+    "avoidElements": [
+      "stamp",
+      "lockCard",
+      "filmStrip",
+      "ring",
+      "chips",
+      "counter",
+      "broll"
+    ],
+    "framing": "any"
+  }
+}

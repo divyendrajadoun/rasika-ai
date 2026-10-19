@@ -42,6 +42,7 @@ ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 "rasika_worker/sfx.py" = ["N", "E", "SIM", "B"]
+"rasika_worker/music.py" = ["N", "E", "SIM", "B"]
 "rasika_worker/plan.py" = ["N", "E", "UP"]  # generated from plan.schema.json
 
 [tool.mypy]
@@ -52,7 +53,7 @@ ignore_missing_imports = true
 exclude = ["tests/"]
 
 [[tool.mypy.overrides]]
-module = ["rasika_worker.sfx", "rasika_worker.plan"]
+module = ["rasika_worker.sfx", "rasika_worker.music", "rasika_worker.plan"]
 ignore_errors = true
 
 [tool.pytest.ini_options]

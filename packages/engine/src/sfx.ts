@@ -4,6 +4,7 @@
  * reference cues.json consumed by the worker's sfx mixer.
  */
 import { motionOf, type Plan, type SfxCue, type SfxKit } from "@rasika/schema";
+import { MACHINE_SCALE } from "./brief";
 
 export interface CueSheet {
   duration: number;
@@ -75,6 +76,35 @@ export function deriveSfx(plan: Plan): CueSheet {
           push({ t: el.t0 - 1.35, type: "riser", dur: 1.35, gain: 0.6 });
           push({ t: el.t0, type: "impact", gain: 1.0 });
           push({ t: el.t0 + 0.02, type: "sub", gain: 0.9 });
+          break;
+        // brief films: every sound is a movement you can see
+        case "browserCard":
+          push({ t: el.t0 - 0.05, type: "whoosh", dur: 0.45, gain: 0.7 });
+          break;
+        case "pourGlass":
+          for (const l of el.layers) push({ t: el.t0 + l.at, type: "pour", dur: l.dur, gain: 0.8 });
+          if (el.garnish) push({ t: el.t0 + el.garnish.at + 0.5, type: "pop", gain: 0.8 });
+          break;
+        case "fightHud":
+          push({ t: el.t0 + 0.05, type: "riser", dur: 0.6, gain: 0.4 });
+          for (const h of el.hits) {
+            push({ t: el.t0 + h.at, type: "impact", gain: 0.85 });
+            push({ t: el.t0 + h.at, type: "pop", gain: 0.6 });
+          }
+          if (el.koAt != null) {
+            push({ t: el.t0 + el.koAt, type: "impact", gain: 1.1 });
+            push({ t: el.t0 + el.koAt + 0.02, type: "sub", gain: 1.0 });
+          }
+          break;
+        case "noteMachine":
+          for (const n of el.notes)
+            push({ t: el.t0 + n.at, type: "note", pitch: MACHINE_SCALE[n.key] ?? 0, gain: 0.9 });
+          for (const d of el.drums) push({ t: el.t0 + d, type: "sub", gain: 1.0 });
+          {
+            const last = Math.max(el.dropAt, ...el.notes.map((n) => n.at), ...el.drums);
+            const ticks = Math.min(40, Math.floor((last - el.dropAt) / 0.25));
+            if (ticks > 0) push({ t: el.t0 + el.dropAt, type: "tick", repeat: ticks, every: 0.25, gain: 0.3 });
+          }
           break;
         default:
           break;

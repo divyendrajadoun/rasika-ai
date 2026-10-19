@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import {
+  createBriefEdit,
   createDraftProject,
   createEdit,
   createPresenterEdit,
@@ -22,6 +23,8 @@ import {
   type PresenterState,
 } from "@/components/wizard/step-presenter";
 import { StepSource, type SourceMode } from "@/components/wizard/step-source";
+import { StepBrief, briefReady, defaultBriefState, type BriefState } from "@/components/wizard/step-brief";
+import { briefKind } from "@/config/briefs";
 import type { HeyGenLook, HeyGenVoice } from "@/lib/heygen";
 import { StepStyle, type StyleState } from "@/components/wizard/step-style";
 import { StepUpload, type UploadResult } from "@/components/wizard/step-upload";
@@ -30,7 +33,7 @@ import { estimateSpokenSeconds } from "@/config/voices";
 import { creditCost } from "@/lib/wizard-schema";
 import { cn } from "@/lib/utils";
 
-type StepId = "source" | "upload" | "script" | "presenter" | "photos" | "style" | "brand";
+type StepId = "source" | "upload" | "script" | "presenter" | "brief" | "photos" | "style" | "brand";
 const stepLabel = (s: StepId, mode: SourceMode) =>
   s === "style" && mode === "reference" ? "Edit options" : STEP_LABEL[s];
 const STEP_LABEL: Record<StepId, string> = {
@@ -38,6 +41,7 @@ const STEP_LABEL: Record<StepId, string> = {
   upload: "Upload reel",
   script: "Your script",
   presenter: "Presenter",
+  brief: "Your brief",
   photos: "Your photos",
   style: "Style",
   brand: "Brand & ending",
@@ -49,6 +53,8 @@ const PATHS: Record<SourceMode, StepId[]> = {
   // the reference clip is uploaded on the upload step (second drop zone)
   reference: ["source", "upload", "photos", "style", "brand"],
   presenter: ["source", "presenter", "photos", "style", "brand"],
+  // each kind of brief film comes with its own look, so there is no style step
+  brief: ["source", "brief", "photos", "brand"],
 };
 
 export interface BrandState {
@@ -75,6 +81,7 @@ interface Draft {
   presenter: PresenterState;
   /** script-only / presenter reels: the draft project created before the photos step */
   scriptProjectId: string | null;
+  brief: BriefState;
   photos: PhotoItem[];
   style: StyleState;
   brand: BrandState;
@@ -88,6 +95,7 @@ export function Wizard({
   initialIndustry,
   initialSource,
   initialTitle,
+  initialKind,
   resumeProjectId,
   credits,
   maxSeconds,
@@ -103,6 +111,8 @@ export function Wizard({
   /** From the landing page's closing step: where the reel comes from, and its title. */
   initialSource?: string;
   initialTitle?: string;
+  /** From the landing page's brief films: the kind to start on. */
+  initialKind?: string;
   resumeProjectId?: string;
   credits: number;
   maxSeconds: number;
@@ -120,13 +130,16 @@ export function Wizard({
   const [consent, setConsent] = useState(false);
   const [draft, setDraft] = useState<Draft>({
     step: 0,
-    mode: (["take", "script", "reference", "presenter"] as SourceMode[]).find((m) => m === initialSource) ?? "take",
+    mode: (["take", "script", "reference", "presenter", "brief"] as SourceMode[]).find((m) => m === initialSource) ?? "take",
     upload: null,
     reference: null,
     fidelity: REFERENCE_FIDELITY,
     script: defaultScriptState,
     presenter: defaultPresenterState,
     scriptProjectId: null,
+    brief: briefKind(initialKind ?? "")
+      ? { ...defaultBriefState, kind: initialKind as BriefState["kind"], ...briefKind(initialKind ?? "")!.example }
+      : defaultBriefState,
     photos: [],
     style: {
       preset: initialStyle && /^[a-z-]+$/.test(initialStyle) ? initialStyle : defaultPresetId,
@@ -164,16 +177,18 @@ export function Wizard({
   const steps = PATHS[draft.mode];
   const stepId: StepId = steps[Math.min(draft.step, steps.length - 1)] ?? "source";
   const projectId =
-    draft.mode === "script" || draft.mode === "presenter"
+    draft.mode === "script" || draft.mode === "presenter" || draft.mode === "brief"
       ? draft.scriptProjectId
       : (draft.upload?.projectId ?? null);
   const scriptSeconds = estimateSpokenSeconds(
     draft.mode === "presenter" ? draft.presenter.text : draft.script.text,
   );
   const duration =
-    draft.mode === "script" || draft.mode === "presenter"
-      ? scriptSeconds || null
-      : (draft.upload?.durationSec ?? null);
+    draft.mode === "brief"
+      ? Math.min(briefKind(draft.brief.kind)?.maxSeconds ?? 30, maxSeconds)
+      : draft.mode === "script" || draft.mode === "presenter"
+        ? scriptSeconds || null
+        : (draft.upload?.durationSec ?? null);
   const cost = duration ? creditCost(Math.max(1, duration)) : 1;
   const tooLong = duration !== null && duration > maxSeconds;
   const canNext = useMemo(() => {
@@ -186,8 +201,9 @@ export function Wizard({
         (draft.mode !== "reference" || Boolean(draft.reference?.complete))
       );
     if (stepId === "script") return draft.script.text.trim().length >= 20 && !tooLong;
+    if (stepId === "brief") return briefReady(draft.brief);
     return true;
-  }, [stepId, draft.mode, draft.upload, draft.reference, draft.script.text, draft.presenter, tooLong, presenterEnabled]);
+  }, [stepId, draft.mode, draft.upload, draft.reference, draft.script.text, draft.presenter, draft.brief, tooLong, presenterEnabled]);
 
   const ensureDraftProject = async (): Promise<string | null> => {
     if (draft.scriptProjectId) return draft.scriptProjectId;
@@ -204,6 +220,18 @@ export function Wizard({
 
   const next = () => {
     setError(null);
+    if (stepId === "brief" && !draft.scriptProjectId) {
+      // the photos step uploads against a project: create the draft now
+      startTransition(async () => {
+        const res = await createDraftProject(draft.title || briefKind(draft.brief.kind)?.title || "Brief film");
+        if (!res.ok) {
+          setError(res.error);
+          return;
+        }
+        setDraft((d) => ({ ...d, scriptProjectId: res.projectId, step: d.step + 1 }));
+      });
+      return;
+    }
     if (stepId === "presenter" && !draft.scriptProjectId) {
       startTransition(async () => {
         const pid = await ensureDraftProject();
@@ -230,6 +258,42 @@ export function Wizard({
       return;
     }
     setDraft((d) => ({ ...d, step: d.step + 1 }));
+  };
+
+  const submitBrief = () => {
+    if (!draft.scriptProjectId) return;
+    setError(null);
+    const b = draft.brief;
+    const payload = {
+      projectId: draft.scriptProjectId,
+      title: draft.title,
+      kind: b.kind,
+      url: b.url || undefined,
+      recipe: b.recipe || undefined,
+      subject: b.subject || undefined,
+      a: b.a || undefined,
+      b: b.b || undefined,
+      winner: b.winner,
+      line: b.line || undefined,
+      end: b.end || undefined,
+      photos: draft.photos.map((p) => ({ assetId: p.assetId, label: p.label, sayWhen: p.sayWhen, crop: p.crop })),
+      options: { sfxIntensity: draft.style.sfxIntensity },
+      brand: draft.brand,
+      consent,
+    };
+    startTransition(async () => {
+      const res = await createBriefEdit(payload);
+      if (!res.ok) {
+        setError(res.error);
+        return;
+      }
+      try {
+        localStorage.removeItem(draftKey(res.projectId));
+      } catch {
+        /* ignore */
+      }
+      router.push(`/dashboard/p/${res.projectId}`);
+    });
   };
 
   const submitPresenter = () => {
@@ -272,6 +336,7 @@ export function Wizard({
   };
 
   const submit = () => {
+    if (draft.mode === "brief") return submitBrief();
     if (draft.mode === "presenter") return submitPresenter();
     if (draft.mode === "script") return submitScript();
     if (!draft.upload) return;
@@ -404,6 +469,9 @@ export function Wizard({
             onChange={(presenter) => setDraft((d) => ({ ...d, presenter }))}
             onNeedProject={ensureDraftProject}
           />
+        )}
+        {stepId === "brief" && (
+          <StepBrief value={draft.brief} onChange={(brief) => setDraft((d) => ({ ...d, brief }))} />
         )}
         {stepId === "script" && (
           <StepScript

@@ -135,6 +135,16 @@ export function elementZone(el: PlanElement): Rect | null {
       return { x: 0, y: el.top, w: STAGE_W, h: el.size * 1.2 };
     case "reveal":
       return { x: 0, y: el.top, w: STAGE_W, h: 250 + (el.devanagari ? 120 * 1.3 : 0) };
+    case "browserCard":
+      return { x: el.x, y: el.y, w: el.w, h: el.h + 56 };
+    case "pourGlass":
+      return { x: 0, y: el.top, w: STAGE_W, h: el.size + 60 };
+    case "fightHud":
+      return { x: 0, y: el.top, w: STAGE_W, h: 200 };
+    case "seasonWindow":
+      return { x: el.x, y: el.y, w: el.w, h: el.h };
+    case "noteMachine":
+      return { x: 0, y: el.top, w: STAGE_W, h: 1100 };
     default:
       return null;
   }
@@ -279,6 +289,44 @@ export function validatePlan(
   }
 
   // ── images exist ──
+  // ── brief-film elements: every inner timing (a pour, a hit, a note) inside the element's life ──
+  for (const el of plan.elements) {
+    const life = el.t1 - el.t0;
+    const offs: number[] =
+      el.type === "pourGlass"
+        ? [...el.layers.map((l) => l.at + l.dur), ...(el.garnish ? [el.garnish.at] : [])]
+        : el.type === "fightHud"
+          ? [...el.hits.map((h) => h.at), ...(el.koAt != null ? [el.koAt] : [])]
+          : el.type === "noteMachine"
+            ? [el.dropAt, ...el.notes.map((n) => n.at), ...el.drums]
+            : [];
+    const late = offs.filter((o) => o > life + 0.05);
+    if (late.length)
+      issues.push({
+        level: "error",
+        code: "inner-timing",
+        message: `${el.type} "${el.id}": ${late.length} inner time(s) fall after its end (${life.toFixed(2)} s after t0)`,
+        elementId: el.id,
+      });
+    if (el.type === "pourGlass") {
+      const total = el.layers.reduce((a, l) => a + l.fill, 0);
+      if (total > 1.0001)
+        issues.push({
+          level: "error",
+          code: "overfill",
+          message: `pourGlass "${el.id}": layers fill ${(total * 100).toFixed(0)}% of the glass (max 100%)`,
+          elementId: el.id,
+        });
+    }
+    if (el.type === "noteMachine" && el.notes.some((n) => n.at < el.dropAt))
+      issues.push({
+        level: "error",
+        code: "note-before-drop",
+        message: `noteMachine "${el.id}": a note plays before the ball drops`,
+        elementId: el.id,
+      });
+  }
+
   if (opts.imageIds) {
     const have = new Set(opts.imageIds);
     const check = (id: string | undefined, el: PlanElement) => {
@@ -400,15 +448,18 @@ export function validatePlan(
   const DARK_SWAP: Record<string, ColorToken> = { mar: "iv", ter: "gold", goldd: "gold" };
   const LIGHT_SWAP: Record<string, ColorToken> = { iv: "mar", gold: "ter" };
   const stageDark = hexLuma(plan.style.palette.stage) < 0.5;
+  // with no speaker (script-only and brief films) there is no wall: the stage plate is behind
+  // every line in every mode, so its own lightness decides
+  const faceless = plan.meta.faceless === true;
   for (const el of plan.elements) {
     if (el.type !== "posterText") continue;
     const framed = DARK_MODES.has(modeAt(plan, el.t0 + 0.05));
-    const dark = framed && stageDark;
+    const dark = faceless ? stageDark : framed && stageDark;
     for (const line of el.lines) {
       if (!line.color) continue;
       const swap = dark
         ? DARK_SWAP[line.color]
-        : el.anim === "rise" || (framed && !stageDark)
+        : faceless || el.anim === "rise" || (framed && !stageDark)
           ? LIGHT_SWAP[line.color]
           : undefined;
       if (swap) {

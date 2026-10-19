@@ -72,6 +72,8 @@ class PlannerInput:
     )  # captions / sfxIntensity / music / language
     # the wall behind the speaker is dark → ivory/gold tokens even in full/zoom modes
     wall_is_dark: bool = False
+    # "Match a reference": frames of the reel whose look this edit must copy
+    reference_stills: list[Path] = field(default_factory=list)
 
 
 @dataclass
@@ -104,7 +106,16 @@ def _b64_image(path: Path, max_bytes: int = 1_500_000) -> dict[str, Any]:
             data = buf.getvalue()
         except Exception:  # pragma: no cover
             pass
-    mt = "image/png" if path.suffix.lower() == ".png" else "image/jpeg"
+    # the bytes decide the type: a large PNG re-encoded above is JPEG now, whatever its name says
+    mt = (
+        "image/png"
+        if data[:4] == b"\x89PNG"
+        else "image/webp"
+        if data[:4] == b"RIFF" and data[8:12] == b"WEBP"
+        else "image/gif"
+        if data[:6] in (b"GIF87a", b"GIF89a")
+        else "image/jpeg"
+    )
     return {
         "type": "image",
         "source": {"type": "base64", "media_type": mt, "data": base64.b64encode(data).decode()},
@@ -193,6 +204,9 @@ class Planner:
         parts.append({"type": "text", "text": motion_brief(inp.style, motion)})
         if inp.options.get("broll"):
             parts.append({"type": "text", "text": BROLL_BRIEF})
+        fb = film_brief(inp.options)
+        if fb:
+            parts.append({"type": "text", "text": fb})
         if inp.options.get("faceless"):
             stage = str((inp.style.get("palette") or {}).get("stage") or "#000000")
             tokens = "`iv` / `gold`" if hex_luma(stage) < 0.5 else "`mar` / `ter` / `goldd`"
@@ -241,6 +255,10 @@ class Planner:
             )
             for kf in inp.keyframes[:6]:
                 parts.append(_b64_image(kf))
+        if inp.reference_stills:
+            parts.append({"type": "text", "text": REFERENCE_FRAMES_BRIEF.format(n=len(inp.reference_stills[:4]))})
+            for still in inp.reference_stills[:4]:
+                parts.append(_b64_image(still))
         if inp.images:
             parts.append(
                 {
@@ -505,6 +523,82 @@ class Planner:
         return plan
 
 
+
+FILM_COMMON = """## This is a brief film (kind: {kind})
+
+There is no speaker: the whole 1080×1920 frame is yours, in `full` mode throughout. The transcript
+is the film's on-screen script{spoken} — design the film from it and from the data below, which the
+writer produced from the user's brief. Use the data verbatim (names, measures, colours, hits).
+
+### The film's data
+{data}
+"""
+
+FILM_KINDS = {
+    "launch": """### Kind: SaaS launch film
+- Open on the product name as huge poster type (200–300 px), one line, centred, with the tagline under it.
+- Each feature gets ~4–6 s: a `browserCard` holding the screenshot whose label the feature's `shot` names
+  (use that image's id; `url` = the product's host; scroll 0.25–0.6; tilt −4…4; vary x/y/w between
+  features), with the feature title as poster type (120–180 px) and its benefit line beside or under it.
+- Use the "Phone view" screenshot once as a tilted `imageCard` beside a browser window.
+- A `chips` row of 2–3 short benefits once; a quick montage of 2–3 screens near the end (short windows).
+- Close on the name again and the call to action, large. Something moves every 1.5–2.5 s.""",
+    "showreel": """### Kind: 15-second motion showreel
+- More motion than words: poster slams of 1–3 words (220–320 px) on the beat, every ~1 s.
+- Two or three `browserCard`s of the real screenshots flying through at bold tilts (±8°), overlapping
+  briefly with the type; one big reveal of the name (`reveal`) in the last 3 s.""",
+    "app": """### Kind: Apple-style app film
+- One idea per beat, generous empty space: a single sentence-case poster line (90–140 px) per beat,
+  centred around y 300–420, nothing else beside it.
+- The real screens presented calmly: a `browserCard` (scroll 0.1–0.25, tilt 0) or the "Phone view" as an
+  `imageCard` with no tilt, centred, below the line. Slow; ≥ 2.5 s per beat.
+- Final beat: the product name alone, large, centred.""",
+    "recipe": """### Kind: recipe explainer
+- ONE `pourGlass` carries the film: t0 just before the first ingredient's line, t1 = the end. Its
+  `layers` are the data's layers in order (name, amount, color, fill as given); each layer's `at` is the
+  start of the line that names that ingredient, minus the glass's t0; `dur` 1.0–1.6. `garnish` from the
+  data, `at` on its line. `glass` and `ice` from the data. Centre it (cx 540–600, top 560–700, size 700–820).
+- The drink's name as poster type at the top (y 170–300) from the start; the method steps as `chips`
+  near the end (top left, above the glass). Keep text clear of the glass and its labels (they sit to
+  its right). The glass's labels already show every measure: no `counter`s for the measures, and
+  no poster line that repeats a measure; use poster lines for the drink's name and the method.""",
+    "versus": """### Kind: versus, a comic fight
+- ONE `fightHud` from ~0.3 s to the end: `a`/`b` (names, colours) and `winner` from the data. Its `hits`
+  are the data's moves in order, each `at` on the narration word where that move lands (minus the HUD's
+  t0), `dmg` and `word` from the data; `koAt` on the KO line. The loser's total damage reaches 100.
+- A `chapterCard` for each round title, briefly, when the narrator announces it (keep it under the HUD,
+  y ≥ 380).
+- Each special move's name as poster type (2–4 words, 140–220 px) in the middle of the frame
+  (y 700–1150) as it lands; never over the HUD (y 150–400). Captions stay on (the narration).""",
+    "machine": """### Kind: music machine
+- 0 s → the drop (the second line's first word, ~12 s): NO SOUND. The user's line types itself out as
+  poster type (posterText, `anim` "rise", 150–220 px, y 300–520, no `accent`) and holds ~3 s.
+- A `noteMachine` from just after the line (t0 ≈ 3.5 s) to ~1 s before the closing words: its pieces
+  assemble until the ball waits at the top; `dropAt` = the drop time minus its t0. Then a catchy
+  4-second phrase: `notes` from the data's degrees, at offsets on a 0.25 s grid between dropAt and
+  dropAt + 4 (a rhythm, not even spacing); `drums` on every beat (0.5 s) from dropAt.
+- The closing words as poster type (220–320 px, `anim` "pop", `accent` "sub"), centred, at the third
+  line, held to the end. After that: silence. Nothing else; no chips, no cards, no counters.""",
+    "journey": """### Kind: storybook journey
+- ONE `seasonWindow` for the whole film (t0 ~0.3 s → the end): `seasons`, `shape` (= the data's frame) and
+  `cup` from the data; centred (x 140, w 800, y 420–520, h 900–1000).
+- A `chapterCard` at each season change with the data's chapter titles (they sit above the window).
+- The deadpan lines as small, centred, symmetrical poster type in the accent face (serif, 54–76 px)
+  at the top (y 160–330), one at a time. Symmetry everywhere: centred, nothing tilted.""",
+}
+
+
+def film_brief(options: dict[str, Any]) -> str | None:
+    """The brief film's direction for the planner (None for an ordinary edit)."""
+    film = options.get("film")
+    brief = options.get("brief") or {}
+    kind = str(brief.get("kind") or "")
+    if not isinstance(film, dict) or kind not in FILM_KINDS:
+        return None
+    spoken = " (spoken by the narrator)" if film.get("narration") else " (nobody speaks; the lines appear on screen)"
+    data = json.dumps(film.get("data") or {}, ensure_ascii=False)
+    return FILM_COMMON.format(kind=kind, spoken=spoken, data=data) + "\n" + FILM_KINDS[kind]
+
 BROLL_BRIEF = """## Stock B-roll (this edit asked for it)
 
 The user wants stock footage cut into the reel. Add `broll` elements: a cutaway to a portrait stock
@@ -540,6 +634,27 @@ def sentence_case(text: str) -> str:
         return text
     low = text.lower()
     return low[0].upper() + low[1:]
+
+
+REFERENCE_FRAMES_BRIEF = """## The reference reel the user wants copied ({n} frames)
+
+The user uploaded this reel as THE look of their edit and picked no other style. The finished reel
+must look like these frames: someone who saw both should say "same editor". Copy, measuring
+against the 1080 px frame width:
+- **Poster type scale and weight.** If the reference sets one or two words huge (a third of the
+  width or more), set them huge too: `size` 160–320 on the key word. Do not shrink the reference's
+  type into small top-of-frame lines.
+- **The mix of faces** (e.g. condensed caps for the key word with serif-italic asides beside it;
+  the style tokens name the fonts) and **the colours** each one takes.
+- **Placement**: where the type sits relative to the person (over the wall beside the head, across
+  the frame, low), its alignment, and how many lines.
+- **Graphic furniture** you can build from the elements: stickers (`chips`), small cards, counters,
+  progress bars, cut-out photo cards when the user has photos.
+- **Caption treatment**: size, case, colour and position as in the frames.
+- **Framing**: if the speaker fills the frame edge to edge in the reference, stay in `full` /
+  `zoom`; if the reference frames them in windows, use `card` / `pip`.
+Never copy the reference's words, logos, people or footage: the speaker and the transcript are the
+user's own."""
 
 
 def keep_full_bleed(modes: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -655,7 +770,13 @@ class ChromiumValidator:
                     f'@font-face{{font-family:"Tiro";src:url("{u}/TiroDevanagariHindi.ttf")}}'
                 )
             html = f"<!doctype html><html><head><style>{css}</style></head><body></body></html>"
-            self._page.set_content(html)
+            # a page opened from disk may load the font files beside it; an in-memory page may not
+            # (fonts would silently fall back and every width would be measured in the wrong face)
+            import tempfile
+
+            page_file = Path(tempfile.mkdtemp(prefix="rasika-validate-")) / "validate.html"
+            page_file.write_text(html, encoding="utf-8")
+            self._page.goto(page_file.as_uri())
             self._page.add_script_tag(path=str(self.bundle))
             self._page.evaluate(
                 "async () => { for (const f of ['400 100px Anton','800 50px Inter','italic 100px Serif','100px Tiro']) { try { await document.fonts.load(f) } catch (e) {} } }"
@@ -666,13 +787,35 @@ class ChromiumValidator:
         self, plan: dict[str, Any], words: list[dict[str, Any]], image_ids: list[str]
     ) -> dict[str, Any]:
         page = self._ensure()
+        base = self.fonts.resolve().as_uri() if self.fonts.exists() else ""
         result = page.evaluate(
-            """([plan, words, imageIds]) => {
+            """async ([plan, words, imageIds, base]) => {
               const E = window.RasikaEngine;
-              const r = E.validatePlan(plan, words, { imageIds, measureText: E.measureTextCanvas() });
+              // measure with the style's own faces (a wide grotesk overflows where Anton fits)
+              const f = (plan && plan.style && plan.style.fonts) || {};
+              let fonts;
+              if (base && E.fontsForStyle && f.poster) {
+                const fams = E.fontsForStyle(f);
+                window.__loadedFonts = window.__loadedFonts || new Set();
+                const fresh = fams.filter((x) => !window.__loadedFonts.has(x));
+                if (fresh.length) {
+                  const st = document.createElement("style");
+                  st.textContent = E.fontFaceCss(base, fresh);
+                  document.head.appendChild(st);
+                  for (const fam of fresh) {
+                    try { await document.fonts.load(E.fontLoadDescriptor(fam)); } catch (e) {}
+                    window.__loadedFonts.add(fam);
+                  }
+                }
+                fonts = {
+                  poster: E.fontFamily(f.poster), accent: E.fontFamily(f.accent || "Instrument Serif"),
+                  ui: E.fontFamily(f.ui || "Inter"), devanagari: E.fontFamily(f.devanagari || "Tiro Devanagari Hindi"),
+                };
+              }
+              const r = E.validatePlan(plan, words, { imageIds, measureText: E.measureTextCanvas(fonts) });
               return { ok: r.ok, plan: r.plan, issues: r.issues };
             }""",
-            [plan, words, image_ids],
+            [plan, words, image_ids, base],
         )
         return dict(result)
 

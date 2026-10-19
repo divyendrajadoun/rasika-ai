@@ -1,0 +1,290 @@
+{
+ "version": 1,
+ "meta": {
+  "durationSec": 12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "language": "en"
+ },
+ "style": {
+  "id": "punchy-fun",
+  "name": "Punchy Fun",
+  "tagline": "A raw talking-head clip cut punchy and fun: bold subtitles, stickers, sound on every beat.",
+  "palette": {
+   "stage": "#101010",
+   "mar": "#2a2a2a",
+   "ter": "#ff5a1f",
+   "gold": "#ffe14d",
+   "goldd": "#e8c400",
+   "iv": "#ffffff",
+   "ink": "#050505"
+  },
+  "fonts": {
+   "poster": "Montserrat",
+   "accent": "Instrument Serif",
+   "ui": "Montserrat",
+   "devanagari": "Tiro Devanagari Hindi",
+   "caption": "Montserrat"
+  },
+  "grain": 0,
+  "pace": 0.9,
+  "captionStyle": "box",
+  "captionAccent": "gold",
+  "captionSize": 70,
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+   "chips",
+   "stamp",
+   "counter",
+   "posterText",
+   "imageCard"
+  ],
+  "motion": {
+   "family": "hype",
+   "caseStyle": "upper",
+   "enter": "pop",
+   "exit": "cut",
+   "easing": "spring",
+   "speed": 0.8,
+   "camera": "push",
+   "sfxKit": "hype",
+   "texture": "none",
+   "direction": "Punchy and fun: boxed word-by-word subtitles with the spoken word lit yellow, punch-in zooms on every joke or key point, stickers (chips) and stamps for reactions, a counter for any number, short poster slams on the hook and the payoff, a sound on every visual beat. Something new every 1.5–2 s.",
+   "avoidElements": [
+    "lockCard",
+    "patternCard",
+    "filmStrip",
+    "equation"
+   ],
+   "framing": "any"
+  }
+ },
+ "subject": {
+  "faceBox": {
+   "x": 162,
+   "y": 619,
+   "w": 639,
+   "h": 774
+  },
+  "freeZone": {
+   "x": 0,
+   "y": 150,
+   "w": 1080,
+   "h": 429
+  },
+  "prop": {
+   "label": "prop",
+   "point": {
+    "x": 449,
+    "y": 1509
+   }
+  }
+ },
+ "videoModes": [
+  {
+   "t": 0,
+   "mode": "full"
+  },
+  {
+   "t": 2.78,
+   "mode": "card"
+  },
+  {
+   "t": 6,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 481,
+    "y": 1000
+   },
+   "zoomScale": 1.6
+  },
+  {
+   "t": 7.85,
+   "mode": "full"
+  },
+  {
+   "t": 8.85,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 481,
+    "y": 1000
+   },
+   "zoomScale": 1.5
+  },
+  {
+   "t": 10.55,
+   "mode": "arch"
+  }
+ ],
+ "captions": {
+  "enabled": true,
+  "y": 1400,
+  "gold": [
+   "taste",
+   "knew",
+   "honestly",
+   "ours"
+  ],
+  "accent": [
+   "jewellery",
+   "2000",
+   "india",
+   "word"
+  ]
+ },
+ "elements": [
+  {
+   "id": "hook",
+   "t0": 0.22,
+   "t1": 1.55,
+   "anchorWordIndex": 0,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "HOW DO YOU KNOW",
+     "font": "anton",
+     "size": 90,
+     "color": "mar"
+    },
+    {
+     "text": "YOUR TASTE?",
+     "font": "anton",
+     "size": 149,
+     "color": "ter"
+    }
+   ],
+   "top": 230,
+   "anim": "pop"
+  },
+  {
+   "id": "jwl",
+   "t0": 1.6,
+   "t1": 2.78,
+   "anchorWordIndex": 8,
+   "type": "splitCards",
+   "cards": [
+    {
+     "imageId": "i1",
+     "label": "JEWELLERY",
+     "x": 50,
+     "y": 170,
+     "w": 420,
+     "h": 420,
+     "tilt": -6,
+     "objectPosition": "50% 30%"
+    },
+    {
+     "imageId": "i2",
+     "label": "JEWELLERY",
+     "x": 600,
+     "y": 180,
+     "w": 420,
+     "h": 420,
+     "tilt": 6,
+     "objectPosition": "50% 35%"
+    }
+   ],
+   "stagger": 0.15
+  },
+  {
+   "id": "yrs",
+   "t0": 2.84,
+   "t1": 3.88,
+   "anchorWordIndex": 11,
+   "type": "counter",
+   "from": 0,
+   "to": 2000,
+   "label": "YEARS AGO",
+   "top": 220,
+   "size": 240,
+   "duration": 0.6,
+   "color": "gold"
+  },
+  {
+   "id": "india",
+   "t0": 3.9,
+   "t1": 6,
+   "anchorWordIndex": 14,
+   "type": "chips",
+   "items": [
+    {
+     "text": "INDIA",
+     "at": 0,
+     "bg": "gold",
+     "color": "ink"
+    },
+    {
+     "text": "HAD A WORD",
+     "at": 0.84,
+     "bg": "gold",
+     "color": "ink"
+    },
+    {
+     "text": "FOR PEOPLE WHO KNEW",
+     "at": 1.76,
+     "bg": "ter",
+     "color": "iv"
+    }
+   ],
+   "x": 70,
+   "y": 200,
+   "size": 68
+  },
+  {
+   "id": "wait",
+   "t0": 6.06,
+   "t1": 7.6,
+   "anchorWordIndex": 23,
+   "type": "stamp",
+   "text": "WAIT FOR IT"
+  },
+  {
+   "id": "hon",
+   "t0": 7.94,
+   "t1": 8.85,
+   "anchorWordIndex": 33,
+   "type": "stamp",
+   "text": "HONESTLY?"
+  },
+  {
+   "id": "tst",
+   "t0": 9.52,
+   "t1": 10.55,
+   "anchorWordIndex": 37,
+   "type": "imageCard",
+   "imageId": "i3",
+   "label": "JEWELLERY",
+   "x": 590,
+   "y": 170,
+   "w": 430,
+   "h": 400,
+   "tilt": 6,
+   "objectPosition": "60% 60%"
+  }
+ ],
+ "sfx": {
+  "auto": true,
+  "intensity": 0.8,
+  "extra": [
+   {
+    "t": 9.2,
+    "type": "riser",
+    "dur": 1.35,
+    "gain": 0.7
+   },
+   {
+    "t": 10.6,
+    "type": "impact",
+    "gain": 0.9
+   }
+  ]
+ },
+ "endCard": {
+  "brand": "YOUR TASTE",
+  "line1": "Most of our taste today",
+  "line2": "truly isn't ours.",
+  "t0": 10.55
+ }
+}

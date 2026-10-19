@@ -216,6 +216,164 @@ class PlanElement1(BaseModel):
     source: Source | None = None
 
 
+class PlanElement2(BaseModel):
+    id: str = Field(..., max_length=64, min_length=1)
+    t0: float = Field(..., ge=0.0, le=600.0)
+    t1: float = Field(..., ge=0.0, le=600.0)
+    anchorWordIndex: int | None = Field(None, ge=0, le=9007199254740991)
+    type: Literal["browserCard"]
+    imageId: str = Field(..., max_length=64, min_length=1)
+    url: str = Field(
+        ..., description="shown in the address bar, e.g. linear.app", max_length=80, min_length=1
+    )
+    x: float | None = Field(60, ge=-4000.0, le=4000.0)
+    y: float | None = Field(420, ge=-4000.0, le=4000.0)
+    w: float | None = Field(960, ge=300.0, le=1080.0)
+    h: float | None = Field(720, ge=240.0, le=1700.0)
+    scroll: float | None = Field(0.35, ge=0.0, le=1.0)
+    tilt: float | None = Field(0, ge=-12.0, le=12.0)
+
+
+class Glass(StrEnum):
+    rocks = "rocks"
+    highball = "highball"
+    coupe = "coupe"
+    martini = "martini"
+    wine = "wine"
+    mug = "mug"
+
+
+class Layer(BaseModel):
+    name: str = Field(..., max_length=28, min_length=1)
+    amount: str = Field(
+        ...,
+        description='the measure as written, e.g. "45 ml", "2 dashes"',
+        max_length=16,
+        min_length=1,
+    )
+    color: str = Field(
+        ...,
+        description="a real colour (#rrggbb), for things that have one: a liquid, a fighter's corner",
+        pattern="^#[0-9a-fA-F]{6}$",
+    )
+    fill: float = Field(..., ge=0.01, le=1.0)
+    at: float = Field(..., description="seconds after t0 the pour starts", ge=0.0)
+    dur: float | None = Field(1.2, ge=0.3, le=6.0)
+
+
+class Kind(StrEnum):
+    citrus = "citrus"
+    cherry = "cherry"
+    leaf = "leaf"
+    olive = "olive"
+    peel = "peel"
+
+
+class Garnish(BaseModel):
+    name: str = Field(..., max_length=24, min_length=1)
+    kind: Kind
+    at: float = Field(..., ge=0.0)
+
+
+class PlanElement3(BaseModel):
+    id: str = Field(..., max_length=64, min_length=1)
+    t0: float = Field(..., ge=0.0, le=600.0)
+    t1: float = Field(..., ge=0.0, le=600.0)
+    anchorWordIndex: int | None = Field(None, ge=0, le=9007199254740991)
+    type: Literal["pourGlass"]
+    glass: Glass | None = "rocks"
+    cx: float | None = Field(540, ge=-4000.0, le=4000.0)
+    top: float | None = Field(520, ge=-4000.0, le=4000.0)
+    size: int | None = Field(760, description="height of the glass in px", ge=300, le=1100)
+    ice: bool | None = False
+    layers: list[Layer] = Field(..., max_length=8, min_length=1)
+    garnish: Garnish | None = None
+
+
+class A(BaseModel):
+    name: str = Field(..., max_length=20, min_length=1)
+    color: str | None = Field(
+        "#e2403a",
+        description="a real colour (#rrggbb), for things that have one: a liquid, a fighter's corner",
+        pattern="^#[0-9a-fA-F]{6}$",
+    )
+
+
+class B(BaseModel):
+    name: str = Field(..., max_length=20, min_length=1)
+    color: str | None = Field(
+        "#2f6fe0",
+        description="a real colour (#rrggbb), for things that have one: a liquid, a fighter's corner",
+        pattern="^#[0-9a-fA-F]{6}$",
+    )
+
+
+class By(StrEnum):
+    a = "a"
+    b = "b"
+
+
+class Hit(BaseModel):
+    at: float = Field(..., ge=0.0)
+    by: By
+    dmg: float = Field(..., ge=1.0, le=100.0)
+    word: str | None = Field("POW!", max_length=14, min_length=1)
+
+
+class Winner(StrEnum):
+    a = "a"
+    b = "b"
+
+
+class PlanElement4(BaseModel):
+    id: str = Field(..., max_length=64, min_length=1)
+    t0: float = Field(..., ge=0.0, le=600.0)
+    t1: float = Field(..., ge=0.0, le=600.0)
+    anchorWordIndex: int | None = Field(None, ge=0, le=9007199254740991)
+    type: Literal["fightHud"]
+    a: A
+    b: B
+    top: float | None = Field(150, ge=-4000.0, le=4000.0)
+    hits: list[Hit] = Field(..., max_length=24, min_length=1)
+    koAt: float | None = Field(
+        None, description="seconds after t0; the loser's bar is empty by then", ge=0.0
+    )
+    winner: Winner
+
+
+class Season(StrEnum):
+    spring = "spring"
+    summer = "summer"
+    autumn = "autumn"
+    winter = "winter"
+
+
+class Shape(StrEnum):
+    arch = "arch"
+    rect = "rect"
+
+
+class Note(BaseModel):
+    at: float = Field(..., ge=0.0)
+    key: int = Field(..., ge=0, le=7)
+
+
+class Drum(RootModel[float]):
+    root: float = Field(..., ge=0.0)
+
+
+class PlanElement6(BaseModel):
+    id: str = Field(..., max_length=64, min_length=1)
+    t0: float = Field(..., ge=0.0, le=600.0)
+    t1: float = Field(..., ge=0.0, le=600.0)
+    anchorWordIndex: int | None = Field(None, ge=0, le=9007199254740991)
+    type: Literal["noteMachine"]
+    top: float | None = Field(420, ge=-4000.0, le=4000.0)
+    dropAt: float = Field(..., ge=0.0)
+    notes: list[Note] = Field(..., max_length=40, min_length=1)
+    drums: list[Drum] | None = Field([], max_length=40, validate_default=True)
+
+
 class Anim(StrEnum):
     rise = "rise"
     pop = "pop"
@@ -502,6 +660,8 @@ class SfxType(StrEnum):
     impact = "impact"
     riser = "riser"
     sub = "sub"
+    note = "note"
+    pour = "pour"
 
 
 class EndCard(BaseModel):
@@ -562,6 +722,22 @@ class VideoMode(BaseModel):
     zoomScale: float | None = Field(None, ge=1.2, le=3.5)
 
 
+class PlanElement5(BaseModel):
+    id: str = Field(..., max_length=64, min_length=1)
+    t0: float = Field(..., ge=0.0, le=600.0)
+    t1: float = Field(..., ge=0.0, le=600.0)
+    anchorWordIndex: int | None = Field(None, ge=0, le=9007199254740991)
+    type: Literal["seasonWindow"]
+    seasons: list[Season] = Field(..., max_length=4, min_length=1)
+    x: float | None = Field(140, ge=-4000.0, le=4000.0)
+    y: float | None = Field(360, ge=-4000.0, le=4000.0)
+    w: float | None = Field(800, ge=300.0, le=1080.0)
+    h: float | None = Field(980, ge=300.0, le=1700.0)
+    shape: Shape | None = "arch"
+    frame: ColorToken | None = "goldd"
+    cup: bool | None = True
+
+
 class TextLine(BaseModel):
     text: str = Field(..., max_length=80, min_length=1)
     font: TextFont
@@ -604,6 +780,7 @@ class SfxCue(BaseModel):
     gain: float | None = Field(0.8, ge=0.0, le=1.5)
     repeat: int | None = Field(None, ge=1, le=40)
     every: float | None = Field(None, ge=0.03, le=2.0)
+    pitch: int | None = Field(None, description="semitones above C5, for `note`", ge=-12, le=24)
 
 
 class Transcript(BaseModel):
@@ -657,6 +834,11 @@ class Plan(BaseModel):
         | Reveal
         | StrikeLine
         | Chips
+        | PlanElement2
+        | PlanElement3
+        | PlanElement4
+        | PlanElement5
+        | PlanElement6
     ]
     sfx: Sfx
     endCard: EndCard | None = None

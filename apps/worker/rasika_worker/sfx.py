@@ -256,6 +256,43 @@ def boom(d=None, seed=17):
 
 # ── kits: cue type → (generator, gain) ──
 
+# ── tonal and liquid cues (brief films): the same in every kit ──
+
+
+def note(pitch=0, seed=19):
+    """A marimba-like struck note: `pitch` semitones above C5. The music machine's keys play these."""
+    n, t = _t(1.1)
+    f = 523.25 * 2 ** (pitch / 12)
+    body = (
+        np.sin(2 * np.pi * f * t) * np.exp(-t * 4.2)
+        + 0.32 * np.sin(2 * np.pi * f * 4.0 * t) * np.exp(-t * 14)
+        + 0.12 * np.sin(2 * np.pi * f * 9.9 * t) * np.exp(-t * 40)
+    )
+    attack = np.clip(t / 0.002, 0, 1)
+    knock = noise(n, seed) * np.exp(-t * 300) * 0.08
+    return (body * attack + knock) * 0.9
+
+
+def pour(d=1.2, seed=20):
+    """Liquid pouring into a glass: band-limited rush with bubbling, swelling in and settling."""
+    n, t = _t(d + 0.25)
+    rush = highpass(lowpass(noise(n, seed), 6), 70) * 0.5
+    rng = np.random.default_rng(seed)
+    bubbles = np.zeros(n)
+    for _ in range(int(14 * d)):
+        at = int(rng.uniform(0, d) * SR)
+        f0 = rng.uniform(500, 1400)
+        m, tt = _t(0.05)
+        b = np.sin(2 * np.pi * (f0 + 3000 * tt) * tt) * np.exp(-tt * 70)
+        e = min(n, at + m)
+        bubbles[at:e] += b[: e - at] * 0.35
+    shape = np.clip(t / 0.12, 0, 1) * np.clip((d + 0.25 - t) / 0.3, 0, 1)
+    return (rush + bubbles) * shape
+
+
+#: cue types every kit plays the same way (except the silent kit)
+UNIVERSAL = {"note": (note, 1.0), "pour": (pour, 0.9)}
+
 KITS = {
     "pop": {
         "whoosh": (whoosh, 1.0),
@@ -317,7 +354,7 @@ KITS = {
 CENTRED = {whoosh, air, scribble, zap, swell}
 LEADING = {riser, shimmer}
 # the engine's cue types that carry a `dur`
-TAKES_DUR = {whoosh, riser, glitch, air, swell, scribble, drop, zap, shimmer}
+TAKES_DUR = {whoosh, riser, glitch, air, swell, scribble, drop, zap, shimmer, pour}
 
 GEN = {k: v[0] for k, v in KITS["pop"].items()}  # back-compat for callers of the old table
 
@@ -357,13 +394,15 @@ def build(spec):
         pad = (np.sin(2 * np.pi * 55 * t) + 0.5 * np.sin(2 * np.pi * 82.4 * t)) * 0.06 * g
         mix += pad
     for i, c in enumerate(spec.get("cues", [])):
-        entry = kit.get(c["type"])
+        entry = kit.get(c["type"]) or (UNIVERSAL.get(c["type"]) if kit else None)
         if entry is None:
             continue
         fn, kit_gain = entry
         kw = {"seed": 100 + i}
         if "dur" in c and fn in TAKES_DUR:
             kw["d"] = c["dur"]
+        if fn is note:
+            kw["pitch"] = int(c.get("pitch", 0))
         x = fn(**kw)
         rep = c.get("repeat", 1)
         every = c.get("every", 0.5)

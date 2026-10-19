@@ -84,8 +84,8 @@ export function StepPresenter({
   return (
     <div className="space-y-6">
       <p className="text-muted">
-        A script and one face become a presenter video, rendered by HeyGen, then edited like any
-        take. This spends HeyGen credits from your wallet.
+        A script and one face become a presenter video, then edited like any take. Rendering the
+        presenter uses avatar credits from your account.
       </p>
 
       <label className="block">
@@ -117,7 +117,7 @@ export function StepPresenter({
           >
             <span className="block font-semibold">Your photo</span>
             <span className="text-muted-foreground block text-[13px]">
-              One clear, front-facing portrait of an adult you have the rights to. HeyGen animates
+              One clear, front-facing portrait of an adult you have the rights to. We animate
               the face and lip-syncs the script.
             </span>
             {value.kind === "photo" && (
@@ -158,7 +158,7 @@ export function StepPresenter({
           >
             <span className="block font-semibold">A stock presenter</span>
             <span className="text-muted-foreground block text-[13px]">
-              One of HeyGen&apos;s licensed photo avatars. No upload, no rights to clear.
+              One of our licensed photo avatars. No upload, no rights to clear.
             </span>
           </button>
         </div>
@@ -208,7 +208,7 @@ export function StepPresenter({
               ))}
             </optgroup>
           )}
-          <optgroup label="HeyGen voices">
+          <optgroup label="Presenter voices">
             {publicVoices.map((v) => (
               <option key={v.id} value={v.id}>
                 {v.name} · {v.language} · {v.gender}
@@ -229,7 +229,7 @@ export function StepPresenter({
         </label>
         <label className="flex items-start gap-2">
           <input type="checkbox" className="mt-1 size-4 accent-[var(--ter)]" checked={value.upload} onChange={(e) => set({ upload: e.target.checked })} />
-          <span>The photo and script may be sent to HeyGen to render the video.</span>
+          <span>The photo and script are sent to our avatar provider to render the video.</span>
         </label>
       </div>
     </div>

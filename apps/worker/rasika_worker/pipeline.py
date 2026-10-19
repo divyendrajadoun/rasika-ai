@@ -63,6 +63,7 @@ class Pipeline:
             JobType.PRESENTER: self.presenter,
             JobType.PROBE: self.probe,
             JobType.ANALYSE_REFERENCE: self.analyse_reference,
+            JobType.COMPOSE: self.compose,
             JobType.TRANSCRIBE: self.transcribe,
             JobType.PLAN: self.plan,
             JobType.RENDER_PREVIEW: lambda j, p: self.render(j, p, preview=True),
@@ -199,6 +200,127 @@ class Pipeline:
             },
         )
 
+    # ── brief-driven films: materials → script → narration or score → stage clip → probe ──
+    def compose(self, job: JobMessage, pub: Publisher) -> None:
+        from rasika_worker import brief as film_brief
+        from rasika_worker import music as score
+        from rasika_worker.tts import VOICES, DeepgramTTS
+
+        pub.update(JobStatus.PROBING, 1, "Reading your brief…")
+        work = self.work(job.project_id)
+        project = self.repo.project(job.project_id)
+        if not project:
+            raise PipelineError("Project not found.")
+        opts = dict(project.get("style_options") or {})
+        b = dict(opts.get("brief") or {})
+        kind_id = str(b.get("kind") or "")
+        if kind_id not in film_brief.KINDS:
+            raise PipelineError("This brief is missing its kind of film.")
+        kind = film_brief.KINDS[kind_id]
+        max_dur = float(str(job.payload.get("max_duration_sec") or MAX_DURATION_DEFAULT))
+        narrate = bool(b.get("narrate", kind["narrate"]))
+        timings: dict[str, float] = {}
+
+        capture = None
+        if "url" in kind["needs"]:
+            pub.update(JobStatus.PROBING, 4, "Visiting " + str(b.get("url") or "the site") + "…")
+            t0 = time.time()
+            try:
+                capture = film_brief.capture_site(str(b.get("url") or ""), work / "site")
+            except film_brief.UnsafeUrlError as exc:
+                raise PipelineError(str(exc)) from exc
+            except Exception as exc:
+                raise PipelineError(f"Could not open the website: {exc}") from exc
+            timings["site_sec"] = round(time.time() - t0, 2)
+            prefix = project_prefix(job.user_id, job.project_id)
+            for i, (label, path) in enumerate(capture.shots):
+                self.upload_asset(
+                    job,
+                    "image",
+                    path,
+                    f"{prefix}/img/{path.name}",
+                    {"label": label, "sayWhen": "", "order": 100 + i, "source": "site", "url": capture.url},
+                    replace=False,
+                )
+            pub.update(JobStatus.PROBING, 18, f"Captured {len(capture.shots)} screens of {capture.host}.", **timings)
+
+        pub.update(JobStatus.PROBING, 22, "Writing the film…", **timings)
+        t0 = time.time()
+        inputs = {k: v for k, v in b.items() if k not in ("kind", "narrate", "voice")}
+        try:
+            film, usage = film_brief.write(
+                self.anthropic(), self.s.anthropic_planner_model, kind_id, inputs, capture, narrate, max_dur
+            )
+        except Exception as exc:
+            raise PipelineError(f"Could not write the film: {exc}") from exc
+        timings["write_sec"] = round(time.time() - t0, 2)
+        timings["write_input_tokens"] = float(usage["input_tokens"])
+        timings["write_output_tokens"] = float(usage["output_tokens"])
+        self.repo.audit(
+            job.user_id, "brief_written", "project", job.project_id, {"kind": kind_id, "usage": usage, "film": film}
+        )
+
+        mood = str(film["music"]["mood"])
+        bpm = film["music"].get("bpm")
+        voice = work / "narration.wav"
+        unspoken: list[dict[str, Any]] | None = None
+        music_bed: dict[str, Any] | None = None
+        if narrate and film.get("narration"):
+            if not self.s.deepgram_api_key:
+                raise PipelineError("Narration is not configured on this server.")
+            voice_id = str(b.get("voice") or self.s.deepgram_tts_model)
+            if voice_id not in VOICES:
+                voice_id = self.s.deepgram_tts_model
+            pub.update(JobStatus.PROBING, 40, f"Recording the narration ({VOICES[voice_id][0]})…", **timings)
+            try:
+                duration = DeepgramTTS(self.s.deepgram_api_key, voice_id).speak(str(film["narration"]), voice)
+            except RuntimeError as exc:
+                raise PipelineError(f"Narration failed: {exc}") from exc
+            if duration > max_dur + 0.5:
+                raise PipelineError(f"The narration runs {duration:.0f} s; your plan allows {max_dur:.0f} s.")
+            music_bed = {"mood": mood, "bpm": bpm, "seed": 7}  # mixed under the voice at render time
+        else:
+            # no narrator: the on-screen lines are the timeline and the score is the soundtrack
+            unspoken, duration = film_brief.timeline(film["lines"])
+            pub.update(JobStatus.PROBING, 40, "Scoring the film…", **timings)
+            score.write(voice, score.compose(mood, duration, bpm))
+
+        style = self._style_tokens(project)
+        colour = str((style.get("palette") or {}).get("stage") or "#000000")
+        src = work / "source.mp4"
+        media.make_stage_video(self.s.ffmpeg_bin, voice, src, colour, duration)
+        prefix = project_prefix(job.user_id, job.project_id)
+        key = f"{prefix}/source.mp4"
+        self.upload_asset(
+            job,
+            "source_video",
+            src,
+            key,
+            {"width": 1080, "height": 1920, "fps": 30, "durationSec": duration, "synthetic": True},
+        )
+        opts.update(
+            {
+                "faceless": True,
+                "film": {k: film.get(k) for k in ("title", "lines", "data", "narration")},
+                "unspokenWords": unspoken,
+                "musicBed": music_bed,
+            }
+        )
+        if unspoken:
+            opts["captions"] = False  # the lines are on screen already; captions would repeat them
+        if kind_id == "machine":
+            opts["sfxIntensity"] = 1.0  # the machine's notes are the music
+        fields: dict[str, Any] = {"style_options": opts, "duration_sec": duration}
+        if film.get("title") and not str(project.get("title") or "").strip():
+            fields["title"] = str(film["title"])[:120]
+        self.repo.update_project(job.project_id, **fields)
+        pub.update(JobStatus.PROBING, 60, "The film is written.", **timings)
+        self.enqueue(
+            job,
+            JobType.PROBE,
+            {"source_key": key, "language_hint": "en", "max_duration_sec": max_dur},
+        )
+
     # ── AI presenter: HeyGen renders the take, then the normal chain ──
     def presenter(self, job: JobMessage, pub: Publisher) -> None:
         from rasika_worker.presenter import HeyGenClient, make_presenter
@@ -214,7 +336,7 @@ class Pipeline:
         if not script or not voice_id:
             raise PipelineError("The presenter needs a script and a voice.")
         if not self.s.heygen_api_key:
-            raise PipelineError("AI presenter is not configured on this worker (HEYGEN_API_KEY).")
+            raise PipelineError("AI presenter is not set up on this workspace yet.")
         max_dur = float(str(job.payload.get("max_duration_sec") or MAX_DURATION_DEFAULT))
 
         photo: Path | None = None
@@ -234,7 +356,7 @@ class Pipeline:
             pub.update(
                 JobStatus.PROBING,
                 min(55, 10 + int(elapsed / 6)),
-                f"HeyGen is rendering the presenter ({status}, {elapsed:.0f} s)…",
+                f"Rendering the presenter ({status}, {elapsed:.0f} s)…",
             )
 
         src = work / "source.mp4"
@@ -250,7 +372,10 @@ class Pipeline:
                 progress=prog,
             )
         except RuntimeError as exc:
-            raise PipelineError(f"HeyGen could not render the presenter: {exc}") from exc
+            log.warning("presenter_failed", error=str(exc))
+            # users see the reason without the vendor's name; the log above keeps the raw error
+            reason = str(exc).replace("HeyGen ", "").replace("HeyGen", "the avatar service")
+            raise PipelineError(f"The presenter could not be rendered: {reason}") from exc
         info = media.probe(self.s.ffprobe_bin, src)
         if info.duration_sec > max_dur + 0.5:
             raise PipelineError(
@@ -396,6 +521,13 @@ class Pipeline:
         pub.update(JobStatus.TRANSCRIBING, 2, "Timing every word…")
         work = self.work(job.project_id)
         project = self.repo.project(job.project_id) or {}
+        unspoken = (project.get("style_options") or {}).get("unspokenWords")
+        if unspoken:
+            # a brief film with no narrator: its on-screen lines are the timeline (nothing to hear)
+            version = self.repo.insert_transcript(job.project_id, "en", list(unspoken))
+            pub.update(JobStatus.PLANNING, 0, "Designing your film…")
+            self.enqueue(job, JobType.PLAN, {"transcript_version": version})
+            return
         audio = work / "audio16k.wav"
         if not audio.exists():  # retry-safe: regenerate from the source
             src, _ = self.source(job, work)
@@ -641,6 +773,7 @@ class Pipeline:
             keyframes=keyframes,
             options=options,
             wall_is_dark=subject.wall_is_dark,
+            reference_stills=self._reference_stills(project, work),
         )
         timings["wall_luma"] = float(subject.wall_luma if subject.wall_luma is not None else -1)
         pub.update(JobStatus.PLANNING, 20, "Designing your edit…", **timings)
@@ -758,6 +891,30 @@ class Pipeline:
                 out[str(el["id"])] = (bdir, n)
         return out
 
+    def _reference_stills(self, project: dict[str, Any], work: Path, n: int = 4) -> list[Path]:
+        """Frames of the reference reel for the planner ("Match a reference" projects only): the
+        stills saved while the reference was analysed, re-extracted if the work folder was cleared."""
+        from rasika_worker import reference
+
+        opts = project.get("style_options") or {}
+        if opts.get("source") != "reference":
+            return []
+        ref_dir = work / "ref"
+        stills = sorted(ref_dir.glob("*.jpg")) if ref_dir.exists() else []
+        if not stills:
+            refs = self.repo.assets(str(project["id"]), "reference_video")
+            if not refs:
+                return []
+            dest = work / ("reference" + Path(refs[-1]["storage_key"]).suffix.lower())
+            if not dest.exists():
+                self.storage.download(refs[-1]["storage_key"], dest)
+            report = reference.analyse(self.s.ffmpeg_bin, self.s.ffprobe_bin, dest, ref_dir)
+            stills = [Path(p) for p in report.stills]
+        if len(stills) <= n:
+            return stills
+        step = len(stills) / n
+        return [stills[int(i * step + step / 2)] for i in range(n)]
+
     def _style_tokens(self, project: dict[str, Any], use_override: bool = True) -> dict[str, Any]:
         """The preset's tokens (packages/schema/presets) for the project's style_preset — or the
         style written from a reference reel, when the project has one."""
@@ -842,6 +999,14 @@ class Pipeline:
             )
             else None
         )
+        bed = (project.get("style_options") or {}).get("musicBed")
+        if isinstance(bed, dict) and bed.get("mood"):
+            from rasika_worker import music as score
+
+            music = work / "music_bed.wav"
+            if not music.exists():
+                dur = float(plan["meta"]["durationSec"])
+                score.write(music, score.compose(str(bed["mood"]), dur, bed.get("bpm"), int(bed.get("seed") or 7)))
         t0 = time.time()
         broll = self._prepare_broll(plan, work, preview)
         if broll:

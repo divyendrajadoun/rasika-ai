@@ -282,6 +282,121 @@ export const Broll = z.object({
     .optional(),
 });
 
+
+// ───────── brief-driven films: website launches, recipes, fights, journeys, music machines ─────────
+
+const Hex = z
+  .string()
+  .regex(/^#[0-9a-fA-F]{6}$/)
+  .describe("a real colour (#rrggbb), for things that have one: a liquid, a fighter's corner");
+
+/**
+ * A browser window holding a real screenshot of the user's website (an `imageId` from the images
+ * the worker captured). The page scrolls inside the window over the element's life: `scroll` is
+ * how far, 0 = stay at the top, 1 = travel to the bottom of the screenshot.
+ */
+export const BrowserCard = z.object({
+  ...Timed,
+  type: z.literal("browserCard"),
+  imageId: Id,
+  url: z.string().min(1).max(80).describe("shown in the address bar, e.g. linear.app"),
+  x: Px.default(60),
+  y: Px.default(420),
+  w: z.number().min(300).max(1080).default(960),
+  h: z.number().min(240).max(1700).default(720),
+  scroll: z.number().min(0).max(1).default(0.35),
+  tilt: z.number().min(-12).max(12).default(0),
+});
+
+/**
+ * A glass that fills ingredient by ingredient, each layer labelled with its measure as it pours
+ * (a recipe told on screen). `fill` is the share of the glass each layer takes; layers stack.
+ */
+export const PourGlass = z.object({
+  ...Timed,
+  type: z.literal("pourGlass"),
+  glass: z.enum(["rocks", "highball", "coupe", "martini", "wine", "mug"]).default("rocks"),
+  cx: Px.default(540),
+  top: Px.default(520),
+  size: z.number().int().min(300).max(1100).default(760).describe("height of the glass in px"),
+  ice: z.boolean().default(false),
+  layers: z
+    .array(
+      z.object({
+        name: z.string().min(1).max(28),
+        amount: z.string().min(1).max(16).describe('the measure as written, e.g. "45 ml", "2 dashes"'),
+        color: Hex,
+        fill: z.number().min(0.01).max(1),
+        at: z.number().min(0).describe("seconds after t0 the pour starts"),
+        dur: z.number().min(0.3).max(6).default(1.2),
+      }),
+    )
+    .min(1)
+    .max(8),
+  garnish: z
+    .object({ name: z.string().min(1).max(24), kind: z.enum(["citrus", "cherry", "leaf", "olive", "peel"]), at: z.number().min(0) })
+    .optional(),
+});
+
+/**
+ * A fight told as a game HUD: two named health bars, hits that land on the beat with a burst
+ * word, a K.O. and the winner's banner. `dmg` is a share of 100.
+ */
+export const FightHud = z.object({
+  ...Timed,
+  type: z.literal("fightHud"),
+  a: z.object({ name: z.string().min(1).max(20), color: Hex.default("#e2403a") }),
+  b: z.object({ name: z.string().min(1).max(20), color: Hex.default("#2f6fe0") }),
+  top: Px.default(150),
+  hits: z
+    .array(
+      z.object({
+        at: z.number().min(0),
+        by: z.enum(["a", "b"]),
+        dmg: z.number().min(1).max(100),
+        word: z.string().min(1).max(14).default("POW!"),
+      }),
+    )
+    .min(1)
+    .max(24),
+  koAt: z.number().min(0).optional().describe("seconds after t0; the loser's bar is empty by then"),
+  winner: z.enum(["a", "b"]),
+});
+
+/**
+ * A framed window with countryside rolling past (a train journey), cycling through the seasons
+ * with their weather: blossom, sun, falling leaves, snow. Optional cup on the sill.
+ */
+export const SeasonWindow = z.object({
+  ...Timed,
+  type: z.literal("seasonWindow"),
+  seasons: z.array(z.enum(["spring", "summer", "autumn", "winter"])).min(1).max(4),
+  x: Px.default(140),
+  y: Px.default(360),
+  w: z.number().min(300).max(1080).default(800),
+  h: z.number().min(300).max(1700).default(980),
+  shape: z.enum(["arch", "rect"]).default("arch"),
+  frame: ColorToken.default("goldd"),
+  cup: z.boolean().default(true),
+});
+
+/**
+ * A music machine of ramps, gears, a row of key blocks and a drum. Before `dropAt` its pieces
+ * assemble; at `dropAt` the ball drops and every key it lands on plays its note (`key` 0–7 is a
+ * scale degree), the drum kicks on `drums`. Every sound is a movement you can see.
+ */
+export const NoteMachine = z.object({
+  ...Timed,
+  type: z.literal("noteMachine"),
+  top: Px.default(420),
+  dropAt: z.number().min(0),
+  notes: z
+    .array(z.object({ at: z.number().min(0), key: z.number().int().min(0).max(7) }))
+    .min(1)
+    .max(40),
+  drums: z.array(z.number().min(0)).max(40).default([]),
+});
+
 export const PlanElement = z.discriminatedUnion("type", [
   PosterText,
   Broll,
@@ -300,6 +415,11 @@ export const PlanElement = z.discriminatedUnion("type", [
   Reveal,
   StrikeLine,
   Chips,
+  BrowserCard,
+  PourGlass,
+  FightHud,
+  SeasonWindow,
+  NoteMachine,
 ]);
 export type PlanElement = z.infer<typeof PlanElement>;
 export type PlanElementInput = z.input<typeof PlanElement>;
@@ -308,7 +428,7 @@ export const ELEMENT_TYPES = PlanElement.options.map(
   (o) => o.shape.type.value as ElementType,
 ) as readonly ElementType[];
 
-export const SfxType = z.enum(["whoosh", "pop", "tick", "glitch", "impact", "riser", "sub"]);
+export const SfxType = z.enum(["whoosh", "pop", "tick", "glitch", "impact", "riser", "sub", "note", "pour"]);
 export type SfxType = z.infer<typeof SfxType>;
 
 export const SfxCue = z.object({
@@ -318,6 +438,7 @@ export const SfxCue = z.object({
   gain: z.number().min(0).max(1.5).default(0.8),
   repeat: z.number().int().min(1).max(40).optional(),
   every: z.number().min(0.03).max(2).optional(),
+  pitch: z.number().int().min(-12).max(24).optional().describe("semitones above C5, for `note`"),
 });
 export type SfxCue = z.infer<typeof SfxCue>;
 

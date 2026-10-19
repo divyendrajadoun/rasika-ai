@@ -15,8 +15,20 @@ import type {
 } from "@rasika/schema";
 import { DEFAULT_MOTION, type EasingKind, type ExitKind, type Motion } from "@rasika/schema";
 import { div, esc, nextId, px, rgba } from "./dom";
+import { browserCard, fightHud, noteMachine, pourGlass, seasonWindow, type BriefCtx } from "./brief";
 import { patternSvg, type Colors } from "./patterns";
 import { E, lerp, prog, rng, transformStyle, type Easing, type Transform, steps } from "./toolkit";
+
+/**
+ * Split text into what a reader sees as letters (grapheme clusters). Spreading a string into code
+ * points tears Devanagari apart (a consonant and its vowel sign or virama become separate boxes),
+ * so per-letter entrances use the segmenter whenever the browser has one.
+ */
+export function graphemes(text: string): string[] {
+  const Seg = (Intl as unknown as { Segmenter?: new (l?: string, o?: { granularity: string }) => { segment: (t: string) => Iterable<{ segment: string }> } }).Segmenter;
+  if (Seg) return Array.from(new Seg(undefined, { granularity: "grapheme" }).segment(text), (x) => x.segment);
+  return [...text];
+}
 
 export type ItemKind =
   "rise" | "pop" | "fade" | "slide" | "stamp" | "card" | "cardx" | "bleed" | "none";
@@ -554,7 +566,26 @@ export function buildElement(el: PlanElement, ctx: BuildCtx): Item[] {
         }),
       ];
     }
+
+    // brief-driven films (no speaker): see brief.ts
+    case "browserCard":
+      return browserCard(el, briefCtx(ctx, dark));
+    case "pourGlass":
+      return pourGlass(el, briefCtx(ctx, dark));
+    case "fightHud":
+      return fightHud(el, briefCtx(ctx, dark));
+    case "seasonWindow":
+      return seasonWindow(el, briefCtx(ctx, dark));
+    case "noteMachine":
+      return noteMachine(el, briefCtx(ctx, dark));
   }
+}
+
+/** The light/dark decision for a brief element: the stage's own lightness (these films are faceless). */
+function briefCtx(ctx: BuildCtx, dark: boolean): BriefCtx {
+  const n = parseInt(ctx.stageHex.slice(1), 16);
+  const luma = (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
+  return { C: ctx.C, stageHex: ctx.stageHex, images: ctx.images, fx: ctx.fx, dark: dark || luma < 0.45 };
 }
 
 /** The end card: maroon plate with a faint blurred photo, brand in spaced caps, closing lines. */
@@ -610,7 +641,7 @@ function typoEnter(el: HTMLElement, a: number, m: Motion, perWord: boolean): Tra
     // per-letter stagger: split each word once, then pop the letters in on the beat
     for (const w of words) {
       if (!w.dataset["split"]) {
-        w.innerHTML = [...(w.textContent ?? "")]
+        w.innerHTML = graphemes(w.textContent ?? "")
           .map((ch) => `<span class="ch" style="display:inline-block">${esc(ch)}</span>`)
           .join("");
         w.dataset["split"] = "1";
@@ -630,7 +661,7 @@ function typoEnter(el: HTMLElement, a: number, m: Motion, perWord: boolean): Tra
     // typewriter: letters appear left to right, 2 frames each, a block cursor rides the end
     for (const w of words) {
       if (!w.dataset["split"]) {
-        w.innerHTML = [...(w.textContent ?? "")]
+        w.innerHTML = graphemes(w.textContent ?? "")
           .map((ch) => `<span class="ch" style="display:inline-block">${esc(ch)}</span>`)
           .join("");
         w.dataset["split"] = "1";

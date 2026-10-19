@@ -1,6 +1,6 @@
 "use client";
 
-import { Clapperboard, FileText, ScanSearch, UserRound } from "lucide-react";
+import { Clapperboard, FileText, ScanSearch, Sparkles, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
  *  reference  a talking-head clip cut in the rhythm and look of a reference reel
  *  presenter  script + photo → avatar video — needs an avatar provider, not enabled yet
  */
-export type SourceMode = "take" | "script" | "reference" | "presenter";
+export type SourceMode = "take" | "script" | "reference" | "presenter" | "brief";
 
 interface Option {
   id: SourceMode;
@@ -44,6 +44,13 @@ const OPTIONS: Option[] = [
     icon: ScanSearch,
   },
   {
+    id: "brief",
+    title: "From a brief",
+    blurb: "No footage at all. Give a website, a recipe, two contenders or a line, and we write, score and design the film.",
+    detail: "Launch films, showreels, Apple-style app films, recipe explainers, comic fights, music machines, storybook journeys.",
+    icon: Sparkles,
+  },
+  {
     id: "presenter",
     title: "AI presenter",
     blurb: "A script and one photo become a presenter video.",
@@ -65,7 +72,7 @@ export function StepSource({
 }) {
   const options = OPTIONS.map((o) =>
     o.id === "presenter" && presenterEnabled
-      ? { ...o, disabled: undefined, detail: "Rendered by HeyGen from your wallet, then edited like any take." }
+      ? { ...o, disabled: undefined, detail: "Rendered from your script and a face, then edited like any take." }
       : o,
   );
   return (

@@ -76,6 +76,48 @@ export const ScriptSubmission = z.object({
 });
 export type ScriptSubmission = z.infer<typeof ScriptSubmission>;
 
+/** "Create my film" for a film made from a brief (config/briefs.ts): the worker writes and designs it. */
+export const BriefSubmission = z
+  .object({
+    projectId: z.string().uuid(),
+    title: z.string().max(120).default(""),
+    kind: z.enum(["launch", "showreel", "app", "recipe", "versus", "machine", "journey"]),
+    url: z.string().trim().max(300).optional(),
+    recipe: z.string().trim().max(1500).optional(),
+    subject: z.string().trim().max(600).optional(),
+    a: z.string().trim().max(40).optional(),
+    b: z.string().trim().max(40).optional(),
+    winner: z.enum(["", "a", "b"]).default(""),
+    line: z.string().trim().max(60).optional(),
+    end: z.string().trim().max(30).optional(),
+    voice: z.string().refine((id) => voiceIds.includes(id), { message: "Unknown voice" }).optional(),
+    photos: z.array(WizardPhoto).max(15).default([]),
+    options: z.object({
+      sfxIntensity: z.number().min(0).max(1).default(0.6),
+    }),
+    brand: z.object({
+      name: z.string().max(60).default(""),
+      handle: z.string().max(60).default(""),
+      endLine: z.string().max(120).default(""),
+      cta: z.string().max(60).default(""),
+    }),
+    consent: z.literal(true, {
+      error: "Please confirm you have the rights to what you shared.",
+    }),
+  })
+  .superRefine((v, ctx) => {
+    const need = (ok: boolean, path: string, message: string) => {
+      if (!ok) ctx.addIssue({ code: "custom", path: [path], message });
+    };
+    if (["launch", "showreel", "app"].includes(v.kind))
+      need(/^https?:\/\/[^\s/]+\.[^\s]+/i.test(v.url ?? ""), "url", "Add the website link, starting with https://");
+    if (v.kind === "recipe") need((v.recipe ?? "").length >= 15, "recipe", "Write the recipe: ingredients with measures.");
+    if (v.kind === "journey") need((v.subject ?? "").length >= 10, "subject", "Say what the story is about.");
+    if (v.kind === "versus") need(Boolean(v.a && v.b), "a", "Name both contenders.");
+    if (v.kind === "machine") need(Boolean(v.line), "line", "Write the line that types out.");
+  });
+export type BriefSubmission = z.infer<typeof BriefSubmission>;
+
 /** "Create my edit" for an AI presenter reel: HeyGen renders the take from script + photo / look. */
 export const PresenterSubmission = z.object({
   projectId: z.string().uuid(),
@@ -110,7 +152,7 @@ export const PresenterSubmission = z.object({
     error: "Please confirm you have the rights to this video and these images.",
   }),
   presenterConsent: z.literal(true, {
-    error: "Please confirm the rights to the photo, that the person is an adult, and the upload to HeyGen.",
+    error: "Please confirm the rights to the photo, that the person is an adult, and the upload to our avatar provider.",
   }),
 });
 export type PresenterSubmission = z.infer<typeof PresenterSubmission>;

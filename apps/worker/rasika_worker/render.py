@@ -173,6 +173,20 @@ def _open(p: Any, html: Path, size: tuple[int, int]) -> tuple[Any, Any, Any]:
     return browser, page, cdp
 
 
+def quiet_before_drop(cues: dict[str, Any], plan: dict[str, Any]) -> dict[str, Any]:
+    """A music machine stays silent until its ball drops: every sound before then is removed
+    (entrances and swishes included), so the first sound is the first note."""
+    drops = [
+        float(el["t0"]) + float(el["dropAt"])
+        for el in plan.get("elements") or []
+        if el.get("type") == "noteMachine"
+    ]
+    if not drops:
+        return cues
+    drop = min(drops) - 0.03
+    return {**cues, "cues": [c for c in cues.get("cues") or [] if float(c.get("t", 0)) >= drop]}
+
+
 def read_cues(html: Path, size: tuple[int, int]) -> dict[str, Any]:
     """Open the harness once: fails fast on a broken plan/bundle and returns the derived cues."""
     from playwright.sync_api import sync_playwright
@@ -253,7 +267,7 @@ def render(
     html = build_harness(work, settings, spec, grain)
 
     t0 = time.time()
-    cues = read_cues(html, spec.size)
+    cues = quiet_before_drop(read_cues(html, spec.size), spec.plan)
     timings["harness_sec"] = round(time.time() - t0, 2)
 
     # ── chunks in parallel ──

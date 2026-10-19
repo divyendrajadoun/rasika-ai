@@ -1,0 +1,54 @@
+{
+  "id": "versus-arcade",
+  "name": "Versus Arcade",
+  "tagline": "A comic fight as an arcade game: health bars, special moves, a K.O. and a winner.",
+  "palette": {
+    "stage": "#0b1026",
+    "mar": "#1d2650",
+    "ter": "#ff3b3b",
+    "gold": "#ffd500",
+    "goldd": "#e0a800",
+    "iv": "#ffffff",
+    "ink": "#05070f"
+  },
+  "fonts": {
+    "devanagari": "Tiro Devanagari Hindi",
+    "poster": "Bangers",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.6,
+  "captionStyle": "box",
+  "captionSize": 70,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "fightHud",
+    "posterText",
+    "chapterCard",
+    "stamp"
+  ],
+  "motion": {
+    "family": "hype",
+    "caseStyle": "upper",
+    "enter": "slam",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 0.8,
+    "camera": "whip",
+    "sfxKit": "hype",
+    "texture": "halftone",
+    "direction": "Arcade fighting game told by an announcer: the HUD stays up the whole time, round cards, every special move named in big comic lettering as it lands, bursts and shakes on hits, a K.O. and the winner's banner. Absurd and fast; it roasts what they do, never who they are.",
+    "avoidElements": [
+      "lockCard",
+      "patternCard",
+      "filmStrip",
+      "equation",
+      "broll"
+    ],
+    "framing": "any"
+  }
+}
