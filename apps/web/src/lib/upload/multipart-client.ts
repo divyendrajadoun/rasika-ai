@@ -235,7 +235,7 @@ export async function abortUpload(session: UploadSession) {
 /** Single PUT for photos / thumbnails. */
 export async function uploadSmall(
   projectId: string,
-  kind: "image" | "thumbnail",
+  kind: "image" | "thumbnail" | "presenter_image",
   file: Blob,
   filename: string,
   dims?: { width: number; height: number },

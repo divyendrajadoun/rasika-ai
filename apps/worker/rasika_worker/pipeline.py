@@ -56,6 +56,7 @@ class Pipeline:
     def handlers(self) -> dict[JobType, Callable[[JobMessage, Publisher], None]]:
         return {
             JobType.SYNTH: self.synth,
+            JobType.PRESENTER: self.presenter,
             JobType.PROBE: self.probe,
             JobType.ANALYSE_REFERENCE: self.analyse_reference,
             JobType.TRANSCRIBE: self.transcribe,
@@ -190,6 +191,106 @@ class Pipeline:
             {
                 "source_key": key,
                 "language_hint": job.payload.get("language_hint") or "en",
+                "max_duration_sec": max_dur,
+            },
+        )
+
+    # ── AI presenter: HeyGen renders the take, then the normal chain ──
+    def presenter(self, job: JobMessage, pub: Publisher) -> None:
+        from rasika_worker.presenter import HeyGenClient, make_presenter
+
+        pub.update(JobStatus.PROBING, 1, "Preparing the presenter…")
+        work = self.work(job.project_id)
+        project = self.repo.project(job.project_id)
+        if not project:
+            raise PipelineError("Project not found.")
+        script = str(job.payload.get("script") or "").strip()
+        voice_id = str(job.payload.get("voice_id") or "")
+        look_id = str(job.payload.get("look_id") or "") or None
+        if not script or not voice_id:
+            raise PipelineError("The presenter needs a script and a voice.")
+        if not self.s.heygen_api_key:
+            raise PipelineError("AI presenter is not configured on this worker (HEYGEN_API_KEY).")
+        max_dur = float(str(job.payload.get("max_duration_sec") or MAX_DURATION_DEFAULT))
+
+        photo: Path | None = None
+        if not look_id:
+            photos = self.repo.assets(job.project_id, "presenter_image")
+            if not photos:
+                raise PipelineError("No presenter photo was uploaded for this project.")
+            a = photos[-1]
+            photo = work / ("presenter" + (Path(a["storage_key"]).suffix.lower() or ".jpg"))
+            if not photo.exists():
+                self.storage.download(a["storage_key"], photo)
+
+        client = HeyGenClient(self.s.heygen_api_key)
+        t0 = time.time()
+
+        def prog(status: str, elapsed: float) -> None:
+            pub.update(
+                JobStatus.PROBING,
+                min(55, 10 + int(elapsed / 6)),
+                f"HeyGen is rendering the presenter ({status}, {elapsed:.0f} s)…",
+            )
+
+        src = work / "source.mp4"
+        try:
+            res = make_presenter(
+                client,
+                script,
+                voice_id,
+                src,
+                photo=photo,
+                avatar_id=look_id,
+                title=f"Rasika · {str(project.get('title') or 'presenter')[:60]}",
+                progress=prog,
+            )
+        except RuntimeError as exc:
+            raise PipelineError(f"HeyGen could not render the presenter: {exc}") from exc
+        info = media.probe(self.s.ffprobe_bin, src)
+        if info.duration_sec > max_dur + 0.5:
+            raise PipelineError(
+                f"The presenter video runs {info.duration_sec:.0f} s; your plan allows {max_dur:.0f} s. Shorten the script."
+            )
+        timings: dict[str, float] = {
+            "presenter_sec": round(time.time() - t0, 2),
+            "presenter_duration": round(info.duration_sec, 2),
+        }
+        if res.wallet_before is not None and res.wallet_after is not None:
+            timings["heygen_wallet_before"] = res.wallet_before
+            timings["heygen_wallet_after"] = res.wallet_after
+            timings["heygen_cost_usd"] = round(res.wallet_before - res.wallet_after, 2)
+        prefix = project_prefix(job.user_id, job.project_id)
+        key = f"{prefix}/source.mp4"
+        self.upload_asset(
+            job,
+            "source_video",
+            src,
+            key,
+            {
+                "width": info.display_size[0],
+                "height": info.display_size[1],
+                "fps": info.fps,
+                "durationSec": info.duration_sec,
+                "heygenVideoId": res.video_id,
+                "synthetic": True,
+            },
+        )
+        self.repo.update_project(job.project_id, duration_sec=info.duration_sec)
+        self.repo.audit(
+            job.user_id,
+            "presenter",
+            "project",
+            job.project_id,
+            {"heygen_video_id": res.video_id, **timings},
+        )
+        pub.update(JobStatus.PROBING, 60, "Presenter ready.", **timings)
+        self.enqueue(
+            job,
+            JobType.PROBE,
+            {
+                "source_key": key,
+                "language_hint": job.payload.get("language_hint") or "auto",
                 "max_duration_sec": max_dur,
             },
         )

@@ -3,6 +3,7 @@ import { Wizard } from "@/components/wizard/wizard";
 import { plans } from "@/config/pricing";
 import { requireUser } from "@/lib/auth";
 import { env } from "@/lib/env";
+import { heygenCatalogue } from "@/lib/heygen";
 
 export const metadata: Metadata = { title: "New edit", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -15,6 +16,9 @@ export default async function NewEditPage({
   const user = await requireUser("/dashboard/new");
   const { style, project, industry } = await searchParams;
   const plan = plans.find((p) => p.id === user.plan) ?? plans[0]!;
+  const catalogue = env.presenterEnabled
+    ? await heygenCatalogue().catch(() => ({ voices: [], looks: [] }))
+    : { voices: [], looks: [] };
   return (
     <Wizard
       initialStyle={style}
@@ -24,6 +28,9 @@ export default async function NewEditPage({
       maxSeconds={plan.maxSeconds}
       planName={plan.name}
       stockEnabled={env.stockEnabled}
+      presenterEnabled={env.presenterEnabled && catalogue.voices.length > 0}
+      voices={catalogue.voices}
+      looks={catalogue.looks}
     />
   );
 }

@@ -76,6 +76,45 @@ export const ScriptSubmission = z.object({
 });
 export type ScriptSubmission = z.infer<typeof ScriptSubmission>;
 
+/** "Create my edit" for an AI presenter reel: HeyGen renders the take from script + photo / look. */
+export const PresenterSubmission = z.object({
+  projectId: z.string().uuid(),
+  title: z.string().min(1).max(120),
+  script: z
+    .string()
+    .trim()
+    .min(20, "The script needs at least a sentence or two.")
+    .max(4000, "Keep the script under 4 000 characters."),
+  voiceId: z.string().min(1, "Choose a voice"),
+  lookId: z.string().min(1).nullable().default(null),
+  photoAssetId: z.string().uuid().nullable().default(null),
+  photos: z.array(WizardPhoto).max(15).default([]),
+  stylePreset: z.string().refine((id) => presetIds.includes(id), {
+    message: "Unknown style preset",
+  }),
+  styleText: z.string().max(300).default(""),
+  options: z.object({
+    captions: z.boolean().default(true),
+    sfxIntensity: z.number().min(0).max(1).default(0.6),
+    music: z.boolean().default(false),
+    broll: z.boolean().default(false),
+    language: z.enum(["auto", "en", "hi", "hinglish"]).default("auto"),
+  }),
+  brand: z.object({
+    name: z.string().max(60).default(""),
+    handle: z.string().max(60).default(""),
+    endLine: z.string().max(120).default(""),
+    cta: z.string().max(60).default(""),
+  }),
+  consent: z.literal(true, {
+    error: "Please confirm you have the rights to this video and these images.",
+  }),
+  presenterConsent: z.literal(true, {
+    error: "Please confirm the rights to the photo, that the person is an adult, and the upload to HeyGen.",
+  }),
+});
+export type PresenterSubmission = z.infer<typeof PresenterSubmission>;
+
 export { estimateSpokenSeconds };
 
 export const MAX_DURATION_SEC = 180;

@@ -8,6 +8,7 @@ import { plans } from "@/config/pricing";
 import { requireUser } from "@/lib/auth";
 import { enqueueJob } from "@/lib/jobs/queue";
 import {
+  PresenterSubmission,
   ScriptSubmission,
   WizardSubmission,
   creditCost,
@@ -199,6 +200,103 @@ export async function createScriptEdit(input: unknown): Promise<ActionResult> {
         script: w.script,
         voice: w.voice,
         language_hint: "en",
+        max_duration_sec: plan.maxSeconds,
+      },
+    });
+  });
+  revalidatePath("/dashboard");
+  return { ok: true, projectId: w.projectId };
+}
+
+/** "Create my edit" for an AI presenter reel: enqueue the HeyGen job; it hands off to probe. */
+export async function createPresenterEdit(input: unknown): Promise<ActionResult> {
+  const user = await requireUser("/dashboard/new");
+  const parsed = PresenterSubmission.safeParse(input);
+  if (!parsed.success)
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid form" };
+  const w = parsed.data;
+  if (!w.lookId && !w.photoAssetId)
+    return { ok: false, error: "Upload a photo or choose a stock presenter" };
+
+  const [project] = await db
+    .select()
+    .from(schema.projects)
+    .where(and(eq(schema.projects.id, w.projectId), eq(schema.projects.userId, user.id)));
+  if (!project) return { ok: false, error: "Project not found" };
+  if (w.photoAssetId) {
+    const [ph] = await db
+      .select({ kind: schema.assets.kind })
+      .from(schema.assets)
+      .where(and(eq(schema.assets.id, w.photoAssetId), eq(schema.assets.projectId, w.projectId)));
+    if (!ph || ph.kind !== "presenter_image")
+      return { ok: false, error: "Upload the presenter photo first" };
+  }
+
+  const plan = plans.find((p) => p.id === user.plan) ?? plans[0]!;
+  const est = estimateSpokenSeconds(w.script);
+  if (est > plan.maxSeconds) {
+    return {
+      ok: false,
+      error: `Spoken, this script runs about ${Math.round(est)} s; your ${plan.name} plan allows ${plan.maxSeconds} s.`,
+    };
+  }
+  const cost = creditCost(Math.max(1, est));
+  if (user.credits < cost)
+    return { ok: false, error: `This edit needs ${cost} credit(s); you have ${user.credits}.` };
+
+  await db.transaction(async (tx) => {
+    await tx
+      .update(schema.projects)
+      .set({
+        title: w.title,
+        status: "uploaded",
+        stylePreset: w.stylePreset,
+        styleText: w.styleText || null,
+        styleOptions: {
+          ...w.options,
+          source: "presenter",
+          presenterVoice: w.voiceId,
+          presenterLook: w.lookId,
+        },
+        brand: w.brand,
+        durationSec: Math.round(est),
+        creditsCost: cost,
+        updatedAt: schema.now,
+      })
+      .where(eq(schema.projects.id, w.projectId));
+    for (const [i, ph] of w.photos.entries()) {
+      await tx
+        .update(schema.assets)
+        .set({ meta: { label: ph.label, sayWhen: ph.sayWhen, crop: ph.crop, order: i } })
+        .where(and(eq(schema.assets.id, ph.assetId), eq(schema.assets.projectId, w.projectId)));
+    }
+    const [job] = await tx
+      .insert(schema.jobs)
+      .values({
+        projectId: w.projectId,
+        userId: user.id,
+        type: "presenter",
+        status: "uploaded",
+        message: "Queued",
+      })
+      .returning({ id: schema.jobs.id });
+    await tx.insert(schema.auditLog).values({
+      userId: user.id,
+      action: "project.create_presenter_edit",
+      entity: "project",
+      entityId: w.projectId,
+      meta: { cost, preset: w.stylePreset, voice: w.voiceId, look: w.lookId, photo: Boolean(w.photoAssetId) },
+    });
+    await enqueueJob({
+      job_id: job!.id,
+      project_id: w.projectId,
+      user_id: user.id,
+      type: "presenter",
+      payload: {
+        script: w.script,
+        voice_id: w.voiceId,
+        look_id: w.lookId,
+        language_hint: w.options.language,
         max_duration_sec: plan.maxSeconds,
       },
     });

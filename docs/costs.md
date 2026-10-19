@@ -11,6 +11,7 @@ Kept up to date per phase. Numbers marked _(est.)_ are estimates until the admin
 | Cheap Claude pass (Haiku)    | transcript fixes           | ≈ 2–3 K in / 1–2 K out for a 90 s reel                       |
 | Transcription                | worker `transcribe`        | Deepgram Nova-3 ≈ $0.0043 / audio-minute (3 s for a 42 s reel); faster-whisper fallback (GPU 72 s cold / CPU 179 s) |
 | Stock B-roll                 | worker `plan` + `render`   | Pexels API is free (200 requests / hour, 20 000 / month; clips under the Pexels licence, photographer credited in the plan `source`); one search + one download per cutaway, cached by query and clip id |
+| AI presenter (HeyGen)        | worker `presenter`         | PAID from the HeyGen wallet (wallet billing on this account); the job records the wallet before and after each render as `heygen_cost_usd`. Plus the normal plan + render |
 | Narration (script-only reels) | worker `synth`            | Deepgram Aura-2 TTS on the same key, billed per character (list price ≈ $0.030 / 1 000 chars → a 60 s script of ~900 chars ≈ $0.03); English voices only — Hindi narration needs a second provider (not approved) |
 | Reference matching           | worker `analyse_reference` | one planner-model vision call with 8 stills: measured 18 s, 4.2 k input + 1.7 k output tokens (≈ $0.15 at Opus list price); the ffmpeg/Pillow analysis is free (8 s for a 90 s clip) |
 | Render compute               | worker `render_final`      | the biggest one: headless Chromium frame capture + x264      |

@@ -8,7 +8,7 @@ import { ACCEPTED_IMAGE, extensionFor } from "@/lib/upload/plan";
 
 const Body = z.object({
   projectId: z.string().uuid(),
-  kind: z.enum(["image", "thumbnail"]),
+  kind: z.enum(["image", "thumbnail", "presenter_image"]),
   filename: z.string().min(1).max(255),
   size: z.number().int().positive(),
   mime: z.string().max(100),
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
   const b = parsed.data;
   if (b.size > env.maxImageBytes)
     return Response.json({ error: "Image too large" }, { status: 413 });
-  if (b.kind === "image" && !ACCEPTED_IMAGE.includes(b.mime)) {
+  if ((b.kind === "image" || b.kind === "presenter_image") && !ACCEPTED_IMAGE.includes(b.mime)) {
     return Response.json({ error: "Use JPG, PNG, WebP or HEIC" }, { status: 415 });
   }
   const [project] = await db

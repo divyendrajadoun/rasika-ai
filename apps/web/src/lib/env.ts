@@ -57,6 +57,10 @@ export const env = {
     },
   },
   /** the worker can fetch stock B-roll (same .env as the web app in dev; set on both in prod) */
+  /** the worker can render AI presenters (HeyGen key present) */
+  get presenterEnabled() {
+    return Boolean(process.env.HEYGEN_API_KEY);
+  },
   get stockEnabled() {
     return Boolean(process.env.PEXELS_API_KEY);
   },

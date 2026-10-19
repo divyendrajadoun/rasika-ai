@@ -2,7 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { createDraftProject, createEdit, createScriptEdit } from "@/app/dashboard/actions";
+import {
+  createDraftProject,
+  createEdit,
+  createPresenterEdit,
+  createScriptEdit,
+} from "@/app/dashboard/actions";
 import { StepBrand } from "@/components/wizard/step-brand";
 import { StepPhotos, type PhotoItem } from "@/components/wizard/step-photos";
 import {
@@ -10,7 +15,14 @@ import {
   defaultScriptState,
   type ScriptState,
 } from "@/components/wizard/step-script";
+import {
+  StepPresenter,
+  defaultPresenterState,
+  presenterReady,
+  type PresenterState,
+} from "@/components/wizard/step-presenter";
 import { StepSource, type SourceMode } from "@/components/wizard/step-source";
+import type { HeyGenLook, HeyGenVoice } from "@/lib/heygen";
 import { StepStyle, type StyleState } from "@/components/wizard/step-style";
 import { StepUpload, type UploadResult } from "@/components/wizard/step-upload";
 import { defaultPresetId } from "@/config/presets";
@@ -18,11 +30,12 @@ import { estimateSpokenSeconds } from "@/config/voices";
 import { creditCost } from "@/lib/wizard-schema";
 import { cn } from "@/lib/utils";
 
-type StepId = "source" | "upload" | "script" | "photos" | "style" | "brand";
+type StepId = "source" | "upload" | "script" | "presenter" | "photos" | "style" | "brand";
 const STEP_LABEL: Record<StepId, string> = {
   source: "Source",
   upload: "Upload reel",
   script: "Your script",
+  presenter: "Presenter",
   photos: "Your photos",
   style: "Style",
   brand: "Brand & ending",
@@ -33,7 +46,7 @@ const PATHS: Record<SourceMode, StepId[]> = {
   script: ["source", "script", "photos", "style", "brand"],
   // the reference clip is uploaded on the upload step (second drop zone)
   reference: ["source", "upload", "photos", "style", "brand"],
-  presenter: ["source"],
+  presenter: ["source", "presenter", "photos", "style", "brand"],
 };
 
 export interface BrandState {
@@ -65,7 +78,8 @@ interface Draft {
   reference: UploadResult | null;
   fidelity: Fidelity;
   script: ScriptState;
-  /** script-only reels: the draft project created when leaving the script step */
+  presenter: PresenterState;
+  /** script-only / presenter reels: the draft project created before the photos step */
   scriptProjectId: string | null;
   photos: PhotoItem[];
   style: StyleState;
@@ -83,6 +97,9 @@ export function Wizard({
   maxSeconds,
   planName,
   stockEnabled = false,
+  presenterEnabled = false,
+  voices = [],
+  looks = [],
 }: {
   initialStyle?: string;
   /** From the landing page's industry picker — seeds the free-text style wish. */
@@ -93,6 +110,10 @@ export function Wizard({
   planName: string;
   /** the worker can fetch stock B-roll */
   stockEnabled?: boolean;
+  /** the worker can render AI presenters (HeyGen) */
+  presenterEnabled?: boolean;
+  voices?: HeyGenVoice[];
+  looks?: HeyGenLook[];
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -105,6 +126,7 @@ export function Wizard({
     reference: null,
     fidelity: "camera",
     script: defaultScriptState,
+    presenter: defaultPresenterState,
     scriptProjectId: null,
     photos: [],
     style: {
@@ -142,14 +164,22 @@ export function Wizard({
 
   const steps = PATHS[draft.mode];
   const stepId: StepId = steps[Math.min(draft.step, steps.length - 1)] ?? "source";
-  const projectId = draft.mode === "script" ? draft.scriptProjectId : (draft.upload?.projectId ?? null);
-  const scriptSeconds = estimateSpokenSeconds(draft.script.text);
+  const projectId =
+    draft.mode === "script" || draft.mode === "presenter"
+      ? draft.scriptProjectId
+      : (draft.upload?.projectId ?? null);
+  const scriptSeconds = estimateSpokenSeconds(
+    draft.mode === "presenter" ? draft.presenter.text : draft.script.text,
+  );
   const duration =
-    draft.mode === "script" ? (scriptSeconds || null) : (draft.upload?.durationSec ?? null);
+    draft.mode === "script" || draft.mode === "presenter"
+      ? scriptSeconds || null
+      : (draft.upload?.durationSec ?? null);
   const cost = duration ? creditCost(Math.max(1, duration)) : 1;
   const tooLong = duration !== null && duration > maxSeconds;
   const canNext = useMemo(() => {
-    if (stepId === "source") return draft.mode !== "presenter";
+    if (stepId === "source") return draft.mode !== "presenter" || presenterEnabled;
+    if (stepId === "presenter") return presenterReady(draft.presenter) && !tooLong;
     if (stepId === "upload")
       return (
         Boolean(draft.upload?.complete) &&
@@ -158,10 +188,30 @@ export function Wizard({
       );
     if (stepId === "script") return draft.script.text.trim().length >= 20 && !tooLong;
     return true;
-  }, [stepId, draft.mode, draft.upload, draft.reference, draft.script.text, tooLong]);
+  }, [stepId, draft.mode, draft.upload, draft.reference, draft.script.text, draft.presenter, tooLong, presenterEnabled]);
+
+  const ensureDraftProject = async (): Promise<string | null> => {
+    if (draft.scriptProjectId) return draft.scriptProjectId;
+    const firstLine =
+      (draft.mode === "presenter" ? draft.presenter.text : draft.script.text).trim().split(/\n/)[0]?.slice(0, 80) ?? "";
+    const res = await createDraftProject(draft.title || firstLine || "Presenter reel");
+    if (!res.ok) {
+      setError(res.error);
+      return null;
+    }
+    setDraft((d) => ({ ...d, scriptProjectId: res.projectId, title: d.title || firstLine }));
+    return res.projectId;
+  };
 
   const next = () => {
     setError(null);
+    if (stepId === "presenter" && !draft.scriptProjectId) {
+      startTransition(async () => {
+        const pid = await ensureDraftProject();
+        if (pid) setDraft((d) => ({ ...d, step: d.step + 1 }));
+      });
+      return;
+    }
     if (stepId === "script" && !draft.scriptProjectId) {
       // the photos step uploads against a project: create the draft now
       startTransition(async () => {
@@ -183,7 +233,47 @@ export function Wizard({
     setDraft((d) => ({ ...d, step: d.step + 1 }));
   };
 
+  const submitPresenter = () => {
+    if (!draft.scriptProjectId) return;
+    setError(null);
+    const payload = {
+      projectId: draft.scriptProjectId,
+      title: draft.title || draft.presenter.text.trim().split(/\n/)[0]?.slice(0, 80) || "Presenter reel",
+      script: draft.presenter.text,
+      voiceId: draft.presenter.voiceId ?? "",
+      lookId: draft.presenter.kind === "look" ? draft.presenter.lookId : null,
+      photoAssetId: draft.presenter.kind === "photo" ? draft.presenter.photoAssetId : null,
+      photos: draft.photos.map((p) => ({ assetId: p.assetId, label: p.label, sayWhen: p.sayWhen, crop: p.crop })),
+      stylePreset: draft.style.preset,
+      styleText: draft.style.text,
+      options: {
+        captions: draft.style.captions,
+        sfxIntensity: draft.style.sfxIntensity,
+        music: draft.style.music,
+        broll: draft.style.broll && stockEnabled,
+        language: draft.style.language,
+      },
+      brand: draft.brand,
+      consent,
+      presenterConsent: draft.presenter.rights && draft.presenter.adult && draft.presenter.upload,
+    };
+    startTransition(async () => {
+      const res = await createPresenterEdit(payload);
+      if (!res.ok) {
+        setError(res.error);
+        return;
+      }
+      try {
+        localStorage.removeItem(draftKey(res.projectId));
+      } catch {
+        /* ignore */
+      }
+      router.push(`/dashboard/p/${res.projectId}`);
+    });
+  };
+
   const submit = () => {
+    if (draft.mode === "presenter") return submitPresenter();
     if (draft.mode === "script") return submitScript();
     if (!draft.upload) return;
     setError(null);
@@ -303,7 +393,18 @@ export function Wizard({
         {stepId === "source" && (
           <StepSource
             value={draft.mode}
+            presenterEnabled={presenterEnabled}
             onChange={(mode) => setDraft((d) => ({ ...d, mode, step: 0 }))}
+          />
+        )}
+        {stepId === "presenter" && (
+          <StepPresenter
+            value={draft.presenter}
+            projectId={draft.scriptProjectId}
+            voices={voices}
+            looks={looks}
+            onChange={(presenter) => setDraft((d) => ({ ...d, presenter }))}
+            onNeedProject={ensureDraftProject}
           />
         )}
         {stepId === "script" && (

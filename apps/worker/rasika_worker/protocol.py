@@ -19,6 +19,8 @@ PROTOCOL_VERSION: Final[Literal[1]] = 1
 class JobType(StrEnum):
     # script-only reels: narrate the script and build the stage clip, then the normal chain
     SYNTH = "synth"
+    # AI presenter: HeyGen renders script + photo / stock look into the source clip, then probe
+    PRESENTER = "presenter"
     PROBE = "probe"
     # reference matching: measure the reference reel, write a matched style, then PLAN
     ANALYSE_REFERENCE = "analyse_reference"

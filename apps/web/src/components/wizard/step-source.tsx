@@ -56,17 +56,25 @@ const OPTIONS: Option[] = [
 export function StepSource({
   value,
   onChange,
+  presenterEnabled = false,
 }: {
   value: SourceMode;
   onChange: (m: SourceMode) => void;
+  /** the worker has a HeyGen key */
+  presenterEnabled?: boolean;
 }) {
+  const options = OPTIONS.map((o) =>
+    o.id === "presenter" && presenterEnabled
+      ? { ...o, disabled: undefined, detail: "Rendered by HeyGen from your wallet, then edited like any take." }
+      : o,
+  );
   return (
     <div className="space-y-4">
       <p className="font-accent text-muted-foreground text-xl italic">
         Three ways in. Every one of them ends in the same editor and the same styles.
       </p>
       <ul className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Source">
-        {OPTIONS.map((o) => {
+        {options.map((o) => {
           const on = value === o.id;
           const Icon = o.icon;
           return (

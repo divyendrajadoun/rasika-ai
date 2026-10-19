@@ -300,3 +300,10 @@ planner wrote one cutaway, "heavy gold necklace on woman's neck close up", for 7
 weight on your neck"; Pexels returned a cottonbro studio clip (search + download 2.0 s, frames
 0.4 s); the render shows the clip under the poster line and captions, fading in and cutting out
 with whooshes. Total 172 s.
+
+**AI presenter (19 Oct, later):** the owner supplied a HeyGen API key, which approves the paid
+route. Built on HeyGen v3 (the v1/v2 endpoints are legacy and go away on 2026-10-31):
+`presenter.py` (assets upload, `POST /v3/videos` type image / avatar, polling, download, wallet
+before/after), worker `presenter` job → probe chain, wizard Presenter step (script, your photo or a
+stock photo-avatar look, HeyGen voices incl. the account's private ones, three consent boxes),
+`createPresenterEdit`. The Source card enables itself when the worker has the key.

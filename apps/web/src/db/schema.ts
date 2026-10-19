@@ -39,6 +39,7 @@ export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 export const ASSET_KINDS = [
   "source_video",
   "reference_video",
+  "presenter_image",
   "image",
   "proxy",
   "frame_bundle",
@@ -53,6 +54,7 @@ export type AssetKind = (typeof ASSET_KINDS)[number];
 
 export const JOB_TYPES = [
   "synth",
+  "presenter",
   "probe",
   "analyse_reference",
   "transcribe",
@@ -95,7 +97,10 @@ export interface StyleOptions {
   music: boolean;
   language: "auto" | "en" | "hi" | "hinglish";
   /** where the reel came from (default "take": an uploaded clip) */
-  source?: "take" | "script" | "reference";
+  source?: "take" | "script" | "reference" | "presenter";
+  /** AI presenter: HeyGen voice id and the stock look (or none when a photo was uploaded) */
+  presenterVoice?: string;
+  presenterLook?: string | null;
   /** script-only reels: no speaker on screen, the planner fills the whole stage */
   faceless?: boolean;
   /** script-only reels: the narration voice id (Deepgram Aura) */
