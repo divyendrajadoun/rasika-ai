@@ -1,0 +1,272 @@
+{
+ "version": 1,
+ "meta": {
+  "durationSec": 12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "language": "en"
+ },
+ "style": {
+  "id": "tier-list",
+  "name": "Tier List",
+  "tagline": "hypit-ai/hypit's viral tier-list format: S to D rows, each pick flying into its tier on the word with its own hit, karaoke captions in a blue box.",
+  "palette": {
+   "stage": "#090A0F",
+   "mar": "#2C2C2C",
+   "ter": "#008FC7",
+   "gold": "#F0C84D",
+   "goldd": "#EE5F52",
+   "iv": "#FFFFFF",
+   "ink": "#090A0F"
+  },
+  "fonts": {
+   "poster": "Montserrat",
+   "accent": "Instrument Serif",
+   "ui": "Inter",
+   "devanagari": "Mukta",
+   "caption": "Montserrat"
+  },
+  "grain": 0,
+  "pace": 0.8,
+  "captionStyle": "box",
+  "captionAccent": "ter",
+  "captionSize": 60,
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+   "tierBoard",
+   "posterText",
+   "imageCard",
+   "stamp"
+  ],
+  "motion": {
+   "family": "hype",
+   "caseStyle": "upper",
+   "enter": "pop",
+   "exit": "cut",
+   "easing": "snap",
+   "speed": 1.15,
+   "camera": "cut",
+   "sfxKit": "hype",
+   "texture": "none",
+   "direction": "Hypit UGC ranking. One `tierBoard` (S #EE5F52, A #F0A04C, B #F0C84D, C #EDE356, D #A6DA7B on a #2B2B30 board) holds the film; each pick appears big over the board as it is named (8 frames) and flies into its row on the word that ranks it (14 frames), with its own sound. Captions: karaoke, the spoken word in a #008FC7 box, white Montserrat 900, at most 4 words a line. Comedy beats as `imageCard`s with a heavy drop shadow. Fast: no beat longer than 2 s without movement. Names only, never faces of real people.",
+   "avoidElements": [
+    "feedPhone",
+    "filmStrip",
+    "patternCard",
+    "explainerWorld",
+    "docCard"
+   ],
+   "framing": "any"
+  }
+ },
+ "subject": {
+  "faceBox": {
+   "x": 162,
+   "y": 619,
+   "w": 639,
+   "h": 774
+  },
+  "freeZone": {
+   "x": 0,
+   "y": 150,
+   "w": 1080,
+   "h": 429
+  },
+  "prop": {
+   "label": "prop",
+   "point": {
+    "x": 449,
+    "y": 1509
+   }
+  }
+ },
+ "videoModes": [
+  {
+   "t": 0,
+   "mode": "full"
+  },
+  {
+   "t": 2.76,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 481,
+    "y": 1000
+   },
+   "zoomScale": 1.3
+  },
+  {
+   "t": 4.34,
+   "mode": "full"
+  },
+  {
+   "t": 6.3,
+   "mode": "card"
+  }
+ ],
+ "captions": {
+  "enabled": true,
+  "y": 1400,
+  "gold": [
+   "taste",
+   "knew",
+   "honestly",
+   "ours"
+  ],
+  "accent": [
+   "jewellery",
+   "2000",
+   "india",
+   "word"
+  ]
+ },
+ "elements": [
+  {
+   "id": "hook",
+   "t0": 0.22,
+   "t1": 2.8,
+   "anchorWordIndex": 0,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "WHAT IS",
+     "font": "anton",
+     "size": 90,
+     "color": "mar"
+    },
+    {
+     "text": "YOUR TASTE?",
+     "font": "anton",
+     "size": 74,
+     "color": "ter"
+    }
+   ],
+   "top": 190,
+   "anim": "pop",
+   "left": 40,
+   "w": 520,
+   "align": "left"
+  },
+  {
+   "id": "jewel",
+   "t0": 1.6,
+   "t1": 2.8,
+   "anchorWordIndex": 8,
+   "type": "imageCard",
+   "imageId": "i3",
+   "label": "JEWELLERY",
+   "x": 590,
+   "y": 170,
+   "w": 440,
+   "h": 500,
+   "tilt": 6,
+   "objectPosition": "60% 60%"
+  },
+  {
+   "id": "yrs",
+   "t0": 2.84,
+   "t1": 3.88,
+   "anchorWordIndex": 11,
+   "type": "counter",
+   "from": 0,
+   "to": 2000,
+   "label": "YEARS AGO",
+   "top": 200,
+   "size": 240,
+   "duration": 0.6,
+   "color": "goldd"
+  },
+  {
+   "id": "india",
+   "t0": 3.9,
+   "t1": 6.3,
+   "anchorWordIndex": 14,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "INDIA HAD A WORD",
+     "font": "anton",
+     "size": 95,
+     "color": "mar"
+    },
+    {
+     "text": "FOR PEOPLE WHO KNEW",
+     "font": "anton",
+     "size": 74,
+     "color": "ter"
+    }
+   ],
+   "top": 200,
+   "anim": "pop",
+   "align": "center"
+  },
+  {
+   "id": "lock",
+   "t0": 6.38,
+   "t1": 7.6,
+   "anchorWordIndex": 25,
+   "type": "lockCard",
+   "word": "?????",
+   "kicker": "THE WORD",
+   "sub": "REVEALED AT THE END",
+   "blurred": true,
+   "dark": false
+  },
+  {
+   "id": "board",
+   "t0": 7.66,
+   "t1": 11.95,
+   "anchorWordIndex": 32,
+   "type": "tierBoard",
+   "title": "WHO HAS TASTE?",
+   "top": 200,
+   "tiers": [
+    {
+     "label": "S",
+     "color": "#EE5F52"
+    },
+    {
+     "label": "A",
+     "color": "#F0A04C"
+    },
+    {
+     "label": "B",
+     "color": "#F0C84D"
+    },
+    {
+     "label": "C",
+     "color": "#EDE356"
+    },
+    {
+     "label": "D",
+     "color": "#A6DA7B"
+    }
+   ],
+   "items": [
+    {
+     "name": "PEOPLE WHO KNEW",
+     "tier": 0,
+     "at": 0.28
+    },
+    {
+     "name": "OUR TASTE TODAY",
+     "tier": 4,
+     "at": 2.2
+    }
+   ]
+  },
+  {
+   "id": "verdict",
+   "t0": 10.6,
+   "t1": 11.95,
+   "anchorWordIndex": 40,
+   "type": "stamp",
+   "text": "ISN'T OURS"
+  }
+ ],
+ "sfx": {
+  "auto": true,
+  "intensity": 0.8
+ }
+}

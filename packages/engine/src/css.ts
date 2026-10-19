@@ -240,7 +240,9 @@ export function engineCss(o: EngineCssOptions): string {
 .rk .rk-capi.grp .cw.on{color:${capAccent};opacity:1;transform:scale(1.08)}
 .rk .rk-capi.grp.box .cw.on{color:#fff6e2;background:${capAccent};border-radius:.22em;padding:.04em .22em;-webkit-text-stroke:0;transform:none}
 .rk .rk-capi.clean{font:600 ${Math.round(cs * 0.82)}px/1.25 "${capFont}";text-transform:none;white-space:normal;max-width:900px;
-  -webkit-text-stroke:0;text-shadow:0 2px 4px rgba(0,0,0,.4),0 0 24px rgba(0,0,0,.25);letter-spacing:0}
+  -webkit-text-stroke:0;text-shadow:0 1px 2px rgba(0,0,0,.35);letter-spacing:0;
+  background:rgba(14,14,16,.58);padding:.14em .5em .18em;border-radius:.32em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.rk .rk-capi.clean:empty,.rk.light.faceless .rk-capi.clean{background:none;padding:0}
 .rk .lock{position:absolute;left:140px;width:800px;top:250px;height:300px;border:4px dashed var(--goldd);border-radius:28px;
   background:rgba(246,236,216,.9);text-align:center;box-shadow:0 20px 60px rgba(60,0,10,.25)}
 .rk .lock .t{font:800 30px "${ui}";letter-spacing:.3em;color:var(--mar);margin-top:30px}

@@ -444,7 +444,7 @@ const BRIEF_ONLY = new Set([
   "kurz-explainer",
 ]);
 /** Styles whose demo render (public/demo/styles/<id>.mp4) is not made yet: not offered in a grid until it is. */
-const DEMO_PENDING = new Set<string>(["cut-paper-vivid", "paper-cut-red", "clean-cut-mono", "tier-list", "podcast-glow"]);
+const DEMO_PENDING = new Set<string>([]);
 
 /** The styles offered for an edit (a take, a script, a presenter): every one has a real demo render. */
 export const presetCards: PresetCard[] = allPresetCards.filter(

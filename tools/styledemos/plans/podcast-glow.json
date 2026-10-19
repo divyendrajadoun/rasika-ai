@@ -1,0 +1,273 @@
+{
+ "version": 1,
+ "meta": {
+  "durationSec": 12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "language": "en"
+ },
+ "style": {
+  "id": "podcast-glow",
+  "name": "Podcast Glow",
+  "tagline": "hypit-ai/hypit's podcast clip: black stage, the speaker full frame, UPPERCASE Montserrat 900 karaoke captions with a coloured active word and glow.",
+  "palette": {
+   "stage": "#050507",
+   "mar": "#170A20",
+   "ter": "#F16BFF",
+   "gold": "#77D9FF",
+   "goldd": "#F2C94C",
+   "iv": "#FFFFFF",
+   "ink": "#170A20"
+  },
+  "fonts": {
+   "poster": "Montserrat",
+   "accent": "Instrument Serif",
+   "ui": "Inter",
+   "devanagari": "Mukta",
+   "caption": "Montserrat"
+  },
+  "grain": 0,
+  "pace": 0.7,
+  "captionStyle": "karaoke",
+  "captionAccent": "gold",
+  "captionSize": 66,
+  "endCardShape": "square",
+  "pattern": "none",
+  "preferredElements": [
+   "posterText",
+   "propPunchIn",
+   "stamp",
+   "chips",
+   "imageCard"
+  ],
+  "motion": {
+   "family": "hype",
+   "caseStyle": "upper",
+   "enter": "pop",
+   "exit": "cut",
+   "easing": "snap",
+   "speed": 1.1,
+   "camera": "cut",
+   "sfxKit": "pop",
+   "texture": "none",
+   "direction": "Hypit podcast clip. The speaker full frame, locked view, compact pacing (turn on Clean cut for the pause trims). Captions are the show: Montserrat 900 UPPERCASE, white with a dark 3 px stroke, karaoke step with the active word in the speaker's colour (`gold` #77D9FF, or `ter` #F16BFF for a second voice), 4-frame pop in, 2-frame fade out. Few overlays: one `stamp` on the hook line, a `propPunchIn` on the product moment. Soundtrack low (~0.12), event sounds at ~0.2.",
+   "avoidElements": [
+    "feedPhone",
+    "filmStrip",
+    "patternCard",
+    "explainerWorld",
+    "docCard",
+    "tierBoard"
+   ],
+   "framing": "full"
+  }
+ },
+ "subject": {
+  "faceBox": {
+   "x": 162,
+   "y": 619,
+   "w": 639,
+   "h": 774
+  },
+  "freeZone": {
+   "x": 0,
+   "y": 150,
+   "w": 1080,
+   "h": 429
+  },
+  "prop": {
+   "label": "prop",
+   "point": {
+    "x": 449,
+    "y": 1509
+   }
+  }
+ },
+ "videoModes": [
+  {
+   "t": 0,
+   "mode": "full"
+  },
+  {
+   "t": 2.76,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 481,
+    "y": 1006
+   },
+   "zoomScale": 1.3
+  },
+  {
+   "t": 4.66,
+   "mode": "full"
+  },
+  {
+   "t": 6.3,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 481,
+    "y": 1006
+   },
+   "zoomScale": 1.5
+  },
+  {
+   "t": 8.84,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 470,
+    "y": 1290
+   },
+   "zoomScale": 2
+  },
+  {
+   "t": 10.52,
+   "mode": "full"
+  }
+ ],
+ "captions": {
+  "enabled": true,
+  "y": 1400,
+  "gold": [
+   "taste",
+   "actually",
+   "knew",
+   "honestly",
+   "truly",
+   "ours"
+  ],
+  "accent": [
+   "jewellery",
+   "2000",
+   "years",
+   "india",
+   "word"
+  ]
+ },
+ "elements": [
+  {
+   "id": "hook",
+   "t0": 0.22,
+   "t1": 1.8,
+   "anchorWordIndex": 0,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "WHAT IS YOUR",
+     "font": "anton",
+     "size": 90,
+     "color": "mar"
+    },
+    {
+     "text": "TASTE?",
+     "font": "anton",
+     "size": 210,
+     "color": "ter"
+    }
+   ],
+   "top": 200,
+   "anim": "pop",
+   "align": "center"
+  },
+  {
+   "id": "stamp1",
+   "t0": 1.86,
+   "t1": 2.8,
+   "anchorWordIndex": 9,
+   "type": "stamp",
+   "text": "ACTUALLY?"
+  },
+  {
+   "id": "yrs",
+   "t0": 2.84,
+   "t1": 3.86,
+   "anchorWordIndex": 11,
+   "type": "counter",
+   "from": 0,
+   "to": 2000,
+   "label": "YEARS AGO",
+   "top": 200,
+   "size": 240,
+   "duration": 0.5,
+   "color": "ter"
+  },
+  {
+   "id": "india",
+   "t0": 3.9,
+   "t1": 4.7,
+   "anchorWordIndex": 14,
+   "type": "imageCard",
+   "imageId": "i3",
+   "label": "JEWELLERY",
+   "x": 580,
+   "y": 160,
+   "w": 440,
+   "h": 440,
+   "tilt": 6,
+   "objectPosition": "50% 50%"
+  },
+  {
+   "id": "word",
+   "t0": 4.74,
+   "t1": 6.3,
+   "anchorWordIndex": 18,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "A WORD FOR",
+     "font": "anton",
+     "size": 100,
+     "color": "mar"
+    },
+    {
+     "text": "PEOPLE WHO KNEW",
+     "font": "anton",
+     "size": 91,
+     "color": "ter"
+    }
+   ],
+   "top": 220,
+   "anim": "pop",
+   "align": "center"
+  },
+  {
+   "id": "lock",
+   "t0": 6.38,
+   "t1": 8.85,
+   "anchorWordIndex": 25,
+   "type": "lockCard",
+   "word": "?????",
+   "kicker": "THE WORD",
+   "sub": "REVEALED AT THE END",
+   "blurred": true,
+   "dark": false
+  },
+  {
+   "id": "punch",
+   "t0": 8.92,
+   "t1": 10.55,
+   "anchorWordIndex": 34,
+   "type": "propPunchIn",
+   "label": "OUR TASTE TODAY",
+   "ring": {
+    "cx": 470,
+    "cy": 1290,
+    "rx": 220,
+    "ry": 100
+   },
+   "labelTop": 300
+  },
+  {
+   "id": "stamp2",
+   "t0": 10.6,
+   "t1": 12,
+   "anchorWordIndex": 40,
+   "type": "stamp",
+   "text": "ISN'T OURS"
+  }
+ ],
+ "sfx": {
+  "auto": true,
+  "intensity": 0.8
+ }
+}
