@@ -376,7 +376,9 @@ class Planner:
                 raise RuntimeError("planner output exceeded the token limit twice")
         if plan is None:
             raise RuntimeError(f"planner returned no tool call (stop={stop})")
-        if len(plan.get("elements") or []) < self.min_elements(inp.duration_sec):
+        els = plan.get("elements") or []
+        whole = any(e.get("type") in WHOLE_FILM for e in els if isinstance(e, dict))
+        if not whole and len(els) < self.min_elements(inp.duration_sec):
             raise RuntimeError(
                 f"planner returned {len(plan.get('elements') or [])} elements for {inp.duration_sec:.0f} s"
             )
@@ -527,6 +529,9 @@ class Planner:
             seen.add(eid)
         return plan
 
+
+# elements that are the whole film by themselves (the planner's element floor does not apply)
+WHOLE_FILM = {"pageFlyover"}
 
 FILM_COMMON = """## This is a brief film (kind: {kind})
 
