@@ -5,3 +5,4 @@
 *.mp4 binary
 *.ttf binary
 *.woff2 binary
+*.bat text eol=crlf
