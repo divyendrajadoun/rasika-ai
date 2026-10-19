@@ -56,6 +56,10 @@ export const env = {
       return (process.env.S3_FORCE_PATH_STYLE ?? "true") === "true";
     },
   },
+  /** the worker can fetch stock B-roll (same .env as the web app in dev; set on both in prod) */
+  get stockEnabled() {
+    return Boolean(process.env.PEXELS_API_KEY);
+  },
   get maxUploadBytes() {
     return Number(process.env.MAX_UPLOAD_MB ?? 600) * 1024 * 1024;
   },

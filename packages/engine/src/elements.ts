@@ -198,6 +198,7 @@ function lineExtra(line: TextLine): string {
 // ───────── element → items ─────────
 
 export function buildElement(el: PlanElement, ctx: BuildCtx): Item[] {
+  if (el.type === "broll") return [];
   const { C } = ctx;
   const dark = DARK.has(ctx.modeAt(el.t0 + 0.05)) && ctx.stageDark;
   const tok = (c: ColorToken | undefined, fallback: string) => (c ? C[c] : fallback);

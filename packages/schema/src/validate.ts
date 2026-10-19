@@ -423,6 +423,31 @@ export function validatePlan(
     }
   }
 
+  // ── stock B-roll: length, not in the hook, no stacking, breathing room between cutaways ──
+  {
+    const brolls = plan.elements
+      .filter((e): e is Extract<PlanElement, { type: "broll" }> => e.type === "broll")
+      .sort((a, b) => a.t0 - b.t0);
+    let lastEnd = -Infinity;
+    for (const b of brolls) {
+      if (b.t0 < 1.5) {
+        b.t0 = 1.5;
+        issues.push({ level: "fixed", code: "broll.hook", elementId: b.id, message: "B-roll moved out of the first 1.5 s" });
+      }
+      if (b.t1 - b.t0 > 6) {
+        b.t1 = b.t0 + 6;
+        issues.push({ level: "fixed", code: "broll.long", elementId: b.id, message: "B-roll capped at 6 s" });
+      }
+      if (b.t0 - lastEnd < 1.5 && lastEnd > -Infinity) {
+        issues.push({ level: "error", code: "broll.crowded", elementId: b.id, message: "two B-roll cutaways need ≥ 1.5 s of the speaker between them" });
+      }
+      if (b.t1 - b.t0 < 1.2) {
+        issues.push({ level: "error", code: "broll.short", elementId: b.id, message: "B-roll shorter than 1.2 s" });
+      }
+      lastEnd = Math.max(lastEnd, b.t1);
+    }
+  }
+
   // ── overlaps: posterText / imageCard sharing time and zone ──
   const zoned = plan.elements
     .filter((e) => e.type === "posterText" || e.type === "imageCard")

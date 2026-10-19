@@ -189,6 +189,26 @@ class Captions(BaseModel):
     accent: list[str] | None = Field([], description="nouns, names, numbers → terracotta Anton")
 
 
+class Source(BaseModel):
+    provider: Literal["pexels"]
+    id: int = Field(..., ge=-9007199254740991, le=9007199254740991)
+    url: str
+    author: str
+    file: str | None = None
+    duration: float | None = None
+
+
+class PlanElement1(BaseModel):
+    id: str = Field(..., max_length=64, min_length=1)
+    t0: float = Field(..., ge=0.0, le=600.0)
+    t1: float = Field(..., ge=0.0, le=600.0)
+    anchorWordIndex: int | None = Field(None, ge=0, le=9007199254740991)
+    type: Literal["broll"]
+    query: str = Field(..., max_length=80, min_length=3)
+    label: str | None = Field(None, max_length=40)
+    source: Source | None = None
+
+
 class Anim(StrEnum):
     rise = "rise"
     pop = "pop"
@@ -614,6 +634,7 @@ class Plan(BaseModel):
     captions: Captions
     elements: list[
         PosterText
+        | PlanElement1
         | Counter
         | LockCard
         | PropPunchIn

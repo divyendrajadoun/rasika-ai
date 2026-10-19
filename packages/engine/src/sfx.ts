@@ -67,6 +67,10 @@ export function deriveSfx(plan: Plan): CueSheet {
         case "stamp":
           push({ t: el.t0, type: "impact", gain: 0.9 });
           break;
+        case "broll":
+          push({ t: el.t0 - 0.05, type: "whoosh", dur: 0.45, gain: 0.8 });
+          push({ t: el.t1 - 0.05, type: "whoosh", dur: 0.4, gain: 0.6 });
+          break;
         case "reveal":
           push({ t: el.t0 - 1.35, type: "riser", dur: 1.35, gain: 0.6 });
           push({ t: el.t0, type: "impact", gain: 1.0 });

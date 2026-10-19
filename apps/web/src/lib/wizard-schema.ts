@@ -29,6 +29,7 @@ export const WizardSubmission = z.object({
     sfxIntensity: z.number().min(0).max(1).default(0.6),
     music: z.boolean().default(false),
     language: z.enum(["auto", "en", "hi", "hinglish"]).default("auto"),
+    broll: z.boolean().default(false),
   }),
   brand: z.object({
     name: z.string().max(60).default(""),
@@ -61,6 +62,7 @@ export const ScriptSubmission = z.object({
     captions: z.boolean().default(true),
     sfxIntensity: z.number().min(0).max(1).default(0.6),
     music: z.boolean().default(false),
+    broll: z.boolean().default(false),
   }),
   brand: z.object({
     name: z.string().max(60).default(""),

@@ -12,14 +12,19 @@ export interface StyleState {
   sfxIntensity: number;
   music: boolean;
   language: "auto" | "en" | "hi" | "hinglish";
+  /** cut stock footage (Pexels) into the reel */
+  broll: boolean;
 }
 
 export function StepStyle({
   value,
   onChange,
+  stockEnabled = false,
 }: {
   value: StyleState;
   onChange: (v: StyleState) => void;
+  /** the worker has a Pexels key */
+  stockEnabled?: boolean;
 }) {
   const set = (patch: Partial<StyleState>) => onChange({ ...value, ...patch });
   const filter = useStyleFilter(presetCards);
@@ -134,6 +139,28 @@ export function StepStyle({
           <span className="text-muted-foreground mt-1 block text-xs">
             The sound kit comes from the style; this sets how loud it lands.
           </span>
+        </label>
+        <label
+          className={cn(
+            "bg-card flex items-center justify-between rounded-xl border p-4",
+            !stockEnabled && "opacity-60",
+          )}
+        >
+          <span>
+            <span className="block font-semibold">Stock B-roll</span>
+            <span className="text-muted-foreground text-xs">
+              {stockEnabled
+                ? "Short Pexels clips cut in on the words that need a picture (free, credited)"
+                : "Needs a Pexels API key on the worker (PEXELS_API_KEY) — not set"}
+            </span>
+          </span>
+          <input
+            type="checkbox"
+            className="size-5 accent-[var(--ter)]"
+            checked={value.broll && stockEnabled}
+            disabled={!stockEnabled}
+            onChange={(e) => set({ broll: e.target.checked })}
+          />
         </label>
         <label className="bg-card block rounded-xl border p-4">
           <span className="block font-semibold">Language</span>

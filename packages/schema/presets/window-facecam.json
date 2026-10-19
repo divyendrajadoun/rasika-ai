@@ -51,7 +51,8 @@
       "bleedPlate",
       "patternCard",
       "feedPhone",
-      "propPunchIn"
+      "propPunchIn",
+      "broll"
     ]
   }
 }

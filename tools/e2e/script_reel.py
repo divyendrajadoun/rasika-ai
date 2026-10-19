@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """End-to-end check of a script-only reel through the real worker (needs the stack up and `.env`).
 
-  apps/worker/.venv/Scripts/python.exe tools/e2e/script_reel.py [preset] [voice]
+  apps/worker/.venv/Scripts/python.exe tools/e2e/script_reel.py [preset] [voice] [broll]
 
 Creates a project for tester@rasika.local, enqueues a `synth` job and follows it to `done`, then
 downloads the 720p output next to this file's scratch folder and prints the timings.
@@ -31,6 +31,7 @@ SCRIPT = (
 def main() -> int:
     preset = sys.argv[1] if len(sys.argv) > 1 else "paper-manuscript"
     voice = sys.argv[2] if len(sys.argv) > 2 else "aura-2-athena-en"
+    broll = len(sys.argv) > 3 and sys.argv[3] == "broll"
     env = dict(
         line.strip().split("=", 1)
         for line in (ROOT / ".env").read_text(encoding="utf-8").splitlines()
@@ -48,7 +49,7 @@ def main() -> int:
             " values (%s::uuid,%s::uuid,%s,%s,%s,%s::jsonb,%s::jsonb,%s,%s)",
             (pid, uid, f"E2E script reel · {preset}", "uploaded", preset,
              json.dumps({"captions": True, "sfxIntensity": 0.6, "music": False, "language": "en",
-                         "source": "script", "faceless": True, "voice": voice}),
+                         "source": "script", "faceless": True, "voice": voice, "broll": broll}),
              json.dumps({"name": "Baisa Bling", "handle": "@baisabling"}), 30, 1),
         )
         c.execute(

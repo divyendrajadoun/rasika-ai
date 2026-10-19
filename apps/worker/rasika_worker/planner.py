@@ -191,6 +191,8 @@ class Planner:
             }
         )
         parts.append({"type": "text", "text": motion_brief(inp.style, motion)})
+        if inp.options.get("broll"):
+            parts.append({"type": "text", "text": BROLL_BRIEF})
         if inp.options.get("faceless"):
             stage = str((inp.style.get("palette") or {}).get("stage") or "#000000")
             tokens = "`iv` / `gold`" if hex_luma(stage) < 0.5 else "`mar` / `ter` / `goldd`"
@@ -483,6 +485,8 @@ class Planner:
         plan.setdefault("sfx", {"auto": True, "intensity": 0.8})
         if "sfxIntensity" in inp.options:
             plan["sfx"]["intensity"] = float(inp.options["sfxIntensity"])
+        if not inp.options.get("broll") and isinstance(plan.get("elements"), list):
+            plan["elements"] = [e for e in plan["elements"] if e.get("type") != "broll"]
         plan.setdefault("videoModes", [{"t": 0, "mode": "full"}])
         if inp.options.get("faceless"):
             # no speaker: the framed modes would only frame an empty plate
@@ -498,6 +502,19 @@ class Planner:
             seen.add(eid)
         return plan
 
+
+BROLL_BRIEF = """## Stock B-roll (this edit asked for it)
+
+The user wants stock footage cut into the reel. Add `broll` elements: a cutaway to a portrait stock
+clip found from your `query`. Write queries as a stock librarian would — concrete, visual, English,
+3–8 words naming the subject and the shot ("hands polishing a gold ring macro", "crowded Delhi market
+at dusk", "woman scrolling phone in bed") — never abstract nouns ("success", "taste").
+Rules: 1.2–4 s each; never in the first 1.5 s; at least 1.5 s of the speaker between two cutaways;
+at most one per 10 s; the clip must illustrate the exact words being spoken, landing on the noun.
+A B-roll replaces the picture (in `card` / `pip` modes it fills the card), so keep that window free
+of `imageCard`s and put any `posterText` above the picture where it stays readable; captions keep
+running. Give it a short `label` only when a source tag suits the style ("stock", "archive").
+Never cut away on the emotional line, the punchline or the CTA."""
 
 MIXED_CASE_FAMILIES = {"kinetic", "whiteboard", "chalk", "launch", "blocks"}
 

@@ -257,8 +257,34 @@ export const Chips = z.object({
   size: z.number().int().min(30).max(160).default(76),
 });
 
+/**
+ * Stock B-roll: a cutaway to a portrait stock clip (Pexels) found from `query`. The worker fills
+ * `source` once a clip is chosen; the engine shows the clip's frames inside the video wrapper for
+ * the element's window (so a `card`-mode B-roll sits in the card). 1.2–6 s, never in the first
+ * 1.5 s, ≥ 1.5 s of the speaker between two of them.
+ */
+export const Broll = z.object({
+  ...Timed,
+  type: z.literal("broll"),
+  /** concrete, visual, English: "hands polishing a gold ring, macro" */
+  query: z.string().min(3).max(80),
+  /** optional source tag drawn bottom-left ("archive", "2019", "stock") */
+  label: z.string().max(40).optional(),
+  source: z
+    .object({
+      provider: z.literal("pexels"),
+      id: z.number().int(),
+      url: z.string(),
+      author: z.string(),
+      file: z.string().nullable().optional(),
+      duration: z.number().optional(),
+    })
+    .optional(),
+});
+
 export const PlanElement = z.discriminatedUnion("type", [
   PosterText,
+  Broll,
   Counter,
   LockCard,
   PropPunchIn,

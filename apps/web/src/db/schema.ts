@@ -100,6 +100,8 @@ export interface StyleOptions {
   faceless?: boolean;
   /** script-only reels: the narration voice id (Deepgram Aura) */
   voice?: string;
+  /** stock B-roll from Pexels cut into the reel (needs PEXELS_API_KEY on the worker) */
+  broll?: boolean;
   /** reference matching: how much of the reference to honour */
   fidelity?: "pace" | "camera" | "look";
   /** reference matching: the style the worker wrote from the reference (StyleTokens) */

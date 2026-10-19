@@ -38,6 +38,8 @@ export interface EngineAssets {
   video?: string;
   /** frames mode: URL for 1-based frame n, and how many exist */
   frames?: { url: (n: number) => string; count: number };
+  /** stock B-roll per `broll` element id: frames of the clip's window (frames mode only) */
+  broll?: Record<string, { url: (n: number) => string; count: number }>;
 }
 
 export interface EngineOptions {
@@ -130,9 +132,14 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
 
   // the material rides the footage: texture over the picture in every mode, plus the family's
   // frame (paper strata, taped border) — scaled and rounded with the wrapper
+  // stock B-roll rides above the footage inside the wrapper; shown only while an element is live
+  const broll = document.createElement("img");
+  broll.className = "rk-vid rk-broll";
+  broll.alt = "";
+  const brollLb = div("rk-broll-lb");
   const mat = div(`rk-mat tex-${motion.texture}`);
   const frameEl = div("rk-frame");
-  vw.append(mat, frameEl);
+  vw.append(broll, brollLb, mat, frameEl);
   const grain = createGrain(STAGE_W, STAGE_H, fps);
   stage.append(pattern, bl, vw, fx, cap, grain.canvas);
   root.appendChild(stage);
@@ -169,7 +176,10 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
       modeAt: (t) => modeAt(segs, t),
       stageDark: hexLuma(p.stage) < 0.5,
     };
-    items = buildElements(plan.elements, ctx);
+    items = buildElements(
+      plan.elements.filter((e) => e.type !== "broll"),
+      ctx,
+    );
     if (plan.endCard) {
       const arch = [...segs].reverse().find((s) => s.mode === "arch");
       const t0 = plan.endCard.t0 ?? arch?.t ?? Math.max(0, plan.meta.durationSec - 2.5);
@@ -208,8 +218,38 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
   // stop-motion styles hold the picture on a 12 fps grid (poses, not motion)
   const quant = (t: number) => (motion.easing === "steps" ? Math.floor(t * 12) / 12 : t);
 
+  async function showBroll(t: number) {
+    const live = assets.broll
+      ? plan.elements.find(
+          (e) => e.type === "broll" && t >= e.t0 && t < e.t1 && assets.broll![e.id] !== undefined,
+        )
+      : undefined;
+    if (!live || live.type !== "broll") {
+      broll.style.opacity = "0";
+      brollLb.style.opacity = "0";
+      return;
+    }
+    const src = assets.broll![live.id]!;
+    const n = clamp(Math.round(quant(t - live.t0) * fps) + 1, 1, src.count);
+    const url = src.url(n);
+    if (!broll.src.endsWith(url) && broll.src !== url) {
+      broll.src = url;
+      try {
+        await broll.decode();
+      } catch {
+        /* missing frame: keep the previous one */
+      }
+    }
+    // 6-frame fade in, hard out (the next spoken beat lands on the face)
+    const fade = clamp((t - live.t0) / 0.2);
+    broll.style.opacity = String(fade);
+    brollLb.textContent = live.label ?? "";
+    brollLb.style.opacity = live.label ? String(fade) : "0";
+  }
+
   async function showFrame(t0: number, seek: boolean) {
     const t = quant(t0);
+    await showBroll(t0);
     if (img && assets.frames) {
       const n = clamp(Math.round(t * fps) + 1, 1, assets.frames.count);
       const src = assets.frames.url(n);

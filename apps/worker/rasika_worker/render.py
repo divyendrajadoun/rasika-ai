@@ -56,6 +56,8 @@ class RenderSpec:
     preview: bool = False
     music_bed: Path | None = None
     extra: dict[str, Any] = field(default_factory=dict)
+    # stock B-roll: element id → (frames dir, count), prepared by the pipeline
+    broll: dict[str, tuple[Path, int]] = field(default_factory=dict)
 
     @property
     def duration(self) -> float:
@@ -131,11 +133,21 @@ def build_harness(work: Path, settings: Settings, spec: RenderSpec, grain: bool)
         if not frames_rel.is_absolute()
         else (frames_rel / "f%05d.jpg").as_uri().replace("%2505d", "%05d")
     )
+    broll_cfg: dict[str, Any] = {}
+    for el_id, (bdir, bn) in spec.broll.items():
+        rel = Path("..") / bdir.relative_to(work) if bdir.is_relative_to(work) else bdir.resolve()
+        bpat = (
+            (rel / "f%05d.jpg").as_posix()
+            if not rel.is_absolute()
+            else (rel / "f%05d.jpg").as_uri().replace("%2505d", "%05d")
+        )
+        broll_cfg[el_id] = {"pattern": bpat, "count": bn}
     cfg = {
         "plan": spec.plan,
         "words": spec.words,
         "images": images,
         "frames": {"pattern": pattern, "count": spec.n_frames},
+        "broll": broll_cfg,
         "fontBaseUrl": settings.fonts_dir.resolve().as_uri(),
         "grain": grain,
         "scale": spec.scale,

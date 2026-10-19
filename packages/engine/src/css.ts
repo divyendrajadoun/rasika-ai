@@ -184,6 +184,8 @@ export function engineCss(o: EngineCssOptions): string {
 .rk .rk-vw{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:50% 50%;overflow:hidden;background:#000}
 .rk .rk-vid{width:1080px;height:1920px;display:block;object-fit:cover}
 .rk .rk-mat,.rk .rk-frame{position:absolute;inset:0;pointer-events:none}
+.rk .rk-broll{position:absolute;left:0;top:0;opacity:0}
+.rk .rk-broll-lb{position:absolute;left:48px;bottom:560px;opacity:0;font:600 30px/1 "${ui}";letter-spacing:.14em;text-transform:uppercase;color:#fff;background:rgba(0,0,0,.55);padding:12px 18px;border-radius:8px}
 .rk .rk-mat.tex-halftone{background-image:radial-gradient(circle,rgba(0,0,0,.6) 0 1.5px,transparent 2.4px);background-size:9px 9px;mix-blend-mode:multiply;opacity:.38}
 .rk .rk-mat.tex-paper{background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.06) 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,rgba(255,255,255,.07) 0 1px,transparent 1px 4px),radial-gradient(ellipse at 50% 50%,transparent 55%,rgba(60,40,20,.45) 100%);mix-blend-mode:multiply;opacity:.75}
 .rk .rk-mat.tex-grain{background-image:radial-gradient(circle,rgba(0,0,0,.35) 0 .8px,transparent 1.4px),radial-gradient(circle,rgba(255,255,255,.25) 0 .8px,transparent 1.4px),radial-gradient(ellipse at 50% 45%,transparent 50%,rgba(0,0,0,.5) 100%);background-size:5px 5px,7px 7px,auto;background-position:0 0,2px 3px,0 0;opacity:.55}

@@ -48,6 +48,8 @@ export interface HarnessConfig {
   words: TranscriptWord[];
   images: Record<string, string>;
   frames: { pattern: string; count: number };
+  /** stock B-roll per element id: frame pattern + count (the worker prepares them) */
+  broll?: Record<string, { pattern: string; count: number }>;
   fontBaseUrl?: string;
   grain?: boolean;
   /** Stage scale for headless renders at other sizes (0.5 → 540×960 preview). */
@@ -82,6 +84,11 @@ export function mountHarness(cfg: HarnessConfig, root: HTMLElement = document.bo
     assets: {
       images: cfg.images,
       frames: { url: framePattern(cfg.frames.pattern), count: cfg.frames.count },
+      broll: cfg.broll
+        ? Object.fromEntries(
+            Object.entries(cfg.broll).map(([id, b]) => [id, { url: framePattern(b.pattern), count: b.count }]),
+          )
+        : undefined,
     },
     assetMode: "frames",
     fontBaseUrl: cfg.fontBaseUrl ?? "fonts",

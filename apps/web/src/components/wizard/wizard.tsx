@@ -82,6 +82,7 @@ export function Wizard({
   credits,
   maxSeconds,
   planName,
+  stockEnabled = false,
 }: {
   initialStyle?: string;
   /** From the landing page's industry picker — seeds the free-text style wish. */
@@ -90,6 +91,8 @@ export function Wizard({
   credits: number;
   maxSeconds: number;
   planName: string;
+  /** the worker can fetch stock B-roll */
+  stockEnabled?: boolean;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -111,6 +114,7 @@ export function Wizard({
       sfxIntensity: 0.6,
       music: false,
       language: "auto",
+      broll: false,
     },
     brand: { name: "", handle: "", endLine: "", cta: "" },
     title: "",
@@ -204,6 +208,7 @@ export function Wizard({
         sfxIntensity: draft.style.sfxIntensity,
         music: draft.style.music,
         language: draft.style.language,
+        broll: draft.style.broll && stockEnabled,
       },
       brand: draft.brand,
       consent,
@@ -243,6 +248,7 @@ export function Wizard({
         captions: draft.style.captions,
         sfxIntensity: draft.style.sfxIntensity,
         music: draft.style.music,
+        broll: draft.style.broll && stockEnabled,
       },
       brand: draft.brand,
       consent,
@@ -376,7 +382,11 @@ export function Wizard({
           />
         )}
         {stepId === "style" && (
-          <StepStyle value={draft.style} onChange={(style) => setDraft((d) => ({ ...d, style }))} />
+          <StepStyle
+            value={draft.style}
+            stockEnabled={stockEnabled}
+            onChange={(style) => setDraft((d) => ({ ...d, style }))}
+          />
         )}
         {stepId === "brand" && (
           <StepBrand

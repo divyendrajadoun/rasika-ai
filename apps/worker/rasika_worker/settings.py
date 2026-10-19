@@ -68,6 +68,10 @@ class Settings(BaseSettings):
     music_bed_path: Path | None = Field(default=None, alias="MUSIC_BED_PATH")
     enable_music_bed: bool = Field(default=False, alias="ENABLE_MUSIC_BED")
 
+    # Stock B-roll (free Pexels API; https://www.pexels.com/api/). Empty = the wizard hides the option.
+    pexels_api_key: str = Field(default="", alias="PEXELS_API_KEY")
+    stock_cache_dir: Path | None = Field(default=None, alias="STOCK_CACHE_DIR")
+
     anthropic_api_key: str = Field(default="", alias="ANTHROPIC_API_KEY")
     anthropic_planner_model: str = Field(default="claude-opus-5-5", alias="ANTHROPIC_PLANNER_MODEL")
     anthropic_fast_model: str = Field(default="claude-haiku-5-5", alias="ANTHROPIC_FAST_MODEL")

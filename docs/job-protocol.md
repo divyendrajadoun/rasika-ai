@@ -30,6 +30,7 @@ live updates: Redis pub/sub channel `rasika:progress:<job_id>` → Next.js SSE r
 | `render_preview` | `{ plan_version?, then_final? }` → 540×960, ultrafast, no grain → asset `preview_540`; with `then_final` it enqueues `render_final` |
 | `render_final`   | `{ plan_version?, watermark?: bool }` → `output_1080`, `output_720`, `thumbnail` |
 | `analyse_reference` | `{ transcript_version }` — reference matching: enqueued by `transcribe` instead of `plan` when `style_options.source = "reference"` and no `referenceStyle` exists yet. Measures the `reference_video` asset (ffmpeg scene cuts, 8 stills, Pillow colour stats), asks the planner model for a matched `StyleTokens` within the project's `fidelity` (`pace` → direction only · `camera` → + enter/exit/easing/camera/sfx · `look` → + palette/fonts/texture), stores it in `style_options.referenceStyle` (+ `referenceReport`) and enqueues `plan`, which reads the override instead of the preset |
+| (inside `plan` / `render`) | stock B-roll: when `style_options.broll` is true, `plan` resolves every `broll` element's `query` on Pexels and stores `source`; `render` prepares that window's frames and passes `broll` to the harness. No key → the plan job fails with a clear message |
 | `cleanup`        | `{ keep_outputs: bool }`                                                |
 
 One `jobs` row follows a pipeline run through its stages; the worker re-enqueues the next stage with

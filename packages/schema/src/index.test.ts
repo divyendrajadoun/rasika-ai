@@ -62,7 +62,7 @@ describe("@rasika/schema presets", () => {
 });
 
 describe("Plan v1", () => {
-  it("knows all 16 element types from the spec", () => {
+  it("knows all 17 element types (16 from the spec + stock broll)", () => {
     expect([...ELEMENT_TYPES].sort()).toEqual(
       [
         "posterText",
@@ -81,6 +81,7 @@ describe("Plan v1", () => {
         "reveal",
         "strikeLine",
         "chips",
+        "broll",
       ].sort(),
     );
   });

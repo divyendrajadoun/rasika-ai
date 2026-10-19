@@ -47,6 +47,19 @@ Colours are **tokens** (`mar ter gold goldd iv stage ink`); the style's palette 
 A line without a `color` auto-flips by context: light wall → `mar/ter/goldd`, dark stage/plate →
 `iv/gold`.
 
+### Stock B-roll (`broll`)
+
+A cutaway to a portrait stock clip. The planner writes `{type:"broll", t0, t1, query, label?}` only
+when the edit asked for stock footage (`style_options.broll`); the worker's `plan` step resolves
+each query against Pexels (`stock.py`: portrait MP4 ≥ 720×1280, at least as long as the window,
+cached under `WORKER_WORK_DIR/stock`), fills `source` (provider, id, page URL, author) and drops the
+elements Pexels has nothing for. The `render` step extracts the window's frames
+(`extract_window`) and the harness passes them as `broll[id] = {pattern, count}`; the engine shows
+them in a picture layer inside the video wrapper (so a `card`-mode B-roll fills the card), fading
+in over 0.2 s and cutting out, with whooshes on both edges. Validator: 1.2–6 s, not in the first
+1.5 s, ≥ 1.5 s of the speaker between cutaways. Styles that never cut away list `broll` in
+`avoidElements` (Nativo, Tabloid, Window, Ghost Clean / Kinetic, Retro Terminal, Pixel RPG).
+
 ## Captions
 
 Five formats, chosen by the style's `captionStyle`:

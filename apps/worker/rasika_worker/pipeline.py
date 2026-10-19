@@ -547,6 +547,11 @@ class Pipeline:
         timings["plan_input_tokens"] = float(res.usage["input_tokens"])
         timings["plan_output_tokens"] = float(res.usage["output_tokens"])
         timings["plan_cache_read"] = float(res.usage["cache_read"])
+        # stock B-roll: resolve each `broll` query to a Pexels clip now, so the plan records its source
+        if (project.get("style_options") or {}).get("broll"):
+            t0 = time.time()
+            res.plan = self._resolve_broll(res.plan, pub)
+            timings["broll_sec"] = round(time.time() - t0, 2)
         version = self.repo.insert_plan(
             job.project_id, res.plan, created_by="llm", report=res.report
         )
@@ -573,6 +578,78 @@ class Pipeline:
             pub.update(
                 JobStatus.AWAITING_PLAN_REVIEW, 100, "Your edit is ready to preview", **timings
             )
+
+    # ── stock B-roll (Pexels) ──
+    def _stock(self) -> Any:
+        from rasika_worker.stock import PexelsClient
+
+        if not self.s.pexels_api_key:
+            raise PipelineError(
+                "This edit asks for stock B-roll but the worker has no Pexels key (PEXELS_API_KEY)."
+            )
+        cache = self.s.stock_cache_dir or (self.s.work_dir / "stock")
+        return PexelsClient(self.s.pexels_api_key, cache)
+
+    def _resolve_broll(self, plan: dict[str, Any], pub: Publisher) -> dict[str, Any]:
+        """Fill `source` on every broll element; drop the ones Pexels has nothing for."""
+        from rasika_worker.stock import broll_elements
+
+        els = broll_elements(plan)
+        if not els:
+            return plan
+        client = self._stock()
+        kept: list[str] = []
+        for i, el in enumerate(els):
+            pub.update(JobStatus.PLANNING, 60 + int(30 * i / len(els)), f"Finding stock footage: {el['query']}…")
+            need = float(el["t1"]) - float(el["t0"])
+            try:
+                clip = client.resolve(str(el["query"]), need)
+            except Exception as exc:
+                log.warning("stock_failed", query=el["query"], error=str(exc))
+                clip = None
+            if clip is None:
+                continue
+            el["source"] = clip.as_source()
+            kept.append(str(el["id"]))
+        plan["elements"] = [
+            e for e in plan["elements"] if e.get("type") != "broll" or str(e.get("id")) in kept
+        ]
+        log.info("broll_resolved", asked=len(els), found=len(kept))
+        return plan
+
+    def _prepare_broll(self, plan: dict[str, Any], work: Path, preview: bool) -> dict[str, tuple[Path, int]]:
+        """Frames for each resolved broll window (re-downloads the clip if the cache was cleaned)."""
+        from rasika_worker.stock import StockClip, broll_elements, extract_window
+
+        out: dict[str, tuple[Path, int]] = {}
+        els = [e for e in broll_elements(plan) if e.get("source")]
+        if not els:
+            return out
+        client = self._stock()
+        for el in els:
+            src = el["source"]
+            clip = StockClip(
+                id=int(src["id"]), url=str(src.get("url") or ""), author=str(src.get("author") or ""),
+                duration=float(src.get("duration") or 0), file_url="", width=0, height=0,
+            )
+            cached = sorted(client.cache.glob(f"pexels_{clip.id}_*.mp4"))
+            if cached:
+                clip.file = cached[-1]
+            else:
+                found = client.resolve(str(el["query"]), float(el["t1"]) - float(el["t0"]))
+                if not found:
+                    continue
+                clip = found
+            if not clip.file:
+                continue
+            bdir = work / ("broll_540" if preview else "broll") / str(el["id"])
+            n = extract_window(
+                self.s.ffmpeg_bin, clip.file, bdir, float(el["t1"]) - float(el["t0"]),
+                scale=0.5 if preview else 1.0,
+            )
+            if n:
+                out[str(el["id"])] = (bdir, n)
+        return out
 
     def _style_tokens(self, project: dict[str, Any], use_override: bool = True) -> dict[str, Any]:
         """The preset's tokens (packages/schema/presets) for the project's style_preset — or the
@@ -658,6 +735,10 @@ class Pipeline:
             )
             else None
         )
+        t0 = time.time()
+        broll = self._prepare_broll(plan, work, preview)
+        if broll:
+            timings["broll_frames_sec"] = round(time.time() - t0, 2)
         spec = RenderSpec(
             plan,
             words,
@@ -667,6 +748,7 @@ class Pipeline:
             work / "voice.wav",
             preview=preview,
             music_bed=music,
+            broll=broll,
         )
 
         def prog(p: float, m: str) -> None:

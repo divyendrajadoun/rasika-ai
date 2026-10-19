@@ -53,7 +53,8 @@
       "propPunchIn",
       "ring",
       "focusRing",
-      "strikeLine"
+      "strikeLine",
+      "broll"
     ]
   }
 }
