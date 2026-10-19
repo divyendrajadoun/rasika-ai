@@ -29,7 +29,7 @@
   },
   "grain": 0,
   "pace": 0.9,
-  "captionStyle": "box",
+  "captionStyle": "one-word",
   "captionAccent": "gold",
   "captionSize": 70,
   "endCardShape": "rounded",
@@ -88,11 +88,7 @@
    "mode": "full"
   },
   {
-   "t": 2.78,
-   "mode": "card"
-  },
-  {
-   "t": 6,
+   "t": 2.76,
    "mode": "zoom",
    "zoomPoint": {
     "x": 481,
@@ -101,21 +97,34 @@
    "zoomScale": 1.6
   },
   {
-   "t": 7.85,
+   "t": 4.3,
+   "mode": "card"
+  },
+  {
+   "t": 6.3,
    "mode": "full"
   },
   {
-   "t": 8.85,
+   "t": 7.85,
+   "mode": "zoom",
+   "zoomPoint": {
+    "x": 481,
+    "y": 980
+   },
+   "zoomScale": 2
+  },
+  {
+   "t": 9.45,
+   "mode": "card"
+  },
+  {
+   "t": 11.36,
    "mode": "zoom",
    "zoomPoint": {
     "x": 481,
     "y": 1000
    },
-   "zoomScale": 1.5
-  },
-  {
-   "t": 10.55,
-   "mode": "arch"
+   "zoomScale": 1.8
   }
  ],
  "captions": {
@@ -123,8 +132,9 @@
   "y": 1400,
   "gold": [
    "taste",
-   "knew",
    "honestly",
+   "truly",
+   "knew",
    "ours"
   ],
   "accent": [
@@ -151,17 +161,18 @@
     {
      "text": "YOUR TASTE?",
      "font": "anton",
-     "size": 149,
+     "size": 143,
      "color": "ter"
     }
    ],
-   "top": 230,
-   "anim": "pop"
+   "top": 220,
+   "anim": "pop",
+   "align": "center"
   },
   {
-   "id": "jwl",
+   "id": "jw",
    "t0": 1.6,
-   "t1": 2.78,
+   "t1": 2.8,
    "anchorWordIndex": 8,
    "type": "splitCards",
    "cards": [
@@ -170,20 +181,20 @@
      "label": "JEWELLERY",
      "x": 50,
      "y": 170,
-     "w": 420,
-     "h": 420,
+     "w": 430,
+     "h": 430,
      "tilt": -6,
-     "objectPosition": "50% 30%"
+     "objectPosition": "50% 25%"
     },
     {
      "imageId": "i2",
      "label": "JEWELLERY",
-     "x": 600,
+     "x": 590,
      "y": 180,
-     "w": 420,
-     "h": 420,
-     "tilt": 6,
-     "objectPosition": "50% 35%"
+     "w": 430,
+     "h": 430,
+     "tilt": 5,
+     "objectPosition": "50% 30%"
     }
    ],
    "stagger": 0.15
@@ -191,7 +202,7 @@
   {
    "id": "yrs",
    "t0": 2.84,
-   "t1": 3.88,
+   "t1": 3.86,
    "anchorWordIndex": 11,
    "type": "counter",
    "from": 0,
@@ -199,13 +210,13 @@
    "label": "YEARS AGO",
    "top": 220,
    "size": 240,
-   "duration": 0.6,
-   "color": "gold"
+   "duration": 0.5,
+   "color": "ter"
   },
   {
    "id": "india",
    "t0": 3.9,
-   "t1": 6,
+   "t1": 6.3,
    "anchorWordIndex": 14,
    "type": "chips",
    "items": [
@@ -218,73 +229,72 @@
     {
      "text": "HAD A WORD",
      "at": 0.84,
-     "bg": "gold",
-     "color": "ink"
+     "bg": "ter",
+     "color": "iv"
     },
     {
      "text": "FOR PEOPLE WHO KNEW",
-     "at": 1.76,
-     "bg": "ter",
-     "color": "iv"
+     "at": 1.24,
+     "bg": "iv",
+     "color": "ink"
     }
    ],
    "x": 70,
-   "y": 200,
-   "size": 68
+   "y": 230,
+   "size": 70
   },
   {
-   "id": "wait",
-   "t0": 6.06,
+   "id": "tease",
+   "t0": 6.38,
    "t1": 7.6,
-   "anchorWordIndex": 23,
+   "anchorWordIndex": 25,
    "type": "stamp",
-   "text": "WAIT FOR IT"
+   "text": "WORD AT THE END"
   },
   {
-   "id": "hon",
-   "t0": 7.94,
-   "t1": 8.85,
-   "anchorWordIndex": 33,
-   "type": "stamp",
-   "text": "HONESTLY?"
-  },
-  {
-   "id": "tst",
-   "t0": 9.52,
-   "t1": 10.55,
-   "anchorWordIndex": 37,
+   "id": "bangles",
+   "t0": 7.66,
+   "t1": 8.9,
+   "anchorWordIndex": 32,
    "type": "imageCard",
    "imageId": "i3",
    "label": "JEWELLERY",
-   "x": 590,
+   "x": 580,
    "y": 170,
-   "w": 430,
-   "h": 400,
+   "w": 440,
+   "h": 470,
    "tilt": 6,
    "objectPosition": "60% 60%"
+  },
+  {
+   "id": "taste",
+   "t0": 9.52,
+   "t1": 10.55,
+   "anchorWordIndex": 37,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "OUR TASTE TODAY",
+     "font": "anton",
+     "size": 103,
+     "color": "gold"
+    }
+   ],
+   "top": 260,
+   "anim": "pop",
+   "align": "center"
+  },
+  {
+   "id": "verdict",
+   "t0": 10.6,
+   "t1": 12,
+   "anchorWordIndex": 40,
+   "type": "stamp",
+   "text": "ISN'T OURS"
   }
  ],
  "sfx": {
   "auto": true,
-  "intensity": 0.8,
-  "extra": [
-   {
-    "t": 9.2,
-    "type": "riser",
-    "dur": 1.35,
-    "gain": 0.7
-   },
-   {
-    "t": 10.6,
-    "type": "impact",
-    "gain": 0.9
-   }
-  ]
- },
- "endCard": {
-  "brand": "YOUR TASTE",
-  "line1": "Most of our taste today",
-  "line2": "truly isn't ours.",
-  "t0": 10.55
+  "intensity": 0.8
  }
 }
