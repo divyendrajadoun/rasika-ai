@@ -9,6 +9,7 @@ export interface BriefState {
   url: string;
   recipe: string;
   subject: string;
+  topic: string;
   a: string;
   b: string;
   winner: "" | "a" | "b";
@@ -21,12 +22,17 @@ export const defaultBriefState: BriefState = {
   url: "",
   recipe: "",
   subject: "",
+  topic: "",
   a: "",
   b: "",
   winner: "",
   line: "",
   end: "",
 };
+
+const BRIEF_EXAMPLE_TOPICS = Object.fromEntries(
+  BRIEF_KINDS.filter((k) => k.example.topic).map((k) => [k.id, k.example.topic!]),
+);
 
 /** The same rules the server applies (lib/wizard-schema.ts BriefSubmission). */
 export function briefReady(b: BriefState): boolean {
@@ -39,6 +45,10 @@ export function briefReady(b: BriefState): boolean {
       return b.recipe.trim().length >= 15;
     case "journey":
       return b.subject.trim().length >= 10;
+    case "explainer":
+    case "editorial":
+    case "tierlist":
+      return b.topic.trim().length >= 6;
     case "versus":
       return Boolean(b.a.trim() && b.b.trim());
     case "machine":
@@ -64,6 +74,8 @@ export function StepBrief({ value, onChange }: { value: BriefState; onChange: (v
       url: value.url || ex.url || "",
       recipe: value.recipe || ex.recipe || "",
       subject: value.subject || ex.subject || "",
+      // each topic kind starts from its own example unless the user typed one for another topic kind
+      topic: value.topic && !Object.values(BRIEF_EXAMPLE_TOPICS).includes(value.topic) ? value.topic : ex.topic || "",
       a: value.a || ex.a || "",
       b: value.b || ex.b || "",
       line: value.line || ex.line || "",
@@ -133,7 +145,7 @@ export function StepBrief({ value, onChange }: { value: BriefState; onChange: (v
                 <p className="text-muted mt-1 text-[13px]">{f.help}</p>
               </div>
             );
-          if (f.id === "recipe" || f.id === "subject")
+          if (f.id === "recipe" || f.id === "subject" || f.id === "topic")
             return (
               <div key={f.id}>
                 <label htmlFor={`brief-${f.id}`} className="label">

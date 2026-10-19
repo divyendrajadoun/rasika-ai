@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any
 import redis
 import structlog
 
-from rasika_worker import media
+from rasika_worker import cleancut, media
 from rasika_worker.db import Repo
 from rasika_worker.face import subject_from_keyframes
 from rasika_worker.planner import ChromiumValidator, Planner, PlannerInput
@@ -41,6 +41,7 @@ MAX_DURATION_DEFAULT = 180.0
 #: the neutral starting point a reference style is written over (dark ground, plain sans, no
 #: pattern); with a full match every visual field is replaced by what the reference shows
 REFERENCE_BASE_PRESET = "ghost-clean"
+
 
 class PipelineError(RuntimeError):
     """A user-facing failure (bad input); the message is shown in the dashboard."""
@@ -239,17 +240,34 @@ class Pipeline:
                     "image",
                     path,
                     f"{prefix}/img/{path.name}",
-                    {"label": label, "sayWhen": "", "order": 100 + i, "source": "site", "url": capture.url},
+                    {
+                        "label": label,
+                        "sayWhen": "",
+                        "order": 100 + i,
+                        "source": "site",
+                        "url": capture.url,
+                    },
                     replace=False,
                 )
-            pub.update(JobStatus.PROBING, 18, f"Captured {len(capture.shots)} screens of {capture.host}.", **timings)
+            pub.update(
+                JobStatus.PROBING,
+                18,
+                f"Captured {len(capture.shots)} screens of {capture.host}.",
+                **timings,
+            )
 
         pub.update(JobStatus.PROBING, 22, "Writing the film…", **timings)
         t0 = time.time()
         inputs = {k: v for k, v in b.items() if k not in ("kind", "narrate", "voice")}
         try:
             film, usage = film_brief.write(
-                self.anthropic(), self.s.anthropic_planner_model, kind_id, inputs, capture, narrate, max_dur
+                self.anthropic(),
+                self.s.anthropic_planner_model,
+                kind_id,
+                inputs,
+                capture,
+                narrate,
+                max_dur,
             )
         except Exception as exc:
             raise PipelineError(f"Could not write the film: {exc}") from exc
@@ -257,7 +275,11 @@ class Pipeline:
         timings["write_input_tokens"] = float(usage["input_tokens"])
         timings["write_output_tokens"] = float(usage["output_tokens"])
         self.repo.audit(
-            job.user_id, "brief_written", "project", job.project_id, {"kind": kind_id, "usage": usage, "film": film}
+            job.user_id,
+            "brief_written",
+            "project",
+            job.project_id,
+            {"kind": kind_id, "usage": usage, "film": film},
         )
 
         mood = str(film["music"]["mood"])
@@ -271,14 +293,27 @@ class Pipeline:
             voice_id = str(b.get("voice") or self.s.deepgram_tts_model)
             if voice_id not in VOICES:
                 voice_id = self.s.deepgram_tts_model
-            pub.update(JobStatus.PROBING, 40, f"Recording the narration ({VOICES[voice_id][0]})…", **timings)
+            pub.update(
+                JobStatus.PROBING,
+                40,
+                f"Recording the narration ({VOICES[voice_id][0]})…",
+                **timings,
+            )
             try:
-                duration = DeepgramTTS(self.s.deepgram_api_key, voice_id).speak(str(film["narration"]), voice)
+                duration = DeepgramTTS(self.s.deepgram_api_key, voice_id).speak(
+                    str(film["narration"]), voice
+                )
             except RuntimeError as exc:
                 raise PipelineError(f"Narration failed: {exc}") from exc
             if duration > max_dur + 0.5:
-                raise PipelineError(f"The narration runs {duration:.0f} s; your plan allows {max_dur:.0f} s.")
-            music_bed = {"mood": mood, "bpm": bpm, "seed": 7}  # mixed under the voice at render time
+                raise PipelineError(
+                    f"The narration runs {duration:.0f} s; your plan allows {max_dur:.0f} s."
+                )
+            music_bed = {
+                "mood": mood,
+                "bpm": bpm,
+                "seed": 7,
+            }  # mixed under the voice at render time
         else:
             # no narrator: the on-screen lines are the timeline and the score is the soundtrack
             unspoken, duration = film_brief.timeline(film["lines"])
@@ -609,6 +644,8 @@ class Pipeline:
                 log.warning("transcript_fix_failed", error=str(exc))
 
         opts = dict(project.get("style_options") or {})
+        if opts.get("cleanCut") and words and self._clean_cut(job, pub, work, words, timings):
+            return  # the cut goes back through probe → transcribe; planning waits for it
         if self.s.auto_plan and self.s.anthropic_api_key:
             if opts.get("source") == "reference" and not opts.get("referenceStyle"):
                 pub.update(JobStatus.PLANNING, 0, "Studying the reference reel…", **timings)
@@ -623,6 +660,65 @@ class Pipeline:
                 f"Transcript ready: {len(words)} words ({result.language}).",
                 **timings,
             )
+
+    def _clean_cut(
+        self,
+        job: JobMessage,
+        pub: Publisher,
+        work: Path,
+        words: list[dict[str, Any]],
+        timings: dict[str, float],
+    ) -> bool:
+        """Cut the ums, repeats and dead air; True when a cut take was queued for probing."""
+        src, asset = self.source(job, work)
+        if (asset.get("meta") or {}).get("cleanCut"):
+            return False  # this take is already the clean cut
+        duration = float(
+            (asset.get("meta") or {}).get("durationSec")
+            or media.probe(self.s.ffprobe_bin, src).duration_sec
+        )
+        plan = cleancut.plan_cuts(words, duration)
+        ledger = {
+            "cleanCut": True,
+            "cleanCutOf": asset["id"],
+            "removedSec": plan.removed_sec,
+            "removed": plan.removed[:400],
+            "keep": plan.keep,
+        }
+        self.repo.audit(
+            job.user_id,
+            "clean_cut",
+            "project",
+            job.project_id,
+            {k: v for k, v in ledger.items() if k != "keep"},
+        )
+        if plan.removed_sec < 0.3:
+            log.info("clean_cut_nothing", removed_sec=plan.removed_sec)
+            return False
+        pub.update(
+            JobStatus.TRANSCRIBING,
+            97,
+            f"Clean cut: taking out {len(plan.removed)} fillers and repeats, {plan.removed_sec:.1f} s in all…",
+            **timings,
+        )
+        t0 = time.time()
+        dest = work / "source_clean.mp4"
+        info = media.probe(self.s.ffprobe_bin, src)
+        cleancut.cut(self.s.ffmpeg_bin, src, dest, plan.keep, has_audio=info.has_audio)
+        prefix = project_prefix(job.user_id, job.project_id)
+        key = f"{prefix}/source_clean.mp4"
+        self.upload_asset(job, "source_video", dest, key, ledger, replace=False)
+        for stale in ("voice.wav", "audio16k.wav", "proxy.mp4"):
+            (work / stale).unlink(missing_ok=True)
+        log.info(
+            "clean_cut",
+            removed=len(plan.removed),
+            removed_sec=plan.removed_sec,
+            sec=round(time.time() - t0, 2),
+        )
+        pub.update(JobStatus.PROBING, 0, "Looking at the clean cut…")
+        self.enqueue(job, JobType.PROBE, {"source_key": key})
+        return True
 
     # ── reference matching (reelmimic-style analyse → style) ──
     def analyse_reference(self, job: JobMessage, pub: Publisher) -> None:
@@ -688,7 +784,9 @@ class Pipeline:
             {"fidelity": fidelity, "usage": usage, "report": opts["referenceReport"]},
         )
         pub.update(JobStatus.PLANNING, 15, "Designing your edit in that rhythm…", **timings)
-        self.enqueue(job, JobType.PLAN, {"transcript_version": job.payload.get("transcript_version")})
+        self.enqueue(
+            job, JobType.PLAN, {"transcript_version": job.payload.get("transcript_version")}
+        )
 
     # ── 7.4 planning ──
     def anthropic(self) -> Any:
@@ -840,7 +938,11 @@ class Pipeline:
         client = self._stock()
         kept: list[str] = []
         for i, el in enumerate(els):
-            pub.update(JobStatus.PLANNING, 60 + int(30 * i / len(els)), f"Finding stock footage: {el['query']}…")
+            pub.update(
+                JobStatus.PLANNING,
+                60 + int(30 * i / len(els)),
+                f"Finding stock footage: {el['query']}…",
+            )
             need = float(el["t1"]) - float(el["t0"])
             try:
                 clip = client.resolve(str(el["query"]), need)
@@ -857,7 +959,9 @@ class Pipeline:
         log.info("broll_resolved", asked=len(els), found=len(kept))
         return plan
 
-    def _prepare_broll(self, plan: dict[str, Any], work: Path, preview: bool) -> dict[str, tuple[Path, int]]:
+    def _prepare_broll(
+        self, plan: dict[str, Any], work: Path, preview: bool
+    ) -> dict[str, tuple[Path, int]]:
         """Frames for each resolved broll window (re-downloads the clip if the cache was cleaned)."""
         from rasika_worker.stock import StockClip, broll_elements, extract_window
 
@@ -869,8 +973,13 @@ class Pipeline:
         for el in els:
             src = el["source"]
             clip = StockClip(
-                id=int(src["id"]), url=str(src.get("url") or ""), author=str(src.get("author") or ""),
-                duration=float(src.get("duration") or 0), file_url="", width=0, height=0,
+                id=int(src["id"]),
+                url=str(src.get("url") or ""),
+                author=str(src.get("author") or ""),
+                duration=float(src.get("duration") or 0),
+                file_url="",
+                width=0,
+                height=0,
             )
             cached = sorted(client.cache.glob(f"pexels_{clip.id}_*.mp4"))
             if cached:
@@ -884,7 +993,10 @@ class Pipeline:
                 continue
             bdir = work / ("broll_540" if preview else "broll") / str(el["id"])
             n = extract_window(
-                self.s.ffmpeg_bin, clip.file, bdir, float(el["t1"]) - float(el["t0"]),
+                self.s.ffmpeg_bin,
+                clip.file,
+                bdir,
+                float(el["t1"]) - float(el["t0"]),
                 scale=0.5 if preview else 1.0,
             )
             if n:
@@ -1006,7 +1118,10 @@ class Pipeline:
             music = work / "music_bed.wav"
             if not music.exists():
                 dur = float(plan["meta"]["durationSec"])
-                score.write(music, score.compose(str(bed["mood"]), dur, bed.get("bpm"), int(bed.get("seed") or 7)))
+                score.write(
+                    music,
+                    score.compose(str(bed["mood"]), dur, bed.get("bpm"), int(bed.get("seed") or 7)),
+                )
         t0 = time.time()
         broll = self._prepare_broll(plan, work, preview)
         if broll:

@@ -256,7 +256,12 @@ class Planner:
             for kf in inp.keyframes[:6]:
                 parts.append(_b64_image(kf))
         if inp.reference_stills:
-            parts.append({"type": "text", "text": REFERENCE_FRAMES_BRIEF.format(n=len(inp.reference_stills[:4]))})
+            parts.append(
+                {
+                    "type": "text",
+                    "text": REFERENCE_FRAMES_BRIEF.format(n=len(inp.reference_stills[:4])),
+                }
+            )
             for still in inp.reference_stills[:4]:
                 parts.append(_b64_image(still))
         if inp.images:
@@ -480,8 +485,8 @@ class Planner:
                 log.info("planner_dropped_banned", n=len(plan["elements"]) - len(kept))
             plan["elements"] = kept
         case = str(motion.get("caseStyle") or "auto")
-        sentence = (
-            case == "sentence" or (case == "auto" and motion.get("family") in MIXED_CASE_FAMILIES)
+        sentence = case == "sentence" or (
+            case == "auto" and motion.get("family") in MIXED_CASE_FAMILIES
         )
         if sentence and isinstance(plan.get("elements"), list):
             for el in plan["elements"]:
@@ -521,7 +526,6 @@ class Planner:
             el["id"] = eid
             seen.add(eid)
         return plan
-
 
 
 FILM_COMMON = """## This is a brief film (kind: {kind})
@@ -581,10 +585,35 @@ FILM_KINDS = {
   line, held to the end. After that: silence. Nothing else; no chips, no cards, no counters.""",
     "journey": """### Kind: storybook journey
 - ONE `seasonWindow` for the whole film (t0 ~0.3 s → the end): `seasons`, `shape` (= the data's frame) and
-  `cup` from the data; centred (x 140, w 800, y 420–520, h 900–1000).
+  `cup` from the data; centred (x 140, w 800, y 640–680, h 880–940), low enough that the chapter cards
+  (y 150 to ~600) clear it.
 - A `chapterCard` at each season change with the data's chapter titles (they sit above the window).
 - The deadpan lines as small, centred, symmetrical poster type in the accent face (serif, 54–76 px)
   at the top (y 160–330), one at a time. Symmetry everywhere: centred, nothing tilted.""",
+    "explainer": """### Kind: animated explainer (Kurzgesagt register)
+- ONE `explainerWorld` from 0 to the end: `world` from the data; `dolly` 0.3–0.6. Its `host` waypoints:
+  one per beat, `at` on the first word of that beat's narration (minus the world's t0), the beat's
+  `host` pose; perches move around the frame (x 160–920, y 300–1500) and never sit on a headline.
+- Each beat's line as poster type (sentence case, 90–150 px, the serif) placed clear of the host; one
+  line at a time. A beat with a `crowd` gets a `crowd` element (count, highlight, per, label from the data)
+  with its highlight `at` on the spoken number; a beat with a `number` gets a `counter` on that word.
+- A `stamp` on the payoff line; a `chapterCard` at most twice. Something new every 2–4 s; nothing may
+  overlap anything else. Captions stay on (the narration).""",
+    "editorial": """### Kind: editorial explainer (Vox register)
+- The evidence is paper: one `docCard` per item of the data's `docs`, in order, each on the narration
+  sentence that states its fact (t0 on its first word, held 3–5 s), `mark` = the doc's mark with `markAt`
+  on the spoken phrase (minus t0); alternate `kind`, x 60–120, y 420–620, tilt −3…3 (vary the sign).
+- The data's numbers as `counter`s landing on the spoken word; the hook and the 'so what' as big
+  UPPERCASE poster type (120–200 px). Between docs, short poster lines; one `strikeLine` at most.
+- One thing on screen at a time (a doc OR a poster OR a counter). Captions stay on (the narration).""",
+    "tierlist": """### Kind: tier list
+- ONE `tierBoard` from ~0.4 s to ~1 s before the end: `title` from the data; `tiers` = the data's labels
+  with these colours in order: S #EE5F52, A #F0A04C, B #F0C84D, C #EDE356, D #A6DA7B; `items` = the data's
+  items in order, each `at` on the narration word where it is placed (its name), minus the board's t0,
+  at least 1.0 s apart; top 300–360.
+- The board fills the frame: no other element over y 300–1250. Under it (y 1300–1500) the current item's
+  reason as short poster type (60–80 px) while it is talked about. The hot take at the end as a `stamp`.
+- Captions stay on (the narration), placed below the board (the caption y is ≥ 1500).""",
 }
 
 
@@ -595,9 +624,14 @@ def film_brief(options: dict[str, Any]) -> str | None:
     kind = str(brief.get("kind") or "")
     if not isinstance(film, dict) or kind not in FILM_KINDS:
         return None
-    spoken = " (spoken by the narrator)" if film.get("narration") else " (nobody speaks; the lines appear on screen)"
+    spoken = (
+        " (spoken by the narrator)"
+        if film.get("narration")
+        else " (nobody speaks; the lines appear on screen)"
+    )
     data = json.dumps(film.get("data") or {}, ensure_ascii=False)
     return FILM_COMMON.format(kind=kind, spoken=spoken, data=data) + "\n" + FILM_KINDS[kind]
+
 
 BROLL_BRIEF = """## Stock B-roll (this edit asked for it)
 

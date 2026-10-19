@@ -1,0 +1,56 @@
+{
+  "id": "paper-cut-red",
+  "name": "Paper-Cut Red",
+  "tagline": "crawfordxx/paper-cut-video-skill: Chinese red paper-cut tutorial — vermilion on warm paper, layered cut-out pieces, a red seal on the outro. (Songti → DM Serif Display, Heiti → Archivo Black.)",
+  "palette": {
+    "stage": "#DBC49D",
+    "mar": "#241D18",
+    "ter": "#A92E22",
+    "gold": "#F1E4C7",
+    "goldd": "#6F1915",
+    "iv": "#F7F1E7",
+    "ink": "#241D18"
+  },
+  "fonts": {
+    "poster": "DM Serif Display",
+    "accent": "Instrument Serif",
+    "ui": "IBM Plex Mono",
+    "devanagari": "Mukta",
+    "caption": "Archivo Black"
+  },
+  "grain": 0.05,
+  "pace": 0.45,
+  "captionStyle": "box",
+  "captionSize": 58,
+  "captionAccent": "ter",
+  "endCardShape": "square",
+  "pattern": "none",
+  "preferredElements": [
+    "imageCard",
+    "posterText",
+    "stamp",
+    "chapterCard",
+    "splitCards",
+    "chips"
+  ],
+  "motion": {
+    "family": "collage",
+    "caseStyle": "sentence",
+    "enter": "pop",
+    "exit": "cut",
+    "easing": "spring",
+    "speed": 1.0,
+    "camera": "still",
+    "sfxKit": "marker",
+    "texture": "paper",
+    "framing": "framed",
+    "direction": "paper-cut-video visual system. Warm paper stage, vermilion (`ter`) and dark red (`goldd`) paper pieces with a light keyline, ochre tape. Layers from back to front: background, rear pieces, supports, the hero, foreground, captions; the hero enters first, the rest stagger 0.2–0.4 s with a short spring (1–4° rotation correction, damped scale settle). The background pushes at most ~1 %; idle motion under 6 px. Headlines serif (DM Serif Display) 60–96 px; captions one phrase per cue on a dark rounded plate in the bottom rail. Hold each finished frame ~0.5 s to read. Close with a red seal `stamp` over the last 3–5 s.",
+    "avoidElements": [
+      "feedPhone",
+      "filmStrip",
+      "patternCard",
+      "explainerWorld",
+      "bleedPlate"
+    ]
+  }
+}

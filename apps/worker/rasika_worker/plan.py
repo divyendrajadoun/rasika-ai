@@ -374,6 +374,104 @@ class PlanElement6(BaseModel):
     drums: list[Drum] | None = Field([], max_length=40, validate_default=True)
 
 
+class Tier(BaseModel):
+    label: str = Field(..., max_length=3, min_length=1)
+    color: str = Field(
+        ...,
+        description="a real colour (#rrggbb), for things that have one: a liquid, a fighter's corner",
+        pattern="^#[0-9a-fA-F]{6}$",
+    )
+
+
+class Item(BaseModel):
+    name: str = Field(..., max_length=18, min_length=1)
+    tier: int = Field(..., description="index into tiers", ge=0, le=5)
+    at: float = Field(..., description="seconds after t0 the item lands", ge=0.0)
+
+
+class PlanElement7(BaseModel):
+    id: str = Field(..., max_length=64, min_length=1)
+    t0: float = Field(..., ge=0.0, le=600.0)
+    t1: float = Field(..., ge=0.0, le=600.0)
+    anchorWordIndex: int | None = Field(None, ge=0, le=9007199254740991)
+    type: Literal["tierBoard"]
+    title: str = Field(..., max_length=40, min_length=1)
+    top: float | None = Field(300, ge=-4000.0, le=4000.0)
+    tiers: list[Tier] = Field(..., max_length=6, min_length=2)
+    items: list[Item] = Field(..., max_length=18, min_length=1)
+
+
+class World(StrEnum):
+    space = "space"
+    earth = "earth"
+    city = "city"
+    ocean = "ocean"
+    cell = "cell"
+    lab = "lab"
+
+
+class Pose(StrEnum):
+    idle = "idle"
+    point = "point"
+    tap = "tap"
+    wow = "wow"
+    think = "think"
+
+
+class HostItem(BaseModel):
+    at: float = Field(..., description="seconds after t0 the host arrives here", ge=0.0)
+    x: float = Field(..., ge=-4000.0, le=4000.0)
+    y: float = Field(..., ge=-4000.0, le=4000.0)
+    pose: Pose | None = "idle"
+
+
+class PlanElement8(BaseModel):
+    id: str = Field(..., max_length=64, min_length=1)
+    t0: float = Field(..., ge=0.0, le=600.0)
+    t1: float = Field(..., ge=0.0, le=600.0)
+    anchorWordIndex: int | None = Field(None, ge=0, le=9007199254740991)
+    type: Literal["explainerWorld"]
+    world: World
+    host: list[HostItem] | None = Field([], max_length=24, validate_default=True)
+    dolly: float | None = Field(
+        0.4, description="how far the camera drifts over the film", ge=0.0, le=1.0
+    )
+
+
+class Kind1(StrEnum):
+    newspaper = "newspaper"
+    document = "document"
+    letter = "letter"
+
+
+class MarkStyle(StrEnum):
+    underline = "underline"
+    circle = "circle"
+    box = "box"
+
+
+class PlanElement10(BaseModel):
+    id: str = Field(..., max_length=64, min_length=1)
+    t0: float = Field(..., ge=0.0, le=600.0)
+    t1: float = Field(..., ge=0.0, le=600.0)
+    anchorWordIndex: int | None = Field(None, ge=0, le=9007199254740991)
+    type: Literal["docCard"]
+    kind: Kind1 | None = "newspaper"
+    masthead: str | None = Field(None, max_length=32)
+    headline: str = Field(..., max_length=90, min_length=1)
+    body: str | None = Field(None, max_length=260)
+    date: str | None = Field(None, max_length=24)
+    mark: str | None = Field(
+        None, description="a phrase from the headline to strike with the marker", max_length=40
+    )
+    markStyle: MarkStyle | None = "underline"
+    markAt: float | None = Field(0.8, description="seconds after t0", ge=0.0)
+    x: float | None = Field(90, ge=-4000.0, le=4000.0)
+    y: float | None = Field(520, ge=-4000.0, le=4000.0)
+    w: float | None = Field(900, ge=400.0, le=1000.0)
+    tilt: float | None = Field(-2, ge=-8.0, le=8.0)
+
+
 class Anim(StrEnum):
     rise = "rise"
     pop = "pop"
@@ -633,7 +731,7 @@ class StrikeLine(BaseModel):
     color: ColorToken | None = None
 
 
-class Item(BaseModel):
+class Item1(BaseModel):
     text: str = Field(..., max_length=24, min_length=1)
     at: float = Field(..., description="seconds after t0 this chip pops", ge=0.0)
     bg: ColorToken | None = "mar"
@@ -646,7 +744,7 @@ class Chips(BaseModel):
     t1: float = Field(..., ge=0.0, le=600.0)
     anchorWordIndex: int | None = Field(None, ge=0, le=9007199254740991)
     type: Literal["chips"]
-    items: list[Item] = Field(..., max_length=6, min_length=1)
+    items: list[Item1] = Field(..., max_length=6, min_length=1)
     x: float | None = Field(60, ge=-4000.0, le=4000.0)
     y: float | None = Field(230, ge=-4000.0, le=4000.0)
     size: int | None = Field(76, ge=30, le=160)
@@ -736,6 +834,24 @@ class PlanElement5(BaseModel):
     shape: Shape | None = "arch"
     frame: ColorToken | None = "goldd"
     cup: bool | None = True
+
+
+class PlanElement9(BaseModel):
+    id: str = Field(..., max_length=64, min_length=1)
+    t0: float = Field(..., ge=0.0, le=600.0)
+    t1: float = Field(..., ge=0.0, le=600.0)
+    anchorWordIndex: int | None = Field(None, ge=0, le=9007199254740991)
+    type: Literal["crowd"]
+    count: int = Field(..., ge=2, le=100)
+    highlight: int | None = Field(0, ge=0, le=100)
+    at: float | None = Field(1, description="seconds after t0 the highlight lands", ge=0.0)
+    per: str | None = Field(
+        None, description='what one figure stands for, e.g. "1 in 10 people"', max_length=40
+    )
+    label: str | None = Field(None, max_length=40)
+    top: float | None = Field(620, ge=-4000.0, le=4000.0)
+    color: ColorToken | None = "iv"
+    hiColor: ColorToken | None = "gold"
 
 
 class TextLine(BaseModel):
@@ -839,6 +955,10 @@ class Plan(BaseModel):
         | PlanElement4
         | PlanElement5
         | PlanElement6
+        | PlanElement7
+        | PlanElement8
+        | PlanElement9
+        | PlanElement10
     ]
     sfx: Sfx
     endCard: EndCard | None = None

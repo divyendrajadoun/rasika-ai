@@ -100,6 +100,44 @@ def films(site_img: str | None) -> dict[str, tuple[dict, list[dict], str, dict]]
     ]
     out["journey"] = (p, [{"text": "The 7:15 to nowhere", "sec": 7}, {"text": "it was by all accounts punctual", "sec": 7.4}], "journey", {})
 
+    # tier list: six picks, each flying into its row on the word
+    p = base("tier-list", 12.5)
+    tiers = [{"label": "S", "color": "#EE5F52"}, {"label": "A", "color": "#F0A04C"}, {"label": "B", "color": "#F0C84D"},
+             {"label": "C", "color": "#EDE356"}, {"label": "D", "color": "#A6DA7B"}]
+    picks = [("Cereal", 0), ("Pancakes", 1), ("Waffles", 1), ("Eggs", 2), ("Oatmeal", 3), ("Plain toast", 4)]
+    p["elements"] = [
+        {"id": "board", "type": "tierBoard", "t0": 0.4, "t1": 12.5, "title": "Breakfast tier list", "top": 320,
+         "tiers": tiers, "items": [{"name": n, "tier": t, "at": 1.4 + i * 1.5} for i, (n, t) in enumerate(picks)]},
+        poster("why", 9.6, 12.5, "TOAST IS JUST WARM BREAD", 70, 1330, "iv"),
+    ]
+    out["tierlist"] = (p, [{"text": "Breakfast tier list", "sec": 3}, {"text": "cereal pancakes waffles", "sec": 4.5}, {"text": "eggs oatmeal toast", "sec": 4.6}], "showreel", {})
+
+    # explainer: a world, the host hopping between perches, a crowd that lights up 1 in 4
+    p = base("kurz-explainer", 12.5)
+    p["elements"] = [
+        {"id": "world", "type": "explainerWorld", "t0": 0, "t1": 12.5, "world": "earth", "dolly": 0.5,
+         "host": [{"at": 0.2, "x": 820, "y": 520, "pose": "idle"}, {"at": 3.0, "x": 220, "y": 420, "pose": "point"},
+                  {"at": 6.5, "x": 860, "y": 1500, "pose": "tap"}, {"at": 10.0, "x": 540, "y": 330, "pose": "wow"}]},
+        poster("q", 0.4, 3.6, "Why is the sky blue?", 110, 760, "mar", font="serif"),
+        {"id": "people", "type": "crowd", "t0": 4.0, "t1": 9.6, "count": 20, "highlight": 5, "at": 2.0,
+         "per": "1 figure = 1 in 20 people", "label": "1 in 4 never asked", "top": 520},
+        poster("pay", 9.8, 12.5, "Blue light scatters most.", 96, 760, "mar", font="serif"),
+    ]
+    out["explainer"] = (p, [{"text": "Why is the sky blue", "sec": 3.6}, {"text": "one in four never asked", "sec": 5.8}, {"text": "blue light scatters most", "sec": 3.1}], "recipe", {})
+
+    # editorial: two clippings, each struck by the red marker on its phrase
+    p = base("vox-paper", 10.5)
+    p["elements"] = [
+        {"id": "d1", "type": "docCard", "t0": 0.4, "t1": 5.2, "kind": "newspaper", "masthead": "The Daily Record",
+         "date": "December 18, 1903", "headline": "Two brothers fly a powered machine for 12 seconds",
+         "body": "At Kitty Hawk, the craft rose under its own power and landed 120 feet away.",
+         "mark": "12 seconds", "markStyle": "circle", "markAt": 1.6, "x": 90, "y": 520, "w": 900, "tilt": -2},
+        {"id": "d2", "type": "docCard", "t0": 5.4, "t1": 10.5, "kind": "document", "masthead": "Memo", "date": "1927",
+         "headline": "A solo flight crosses the Atlantic in 33 hours", "mark": "33 hours", "markStyle": "underline",
+         "markAt": 1.8, "x": 110, "y": 600, "w": 860, "tilt": 2},
+    ]
+    out["editorial"] = (p, [{"text": "twelve seconds in 1903", "sec": 5}, {"text": "thirty three hours in 1927", "sec": 5.2}], "recipe", {})
+
     if site_img:
         p = base("saas-launch", 8.5)
         p["elements"] = [

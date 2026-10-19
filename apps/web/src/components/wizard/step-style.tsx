@@ -14,6 +14,8 @@ export interface StyleState {
   language: "auto" | "en" | "hi" | "hinglish";
   /** cut stock footage (Pexels) into the reel */
   broll: boolean;
+  /** cut the ums, repeats and long pauses out of the take before editing */
+  cleanCut: boolean;
 }
 
 export function StepStyle({
@@ -21,6 +23,7 @@ export function StepStyle({
   onChange,
   stockEnabled = false,
   fromReference = false,
+  recorded = false,
 }: {
   value: StyleState;
   onChange: (v: StyleState) => void;
@@ -28,6 +31,8 @@ export function StepStyle({
   stockEnabled?: boolean;
   /** "Match a reference": the look is copied from the uploaded reel, so no preset is offered */
   fromReference?: boolean;
+  /** the source is a recorded take (not generated speech): offer the clean cut */
+  recorded?: boolean;
 }) {
   const set = (patch: Partial<StyleState>) => onChange({ ...value, ...patch });
   const filter = useStyleFilter(presetCards);
@@ -182,6 +187,23 @@ export function StepStyle({
             onChange={(e) => set({ broll: e.target.checked })}
           />
         </label>
+        {recorded && (
+          <label className="bg-surface flex items-center justify-between rounded-[8px] p-4">
+            <span>
+              <span className="block font-semibold">Clean cut</span>
+              <span className="text-muted-foreground text-[13px]">
+                Take out the ums and uhs, words said twice and long pauses before we edit (the cut is
+                yours to download)
+              </span>
+            </span>
+            <input
+              type="checkbox"
+              className="size-5 accent-[var(--ter)]"
+              checked={Boolean(value.cleanCut)}
+              onChange={(e) => set({ cleanCut: e.target.checked })}
+            />
+          </label>
+        )}
         <label className="bg-surface block rounded-[8px] p-4">
           <span className="block font-semibold">Language</span>
           <select

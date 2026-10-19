@@ -30,6 +30,7 @@ export const WizardSubmission = z.object({
     music: z.boolean().default(false),
     language: z.enum(["auto", "en", "hi", "hinglish"]).default("auto"),
     broll: z.boolean().default(false),
+    cleanCut: z.boolean().default(false),
   }),
   brand: z.object({
     name: z.string().max(60).default(""),
@@ -81,10 +82,11 @@ export const BriefSubmission = z
   .object({
     projectId: z.string().uuid(),
     title: z.string().max(120).default(""),
-    kind: z.enum(["launch", "showreel", "app", "recipe", "versus", "machine", "journey"]),
+    kind: z.enum(["launch", "showreel", "app", "recipe", "versus", "machine", "journey", "explainer", "editorial", "tierlist"]),
     url: z.string().trim().max(300).optional(),
     recipe: z.string().trim().max(1500).optional(),
     subject: z.string().trim().max(600).optional(),
+    topic: z.string().trim().max(600).optional(),
     a: z.string().trim().max(40).optional(),
     b: z.string().trim().max(40).optional(),
     winner: z.enum(["", "a", "b"]).default(""),
@@ -113,6 +115,8 @@ export const BriefSubmission = z
       need(/^https?:\/\/[^\s/]+\.[^\s]+/i.test(v.url ?? ""), "url", "Add the website link, starting with https://");
     if (v.kind === "recipe") need((v.recipe ?? "").length >= 15, "recipe", "Write the recipe: ingredients with measures.");
     if (v.kind === "journey") need((v.subject ?? "").length >= 10, "subject", "Say what the story is about.");
+    if (["explainer", "editorial", "tierlist"].includes(v.kind))
+      need((v.topic ?? "").length >= 6, "topic", "Say what the film is about.");
     if (v.kind === "versus") need(Boolean(v.a && v.b), "a", "Name both contenders.");
     if (v.kind === "machine") need(Boolean(v.line), "line", "Write the line that types out.");
   });

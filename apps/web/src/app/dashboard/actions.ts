@@ -240,6 +240,7 @@ export async function createBriefEdit(input: unknown): Promise<ActionResult> {
     ...(w.url ? { url: w.url } : {}),
     ...(w.recipe ? { recipe: w.recipe } : {}),
     ...(w.subject ? { subject: w.subject } : {}),
+    ...(w.topic ? { topic: w.topic } : {}),
     ...(w.a ? { a: w.a, b: w.b, winner: w.winner } : {}),
     ...(w.line ? { line: w.line, end: w.end || "ONE PROMPT" } : {}),
     narrate: kind.narrate,

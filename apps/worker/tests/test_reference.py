@@ -32,8 +32,22 @@ PRESET = {
     "id": "noir-minimal",
     "name": "Noir",
     "tagline": "t",
-    "palette": {"stage": "#000000", "mar": "#eeeeee", "ter": "#ff0000", "gold": "#ffcc00", "goldd": "#aa8800", "iv": "#ffffff", "ink": "#000000"},
-    "fonts": {"poster": "Anton", "accent": "Instrument Serif", "ui": "Inter", "devanagari": "Mukta", "caption": "Inter"},
+    "palette": {
+        "stage": "#000000",
+        "mar": "#eeeeee",
+        "ter": "#ff0000",
+        "gold": "#ffcc00",
+        "goldd": "#aa8800",
+        "iv": "#ffffff",
+        "ink": "#000000",
+    },
+    "fonts": {
+        "poster": "Anton",
+        "accent": "Instrument Serif",
+        "ui": "Inter",
+        "devanagari": "Mukta",
+        "caption": "Inter",
+    },
     "grain": 0.1,
     "pace": 0.5,
     "captionStyle": "karaoke",
@@ -41,14 +55,31 @@ PRESET = {
     "endCardShape": "arch",
     "pattern": "none",
     "preferredElements": [],
-    "motion": {"family": "editorial", "enter": "rise", "exit": "lift", "easing": "spring", "speed": 1, "camera": "glide", "sfxKit": "pop", "texture": "none", "direction": "", "avoidElements": []},
+    "motion": {
+        "family": "editorial",
+        "enter": "rise",
+        "exit": "lift",
+        "easing": "spring",
+        "speed": 1,
+        "camera": "glide",
+        "sfxKit": "pop",
+        "texture": "none",
+        "direction": "",
+        "avoidElements": [],
+    },
 }
 PROPOSED = {
     "name": "Ref look",
     "palette": {**PRESET["palette"], "ter": "#2b59ff"},
     "fonts": {"poster": "Space Grotesk", "devanagari": "Noto", "caption": "Comic Sans"},
     "captionStyle": "box",
-    "motion": {"direction": "cut every 1.4 s", "enter": "slam", "camera": "cut", "texture": "grid", "family": "hype"},
+    "motion": {
+        "direction": "cut every 1.4 s",
+        "enter": "slam",
+        "camera": "cut",
+        "texture": "grid",
+        "family": "hype",
+    },
 }
 
 
@@ -93,7 +124,9 @@ def test_look_also_takes_pacing_end_card_and_elements() -> None:
     assert out["motion"]["avoidElements"] == ["stamp"] and out["motion"]["caseStyle"] == "upper"
     # pace / camera fidelity never touch them
     kept = merge_by_fidelity(PRESET, proposed, "camera")
-    assert kept.get("pace") == PRESET.get("pace") and kept.get("endCardShape") == PRESET.get("endCardShape")
+    assert kept.get("pace") == PRESET.get("pace") and kept.get("endCardShape") == PRESET.get(
+        "endCardShape"
+    )
 
 
 def test_reference_base_preset_is_installed() -> None:
@@ -161,7 +194,12 @@ def test_mix_with_a_music_bed_runs(tmp_path) -> None:
     ff = shutil.which("ffmpeg")
     if not ff:
         pytest.skip("ffmpeg not installed")
-    voice, bed, sfxw, out = tmp_path / "v.wav", tmp_path / "m.wav", tmp_path / "s.wav", tmp_path / "out.wav"
+    voice, bed, sfxw, out = (
+        tmp_path / "v.wav",
+        tmp_path / "m.wav",
+        tmp_path / "s.wav",
+        tmp_path / "out.wav",
+    )
     music.write(voice, np.sin(np.linspace(0, 2000, 48000 * 2)) * 0.3)
     music.write(sfxw, np.zeros(48000 * 2))
     music.write(bed, music.compose("launch", 2.0))
@@ -189,17 +227,41 @@ def test_validator_measures_with_the_styles_own_fonts() -> None:
     v = ChromiumValidator(s)
     try:
         for pid in ("mikku-royal", "showreel-kinetic"):
-            style = json.loads((root / "packages" / "schema" / "presets" / f"{pid}.json").read_text(encoding="utf-8"))
+            style = json.loads(
+                (root / "packages" / "schema" / "presets" / f"{pid}.json").read_text(
+                    encoding="utf-8"
+                )
+            )
             plan = {
                 "version": 1,
-                "meta": {"durationSec": 5, "fps": 30, "width": 1080, "height": 1920, "language": "en", "faceless": True},
+                "meta": {
+                    "durationSec": 5,
+                    "fps": 30,
+                    "width": 1080,
+                    "height": 1920,
+                    "language": "en",
+                    "faceless": True,
+                },
                 "style": style,
-                "subject": {"faceBox": {"x": 0, "y": 0, "w": 1, "h": 1}, "freeZone": {"x": 0, "y": 150, "w": 1080, "h": 1500}},
+                "subject": {
+                    "faceBox": {"x": 0, "y": 0, "w": 1, "h": 1},
+                    "freeZone": {"x": 0, "y": 150, "w": 1080, "h": 1500},
+                },
                 "videoModes": [{"t": 0, "mode": "full"}],
                 "captions": {"enabled": False, "y": 1400, "gold": [], "accent": []},
                 "sfx": {"auto": True, "intensity": 1},
-                "elements": [{"id": "t", "type": "posterText", "t0": 0.3, "t1": 3, "top": 300,
-                              "lines": [{"text": "INFRASTRUCTURE", "font": "anton", "size": 300, "color": "iv"}]}],
+                "elements": [
+                    {
+                        "id": "t",
+                        "type": "posterText",
+                        "t0": 0.3,
+                        "t1": 3,
+                        "top": 300,
+                        "lines": [
+                            {"text": "INFRASTRUCTURE", "font": "anton", "size": 300, "color": "iv"}
+                        ],
+                    }
+                ],
             }
             sizes[pid] = v(plan, words, [])["plan"]["elements"][0]["lines"][0]["size"]
     finally:

@@ -26,7 +26,14 @@ import numpy as np
 from rasika_worker.sfx import SR, noise
 
 MOODS = ("launch", "showreel", "recipe", "versus", "journey", "none")
-DEFAULT_BPM = {"launch": 122, "showreel": 128, "recipe": 94, "versus": 150, "journey": 108, "none": 100}
+DEFAULT_BPM = {
+    "launch": 122,
+    "showreel": 128,
+    "recipe": 94,
+    "versus": 150,
+    "journey": 108,
+    "none": 100,
+}
 
 # I–V–vi–IV in C, as MIDI note numbers (root position triads), and a minor-key loop for drama
 PROG_MAJOR = [[60, 64, 67], [67, 71, 74], [69, 72, 76], [65, 69, 72]]
@@ -64,7 +71,11 @@ def hat(seed: int, gain: float = 0.18, d: float = 0.05) -> np.ndarray:
 def pluck(m: float, d: float = 0.45, bright: float = 1.0) -> np.ndarray:
     t = _t(d)
     f = hz(m)
-    x = np.sin(2 * np.pi * f * t) + 0.4 * bright * np.sin(4 * np.pi * f * t) + 0.15 * bright * np.sin(6 * np.pi * f * t)
+    x = (
+        np.sin(2 * np.pi * f * t)
+        + 0.4 * bright * np.sin(4 * np.pi * f * t)
+        + 0.15 * bright * np.sin(6 * np.pi * f * t)
+    )
     return x * np.exp(-t * 7) * np.clip(t / 0.003, 0, 1)
 
 
@@ -84,17 +95,23 @@ def epiano(m: float, d: float) -> np.ndarray:
 
 def pad(chord: list[int], d: float) -> np.ndarray:
     t = _t(d)
-    x = sum(np.sin(2 * np.pi * hz(m) * t) + 0.3 * np.sin(2 * np.pi * hz(m) * 1.003 * t) for m in chord)
+    x = sum(
+        np.sin(2 * np.pi * hz(m) * t) + 0.3 * np.sin(2 * np.pi * hz(m) * 1.003 * t) for m in chord
+    )
     return x / len(chord) * np.clip(t / 0.25, 0, 1) * np.clip((d - t) / 0.3, 0, 1)
 
 
 def celesta(m: float) -> np.ndarray:
     t = _t(1.2)
     f = hz(m)
-    return (np.sin(2 * np.pi * f * t) + 0.35 * np.sin(2 * np.pi * f * 4.07 * t) * np.exp(-t * 6)) * np.exp(-t * 3.2)
+    return (
+        np.sin(2 * np.pi * f * t) + 0.35 * np.sin(2 * np.pi * f * 4.07 * t) * np.exp(-t * 6)
+    ) * np.exp(-t * 3.2)
 
 
-def compose(mood: str, duration: float, bpm: int | None = None, seed: int = 7, start: float = 0.0) -> np.ndarray:
+def compose(
+    mood: str, duration: float, bpm: int | None = None, seed: int = 7, start: float = 0.0
+) -> np.ndarray:
     """A bed of `duration` seconds; it is silent before `start` and rings out at the end."""
     mood = mood if mood in MOODS else "launch"
     n = int(SR * (duration + 1.0))
@@ -126,7 +143,11 @@ def compose(mood: str, duration: float, bpm: int | None = None, seed: int = 7, s
                 if mood == "showreel" and k % 2 == 1:
                     place(snare(seed + b * 4 + k, 0.45), t0 + k * beat)
             for k in range(8):  # rolling eighth-note bass, ducked under the kick
-                place(pluck(chord[0] - 24, beat / 2, 0.4) * (0.55 if k % 2 else 0.25), t0 + k * beat / 2, 0.6)
+                place(
+                    pluck(chord[0] - 24, beat / 2, 0.4) * (0.55 if k % 2 else 0.25),
+                    t0 + k * beat / 2,
+                    0.6,
+                )
             for k in (1, 3) if mood == "launch" else (0, 1, 2, 3):
                 for m in chord:
                     place(pluck(m, 0.35, 1.0), t0 + k * beat + beat * 0.5, 0.16)

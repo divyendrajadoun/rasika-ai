@@ -47,8 +47,14 @@ class HeyGenClient:
         self.timeout = timeout
 
     # ── HTTP ──
-    def _req(self, method: str, path: str, body: bytes | None = None, content_type: str | None = None) -> dict[str, Any]:
-        headers = {"X-Api-Key": self.key, "Accept": "application/json", "User-Agent": "rasika-worker"}
+    def _req(
+        self, method: str, path: str, body: bytes | None = None, content_type: str | None = None
+    ) -> dict[str, Any]:
+        headers = {
+            "X-Api-Key": self.key,
+            "Accept": "application/json",
+            "User-Agent": "rasika-worker",
+        }
         if content_type:
             headers["Content-Type"] = content_type
         req = urllib.request.Request(BASE + path, data=body, headers=headers, method=method)
@@ -85,14 +91,16 @@ class HeyGenClient:
         boundary = f"----rasika{uuid.uuid4().hex}"
         mime = mimetypes.guess_type(path.name)[0] or "image/jpeg"
         head = (
-            f"--{boundary}\r\nContent-Disposition: form-data; name=\"file\"; filename=\"{path.name}\"\r\n"
+            f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="{path.name}"\r\n'
             f"Content-Type: {mime}\r\n\r\n"
         ).encode()
         body = head + path.read_bytes() + f"\r\n--{boundary}--\r\n".encode()
         data = self._req("POST", "/v3/assets", body, f"multipart/form-data; boundary={boundary}")
         asset_id = (data.get("data") or {}).get("asset_id")
         if not asset_id:
-            raise RuntimeError(f"HeyGen asset upload returned no asset_id: {json.dumps(data)[:200]}")
+            raise RuntimeError(
+                f"HeyGen asset upload returned no asset_id: {json.dumps(data)[:200]}"
+            )
         return str(asset_id)
 
     # ── videos ──
@@ -106,7 +114,9 @@ class HeyGenClient:
     def video_status(self, video_id: str) -> dict[str, Any]:
         return dict(self.get(f"/v3/videos/{urllib.parse.quote(video_id)}").get("data") or {})
 
-    def wait(self, video_id: str, progress: Any = None, timeout_sec: float = 1800, every: float = 10) -> dict[str, Any]:
+    def wait(
+        self, video_id: str, progress: Any = None, timeout_sec: float = 1800, every: float = 10
+    ) -> dict[str, Any]:
         t0 = time.time()
         while True:
             st = self.video_status(video_id)
@@ -175,7 +185,9 @@ def make_presenter(
 ) -> PresenterResult:
     before = client.wallet_balance()
     asset_id = client.upload_image(photo) if photo else None
-    payload = build_payload(script, voice_id, image_asset_id=asset_id, avatar_id=avatar_id, title=title)
+    payload = build_payload(
+        script, voice_id, image_asset_id=asset_id, avatar_id=avatar_id, title=title
+    )
     video_id = client.create_video(payload)
     log.info("heygen_created", video_id=video_id, route="image" if photo else "avatar")
     st = client.wait(video_id, progress)
@@ -185,5 +197,9 @@ def make_presenter(
     client.download(url, dest)
     after = client.wallet_balance()
     dur = st.get("duration")
-    log.info("heygen_done", video_id=video_id, duration=dur, wallet_before=before, wallet_after=after)
-    return PresenterResult(video_id, url, float(dur) if dur is not None else None, dest, before, after)
+    log.info(
+        "heygen_done", video_id=video_id, duration=dur, wallet_before=before, wallet_after=after
+    )
+    return PresenterResult(
+        video_id, url, float(dur) if dur is not None else None, dest, before, after
+    )

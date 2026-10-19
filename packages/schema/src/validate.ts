@@ -145,9 +145,32 @@ export function elementZone(el: PlanElement): Rect | null {
       return { x: el.x, y: el.y, w: el.w, h: el.h };
     case "noteMachine":
       return { x: 0, y: el.top, w: STAGE_W, h: 1100 };
+    case "tierBoard":
+      return { x: 0, y: el.top, w: STAGE_W, h: TIER_HEAD + el.tiers.length * TIER_ROW };
+    case "crowd": {
+      const rows = Math.ceil(el.count / crowdCols(el.count));
+      return { x: 0, y: el.top, w: STAGE_W, h: rows * crowdCell(el.count) + (el.label || el.per ? 130 : 0) };
+    }
+    case "docCard":
+      return { x: el.x, y: el.y, w: el.w, h: docCardHeight(el) };
+    case "explainerWorld":
+      return null; // the world is the backdrop: everything else stands in front of it
     default:
       return null;
   }
+}
+
+/** Geometry shared with the engine's brief elements (packages/engine/src/brief.ts). */
+export const TIER_HEAD = 150;
+export const TIER_ROW = 170;
+export const crowdCols = (n: number) => (n <= 12 ? 4 : n <= 30 ? 6 : 10);
+export const crowdCell = (n: number) => Math.floor(960 / crowdCols(n));
+export function docCardHeight(el: { kind: string; headline: string; body?: string; w: number; masthead?: string }): number {
+  const perLine = Math.max(10, Math.floor((el.w - 100) / 34));
+  const head = Math.ceil(el.headline.length / perLine) * 74;
+  const bodyPer = Math.max(20, Math.floor((el.w - 100) / 17));
+  const body = el.body ? Math.ceil(el.body.length / bodyPer) * 44 + 24 : 0;
+  return 80 + (el.kind === "newspaper" ? 110 : 40) + head + body + 60;
 }
 
 const TEXT_ZONE_TYPES = new Set<PlanElement["type"]>([
@@ -299,7 +322,15 @@ export function validatePlan(
           ? [...el.hits.map((h) => h.at), ...(el.koAt != null ? [el.koAt] : [])]
           : el.type === "noteMachine"
             ? [el.dropAt, ...el.notes.map((n) => n.at), ...el.drums]
-            : [];
+            : el.type === "tierBoard"
+              ? el.items.map((i) => i.at)
+              : el.type === "explainerWorld"
+                ? el.host.map((h) => h.at)
+                : el.type === "crowd"
+                  ? [el.at]
+                  : el.type === "docCard" && el.mark
+                    ? [el.markAt]
+                    : [];
     const late = offs.filter((o) => o > life + 0.05);
     if (late.length)
       issues.push({
@@ -318,6 +349,34 @@ export function validatePlan(
           elementId: el.id,
         });
     }
+    if (el.type === "tierBoard" && el.items.some((i) => i.tier >= el.tiers.length))
+      issues.push({
+        level: "error",
+        code: "tier-missing",
+        message: `tierBoard "${el.id}": an item is ranked into a tier that does not exist (${el.tiers.length} tiers)`,
+        elementId: el.id,
+      });
+    if (el.type === "explainerWorld" && plan.meta.faceless !== true)
+      issues.push({
+        level: "error",
+        code: "world-over-footage",
+        message: `explainerWorld "${el.id}": a world fills the frame, so it is only for films with no footage (it would hide the speaker)`,
+        elementId: el.id,
+      });
+    if (el.type === "crowd" && el.highlight > el.count)
+      issues.push({
+        level: "error",
+        code: "crowd-highlight",
+        message: `crowd "${el.id}": highlights ${el.highlight} of only ${el.count} figures`,
+        elementId: el.id,
+      });
+    if (el.type === "docCard" && el.mark && !el.headline.toLowerCase().includes(el.mark.toLowerCase()))
+      issues.push({
+        level: "error",
+        code: "mark-missing",
+        message: `docCard "${el.id}": the marked phrase "${el.mark}" is not in the headline`,
+        elementId: el.id,
+      });
     if (el.type === "noteMachine" && el.notes.some((n) => n.at < el.dropAt))
       issues.push({
         level: "error",

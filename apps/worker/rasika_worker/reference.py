@@ -134,9 +134,7 @@ def colour_stats(stills: list[Path]) -> tuple[float, float, float, list[str]]:
         ls = [(0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 for r, g, b in px]
         lum.append(sum(ls) / len(ls))
         dark.append(sum(1 for v in ls if v < 0.12) / len(ls))
-        sat.append(
-            sum((max(c) - min(c)) / (max(c) or 1) for c in px) / len(px)
-        )
+        sat.append(sum((max(c) - min(c)) / (max(c) or 1) for c in px) / len(px))
         q = im.quantize(colors=6, method=Image.Quantize.MEDIANCUT)
         pal = q.getpalette() or []
         for n, idx in q.getcolors() or []:
@@ -262,7 +260,9 @@ def propose_style(
     tokens = merge_by_fidelity(preset, parse_json(text), fidelity)
     tokens["id"] = base["id"]
     valid = StyleTokens.model_validate(tokens).model_dump(mode="json", by_alias=True)
-    valid["fonts"]["devanagari"] = preset.get("fonts", {}).get("devanagari", valid["fonts"]["devanagari"])
+    valid["fonts"]["devanagari"] = preset.get("fonts", {}).get(
+        "devanagari", valid["fonts"]["devanagari"]
+    )
     return valid, usage
 
 
@@ -280,7 +280,9 @@ def parse_json(text: str) -> dict[str, Any]:
     return out
 
 
-def merge_by_fidelity(preset: dict[str, Any], proposed: dict[str, Any], fidelity: str) -> dict[str, Any]:
+def merge_by_fidelity(
+    preset: dict[str, Any], proposed: dict[str, Any], fidelity: str
+) -> dict[str, Any]:
     """Only the fields the fidelity level allows may change; everything else is the preset's."""
     out: dict[str, Any] = json.loads(json.dumps(preset))
     pm = dict(proposed.get("motion") or {})

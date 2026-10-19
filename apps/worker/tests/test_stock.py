@@ -17,14 +17,28 @@ def video(id_: int, dur: float, files: list[tuple[int, int, str]]) -> dict:
         "duration": dur,
         "user": {"name": f"Maker {id_}"},
         "video_files": [
-            {"link": f"https://v.pexels.com/{id_}-{h}.mp4", "width": w, "height": h, "file_type": ft}
+            {
+                "link": f"https://v.pexels.com/{id_}-{h}.mp4",
+                "width": w,
+                "height": h,
+                "file_type": ft,
+            }
             for w, h, ft in files
         ],
     }
 
 
 def test_pick_file_prefers_smallest_portrait_above_1280() -> None:
-    v = video(1, 12, [(1920, 1080, "video/mp4"), (720, 1280, "video/mp4"), (1080, 1920, "video/mp4"), (2160, 3840, "video/mp4")])
+    v = video(
+        1,
+        12,
+        [
+            (1920, 1080, "video/mp4"),
+            (720, 1280, "video/mp4"),
+            (1080, 1920, "video/mp4"),
+            (2160, 3840, "video/mp4"),
+        ],
+    )
     f = stock.pick_file(v)
     assert f and f["height"] == 1280
 

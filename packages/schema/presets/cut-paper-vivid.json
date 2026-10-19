@@ -1,0 +1,55 @@
+{
+  "id": "cut-paper-vivid",
+  "name": "Cut-Paper Vivid",
+  "tagline": "jaredcassoutt/vox-editorial: vivid cut-paper collage — saturated grounds, thick white sticker borders, per-letter colour, stop-motion overlays at 12 fps. (Figtree → Inter.)",
+  "palette": {
+    "stage": "#F3EAD6",
+    "mar": "#1C1A18",
+    "ter": "#E8604A",
+    "gold": "#F7B02C",
+    "goldd": "#2E54B2",
+    "iv": "#FFFFFF",
+    "ink": "#1C1A18"
+  },
+  "fonts": {
+    "poster": "Anton",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Anton"
+  },
+  "grain": 0.06,
+  "pace": 0.6,
+  "captionStyle": "one-word",
+  "captionSize": 76,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "imageCard",
+    "splitCards",
+    "posterText",
+    "counter",
+    "stamp",
+    "chips"
+  ],
+  "motion": {
+    "family": "collage",
+    "caseStyle": "upper",
+    "enter": "slide",
+    "exit": "cut",
+    "easing": "steps",
+    "speed": 1.1,
+    "camera": "glide",
+    "sfxKit": "pop",
+    "texture": "paper",
+    "framing": "framed",
+    "direction": "vox-editorial cut-paper collage. Grounds rotate per beat between cobalt (`goldd`), marigold (`gold`), coral (`ter`) and cream (`stage`); never a dark ground. Every photo is a scissored cut-out with a thick white sticker border (`imageCard`s, tilted 2–6°), layered at different depths so they drift at different speeds (parallax). Headlines in Anton on torn stock; numbers as big `counter`s. Kinetic overlays move on a 12 fps stop-motion grid inside the 30 fps edit (held poses, built by hand). One idea per beat, 7–10 beats.",
+    "avoidElements": [
+      "feedPhone",
+      "filmStrip",
+      "patternCard",
+      "explainerWorld"
+    ]
+  }
+}

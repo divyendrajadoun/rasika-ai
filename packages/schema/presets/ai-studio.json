@@ -27,6 +27,7 @@
   "pattern": "none",
   "preferredElements": [
     "posterText",
+    "browserCard",
     "chips",
     "counter",
     "chapterCard",
@@ -43,7 +44,7 @@
     "camera": "still",
     "sfxKit": "click",
     "texture": "dots",
-    "direction": "hassancs91 AI-studio brand: Linear / Vercel polish. Ivory paper with a faint dotted grid and a soft radial glow, Space Grotesk 600–700 display with tight tracking, Inter body, JetBrains Mono for stats and code. Indigo `ter` is the accent, teal `goldd` the secondary, yellow `gold` only as a highlight sweep. Entrances fade + rise 24 px over ~14 frames, ease-out, no overshoot; exits fade + fall faster; emphasis is an indigo underline wipe or a scale pop ≤ 1.06; stagger 3–4 frames; radius 14–16, soft shadows. A `chapterCard` for every \"step N\"; overlays only in the top / bottom bands, never over the presenter. No hard shadows, no 3 px borders, no stickers, no engagement-bait outro; felt-not-heard sound.",
+    "direction": "hassancs91 AI-studio brand: Linear / Vercel polish. Ivory paper with a faint dotted grid and a soft radial glow, Space Grotesk 600–700 display with tight tracking, Inter body, JetBrains Mono for stats and code. Indigo `ter` is the accent, teal `goldd` the secondary, yellow `gold` only as a highlight sweep. Entrances fade + rise 24 px over ~14 frames, ease-out, no overshoot; exits fade + fall faster; emphasis is an indigo underline wipe or a scale pop ≤ 1.06; stagger 3–4 frames; radius 14–16, soft shadows. A `chapterCard` for every \"step N\"; overlays only in the top / bottom bands, never over the presenter. No hard shadows, no 3 px borders, no stickers, no engagement-bait outro; felt-not-heard sound. Screenshots the user uploads go in `browserCard`s (traffic-light window, soft shadow) that scroll their page: the repo's fake screencasts, built from the real screens.",
     "avoidElements": [
       "stamp",
       "strikeLine",

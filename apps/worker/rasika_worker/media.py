@@ -169,7 +169,9 @@ def extract_audio(ffmpeg: str, src: Path, voice: Path, audio16k: Path) -> None:
     )
 
 
-def make_stage_video(ffmpeg: str, voice: Path, dest: Path, colour: str, duration_sec: float) -> None:
+def make_stage_video(
+    ffmpeg: str, voice: Path, dest: Path, colour: str, duration_sec: float
+) -> None:
     """A plain 1080×1920 clip in the style's stage colour carrying the narration — the *source*
     for a script-only reel, so probe → transcribe → plan → render run unchanged."""
     run(
@@ -351,7 +353,9 @@ def mix(
     # with a music bed the voice feeds two places (the mix and the bed's ducking key): split it,
     # a filtergraph label can be read only once
     fmt = "aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo"
-    chains = [f"[0:a]volume=1.0,{fmt},asplit=2[v][vk]" if music is not None else "[0:a]volume=1.0[v]"]
+    chains = [
+        f"[0:a]volume=1.0,{fmt},asplit=2[v][vk]" if music is not None else "[0:a]volume=1.0[v]"
+    ]
     mix_in = ["[v]"]
     idx = 1
     if sfx is not None:

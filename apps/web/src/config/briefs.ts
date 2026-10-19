@@ -3,12 +3,23 @@
  * worker writes, scores and designs them); this side says what each one needs from the user.
  */
 
-export type BriefKindId = "launch" | "showreel" | "app" | "recipe" | "versus" | "machine" | "journey";
+export type BriefKindId =
+  | "launch"
+  | "showreel"
+  | "app"
+  | "recipe"
+  | "versus"
+  | "machine"
+  | "journey"
+  | "explainer"
+  | "editorial"
+  | "tierlist";
 
 export type BriefField =
   | { id: "url"; label: string; placeholder: string; help: string }
   | { id: "recipe"; label: string; placeholder: string; help: string }
   | { id: "subject"; label: string; placeholder: string; help: string }
+  | { id: "topic"; label: string; placeholder: string; help: string }
   | { id: "contenders" }
   | { id: "line" };
 
@@ -140,11 +151,70 @@ export const BRIEF_KINDS: BriefKind[] = [
     maxSeconds: 32,
     example: { subject: "Four seasons passing outside a train window, a cosy carriage, a cup of coffee on the table." },
   },
+  {
+    id: "explainer",
+    title: "Animated explainer",
+    blurb: "A Kurzgesagt-style explainer: an illustrated world in parallax, a little flying host, numbers as characters.",
+    youGive: "A topic or a question, in a sentence (and, if you like, the angle you want).",
+    youGet:
+      "A 40–60 s narrated film: one illustrated world (space, earth, city, ocean, cell or lab), a bee host that points and taps, crowds of little figures for the numbers, a payoff.",
+    fields: [
+      {
+        id: "topic",
+        label: "What should it explain?",
+        placeholder: "Why is the sky blue, and why are sunsets red?",
+        help: "A topic or a question. Add the angle or the one fact you want in it; we only use well-known facts and never invent statistics.",
+      },
+    ],
+    preset: "kurz-explainer",
+    narrate: true,
+    maxSeconds: 62,
+    example: { topic: "Why is the sky blue, and why are sunsets red?" },
+  },
+  {
+    id: "editorial",
+    title: "Editorial explainer",
+    blurb: "A Vox-style narrated explainer told with paper evidence: clippings, documents, a red marker.",
+    youGive: "A topic or a story, in a sentence (a date or a source you want cited helps).",
+    youGet:
+      "A 40–60 s narrated film: newspaper clippings and documents with the key phrase marked in red, numbers on the spoken word, a clear 'so what'.",
+    fields: [
+      {
+        id: "topic",
+        label: "What's the story?",
+        placeholder: "How the Wright brothers' 12-second flight in 1903 changed travel",
+        help: "A topic, an event or a question. The clippings paraphrase well-established facts; they never imitate a real newspaper's headline.",
+      },
+    ],
+    preset: "vox-paper",
+    narrate: true,
+    maxSeconds: 62,
+    example: { topic: "How the Wright brothers' 12-second flight in 1903 changed travel" },
+  },
+  {
+    id: "tierlist",
+    title: "Tier list",
+    blurb: "The viral ranking format: S to D, each pick flying into its tier on the word, a hot take at the top.",
+    youGive: "What to rank (and, if you like, the picks and where they go).",
+    youGet: "A 25–40 s narrated tier list: a ranking board, 6–10 picks dropping in with a hit, a funny reason for each, captions in a blue box.",
+    fields: [
+      {
+        id: "topic",
+        label: "What are we ranking?",
+        placeholder: "Programming languages for a first project. Python in S, put Brainfuck in D.",
+        help: "The topic, plus any picks and tiers you want. Rankings are framed as opinions; names only, never faces.",
+      },
+    ],
+    preset: "tier-list",
+    narrate: true,
+    maxSeconds: 40,
+    example: { topic: "Breakfast foods, ranked. Cereal in S, plain toast in D." },
+  },
 ];
 
 export const briefKind = (id: string): BriefKind | undefined => BRIEF_KINDS.find((k) => k.id === id);
 
 /** Presets made for one kind of brief film; they are offered there, not in the style grid of edits. */
 export const BRIEF_PRESET_IDS = new Set(
-  ["saas-launch", "showreel-kinetic", "recipe-explainer", "versus-arcade", "music-machine", "grand-budapest"],
+  ["saas-launch", "showreel-kinetic", "recipe-explainer", "versus-arcade", "music-machine", "grand-budapest", "kurz-explainer"],
 );

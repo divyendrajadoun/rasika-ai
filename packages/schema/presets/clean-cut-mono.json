@@ -1,0 +1,56 @@
+{
+  "id": "clean-cut-mono",
+  "name": "Clean Cut Mono",
+  "tagline": "Agentchengfeng/chengfeng-videocut-skills: the talking take cut clean (fillers, repeats, restarts out), one line of subtitle per phrase, black-and-white callouts, zoom off — doing nothing is often right.",
+  "palette": {
+    "stage": "#FFFFFF",
+    "mar": "#111111",
+    "ter": "#087A55",
+    "gold": "#9BE3C6",
+    "goldd": "#087A55",
+    "iv": "#FFFFFF",
+    "ink": "#111111"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.3,
+  "captionStyle": "clean",
+  "captionSize": 56,
+  "captionAccent": "ter",
+  "endCardShape": "square",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "strikeLine",
+    "chips",
+    "imageCard"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "sentence",
+    "enter": "fade",
+    "exit": "fade",
+    "easing": "smooth",
+    "speed": 1.0,
+    "camera": "still",
+    "sfxKit": "click",
+    "texture": "none",
+    "framing": "full",
+    "direction": "chengfeng-cut + chengfeng-visual. The speaker stays full frame the whole time; the cut is the edit (turn on Clean cut). Subtitles: one line per screen, a new screen at every comma or full stop, proper nouns spelled right. Overlays are rare and plain: a black-and-white full-screen statement (white field, black type) only where the idea needs it, a green (`ter`) callout on the one word that matters. No zoom (at most 1.6× once, if ever). Doing nothing is often the right call: fewer than one element every 8 s.",
+    "avoidElements": [
+      "stamp",
+      "bleedPlate",
+      "patternCard",
+      "filmStrip",
+      "feedPhone",
+      "propPunchIn",
+      "counter"
+    ]
+  }
+}

@@ -15,7 +15,18 @@ import type {
 } from "@rasika/schema";
 import { DEFAULT_MOTION, type EasingKind, type ExitKind, type Motion } from "@rasika/schema";
 import { div, esc, nextId, px, rgba } from "./dom";
-import { browserCard, fightHud, noteMachine, pourGlass, seasonWindow, type BriefCtx } from "./brief";
+import {
+  browserCard,
+  crowd,
+  docCard,
+  explainerWorld,
+  fightHud,
+  noteMachine,
+  pourGlass,
+  seasonWindow,
+  tierBoard,
+  type BriefCtx,
+} from "./brief";
 import { patternSvg, type Colors } from "./patterns";
 import { E, lerp, prog, rng, transformStyle, type Easing, type Transform, steps } from "./toolkit";
 
@@ -55,6 +66,8 @@ export interface BuildCtx {
   modeAt: (t: number) => VideoModeName;
   /** false for light-stage styles: framed modes then take the light-wall colours */
   stageDark: boolean;
+  /** a film with no footage: every element takes the stage's own lightness (as validatePlan does) */
+  faceless?: boolean;
 }
 
 const FONT_CLASS: Record<TextFont, string> = {
@@ -212,7 +225,7 @@ function lineExtra(line: TextLine): string {
 export function buildElement(el: PlanElement, ctx: BuildCtx): Item[] {
   if (el.type === "broll") return [];
   const { C } = ctx;
-  const dark = DARK.has(ctx.modeAt(el.t0 + 0.05)) && ctx.stageDark;
+  const dark = ctx.faceless ? ctx.stageDark : DARK.has(ctx.modeAt(el.t0 + 0.05)) && ctx.stageDark;
   const tok = (c: ColorToken | undefined, fallback: string) => (c ? C[c] : fallback);
 
   switch (el.type) {
@@ -578,6 +591,14 @@ export function buildElement(el: PlanElement, ctx: BuildCtx): Item[] {
       return seasonWindow(el, briefCtx(ctx, dark));
     case "noteMachine":
       return noteMachine(el, briefCtx(ctx, dark));
+    case "tierBoard":
+      return tierBoard(el, briefCtx(ctx, dark));
+    case "explainerWorld":
+      return explainerWorld(el, briefCtx(ctx, dark));
+    case "crowd":
+      return crowd(el, briefCtx(ctx, dark));
+    case "docCard":
+      return docCard(el, briefCtx(ctx, dark));
   }
 }
 

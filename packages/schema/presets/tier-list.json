@@ -1,0 +1,54 @@
+{
+  "id": "tier-list",
+  "name": "Tier List",
+  "tagline": "hypit-ai/hypit's viral tier-list format: S to D rows, each pick flying into its tier on the word with its own hit, karaoke captions in a blue box.",
+  "palette": {
+    "stage": "#090A0F",
+    "mar": "#2C2C2C",
+    "ter": "#008FC7",
+    "gold": "#F0C84D",
+    "goldd": "#EE5F52",
+    "iv": "#FFFFFF",
+    "ink": "#090A0F"
+  },
+  "fonts": {
+    "poster": "Montserrat",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Montserrat"
+  },
+  "grain": 0.0,
+  "pace": 0.8,
+  "captionStyle": "box",
+  "captionSize": 60,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "tierBoard",
+    "posterText",
+    "imageCard",
+    "stamp"
+  ],
+  "motion": {
+    "family": "hype",
+    "caseStyle": "upper",
+    "enter": "pop",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 1.15,
+    "camera": "cut",
+    "sfxKit": "hype",
+    "texture": "none",
+    "framing": "any",
+    "direction": "Hypit UGC ranking. One `tierBoard` (S #EE5F52, A #F0A04C, B #F0C84D, C #EDE356, D #A6DA7B on a #2B2B30 board) holds the film; each pick appears big over the board as it is named (8 frames) and flies into its row on the word that ranks it (14 frames), with its own sound. Captions: karaoke, the spoken word in a #008FC7 box, white Montserrat 900, at most 4 words a line. Comedy beats as `imageCard`s with a heavy drop shadow. Fast: no beat longer than 2 s without movement. Names only, never faces of real people.",
+    "avoidElements": [
+      "feedPhone",
+      "filmStrip",
+      "patternCard",
+      "explainerWorld",
+      "docCard"
+    ]
+  }
+}

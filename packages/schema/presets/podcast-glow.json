@@ -1,0 +1,56 @@
+{
+  "id": "podcast-glow",
+  "name": "Podcast Glow",
+  "tagline": "hypit-ai/hypit's podcast clip: black stage, the speaker full frame, UPPERCASE Montserrat 900 karaoke captions with a coloured active word and glow.",
+  "palette": {
+    "stage": "#050507",
+    "mar": "#170A20",
+    "ter": "#F16BFF",
+    "gold": "#77D9FF",
+    "goldd": "#F2C94C",
+    "iv": "#FFFFFF",
+    "ink": "#170A20"
+  },
+  "fonts": {
+    "poster": "Montserrat",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Montserrat"
+  },
+  "grain": 0.0,
+  "pace": 0.7,
+  "captionStyle": "karaoke",
+  "captionSize": 66,
+  "captionAccent": "gold",
+  "endCardShape": "square",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "propPunchIn",
+    "stamp",
+    "chips",
+    "imageCard"
+  ],
+  "motion": {
+    "family": "hype",
+    "caseStyle": "upper",
+    "enter": "pop",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 1.1,
+    "camera": "cut",
+    "sfxKit": "pop",
+    "texture": "none",
+    "framing": "full",
+    "direction": "Hypit podcast clip. The speaker full frame, locked view, compact pacing (turn on Clean cut for the pause trims). Captions are the show: Montserrat 900 UPPERCASE, white with a dark 3 px stroke, karaoke step with the active word in the speaker's colour (`gold` #77D9FF, or `ter` #F16BFF for a second voice), 4-frame pop in, 2-frame fade out. Few overlays: one `stamp` on the hook line, a `propPunchIn` on the product moment. Soundtrack low (~0.12), event sounds at ~0.2.",
+    "avoidElements": [
+      "feedPhone",
+      "filmStrip",
+      "patternCard",
+      "explainerWorld",
+      "docCard",
+      "tierBoard"
+    ]
+  }
+}

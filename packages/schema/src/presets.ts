@@ -99,6 +99,12 @@ import versusArcade from "../presets/versus-arcade.json";
 import musicMachine from "../presets/music-machine.json";
 import grandBudapest from "../presets/grand-budapest.json";
 import punchyFun from "../presets/punchy-fun.json";
+import kurzExplainer from "../presets/kurz-explainer.json";
+import cutPaperVivid from "../presets/cut-paper-vivid.json";
+import paperCutRed from "../presets/paper-cut-red.json";
+import cleanCutMono from "../presets/clean-cut-mono.json";
+import tierList from "../presets/tier-list.json";
+import podcastGlow from "../presets/podcast-glow.json";
 
 /** The shipped presets, validated once at module load so a bad JSON fails fast. */
 export const presets: readonly StyleTokens[] = [
@@ -202,6 +208,12 @@ export const presets: readonly StyleTokens[] = [
   musicMachine,
   grandBudapest,
   punchyFun,
+  kurzExplainer,
+  cutPaperVivid,
+  paperCutRed,
+  cleanCutMono,
+  tierList,
+  podcastGlow,
 ].map((p) => StyleTokens.parse(p));
 
 export const defaultPreset: StyleTokens = presets[0] as StyleTokens;

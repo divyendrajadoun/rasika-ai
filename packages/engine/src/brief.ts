@@ -563,3 +563,300 @@ export function noteMachine(el: El<"noteMachine">, ctx: BriefCtx): BriefItem[] {
     }),
   ];
 }
+
+// ───────────────────────────── tierBoard ─────────────────────────────
+
+/** Row geometry, shared with validatePlan's zone (TIER_HEAD, TIER_ROW). */
+const TIER_HEAD = 150;
+const TIER_ROW = 170;
+
+export function tierBoard(el: El<"tierBoard">, ctx: BriefCtx): BriefItem[] {
+  const ink = inkOn(ctx);
+  const perRow = el.tiers.map(() => 0);
+  const slots = el.items.map((it) => perRow[it.tier]!++);
+  const chipW = (n: number) => Math.min(200, Math.floor(860 / Math.max(1, n)) - 12);
+  const html = `<div class="tb" style="position:absolute;left:40px;top:${el.top}px;width:1000px">
+  <div class="an" style="height:${TIER_HEAD - 30}px;display:flex;align-items:center;justify-content:center;font-size:78px;line-height:1;color:${ink};text-transform:uppercase;letter-spacing:-.01em">${esc(el.title)}</div>
+  ${el.tiers
+    .map(
+      (t, r) => `<div class="tb-row" data-r="${r}" style="position:absolute;left:0;top:${TIER_HEAD + r * TIER_ROW}px;width:1000px;height:${TIER_ROW - 12}px;display:flex;border:4px solid #111315;border-radius:10px;overflow:hidden;background:#2b2b30">
+    <div style="flex:none;width:140px;background:${t.color};display:flex;align-items:center;justify-content:center;font:900 92px/1 Montserrat,Inter,sans-serif;color:#2c2c2c">${esc(t.label)}</div>
+    <div class="tb-flash" style="flex:1;background:${t.color};opacity:0"></div></div>`,
+    )
+    .join("")}
+  ${el.items
+    .map((it, i) => {
+      const w = chipW(perRow[it.tier]!);
+      const x = 150 + slots[i]! * (w + 12);
+      const y = TIER_HEAD + it.tier * TIER_ROW + 10;
+      return `<div class="tb-item" data-i="${i}" data-x="${x}" data-y="${y}" data-w="${w}" style="position:absolute;left:0;top:0;width:${w}px;height:${TIER_ROW - 32}px;border-radius:12px;background:#fffdf7;border:4px solid #111315;box-shadow:0 18px 34px -8px rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;text-align:center;padding:6px;font:800 ${w < 150 ? 22 : 30}px/1.05 Montserrat,Inter,sans-serif;color:#161616;opacity:0;transform-origin:0 0">${esc(it.name)}</div>`;
+    })
+    .join("")}
+</div>`;
+  return [
+    stage(ctx, el.t0, el.t1, html, "pop", (node, a) => {
+      el.items.forEach((it, i) => {
+        const chip = q(node, `.tb-item[data-i="${i}"]`);
+        if (!chip) return;
+        const x = Number(chip.dataset.x);
+        const y = Number(chip.dataset.y);
+        const w = Number(chip.dataset.w);
+        // appears big over the board (8 frames), holds, then flies into its row (14 frames)
+        const appear = it.at - 0.75;
+        const pa = prog(a, appear, appear + 0.27, E.outBack);
+        const pm = prog(a, it.at - 0.47, it.at, E.inOutCubic);
+        chip.style.opacity = a < appear ? "0" : "1";
+        const cx = lerp(500 - w * 0.8, x, pm);
+        const cy = lerp(-250, y, pm);
+        const sc = Math.max(0.01, lerp(1.6 * pa, 1, pm));
+        chip.style.transform = `translate(${cx}px, ${cy}px) scale(${sc})`;
+      });
+      el.tiers.forEach((_, r) => {
+        const fl = q(node, `.tb-row[data-r="${r}"] .tb-flash`);
+        if (!fl) return;
+        let f = 0;
+        for (const it of el.items) if (it.tier === r && a >= it.at) f = Math.max(f, 1 - prog(a, it.at, it.at + 0.35));
+        fl.style.opacity = String(f * 0.45);
+      });
+    }),
+  ];
+}
+
+// ───────────────────────────── explainerWorld ─────────────────────────────
+
+interface WorldLook {
+  sky: [string, string];
+  far: string;
+  mid: string;
+  near: string;
+  glow: string;
+}
+const WORLDS: Record<El<"explainerWorld">["world"], WorldLook> = {
+  space: { sky: ["#141b3a", "#2b2f6b"], far: "#fdf8ee", mid: "#f5b95f", near: "#3d4e6c", glow: "rgba(245,185,95,.35)" },
+  earth: { sky: ["#bfe6f0", "#fdf8ee"], far: "#9cc9a8", mid: "#6fae7c", near: "#3f7f5b", glow: "rgba(255,227,168,.6)" },
+  city: { sky: ["#f6c39c", "#fbe9c9"], far: "#d9a0a0", mid: "#7c5cbf", near: "#3d4e6c", glow: "rgba(245,169,160,.5)" },
+  ocean: { sky: ["#9fd6ea", "#1f5d8c"], far: "#6db8d6", mid: "#2f7fb0", near: "#174a72", glow: "rgba(255,255,255,.35)" },
+  cell: { sky: ["#f8d5e0", "#f5a9a0"], far: "#fbe9c9", mid: "#e98b8b", near: "#c4566a", glow: "rgba(255,255,255,.4)" },
+  lab: { sky: ["#1f3b47", "#2e5a63"], far: "#4db8a8", mid: "#f5b95f", near: "#0f2a33", glow: "rgba(77,184,168,.35)" },
+};
+
+function worldLayer(world: El<"explainerWorld">["world"], depth: 0 | 1 | 2, look: WorldLook, seed: number): string {
+  const r = rng(seed * 31 + depth * 7);
+  const W = 1600;
+  const col = depth === 0 ? look.far : depth === 1 ? look.mid : look.near;
+  const parts: string[] = [];
+  if (world === "space") {
+    if (depth === 0)
+      for (let i = 0; i < 90; i++)
+        parts.push(
+          `<circle cx="${(r() * W).toFixed(0)}" cy="${(r() * 1920).toFixed(0)}" r="${(1.5 + r() * 3).toFixed(1)}" fill="${col}" opacity="${(0.4 + r() * 0.6).toFixed(2)}"/>`,
+        );
+    if (depth === 1)
+      parts.push(
+        `<circle cx="1180" cy="520" r="210" fill="${col}"/><ellipse cx="1180" cy="520" rx="330" ry="60" fill="none" stroke="${look.far}" stroke-width="14" opacity=".8" transform="rotate(-14 1180 520)"/>`,
+      );
+    if (depth === 2) parts.push(`<circle cx="300" cy="2150" r="700" fill="${col}"/>`);
+  } else if (world === "ocean" || world === "cell") {
+    const n = depth === 0 ? 14 : depth === 1 ? 8 : 4;
+    for (let i = 0; i < n; i++) {
+      const rad = (depth + 1) * (30 + r() * 50);
+      parts.push(
+        `<circle cx="${(r() * W).toFixed(0)}" cy="${(300 + r() * 1500).toFixed(0)}" r="${rad.toFixed(0)}" fill="${col}" opacity="${depth === 2 ? 0.9 : 0.55}"/>`,
+      );
+    }
+  } else if (world === "city" || world === "lab") {
+    let x = 0;
+    const base = depth === 0 ? 1250 : depth === 1 ? 1450 : 1700;
+    while (x < W) {
+      const w = 90 + r() * 140;
+      const h = (depth === 0 ? 260 : depth === 1 ? 380 : 300) + r() * 320;
+      parts.push(
+        `<rect x="${x.toFixed(0)}" y="${(base - h).toFixed(0)}" width="${w.toFixed(0)}" height="${(h + 600).toFixed(0)}" rx="${world === "lab" ? 26 : 6}" fill="${col}"/>`,
+      );
+      x += w + (depth === 2 ? 60 : 14);
+    }
+  } else {
+    const base = depth === 0 ? 1180 : depth === 1 ? 1380 : 1640;
+    const amp = depth === 0 ? 120 : depth === 1 ? 90 : 60;
+    let d = `M0 ${base}`;
+    for (let x = 0; x <= W; x += 200) d += ` Q${x + 100} ${(base - amp - r() * amp).toFixed(0)} ${x + 200} ${base}`;
+    parts.push(`<path d="${d} L${W} 2400 L0 2400 Z" fill="${col}"/>`);
+  }
+  return `<svg class="ew-l" data-d="${depth}" width="${W}" height="1920" viewBox="0 0 ${W} 1920" style="position:absolute;left:-260px;top:0">${parts.join("")}</svg>`;
+}
+
+/** The host: a round bee holding a pencil, drawn around 0,0 (the explainer-skills default host). */
+function hostSvg(C: Colors): string {
+  return `<svg width="220" height="220" viewBox="-110 -110 220 220" style="position:absolute;left:-110px;top:-110px;overflow:visible">
+  <g class="ew-wings"><ellipse cx="-28" cy="-58" rx="30" ry="44" fill="#fffdf6" opacity=".85" stroke="#3d4e6c" stroke-width="5"/><ellipse cx="26" cy="-60" rx="26" ry="40" fill="#fffdf6" opacity=".85" stroke="#3d4e6c" stroke-width="5"/></g>
+  <g class="ew-arm"><line x1="40" y1="10" x2="96" y2="-6" stroke="#3d4e6c" stroke-width="9" stroke-linecap="round"/><rect x="88" y="-20" width="12" height="40" rx="3" fill="${C.gold}" stroke="#3d4e6c" stroke-width="4" transform="rotate(30 94 0)"/></g>
+  <ellipse cx="0" cy="0" rx="62" ry="54" fill="#ffe3a8" stroke="#3d4e6c" stroke-width="6"/>
+  <path d="M-30 -46 Q-38 0 -30 46 M2 -54 Q-6 0 2 54" stroke="#3d4e6c" stroke-width="13" fill="none"/>
+  <circle cx="30" cy="-10" r="8" fill="#3d4e6c"/><circle cx="50" cy="-12" r="7" fill="#3d4e6c"/>
+  <path class="ew-mouth" d="M30 14 Q42 24 54 12" stroke="#3d4e6c" stroke-width="5" fill="none" stroke-linecap="round"/>
+</svg>`;
+}
+
+export function explainerWorld(el: El<"explainerWorld">, ctx: BriefCtx): BriefItem[] {
+  const look = WORLDS[el.world];
+  const seed = Math.round(el.t0 * 100) + el.world.length;
+  const html = `<div style="position:absolute;inset:0;overflow:hidden;background:linear-gradient(180deg,${look.sky[0]},${look.sky[1]})">
+  <div style="position:absolute;left:140px;top:260px;width:800px;height:800px;border-radius:50%;background:radial-gradient(${look.glow},transparent 70%)"></div>
+  ${([0, 1, 2] as const).map((d) => worldLayer(el.world, d, look, seed)).join("")}
+  <div style="position:absolute;inset:0;box-shadow:inset 0 0 260px rgba(18,24,38,.17)"></div>
+</div>
+${el.host.length ? `<div class="ew-host" style="position:absolute;left:0;top:0;width:0;height:0">${hostSvg(ctx.C)}</div>` : ""}`;
+  const life = el.t1 - el.t0;
+  const hostAt = (a: number) => {
+    const h = el.host;
+    let i = 0;
+    while (i + 1 < h.length && h[i + 1]!.at - 0.8 <= a) i++;
+    const cur = h[i]!;
+    const nxt = h[i + 1];
+    if (!nxt || a < nxt.at - 0.8) return { x: cur.x, y: cur.y, pose: cur.pose, since: a - cur.at };
+    const p = prog(a, nxt.at - 0.8, nxt.at, E.inOutCubic);
+    // a flight arcs up a little, the way a bird hops between perches
+    return {
+      x: lerp(cur.x, nxt.x, p),
+      y: lerp(cur.y, nxt.y, p) - Math.sin(p * Math.PI) * 90,
+      pose: p > 0.5 ? nxt.pose : cur.pose,
+      since: a - (p > 0.5 ? nxt.at : cur.at),
+    };
+  };
+  const item = stage(ctx, el.t0, el.t1, html, "fade", (node, a) => {
+    const p = prog(a, 0, life, E.inOutCubic) * el.dolly;
+    for (const l of qa(node, ".ew-l")) {
+      const d = Number(l.dataset.d);
+      l.style.transform = `translateX(${-p * [60, 140, 260][d]!}px) scale(${1 + p * 0.03 * (d + 1)})`;
+    }
+    const host = q(node, ".ew-host");
+    if (!host || !el.host.length) return;
+    const h = hostAt(a);
+    const bob = Math.sin(a * 3.2) * 10;
+    const since = Math.max(0, h.since);
+    const tap = h.pose === "tap" ? Math.abs(Math.sin(since * 9)) * 18 * (1 - prog(since, 0.6, 1)) : 0;
+    const wow = h.pose === "wow" ? 1 + 0.12 * (1 - prog(since, 0, 0.5, E.outBack)) : 1;
+    const tilt = h.pose === "think" ? -10 : 0;
+    host.style.opacity = String(prog(a, 0, 0.3));
+    host.style.transform = `translate(${h.x}px, ${h.y + bob + tap}px) scale(${wow}) rotate(${tilt}deg)`;
+    const wings = q(node, ".ew-wings");
+    if (wings) wings.style.transform = `scaleY(${0.7 + Math.abs(Math.sin(a * 38)) * 0.3})`;
+    const arm = q(node, ".ew-arm");
+    if (arm) arm.style.transform = `rotate(${h.pose === "point" ? -24 : h.pose === "tap" ? 30 : 12}deg)`;
+    const mouth = q(node, ".ew-mouth");
+    if (mouth) mouth.setAttribute("d", h.pose === "wow" ? "M34 10 Q42 34 50 10 Q42 4 34 10" : "M30 14 Q42 24 54 12");
+  });
+  // the world is the backdrop: everything else in the film stands in front of it
+  ctx.fx.insertBefore(item.el, ctx.fx.firstChild);
+  return [item];
+}
+
+// ───────────────────────────── crowd ─────────────────────────────
+
+const crowdCols = (n: number) => (n <= 12 ? 4 : n <= 30 ? 6 : 10);
+
+export function crowd(el: El<"crowd">, ctx: BriefCtx): BriefItem[] {
+  const cols = crowdCols(el.count);
+  const cell = Math.floor(960 / cols);
+  const rows = Math.ceil(el.count / cols);
+  const ink = inkOn(ctx);
+  const s = cell * 0.78;
+  const fig = (i: number) =>
+    `<svg class="cr-f" data-i="${i}" width="${s}" height="${s}" viewBox="-50 -60 100 110" style="position:absolute;left:${60 + (i % cols) * cell + (cell - s) / 2}px;top:${Math.floor(i / cols) * cell}px;overflow:visible;transform-origin:50% 100%">
+    <rect x="-30" y="-6" width="60" height="54" rx="28" fill="currentColor" stroke="${ctx.C.ink}" stroke-width="5"/><circle cx="0" cy="-30" r="26" fill="currentColor" stroke="${ctx.C.ink}" stroke-width="5"/><circle cx="-9" cy="-32" r="4.5" fill="${ctx.C.ink}"/><circle cx="9" cy="-32" r="4.5" fill="${ctx.C.ink}"/></svg>`;
+  const html = `<div style="position:absolute;left:0;top:${el.top}px;width:1080px">
+  ${Array.from({ length: el.count }, (_, i) => fig(i)).join("")}
+  ${
+    el.label || el.per
+      ? `<div class="cr-l" style="position:absolute;left:0;width:1080px;top:${rows * cell + 20}px;text-align:center;opacity:0">${el.label ? `<div class="an" style="font-size:66px;line-height:1.05;color:${ink}">${esc(el.label)}</div>` : ""}${el.per ? `<div class="se" style="font-size:40px;line-height:1.2;color:${ink};opacity:.8">${esc(el.per)}</div>` : ""}</div>`
+      : ""
+  }
+</div>`;
+  const hiN = Math.max(1, el.highlight);
+  return [
+    stage(ctx, el.t0, el.t1, html, "fade", (node, a) => {
+      for (const f of qa<SVGElement>(node, ".cr-f")) {
+        const i = Number(f.dataset.i);
+        const st = (i / el.count) * 0.6;
+        const pin = prog(a, st, st + 0.25, E.outBack);
+        const hs = el.at + (i / hiN) * 0.35;
+        const ph = i < el.highlight ? prog(a, hs, hs + 0.3) : 0;
+        f.style.color = ph > 0.5 ? ctx.C[el.hiColor] : ctx.C[el.color];
+        const hop = Math.sin(ph * Math.PI) * 22;
+        f.style.transform = `translateY(${(1 - pin) * 40 - hop}px) scale(${Math.max(0.01, pin)})`;
+      }
+      const l = q(node, ".cr-l");
+      if (l) l.style.opacity = String(prog(a, el.at, el.at + 0.3));
+    }),
+  ];
+}
+
+// ───────────────────────────── docCard ─────────────────────────────
+
+const MARKER = "#E04329";
+
+export function docCard(el: El<"docCard">, ctx: BriefCtx): BriefItem[] {
+  const r = rng(el.headline.length * 131 + Math.round(el.t0 * 10));
+  // a scissored edge: the paper is cut by hand, never a clean rectangle
+  const edge: string[] = [];
+  for (let k = 0; k <= 20; k++) edge.push(`${k * 5}% ${(r() * 1.4).toFixed(2)}%`);
+  for (let k = 0; k <= 20; k++) edge.push(`${(100 - r() * 1.2).toFixed(2)}% ${k * 5}%`);
+  for (let k = 20; k >= 0; k--) edge.push(`${k * 5}% ${(100 - r() * 1.4).toFixed(2)}%`);
+  for (let k = 20; k >= 0; k--) edge.push(`${(r() * 1.2).toFixed(2)}% ${k * 5}%`);
+  const paper = el.kind === "newspaper" ? "#efeadd" : el.kind === "letter" ? "#f4ead2" : "#fbfaf6";
+  const tone = "#16110D";
+  let head = esc(el.headline);
+  if (el.mark) {
+    const at = el.headline.toLowerCase().indexOf(el.mark.toLowerCase());
+    if (at >= 0) {
+      const m = el.headline.slice(at, at + el.mark.length);
+      const stroke = `fill="none" stroke="${MARKER}" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"`;
+      const svg =
+        el.markStyle === "underline"
+          ? `<svg viewBox="0 0 100 20" preserveAspectRatio="none" style="position:absolute;left:-3%;width:106%;bottom:-.22em;height:.42em;overflow:visible"><path class="dc-mk" pathLength="100" d="M1 12 Q30 4 55 11 T99 8" stroke-width="7" ${stroke}/></svg>`
+          : el.markStyle === "circle"
+            ? `<svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;left:-9%;top:-30%;width:118%;height:160%;overflow:visible"><path class="dc-mk" pathLength="100" d="M52 4 C90 4 99 30 97 52 C95 80 70 97 45 96 C15 95 2 75 3 50 C4 22 25 6 60 8" stroke-width="6" ${stroke}/></svg>`
+            : `<svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;left:-4%;top:-12%;width:108%;height:124%;overflow:visible"><path class="dc-mk" pathLength="100" d="M2 4 L98 2 L97 97 L3 98 Z" stroke-width="6" ${stroke}/></svg>`;
+      head = `${esc(el.headline.slice(0, at))}<span style="position:relative;display:inline-block">${esc(m)}${svg}</span>${esc(el.headline.slice(at + el.mark.length))}`;
+    }
+  }
+  const headFont =
+    el.kind === "document"
+      ? `font:500 46px/1.15 'JetBrains Mono',monospace`
+      : el.kind === "letter"
+        ? `font:400 64px/1.08 'Instrument Serif',serif`
+        : `font:800 66px/1.04 'Playfair Display Roman',serif;letter-spacing:-.01em`;
+  const top =
+    el.kind === "newspaper"
+      ? `<div style="text-align:center;border-bottom:3px double ${tone};padding-bottom:12px;margin-bottom:22px;position:relative"><div style="font:900 50px/1 'Playfair Display Roman',serif;color:${tone};letter-spacing:.02em">${esc(el.masthead ?? "The Daily Record")}</div>${el.date ? `<div style="font:600 18px/1 Inter,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:${tone};opacity:.7;margin-top:10px">${esc(el.date)}</div>` : ""}</div>`
+      : el.masthead || el.date
+        ? `<div style="font:600 20px/1.3 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:${tone};opacity:.7;margin-bottom:18px;position:relative">${esc([el.masthead, el.date].filter(Boolean).join(" · "))}</div>`
+        : "";
+  const html = `<div class="dc" style="position:absolute;left:${el.x}px;top:${el.y}px;width:${el.w}px;filter:drop-shadow(0 22px 30px rgba(55,45,31,.28))">
+  <div style="clip-path:polygon(${edge.join(",")});background:${paper};padding:44px 50px 50px;position:relative">
+    <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(22,17,13,.10) 1.2px,transparent 1.4px);background-size:7px 7px;mix-blend-mode:multiply"></div>
+    ${top}
+    <div style="${headFont};color:${tone};position:relative">${head}</div>
+    ${el.body ? `<div style="font:400 26px/1.45 'Playfair Display Roman',serif;color:${tone};opacity:.82;margin-top:20px;position:relative;${el.kind === "newspaper" ? "column-count:2;column-gap:30px;" : ""}">${esc(el.body)}</div>` : ""}
+  </div>
+</div>`;
+  const life = el.t1 - el.t0;
+  return [
+    stage(ctx, el.t0, el.t1, html, "none", (node, a) => {
+      const card = q(node, ".dc");
+      if (card) {
+        // arrives, it does not fade: a spring rise from below, settling into its tilt
+        const p = prog(a, 0, 0.55, E.outBack);
+        const out = prog(a, life - 0.25, life, E.inCubic);
+        card.style.transform = `translateY(${(1 - p) * 380 + out * 1400}px) rotate(${lerp(el.tilt * 3, el.tilt, p)}deg)`;
+      }
+      const mk = q<SVGPathElement>(node, ".dc-mk");
+      if (mk) {
+        const d = prog(a, el.markAt, el.markAt + 0.45, E.inOutCubic);
+        mk.style.strokeDasharray = "100";
+        mk.style.strokeDashoffset = String(100 - d * 100);
+        mk.style.opacity = d > 0 ? "0.92" : "0";
+      }
+    }),
+  ];
+}

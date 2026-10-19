@@ -26,6 +26,7 @@
   "endCardShape": "rounded",
   "pattern": "none",
   "preferredElements": [
+    "docCard",
     "posterText",
     "counter",
     "imageCard",
@@ -44,7 +45,7 @@
     "camera": "glide",
     "sfxKit": "none",
     "texture": "paper",
-    "direction": "vox-editorial `vox-skill`. \"Four inks and a paper is the whole system\": paper `stage`, ink `ink`, red marker `ter` as an offset stroke behind cut-outs, orange `goldd`, highlighter `gold`. Archivo Black UPPERCASE headlines and numbers (letter-spacing −1 to −3), Montserrat small caps for `counter`s, Playfair for a masthead `chapterCard`. Entrances spring (damping 18, mass 0.75, stiffness 110) rising from below with a 16-frame opacity ramp; no two elements land on the same frame (stagger 20–30 frames); flat elements rotated 0.4–1.2°; draw-on strokes (`strikeLine`) inOut cubic. Captions 2–4 words in Archivo Black on a soft ink plate. The hook withholds the subject; the last line answers it; counters land on the spoken word. Never open a beat on an empty frame; never add a colour.",
+    "direction": "vox-editorial `vox-skill`. \"Four inks and a paper is the whole system\": paper `stage`, ink `ink`, red marker `ter` as an offset stroke behind cut-outs, orange `goldd`, highlighter `gold`. Archivo Black UPPERCASE headlines and numbers (letter-spacing −1 to −3), Montserrat small caps for `counter`s, Playfair for a masthead `chapterCard`. Entrances spring (damping 18, mass 0.75, stiffness 110) rising from below with a 16-frame opacity ramp; no two elements land on the same frame (stagger 20–30 frames); flat elements rotated 0.4–1.2°; draw-on strokes (`strikeLine`) inOut cubic. Captions 2–4 words in Archivo Black on a soft ink plate. The hook withholds the subject; the last line answers it; counters land on the spoken word. Never open a beat on an empty frame; never add a colour. Evidence goes on paper: `docCard` clippings (newspaper, typed document, letter) with the narration's own facts, the key phrase struck by the red marker as it is spoken.",
     "avoidElements": [
       "lockCard",
       "ring",

@@ -1,0 +1,57 @@
+{
+  "id": "kurz-explainer",
+  "name": "Kurz Explainer",
+  "tagline": "BusyBee3333/animated-explainer-skills: a Kurzgesagt-style world in parallax layers, a flying host that points and taps, quantities as little characters. (Georgia → Fraunces, Nunito → Jost: the bundled faces.)",
+  "palette": {
+    "stage": "#FDF8EE",
+    "mar": "#3D4E6C",
+    "ter": "#D4483D",
+    "gold": "#F5B95F",
+    "goldd": "#A9761F",
+    "iv": "#FFFDF6",
+    "ink": "#3D4E6C"
+  },
+  "fonts": {
+    "poster": "Fraunces",
+    "accent": "Fraunces",
+    "ui": "Jost",
+    "devanagari": "Mukta",
+    "caption": "Jost"
+  },
+  "grain": 0.05,
+  "pace": 0.55,
+  "captionStyle": "phrase",
+  "captionSize": 62,
+  "captionAccent": "goldd",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "explainerWorld",
+    "crowd",
+    "counter",
+    "posterText",
+    "chapterCard",
+    "stamp",
+    "equation"
+  ],
+  "motion": {
+    "family": "kinetic",
+    "caseStyle": "sentence",
+    "enter": "pop",
+    "exit": "lift",
+    "easing": "spring",
+    "speed": 1.0,
+    "camera": "push",
+    "sfxKit": "pop",
+    "texture": "grain",
+    "framing": "any",
+    "direction": "gsap-explainer method. ONE `explainerWorld` behind the whole film (the world that fits the topic: space, earth, city, ocean, cell, lab), its host flying to a new perch on each beat and pointing (`point`) at what is being said, tapping (`tap`) a number as it lands, `wow` on the payoff, `think` on the question. Quantities are little characters, not dots: a `crowd` whose highlight lands on the spoken number (\"1 in 4\" = count 20, highlight 5). Titles in Fraunces (serif, sentence case) on the cream field; Caveat-style hand notes are not used. Motion: drops with a bounce (back-out pops, stagger 0.09 s), stamp slams from scale 2.6 rotated −14° on verdicts, push-ins 1.02–1.05 on payoffs, anticipation before every slam. First beat by 0.5 s; no dead stretch longer than 4 s. Never two texts on top of each other (the host avoids headlines).",
+    "avoidElements": [
+      "feedPhone",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "propPunchIn"
+    ]
+  }
+}

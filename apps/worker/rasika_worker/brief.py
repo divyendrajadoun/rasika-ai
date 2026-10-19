@@ -57,7 +57,7 @@ KINDS: dict[str, dict[str, Any]] = {
         "narrate": False,
         "seconds": (26, 32),
         "brief": "An Apple-style 30-second film for this app: calm white space, one idea per shot, short declarative "
-        "lines (\"Meet …\", \"Designed for …\"), the real screens presented on a clean stage, slow pushes, a final "
+        'lines ("Meet …", "Designed for …"), the real screens presented on a clean stage, slow pushes, a final '
         "name card. Understated and premium.",
     },
     "recipe": {
@@ -105,8 +105,43 @@ KINDS: dict[str, dict[str, Any]] = {
         "narrate": False,
         "seconds": (24, 32),
         "brief": "A Wes Anderson / Grand Budapest Hotel style vignette: symmetrical, pastel, chaptered with title "
-        "cards (\"Part One: Spring\"), whimsical deadpan lines. The subject is told through a window onto the "
+        'cards ("Part One: Spring"), whimsical deadpan lines. The subject is told through a window onto the '
         "passing world (e.g. four seasons passing outside a train window, a cosy carriage, a cup of coffee).",
+    },
+    "explainer": {
+        "title": "Animated explainer",
+        "needs": ["topic"],
+        "preset": "kurz-explainer",
+        "mood": "recipe",
+        "narrate": True,
+        "seconds": (40, 62),
+        "brief": "A Kurzgesagt-style animated explainer of the topic: a warm illustrated world in parallax layers, a "
+        "small flying host (a bee) that points at what is being said, quantities shown as little characters, one "
+        "surprising fact that turns the story, a clear payoff. Curious and friendly; every number true and "
+        "well known (no invented statistics: if unsure, describe instead of quantifying).",
+    },
+    "editorial": {
+        "title": "Editorial explainer",
+        "needs": ["topic"],
+        "preset": "vox-paper",
+        "mood": "recipe",
+        "narrate": True,
+        "seconds": (40, 62),
+        "brief": "A Vox-style narrated editorial explainer: the hook withholds the subject, then 8–12 beats told with "
+        "paper evidence (newspaper clippings, documents, letters) whose key phrase gets a red marker stroke, "
+        "numbers that land on the spoken word, a clear 'so what'. Journalism, not advertising; only facts that "
+        "are well established, dated where it matters.",
+    },
+    "tierlist": {
+        "title": "Tier list",
+        "needs": ["topic"],
+        "preset": "tier-list",
+        "mood": "showreel",
+        "narrate": True,
+        "seconds": (24, 40),
+        "brief": "A viral tier-list video: a confident, funny narrator ranks 6–10 picks on the topic from S to D, one "
+        "at a time, each with a one-line reason and a punchline; a hot take at the top tier. Opinions, clearly "
+        "framed as opinions; names only, never anyone's face.",
     },
 }
 
@@ -128,7 +163,14 @@ class UnsafeUrlError(ValueError):
 
 def _blocked_ip(ip: str) -> bool:
     a = ipaddress.ip_address(ip)
-    return a.is_private or a.is_loopback or a.is_link_local or a.is_reserved or a.is_multicast or a.is_unspecified
+    return (
+        a.is_private
+        or a.is_loopback
+        or a.is_link_local
+        or a.is_reserved
+        or a.is_multicast
+        or a.is_unspecified
+    )
 
 
 def check_url(url: str) -> str:
@@ -189,7 +231,9 @@ def capture_site(url: str, out: Path, timeout_ms: int = 25000) -> SiteCapture:
             return True  # data: / blob:
         if h not in checked:
             try:
-                check_url(req_url if urlparse(req_url).scheme in ("http", "https") else f"https://{h}")
+                check_url(
+                    req_url if urlparse(req_url).scheme in ("http", "https") else f"https://{h}"
+                )
                 checked[h] = True
             except UnsafeUrlError:
                 checked[h] = False
@@ -203,10 +247,15 @@ def capture_site(url: str, out: Path, timeout_ms: int = 25000) -> SiteCapture:
                 device_scale_factor=1,
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36 RasikaBriefBot",
             )
-            ctx.route("**/*", lambda route: route.continue_() if allowed(route.request.url) else route.abort())
+            ctx.route(
+                "**/*",
+                lambda route: route.continue_() if allowed(route.request.url) else route.abort(),
+            )
             page = ctx.new_page()
             page.goto(safe, wait_until="domcontentloaded", timeout=timeout_ms)
-            with contextlib.suppress(Exception):  # busy pages never go idle; what has loaded is enough
+            with contextlib.suppress(
+                Exception
+            ):  # busy pages never go idle; what has loaded is enough
                 page.wait_for_load_state("networkidle", timeout=8000)
             # cookie banners cover the product: accept nothing, just hide the usual containers
             page.add_style_tag(
@@ -230,18 +279,32 @@ def capture_site(url: str, out: Path, timeout_ms: int = 25000) -> SiteCapture:
             full = out / "site_full.png"
             height = min(int(page.evaluate("document.documentElement.scrollHeight") or 900), 5400)
             page.set_viewport_size({"width": 1440, "height": 900})
-            page.screenshot(path=str(full), full_page=True, clip={"x": 0, "y": 0, "width": 1440, "height": height})
+            page.screenshot(
+                path=str(full),
+                full_page=True,
+                clip={"x": 0, "y": 0, "width": 1440, "height": height},
+            )
             shots.append(("Homepage, full page (scrolls)", full))
             # two further screens down the page, for feature moments
             for i, y in enumerate((900, 1800)):
                 if y + 900 <= height:
                     sec = out / f"site_section_{i + 1}.png"
-                    page.screenshot(path=str(sec), clip={"x": 0, "y": y, "width": 1440, "height": 900}, full_page=True)
+                    page.screenshot(
+                        path=str(sec),
+                        clip={"x": 0, "y": y, "width": 1440, "height": 900},
+                        full_page=True,
+                    )
                     shots.append((f"Homepage, section {i + 2}", sec))
             phone = browser.new_context(
-                viewport={"width": 390, "height": 844}, device_scale_factor=2, is_mobile=True, has_touch=True
+                viewport={"width": 390, "height": 844},
+                device_scale_factor=2,
+                is_mobile=True,
+                has_touch=True,
             )
-            phone.route("**/*", lambda route: route.continue_() if allowed(route.request.url) else route.abort())
+            phone.route(
+                "**/*",
+                lambda route: route.continue_() if allowed(route.request.url) else route.abort(),
+            )
             pp = phone.new_page()
             pp.goto(safe, wait_until="domcontentloaded", timeout=timeout_ms)
             pp.wait_for_timeout(1500)
@@ -306,6 +369,23 @@ The kind's `data`:
 - journey:
   {"seasons": ["spring","summer","autumn","winter"], "chapters": ["Part One: Spring", ...],  // one per season
    "frame": "arch|rect", "cup": true|false}
+- explainer:
+  {"world": "space|earth|city|ocean|cell|lab",   // the one world the topic lives in
+   "beats": [{"line": "on-screen words", "host": "idle|point|tap|wow|think",
+              "crowd": null | {"count": 2-100, "highlight": 0-100, "per": "1 figure = …", "label": "short label"},
+              "number": null | "a number said in this beat, e.g. 70%"}]}   // one per line, in order
+- editorial:
+  {"docs": [{"kind": "newspaper|document|letter", "masthead": "optional", "date": "optional, real",
+             "headline": "≤ 90 chars, a real, well-established fact in headline form",
+             "body": "optional ≤ 200 chars", "mark": "a phrase copied exactly from the headline"}],   // 3–5
+   "numbers": [{"value": "e.g. 1903", "label": "what it is"}]}   // 0–3, only real ones
+  Write each headline as a paraphrase of established fact, never as a real outlet's actual headline; use a
+  generic masthead ("The Daily Record") unless the user named one.
+- tierlist:
+  {"title": "TOPIC TIER LIST (≤ 40 chars)",
+   "tiers": ["S","A","B","C","D"],
+   "items": [{"name": "≤ 18 chars", "tier": 0-4, "reason": "one funny line"}]}   // 6–10, in the order they are ranked
+  Narration ranks them in exactly this order, naming each item as it is placed.
 """
 
 
@@ -334,7 +414,9 @@ def write(
         }
     ]
     if capture:
-        user.append({"type": "text", "text": "## The website (its own words)\n\n" + capture.as_prompt()})
+        user.append(
+            {"type": "text", "text": "## The website (its own words)\n\n" + capture.as_prompt()}
+        )
         for label, path in capture.shots[:4]:
             user.append({"type": "text", "text": f"Screenshot: {label}"})
             user.append(_b64_image(path))
@@ -356,9 +438,15 @@ def write(
         t = str(x.get("text", "")).strip()[:80]
         if t:
             texts.append(t)
-            secs.append(max(0.6, min(8.0, float(x.get("sec", 2)))))
+            secs.append(max(0.6, min(14.0, float(x.get("sec", 2)))))
     if not texts:
         raise ValueError("the writer returned no on-screen lines")
+    if kind_id == "machine":
+        # the drop lands at 12 s whatever the writer timed: silence, the 4-second phrase, the closing words
+        data = out.get("data") or {}
+        end = str(data.get("end") or inputs.get("end") or "ONE PROMPT")[:40]
+        texts = [str(data.get("line") or inputs.get("line") or texts[0])[:80], "♪ ♪ ♪ ♪", end]
+        secs = [12.0, 4.0, 4.0]
     total = sum(secs)
     if not narrate and total > hi:  # squeeze to the cap, keeping proportions
         secs = [round(v * hi / total, 2) for v in secs]
@@ -373,7 +461,9 @@ def write(
 # ───────────────────────────── timeline ─────────────────────────────
 
 
-def timeline(lines: list[dict[str, Any]], start: float = 0.35) -> tuple[list[dict[str, Any]], float]:
+def timeline(
+    lines: list[dict[str, Any]], start: float = 0.35
+) -> tuple[list[dict[str, Any]], float]:
     """Word timings for a film with no narrator: each line's words spread across its hold, so the
     planner can anchor elements to words exactly as it does for speech."""
     words: list[dict[str, Any]] = []

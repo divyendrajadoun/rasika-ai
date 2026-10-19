@@ -149,6 +149,7 @@ export function Wizard({
       music: false,
       language: "auto",
       broll: false,
+      cleanCut: false,
     },
     brand: { name: "", handle: "", endLine: "", cta: "" },
     title: (initialTitle ?? "").slice(0, 80),
@@ -271,6 +272,7 @@ export function Wizard({
       url: b.url || undefined,
       recipe: b.recipe || undefined,
       subject: b.subject || undefined,
+      topic: b.topic || undefined,
       a: b.a || undefined,
       b: b.b || undefined,
       winner: b.winner,
@@ -363,6 +365,7 @@ export function Wizard({
         music: draft.style.music,
         language: draft.style.language,
         broll: draft.style.broll && stockEnabled,
+        cleanCut: draft.style.cleanCut,
       },
       brand: draft.brand,
       consent,
@@ -531,6 +534,7 @@ export function Wizard({
             value={draft.style}
             stockEnabled={stockEnabled}
             fromReference={draft.mode === "reference"}
+            recorded={draft.mode === "take" || draft.mode === "reference"}
             onChange={(style) => setDraft((d) => ({ ...d, style }))}
           />
         )}

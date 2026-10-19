@@ -42,8 +42,8 @@ function basePlan(overrides: Partial<PlanInput> = {}): PlanInput {
 
 describe("@rasika/schema presets", () => {
   it("ships twenty-six valid presets with Mikku Royal as default", () => {
-    expect(presets).toHaveLength(100);
-    expect(new Set(presets.map((p) => p.id)).size).toBe(100);
+    expect(presets).toHaveLength(106);
+    expect(new Set(presets.map((p) => p.id)).size).toBe(106);
     for (const p of presets) expect(() => StyleTokens.parse(p)).not.toThrow();
     expect(defaultPreset.id).toBe("mikku-royal");
     expect(defaultPreset.palette.stage).toBe("#3a0a11");
@@ -62,7 +62,7 @@ describe("@rasika/schema presets", () => {
 });
 
 describe("Plan v1", () => {
-  it("knows all 22 element types (16 from the spec, stock broll, and 5 for brief films)", () => {
+  it("knows all 26 element types (16 from the spec, stock broll, and 9 for brief films)", () => {
     expect([...ELEMENT_TYPES].sort()).toEqual(
       [
         "posterText",
@@ -87,6 +87,10 @@ describe("Plan v1", () => {
         "fightHud",
         "seasonWindow",
         "noteMachine",
+        "tierBoard",
+        "explainerWorld",
+        "crowd",
+        "docCard",
       ].sort(),
     );
   });

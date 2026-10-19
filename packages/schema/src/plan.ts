@@ -397,6 +397,93 @@ export const NoteMachine = z.object({
   drums: z.array(z.number().min(0)).max(40).default([]),
 });
 
+/**
+ * A tier list (S to D): rows of labelled tiers, and each item drops into its row on the word that
+ * ranks it, with a hit. Items are names (a short label on a coloured chip), never faces.
+ */
+export const TierBoard = z.object({
+  ...Timed,
+  type: z.literal("tierBoard"),
+  title: z.string().min(1).max(40),
+  top: Px.default(300),
+  tiers: z
+    .array(z.object({ label: z.string().min(1).max(3), color: Hex }))
+    .min(2)
+    .max(6),
+  items: z
+    .array(
+      z.object({
+        name: z.string().min(1).max(18),
+        tier: z.number().int().min(0).max(5).describe("index into tiers"),
+        at: z.number().min(0).describe("seconds after t0 the item lands"),
+      }),
+    )
+    .min(1)
+    .max(18),
+});
+
+/**
+ * An explainer's world (the Kurzgesagt register): a scene in three parallax depth layers that
+ * dollies slowly, and a small flying host that moves between `host` waypoints and points, taps
+ * or reacts. One world per film; the other elements sit in front of it.
+ */
+export const ExplainerWorld = z.object({
+  ...Timed,
+  type: z.literal("explainerWorld"),
+  world: z.enum(["space", "earth", "city", "ocean", "cell", "lab"]),
+  host: z
+    .array(
+      z.object({
+        at: z.number().min(0).describe("seconds after t0 the host arrives here"),
+        x: Px,
+        y: Px,
+        pose: z.enum(["idle", "point", "tap", "wow", "think"]).default("idle"),
+      }),
+    )
+    .max(24)
+    .default([]),
+  dolly: z.number().min(0).max(1).default(0.4).describe("how far the camera drifts over the film"),
+});
+
+/**
+ * Quantities as little characters (population, not dots): `count` round figures in a grid; at
+ * `at` the first `highlight` of them change colour and hop, with the label. 1 figure = `per`.
+ */
+export const Crowd = z.object({
+  ...Timed,
+  type: z.literal("crowd"),
+  count: z.number().int().min(2).max(100),
+  highlight: z.number().int().min(0).max(100).default(0),
+  at: z.number().min(0).default(1).describe("seconds after t0 the highlight lands"),
+  per: z.string().max(40).optional().describe('what one figure stands for, e.g. "1 in 10 people"'),
+  label: z.string().max(40).optional(),
+  top: Px.default(620),
+  color: ColorToken.default("iv"),
+  hiColor: ColorToken.default("gold"),
+});
+
+/**
+ * A paper document in the editorial register: a newspaper clipping, a typed document or a
+ * letter, cut out and tilted, halftone-screened, and one phrase in it struck by a hand-drawn red
+ * marker at `markAt`. The words are real (the brief's own facts); `date` and `source` are optional.
+ */
+export const DocCard = z.object({
+  ...Timed,
+  type: z.literal("docCard"),
+  kind: z.enum(["newspaper", "document", "letter"]).default("newspaper"),
+  masthead: z.string().max(32).optional(),
+  headline: z.string().min(1).max(90),
+  body: z.string().max(260).optional(),
+  date: z.string().max(24).optional(),
+  mark: z.string().max(40).optional().describe("a phrase from the headline to strike with the marker"),
+  markStyle: z.enum(["underline", "circle", "box"]).default("underline"),
+  markAt: z.number().min(0).default(0.8).describe("seconds after t0"),
+  x: Px.default(90),
+  y: Px.default(520),
+  w: z.number().min(400).max(1000).default(900),
+  tilt: z.number().min(-8).max(8).default(-2),
+});
+
 export const PlanElement = z.discriminatedUnion("type", [
   PosterText,
   Broll,
@@ -420,6 +507,10 @@ export const PlanElement = z.discriminatedUnion("type", [
   FightHud,
   SeasonWindow,
   NoteMachine,
+  TierBoard,
+  ExplainerWorld,
+  Crowd,
+  DocCard,
 ]);
 export type PlanElement = z.infer<typeof PlanElement>;
 export type PlanElementInput = z.input<typeof PlanElement>;

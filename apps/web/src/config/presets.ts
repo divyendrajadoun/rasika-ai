@@ -177,9 +177,21 @@ const previewCopy: Record<string, PresetCard["preview"]> = {
   "palavra": { kicker: "", big: "palavra", italic: "por palavra", caption: "palavra" },
   "kurgu-ink": { kicker: "// KICKER", big: "ONE MESSAGE", italic: "at a time", caption: "one" },
   "vox-paper": { kicker: "THE QUESTION", big: "FOUR INKS", italic: "and a paper", caption: "inks" },
+  "kurz-explainer": { kicker: "chapter one", big: "1 in 4", italic: "of us, as little people", caption: "people" },
+  "cut-paper-vivid": { kicker: "CUT", big: "STICK IT", italic: "on marigold", caption: "stick" },
+  "paper-cut-red": { kicker: "step 1", big: "Cut the red", italic: "paper, then the seal", caption: "seal" },
+  "clean-cut-mono": { kicker: "", big: "No ums.", italic: "Just the point.", caption: "point" },
+  "tier-list": { kicker: "S TIER", big: "RANKED", italic: "every pick, on the word", caption: "ranked" },
+  "podcast-glow": { kicker: "EP. 12", big: "HOT TAKE", italic: "in caps, lit word by word", caption: "take" },
 };
 
 const NEW_IDS = new Set([
+  "kurz-explainer",
+  "cut-paper-vivid",
+  "paper-cut-red",
+  "clean-cut-mono",
+  "tier-list",
+  "podcast-glow",
   "cinema-navy",
   "podcast-on-air",
   "impacto-board",
@@ -321,6 +333,12 @@ export const PRESET_SOURCE: Record<string, string> = {
   "palavra": "nomicsadmin/editor-video-ia \u00b7 rosto e ideia",
   "kurgu-ink": "onuryildriim/claude-kurgu-atolyesi",
   "vox-paper": "jaredcassoutt/vox-editorial \u00b7 vox-skill",
+  "kurz-explainer": "BusyBee3333/animated-explainer-skills \u00b7 gsap-explainer",
+  "cut-paper-vivid": "jaredcassoutt/vox-editorial \u00b7 vox-editorial",
+  "paper-cut-red": "crawfordxx/paper-cut-video-skill",
+  "clean-cut-mono": "Agentchengfeng/chengfeng-videocut-skills",
+  "tier-list": "hypit-ai/hypit \u00b7 ranking",
+  "podcast-glow": "hypit-ai/hypit \u00b7 podcast",
 };
 
 /** Human labels for a preset's motion family and sound kit (wizard + landing chips). */
@@ -361,9 +379,17 @@ export const allPresetCards: PresetCard[] = schemaPresets.map((tokens) => ({
  * Looks made for one kind of brief film (config/briefs.ts); they are chosen with the film, not in
  * the style grid of an edit. Mirrors BRIEF_PRESET_IDS there (kept here to avoid an import cycle).
  */
-const BRIEF_ONLY = new Set(["saas-launch", "showreel-kinetic", "recipe-explainer", "versus-arcade", "music-machine", "grand-budapest"]);
+const BRIEF_ONLY = new Set([
+  "saas-launch",
+  "showreel-kinetic",
+  "recipe-explainer",
+  "versus-arcade",
+  "music-machine",
+  "grand-budapest",
+  "kurz-explainer",
+]);
 /** Styles whose demo render (public/demo/styles/<id>.mp4) is not made yet: not offered in a grid until it is. */
-const DEMO_PENDING = new Set<string>([]);
+const DEMO_PENDING = new Set<string>(["cut-paper-vivid", "paper-cut-red", "clean-cut-mono", "tier-list", "podcast-glow"]);
 
 /** The styles offered for an edit (a take, a script, a presenter): every one has a real demo render. */
 export const presetCards: PresetCard[] = allPresetCards.filter(

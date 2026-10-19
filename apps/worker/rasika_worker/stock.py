@@ -106,7 +106,9 @@ class PexelsClient:
 
     # ── HTTP ──
     def _get(self, url: str) -> bytes:
-        req = urllib.request.Request(url, headers={"Authorization": self.key, "User-Agent": "rasika-worker"})
+        req = urllib.request.Request(
+            url, headers={"Authorization": self.key, "User-Agent": "rasika-worker"}
+        )
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:  # noqa: S310 — fixed https host
                 return bytes(resp.read())
@@ -142,7 +144,9 @@ class PexelsClient:
                     break
                 total += len(chunk)
                 if total > MAX_BYTES:
-                    raise RuntimeError(f"stock clip {clip.id} is larger than {MAX_BYTES // 1_000_000} MB")
+                    raise RuntimeError(
+                        f"stock clip {clip.id} is larger than {MAX_BYTES // 1_000_000} MB"
+                    )
                 out.write(chunk)
         tmp.replace(dest)
         clip.file = dest

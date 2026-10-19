@@ -20,7 +20,9 @@ def test_payload_from_photo_is_portrait_1080p() -> None:
 
 def test_payload_from_look_with_engine() -> None:
     p = presenter.build_payload("Hi.", "v1", avatar_id="look1", engine="avatar_v")
-    assert p["type"] == "avatar" and p["avatar_id"] == "look1" and p["engine"] == {"type": "avatar_v"}
+    assert (
+        p["type"] == "avatar" and p["avatar_id"] == "look1" and p["engine"] == {"type": "avatar_v"}
+    )
     assert "image" not in p
 
 
@@ -38,7 +40,9 @@ def test_client_requires_key() -> None:
 
 def test_wait_polls_until_completed(monkeypatch: pytest.MonkeyPatch) -> None:
     c = presenter.HeyGenClient("k")
-    states = iter([{"status": "pending"}, {"status": "processing"}, {"status": "completed", "video_url": "u"}])
+    states = iter(
+        [{"status": "pending"}, {"status": "processing"}, {"status": "completed", "video_url": "u"}]
+    )
     monkeypatch.setattr(c, "video_status", lambda vid: next(states))
     monkeypatch.setattr(presenter.time, "sleep", lambda s: None)
     seen: list[str] = []
@@ -48,7 +52,11 @@ def test_wait_polls_until_completed(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_wait_raises_on_failed(monkeypatch: pytest.MonkeyPatch) -> None:
     c = presenter.HeyGenClient("k")
-    monkeypatch.setattr(c, "video_status", lambda vid: {"status": "failed", "failure_code": "x", "failure_message": "bad"})
+    monkeypatch.setattr(
+        c,
+        "video_status",
+        lambda vid: {"status": "failed", "failure_code": "x", "failure_message": "bad"},
+    )
     with pytest.raises(RuntimeError, match="bad"):
         c.wait("v", every=0)
 
@@ -59,7 +67,9 @@ def test_upload_image_builds_multipart(tmp_path: Path, monkeypatch: pytest.Monke
     img.write_bytes(b"\xff\xd8\xff\xe0JPEGDATA")
     captured: dict[str, Any] = {}
 
-    def fake_req(method: str, path: str, body: bytes | None = None, content_type: str | None = None) -> dict[str, Any]:
+    def fake_req(
+        method: str, path: str, body: bytes | None = None, content_type: str | None = None
+    ) -> dict[str, Any]:
         captured.update(method=method, path=path, body=body, ct=content_type)
         return {"data": {"asset_id": "asset_9"}}
 
@@ -67,7 +77,9 @@ def test_upload_image_builds_multipart(tmp_path: Path, monkeypatch: pytest.Monke
     assert c.upload_image(img) == "asset_9"
     assert captured["method"] == "POST" and captured["path"] == "/v3/assets"
     assert captured["ct"].startswith("multipart/form-data; boundary=")
-    assert b'name="file"; filename="face.jpg"' in captured["body"] and b"JPEGDATA" in captured["body"]
+    assert (
+        b'name="file"; filename="face.jpg"' in captured["body"] and b"JPEGDATA" in captured["body"]
+    )
 
 
 def test_create_video_reads_video_id(monkeypatch: pytest.MonkeyPatch) -> None:

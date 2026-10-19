@@ -106,6 +106,24 @@ export function deriveSfx(plan: Plan): CueSheet {
             if (ticks > 0) push({ t: el.t0 + el.dropAt, type: "tick", repeat: ticks, every: 0.25, gain: 0.3 });
           }
           break;
+        case "tierBoard":
+          for (const it of el.items) {
+            push({ t: el.t0 + it.at - 0.75, type: "pop", gain: 0.6 });
+            push({ t: el.t0 + it.at - 0.47, type: "whoosh", dur: 0.4, gain: 0.5 });
+            push({ t: el.t0 + it.at, type: "impact", gain: 0.75 });
+          }
+          break;
+        case "crowd":
+          push({ t: el.t0 + 0.05, type: "tick", repeat: Math.min(12, el.count), every: 0.05, gain: 0.35 });
+          if (el.highlight > 0) push({ t: el.t0 + el.at, type: "pop", gain: 0.8 });
+          break;
+        case "docCard":
+          push({ t: el.t0, type: "whoosh", dur: 0.35, gain: 0.55 });
+          if (el.mark) push({ t: el.t0 + el.markAt, type: "tick", repeat: 3, every: 0.12, gain: 0.45 });
+          break;
+        case "explainerWorld":
+          for (const h of el.host.slice(1)) push({ t: el.t0 + h.at - 0.8, type: "whoosh", dur: 0.7, gain: 0.3 });
+          break;
         default:
           break;
       }

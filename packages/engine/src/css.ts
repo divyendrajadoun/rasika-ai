@@ -69,6 +69,16 @@ export function fontsForStyle(fonts: StyleTokens["fonts"]): string[] {
   return [...set].filter((f) => f in FONTS);
 }
 
+/** Faces a plan's brief elements draw with, whatever the style (a clipping is always set in a serif). */
+export function fontsForElements(elements: readonly { type: string }[]): string[] {
+  const set = new Set<string>();
+  for (const e of elements) {
+    if (e.type === "docCard") ["Playfair Display Roman", "JetBrains Mono"].forEach((f) => set.add(f));
+    if (e.type === "tierBoard") set.add("Montserrat");
+  }
+  return [...set].filter((f) => f in FONTS);
+}
+
 /** `document.fonts.load` descriptors for a family. */
 export function fontLoadDescriptor(family: string): string {
   const f = FONTS[family];

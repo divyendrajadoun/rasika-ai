@@ -1234,6 +1234,387 @@
             "dropAt",
             "notes"
           ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "t0": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "t1": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "anchorWordIndex": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "type": {
+              "type": "string",
+              "const": "tierBoard"
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "top": {
+              "default": 300,
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            },
+            "tiers": {
+              "minItems": 2,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 3
+                  },
+                  "color": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "description": "a real colour (#rrggbb), for things that have one: a liquid, a fighter's corner"
+                  }
+                },
+                "required": [
+                  "label",
+                  "color"
+                ]
+              }
+            },
+            "items": {
+              "minItems": 1,
+              "maxItems": 18,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 18
+                  },
+                  "tier": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 5,
+                    "description": "index into tiers"
+                  },
+                  "at": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "seconds after t0 the item lands"
+                  }
+                },
+                "required": [
+                  "name",
+                  "tier",
+                  "at"
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "t0",
+            "t1",
+            "type",
+            "title",
+            "tiers",
+            "items"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "t0": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "t1": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "anchorWordIndex": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "type": {
+              "type": "string",
+              "const": "explainerWorld"
+            },
+            "world": {
+              "type": "string",
+              "enum": [
+                "space",
+                "earth",
+                "city",
+                "ocean",
+                "cell",
+                "lab"
+              ]
+            },
+            "host": {
+              "default": [],
+              "maxItems": 24,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "at": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "seconds after t0 the host arrives here"
+                  },
+                  "x": {
+                    "type": "number",
+                    "minimum": -4000,
+                    "maximum": 4000
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": -4000,
+                    "maximum": 4000
+                  },
+                  "pose": {
+                    "default": "idle",
+                    "type": "string",
+                    "enum": [
+                      "idle",
+                      "point",
+                      "tap",
+                      "wow",
+                      "think"
+                    ]
+                  }
+                },
+                "required": [
+                  "at",
+                  "x",
+                  "y"
+                ]
+              }
+            },
+            "dolly": {
+              "default": 0.4,
+              "description": "how far the camera drifts over the film",
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": [
+            "id",
+            "t0",
+            "t1",
+            "type",
+            "world"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "t0": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "t1": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "anchorWordIndex": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "type": {
+              "type": "string",
+              "const": "crowd"
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 100
+            },
+            "highlight": {
+              "default": 0,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "at": {
+              "default": 1,
+              "description": "seconds after t0 the highlight lands",
+              "type": "number",
+              "minimum": 0
+            },
+            "per": {
+              "description": "what one figure stands for, e.g. \"1 in 10 people\"",
+              "type": "string",
+              "maxLength": 40
+            },
+            "label": {
+              "type": "string",
+              "maxLength": 40
+            },
+            "top": {
+              "default": 620,
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            },
+            "color": {
+              "default": "iv",
+              "$ref": "#/$defs/ColorToken"
+            },
+            "hiColor": {
+              "default": "gold",
+              "$ref": "#/$defs/ColorToken"
+            }
+          },
+          "required": [
+            "id",
+            "t0",
+            "t1",
+            "type",
+            "count"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "t0": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "t1": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "anchorWordIndex": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "type": {
+              "type": "string",
+              "const": "docCard"
+            },
+            "kind": {
+              "default": "newspaper",
+              "type": "string",
+              "enum": [
+                "newspaper",
+                "document",
+                "letter"
+              ]
+            },
+            "masthead": {
+              "type": "string",
+              "maxLength": 32
+            },
+            "headline": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 90
+            },
+            "body": {
+              "type": "string",
+              "maxLength": 260
+            },
+            "date": {
+              "type": "string",
+              "maxLength": 24
+            },
+            "mark": {
+              "description": "a phrase from the headline to strike with the marker",
+              "type": "string",
+              "maxLength": 40
+            },
+            "markStyle": {
+              "default": "underline",
+              "type": "string",
+              "enum": [
+                "underline",
+                "circle",
+                "box"
+              ]
+            },
+            "markAt": {
+              "default": 0.8,
+              "description": "seconds after t0",
+              "type": "number",
+              "minimum": 0
+            },
+            "x": {
+              "default": 90,
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            },
+            "y": {
+              "default": 520,
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            },
+            "w": {
+              "default": 900,
+              "type": "number",
+              "minimum": 400,
+              "maximum": 1000
+            },
+            "tilt": {
+              "default": -2,
+              "type": "number",
+              "minimum": -8,
+              "maximum": 8
+            }
+          },
+          "required": [
+            "id",
+            "t0",
+            "t1",
+            "type",
+            "headline"
+          ]
         }
       ]
     },

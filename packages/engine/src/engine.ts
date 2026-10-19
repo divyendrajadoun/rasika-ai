@@ -14,7 +14,7 @@ import {
   type VideoModeName,
 } from "@rasika/schema";
 import { captionAt, captionWindows, type CaptionWindow } from "./captions";
-import { engineCss, fontFaceCss, fontLoadDescriptor, fontsForStyle } from "./css";
+import { engineCss, fontFaceCss, fontLoadDescriptor, fontsForElements, fontsForStyle } from "./css";
 import { div } from "./dom";
 import {
   applyTransform,
@@ -91,7 +91,7 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
     }`;
   const stage = div(stageClass());
   const style = document.createElement("style");
-  const families = fontsForStyle(plan.style.fonts);
+  const families = [...new Set([...fontsForStyle(plan.style.fonts), ...fontsForElements(plan.elements)])];
   style.textContent =
     (opts.fontBaseUrl === null ? "" : fontFaceCss(opts.fontBaseUrl ?? "fonts", families)) +
     engineCss({
@@ -175,6 +175,7 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
       durationSec: plan.meta.durationSec,
       modeAt: (t) => modeAt(segs, t),
       stageDark: hexLuma(p.stage) < 0.5,
+      faceless: plan.meta.faceless === true,
     };
     items = buildElements(
       plan.elements.filter((e) => e.type !== "broll"),
