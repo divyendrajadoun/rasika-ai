@@ -19,7 +19,8 @@ const r2 = (n: number) => Math.round(n * 100) / 100;
 export function deriveSfx(plan: Plan): CueSheet {
   const cues: SfxCue[] = [];
   const kit = motionOf(plan.style).sfxKit;
-  const k = plan.sfx.intensity <= 0 || kit === "none" ? 0 : 0.4 + 0.6 * plan.sfx.intensity;
+  // the wizard slider is the gain, linearly: 5 % means barely there, 100 % the kit's full level
+  const k = plan.sfx.intensity <= 0 || kit === "none" ? 0 : Math.min(1, plan.sfx.intensity);
   const push = (c: Omit<SfxCue, "gain"> & { gain: number }) => {
     if (k <= 0) return;
     // dedupe: same type within 0.1 s

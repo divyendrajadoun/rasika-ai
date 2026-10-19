@@ -590,6 +590,12 @@ class Pipeline:
         for c in candidates:
             if c and c.exists():
                 return dict(json.loads(c.read_text(encoding="utf-8")))
+        if preset != "mikku-royal":
+            # never fall back silently: a worker image that predates a preset would otherwise
+            # render every new style as the house look
+            raise PipelineError(
+                f"The style '{preset}' is not installed on this worker yet (rebuild the worker image)."
+            )
         fewshot = [
             (_REPO_ROOT / "plans" / "baisa_bling.json") if _REPO_ROOT else None,
             Path("/app/plans/baisa_bling.json"),
