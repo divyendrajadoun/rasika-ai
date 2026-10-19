@@ -205,8 +205,11 @@ changing only what the fidelity allows:
   `tagline`, `pace`, `endCardShape`, `preferredElements`, `motion.avoidElements`. At this level the
   user picked no style: the given preset is only a neutral template, so replace every visual field
   with what the reference shows; keep nothing from the template that the stills contradict.
-Rules: `palette.stage` is the colour behind framed shots; `mar` the light wall tone; `ter` the
-accent; `gold` the highlight; `goldd` a deeper highlight; `iv` light text; `ink` darkest. Keep
+Rules: `palette.stage` is the colour behind framed shots. How the engine uses the rest: big
+emphasised words are drawn in `gold` on a DARK stage and in `ter` on a LIGHT one, so put the
+reference's dominant big-type colour (the one its headline words use most) in BOTH `gold` and `ter`
+unless it clearly uses two; `goldd` is the second accent (used less); `iv` light text; `ink` and `mar`
+dark text for light walls (`mar` must contrast with a light wall). Keep
 contrast ≥ 4.5:1 between `iv`/`ink` and the stage. `fonts.devanagari` stays as the preset has it.
 Enumerations: family editorial|kinetic|whiteboard|chalk|hype|launch|collage|blocks|beat; enter
 rise|pop|slam|slide|fade|draw|blur|letters|mask|type; exit lift|dive|cut|wipe|fade; easing
