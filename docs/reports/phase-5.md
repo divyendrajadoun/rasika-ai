@@ -293,3 +293,10 @@ stop-motion for `steps`, linear SFX gain. 0 render errors, 10–16 s each at 540
 fell back silently to the house tokens — now a job error naming the style; (2) the SFX slider had a
 40 % floor (`0.4 + 0.6·intensity`) — now linear. And the honest reason paper looks did not read even
 with the right tokens: the texture only sat behind framed shots; the material now rides the footage.
+
+**Stock B-roll (19 Oct, later):** `broll` plan element + Pexels resolver + engine picture layer
+(commit `eed8d75`). Real run with the owner's Pexels key: a 23 s Cinema Navy script reel; the
+planner wrote one cutaway, "heavy gold necklace on woman's neck close up", for 7.6–9.4 s on "the
+weight on your neck"; Pexels returned a cottonbro studio clip (search + download 2.0 s, frames
+0.4 s); the render shows the clip under the poster line and captions, fading in and cutting out
+with whooshes. Total 172 s.
