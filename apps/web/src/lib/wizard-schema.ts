@@ -99,13 +99,15 @@ export const BriefSubmission = z
       "hype",
       "flyover",
       "diagram",
+      "animate",
     ]),
     url: z.string().trim().max(300).optional(),
     recipe: z.string().trim().max(1500).optional(),
     subject: z.string().trim().max(600).optional(),
     topic: z.string().trim().max(600).optional(),
     focus: z.string().trim().max(400).optional(),
-    seconds: z.enum(["15", "20", "30", "40", "60"]).optional(),
+    seconds: z.enum(["8", "10", "15", "20", "30", "40", "60"]).optional(),
+    narrate: z.boolean().optional(),
     closeLine: z.string().trim().max(60).optional(),
     closeTail: z.string().trim().max(40).optional(),
     a: z.string().trim().max(40).optional(),
@@ -139,7 +141,7 @@ export const BriefSubmission = z
     if (v.kind === "flyover") need(Boolean(v.closeLine), "closeLine", "Write the closing statement.");
     if (v.kind === "diagram" && v.url)
       need(/^https?:\/\/[^\s/]+\.[^\s]+/i.test(v.url), "url", "The link should start with https://");
-    if (["explainer", "editorial", "tierlist", "diagram"].includes(v.kind))
+    if (["explainer", "editorial", "tierlist", "diagram", "animate"].includes(v.kind))
       need((v.topic ?? "").length >= 6, "topic", "Say what the film is about.");
     if (v.kind === "versus") need(Boolean(v.a && v.b), "a", "Name both contenders.");
     if (v.kind === "machine") need(Boolean(v.line), "line", "Write the line that types out.");

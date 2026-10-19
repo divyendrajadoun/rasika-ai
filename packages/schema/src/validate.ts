@@ -163,6 +163,8 @@ export function elementZone(el: PlanElement): Rect | null {
       return null; // it is the whole frame
     case "diagramZoom":
       return { x: 40, y: el.top, w: 1000, h: 1400 };
+    case "codeScene":
+      return null; // the whole frame: words placed over it are the planner's to keep clear
     default:
       return null;
   }
@@ -180,6 +182,26 @@ export function docCardHeight(el: { kind: string; headline: string; body?: strin
   const body = el.body ? Math.ceil(el.body.length / bodyPer) * 44 + 24 : 0;
   return 80 + (el.kind === "newspaper" ? 110 : 40) + head + body + 60;
 }
+
+/** What drawing code may never touch: timers, clocks, network, storage, navigation, eval. */
+export const CODE_BANNED: RegExp[] = [
+  /\bfetch\s*\(/,
+  /XMLHttpRequest/,
+  /WebSocket/,
+  /EventSource/,
+  /\bimport\s*\(/,
+  /\beval\s*\(/,
+  /\bFunction\s*\(/,
+  /Math\.random/,
+  /\bDate\b/,
+  /performance\.now/,
+  /requestAnimationFrame/,
+  /setTimeout|setInterval/,
+  /localStorage|sessionStorage|indexedDB|document\.cookie/,
+  /\blocation\b|window\.open|navigator\./,
+  /\bdocument\./,
+  /postMessage|Worker\s*\(/,
+];
 
 const TEXT_ZONE_TYPES = new Set<PlanElement["type"]>([
   "posterText",
@@ -394,6 +416,16 @@ export function validatePlan(
         message: `${el.type} "${el.id}": its keys or steps must be in time order`,
         elementId: el.id,
       });
+    if (el.type === "codeScene") {
+      const banned = CODE_BANNED.filter((re) => re.test(el.code));
+      if (banned.length)
+        issues.push({
+          level: "error",
+          code: "code-unsafe",
+          message: `codeScene "${el.id}": the drawing code uses ${banned.map((r) => r.source).join(", ")} (it must be a pure function of t)`,
+          elementId: el.id,
+        });
+    }
     if (el.type === "explainerWorld" && plan.meta.faceless !== true)
       issues.push({
         level: "error",

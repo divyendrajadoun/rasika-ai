@@ -34,8 +34,12 @@ import { creditCost } from "@/lib/wizard-schema";
 import { cn } from "@/lib/utils";
 
 type StepId = "source" | "upload" | "script" | "presenter" | "brief" | "photos" | "style" | "brand";
-const stepLabel = (s: StepId, mode: SourceMode) =>
-  s === "style" && mode === "reference" ? "Edit options" : STEP_LABEL[s];
+const stepLabel = (s: StepId, mode: SourceMode, kind?: string) =>
+  s === "style" && mode === "reference"
+    ? "Edit options"
+    : s === "photos" && mode === "brief" && kind === "animate"
+      ? "Style images"
+      : STEP_LABEL[s];
 const STEP_LABEL: Record<StepId, string> = {
   source: "Source",
   upload: "Upload reel",
@@ -274,8 +278,9 @@ export function Wizard({
       recipe: b.recipe || undefined,
       subject: b.subject || undefined,
       topic: b.topic || undefined,
+      narrate: b.kind === "animate" ? b.narrate : undefined,
       focus: b.focus || undefined,
-      seconds: (b.seconds || undefined) as "15" | "20" | "30" | "40" | "60" | undefined,
+      seconds: (b.seconds || undefined) as "8" | "10" | "15" | "20" | "30" | "40" | "60" | undefined,
       closeLine: b.closeLine || undefined,
       closeTail: b.closeTail || undefined,
       a: b.a || undefined,
@@ -436,7 +441,7 @@ export function Wizard({
       <p className="text-muted text-[14px]">
         New edit · step {draft.step + 1} of {steps.length}
       </p>
-      <h1 className="mt-1 text-[1.75rem] font-semibold leading-tight tracking-[-0.02em]">{stepLabel(stepId, draft.mode)}</h1>
+      <h1 className="mt-1 text-[1.75rem] font-semibold leading-tight tracking-[-0.02em]">{stepLabel(stepId, draft.mode, draft.brief.kind)}</h1>
 
       <ol className="mt-5 flex flex-wrap gap-1.5" aria-label="Steps">
         {steps.map((s, i) => (
@@ -455,7 +460,7 @@ export function Wizard({
               )}
               aria-current={i === draft.step ? "step" : undefined}
             >
-              {stepLabel(s, draft.mode)}
+              {stepLabel(s, draft.mode, draft.brief.kind)}
             </button>
           </li>
         ))}
@@ -531,6 +536,7 @@ export function Wizard({
         {stepId === "photos" && projectId && (
           <StepPhotos
             projectId={projectId}
+            purpose={draft.mode === "brief" && draft.brief.kind === "animate" ? "style" : "photos"}
             value={draft.photos}
             onChange={(photos) => setDraft((d) => ({ ...d, photos }))}
           />

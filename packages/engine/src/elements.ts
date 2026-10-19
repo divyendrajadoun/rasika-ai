@@ -28,6 +28,7 @@ import {
   type BriefCtx,
 } from "./brief";
 import { diagramZoom, pageFlyover, screenFocus, throughLine } from "./product";
+import { codeScene } from "./animate";
 import { patternSvg, type Colors } from "./patterns";
 import { E, lerp, prog, rng, transformStyle, type Easing, type Transform, steps } from "./toolkit";
 
@@ -608,6 +609,8 @@ export function buildElement(el: PlanElement, ctx: BuildCtx): Item[] {
       return pageFlyover(el, briefCtx(ctx, dark));
     case "diagramZoom":
       return diagramZoom(el, briefCtx(ctx, dark));
+    case "codeScene":
+      return codeScene(el, briefCtx(ctx, dark));
   }
 }
 

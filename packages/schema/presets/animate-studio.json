@@ -1,0 +1,46 @@
+{
+  "id": "animate-studio",
+  "name": "Animate Studio",
+  "tagline": "The /animate studio: your style references, every frame drawn in code.",
+  "palette": {
+    "stage": "#f4efe4",
+    "mar": "#1d1a16",
+    "ter": "#d2452b",
+    "gold": "#f2b134",
+    "goldd": "#2f6f5e",
+    "iv": "#fffaf0",
+    "ink": "#1d1a16"
+  },
+  "fonts": {
+    "poster": "Anton",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.05,
+  "pace": 0.5,
+  "captionStyle": "phrase",
+  "captionSize": 60,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "codeScene",
+    "posterText"
+  ],
+  "motion": {
+    "family": "kinetic",
+    "caseStyle": "upper",
+    "enter": "rise",
+    "exit": "fade",
+    "easing": "spring",
+    "speed": 1.0,
+    "camera": "glide",
+    "sfxKit": "cinematic",
+    "texture": "grain",
+    "framing": "full",
+    "direction": "The /animate studio: every shot is a codeScene written from the style bible; words are few and sit in the lower third.",
+    "avoidElements": []
+  }
+}

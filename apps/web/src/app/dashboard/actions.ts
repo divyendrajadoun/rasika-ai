@@ -246,7 +246,7 @@ export async function createBriefEdit(input: unknown): Promise<ActionResult> {
     ...(w.kind === "flyover" ? { brand: w.brand.name, line: w.closeLine ?? "", tail: w.closeTail ?? "" } : {}),
     ...(w.a ? { a: w.a, b: w.b, winner: w.winner } : {}),
     ...(w.kind === "machine" && w.line ? { line: w.line, end: w.end || "ONE PROMPT" } : {}),
-    narrate: kind.narrate,
+    narrate: w.narrate ?? kind.narrate,
     ...(w.voice ? { voice: w.voice } : {}),
   };
 

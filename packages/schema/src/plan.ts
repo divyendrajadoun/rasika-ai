@@ -598,6 +598,19 @@ export const DiagramZoom = z.object({
   top: Px.default(240),
 });
 
+/**
+ * One shot drawn by code (the /animate studio): the body of a function
+ * `draw(g, t, W, H, rnd, S)` that paints a 1080×1920 canvas for time `t` (seconds since t0).
+ * `g` is a CanvasRenderingContext2D, `rnd` a seeded random (same numbers every frame), `S` the
+ * helpers (ease, lerp, clamp, noise, spring, mix). Pure function of t: no timers, no network.
+ */
+export const CodeScene = z.object({
+  ...Timed,
+  type: z.literal("codeScene"),
+  code: z.string().min(20).max(24000),
+  seed: z.number().int().min(0).max(1e9).default(7),
+});
+
 export const PlanElement = z.discriminatedUnion("type", [
   PosterText,
   Broll,
@@ -629,6 +642,7 @@ export const PlanElement = z.discriminatedUnion("type", [
   ThroughLine,
   PageFlyover,
   DiagramZoom,
+  CodeScene,
 ]);
 export type PlanElement = z.infer<typeof PlanElement>;
 export type PlanElementInput = z.input<typeof PlanElement>;

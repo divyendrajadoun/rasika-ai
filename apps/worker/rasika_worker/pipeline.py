@@ -259,18 +259,10 @@ class Pipeline:
         pub.update(JobStatus.PROBING, 22, "Writing the film…", **timings)
         t0 = time.time()
         inputs = {k: v for k, v in b.items() if k not in ("kind", "narrate", "voice")}
-        try:
-            film, usage = film_brief.write(
-                self.anthropic(),
-                self.s.anthropic_planner_model,
-                kind_id,
-                inputs,
-                capture,
-                narrate,
-                max_dur,
-            )
-        except Exception as exc:
-            raise PipelineError(f"Could not write the film: {exc}") from exc
+        if kind_id == "animate":
+            film, usage = self._animate_film(job, pub, work, b, narrate, max_dur, timings)
+        else:
+            film, usage = self._write_brief(kind_id, inputs, capture, narrate, max_dur)
         timings["write_sec"] = round(time.time() - t0, 2)
         timings["write_input_tokens"] = float(usage["input_tokens"])
         timings["write_output_tokens"] = float(usage["output_tokens"])
@@ -345,6 +337,12 @@ class Pipeline:
             opts["captions"] = False  # the lines are on screen already; captions would repeat them
         if kind_id == "machine":
             opts["sfxIntensity"] = 1.0  # the machine's notes are the music
+        if kind_id == "animate":
+            from rasika_worker import animate
+
+            opts["referenceStyle"] = animate.palette_style(
+                self._style_tokens(project, use_override=False), film
+            )
         if capture and (kind.get("through") or kind_id == "flyover") and capture.brand:
             # the film wears the site's own colours and typeface
             opts["referenceStyle"] = film_brief.brand_style(
@@ -360,6 +358,117 @@ class Pipeline:
             JobType.PROBE,
             {"source_key": key, "language_hint": "en", "max_duration_sec": max_dur},
         )
+
+    def _write_brief(
+        self,
+        kind_id: str,
+        inputs: dict[str, Any],
+        capture: Any,
+        narrate: bool,
+        max_dur: float,
+    ) -> tuple[dict[str, Any], dict[str, int]]:
+        from rasika_worker import brief as film_brief
+
+        try:
+            return film_brief.write(
+                self.anthropic(),
+                self.s.anthropic_planner_model,
+                kind_id,
+                inputs,
+                capture,
+                narrate,
+                max_dur,
+            )
+        except Exception as exc:
+            raise PipelineError(f"Could not write the film: {exc}") from exc
+
+    def _animate_film(
+        self,
+        job: JobMessage,
+        pub: Publisher,
+        work: Path,
+        b: dict[str, Any],
+        narrate: bool,
+        max_dur: float,
+        timings: dict[str, float],
+    ) -> tuple[dict[str, Any], dict[str, int]]:
+        """The /animate studio: style bible + shots, code per shot, checks, one critique loop."""
+        from rasika_worker import animate
+
+        client, model = self.anthropic(), self.s.anthropic_planner_model
+        refs_dir = work / "refs"
+        refs_dir.mkdir(exist_ok=True)
+        refs: list[Path] = []
+        for a in self.repo.assets(job.project_id, "image")[:3]:
+            dest = refs_dir / f"{a['id']}{Path(a['storage_key']).suffix.lower() or '.jpg'}"
+            if not dest.exists():
+                self.storage.download(a["storage_key"], dest)
+            refs.append(dest)
+        seconds = min(float(b.get("seconds") or 15), max_dur)
+        total = {"input_tokens": 0, "output_tokens": 0}
+
+        def add(u: dict[str, int]) -> None:
+            for k in total:
+                total[k] += int(u.get(k, 0))
+
+        try:
+            pub.update(JobStatus.PROBING, 24, "Studying your style references…", **timings)
+            film, u = animate.write_film(
+                client,
+                model,
+                str(b.get("topic") or ""),
+                seconds,
+                narrate,
+                refs,
+                str(b.get("focus") or ""),
+            )
+            add(u)
+            shots = film["shots"]
+            durs = [float(s["sec"]) for s in shots]
+            pub.update(JobStatus.PROBING, 30, f"Drawing {len(shots)} shots in code…", **timings)
+            codes, u = animate.write_code(client, model, film, refs)
+            add(u)
+            res = animate.check(self.s, codes, durs, work / "check")
+            if any(r["notes"] for r in res):
+                pub.update(JobStatus.PROBING, 34, "Fixing the shots that did not draw…", **timings)
+                codes, u = animate.fix_broken(client, model, film, codes, res)
+                add(u)
+                res = animate.check(self.s, codes, durs, work / "check")
+            pub.update(
+                JobStatus.PROBING, 37, "Checking every shot against your references…", **timings
+            )
+            fixes, notes, u = animate.critique(
+                client, model, film, codes, [r["still"] for r in res], refs
+            )
+            add(u)
+            if fixes:
+                trial = list(codes)
+                for i, c in fixes.items():
+                    trial[i] = c
+                res2 = animate.check(self.s, trial, durs, work / "check2")
+                for i in fixes:  # a fix that breaks a shot is dropped, never shipped
+                    if not res2[i]["notes"]:
+                        codes[i] = trial[i]
+                res = animate.check(self.s, codes, durs, work / "check3")
+        except Exception as exc:
+            raise PipelineError(f"The studio could not draw the film: {exc}") from exc
+        broken = [i + 1 for i, r in enumerate(res) if r["notes"]]
+        if broken:
+            raise PipelineError(
+                f"Shot(s) {broken} would not draw: {res[broken[0] - 1]['notes'][0]}"
+            )
+        film["data"] = {
+            "style": film.get("style"),
+            "facts": film.get("facts") or [],
+            "shots": shots,
+            "codes": codes,
+            "notes": notes,
+        }
+        film["lines"] = [
+            {"text": str(s.get("words") or "♪"), "sec": float(s["sec"])} for s in shots
+        ]
+        timings["animate_shots"] = float(len(shots))
+        return film, total
 
     # ── AI presenter: HeyGen renders the take, then the normal chain ──
     def presenter(self, job: JobMessage, pub: Publisher) -> None:
@@ -880,6 +989,9 @@ class Pipeline:
         style = self._style_tokens(project)
         brand = dict(project.get("brand") or {})
         options = dict(project.get("style_options") or {})
+        if (options.get("brief") or {}).get("kind") == "animate":
+            self._plan_animate(job, pub, words, duration, style, options, timings)
+            return
         inp = PlannerInput(
             duration_sec=round(duration, 2),
             language=str(tr["language"]),
@@ -936,6 +1048,56 @@ class Pipeline:
         else:
             pub.update(
                 JobStatus.AWAITING_PLAN_REVIEW, 100, "Your edit is ready to preview", **timings
+            )
+
+    def _plan_animate(
+        self,
+        job: JobMessage,
+        pub: Publisher,
+        words: list[dict[str, Any]],
+        duration: float,
+        style: dict[str, Any],
+        options: dict[str, Any],
+        timings: dict[str, float],
+    ) -> None:
+        from rasika_worker import animate
+
+        film = dict(options.get("film") or {})
+        data = dict(film.get("data") or {})
+        plan = animate.build_plan(
+            style,
+            {"shots": data.get("shots") or []},
+            list(data.get("codes") or []),
+            duration,
+            bool(film.get("narration")),
+        )
+        validator = ChromiumValidator(self.s)
+        try:
+            r = validator(plan, words, [])
+        finally:
+            validator.close()
+        errors = [i for i in r.get("issues") or [] if i.get("level") == "error"]
+        if errors:
+            raise PipelineError(
+                "The animated film did not validate: " + "; ".join(e["message"] for e in errors[:3])
+            )
+        report = {
+            "elements": len(plan["elements"]),
+            "errors": [],
+            "fixed": [i for i in r.get("issues") or [] if i.get("level") == "fixed"][:40],
+        }
+        version = self.repo.insert_plan(
+            job.project_id, r["plan"], created_by="animate", report=report
+        )
+        self.repo.audit(
+            job.user_id, "plan", "project", job.project_id, {"version": version, **report}
+        )
+        if self.s.auto_render:
+            pub.update(JobStatus.RENDERING_PREVIEW, 0, "Making a quick preview…", **timings)
+            self.enqueue(job, JobType.RENDER_PREVIEW, {"plan_version": version, "then_final": True})
+        else:
+            pub.update(
+                JobStatus.AWAITING_PLAN_REVIEW, 100, "Your film is ready to preview", **timings
             )
 
     # ── stock B-roll (Pexels) ──

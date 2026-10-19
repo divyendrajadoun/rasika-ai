@@ -18,11 +18,17 @@ export type BriefKindId =
   | "referral"
   | "hype"
   | "flyover"
-  | "diagram";
+  | "diagram"
+  | "animate";
 
 /** The sections the kinds are shown in (wizard + dashboard). */
-export type BriefGroup = "website" | "topic" | "fun";
+export type BriefGroup = "animate" | "website" | "topic" | "fun";
 export const BRIEF_GROUPS: { id: BriefGroup; title: string; blurb: string }[] = [
+  {
+    id: "animate",
+    title: "Animate anything",
+    blurb: "Show a style you love, give a rough idea: every frame is drawn in code, scored, and checked against your style.",
+  },
   { id: "website", title: "From your website", blurb: "Give a link: we capture the real page, its controls, colours and words." },
   { id: "topic", title: "From a topic", blurb: "Give a topic or a recipe: we write it, design it and (for some) narrate it." },
   { id: "fun", title: "Fun formats", blurb: "Fights, tier lists, machines and storybooks." },
@@ -37,7 +43,9 @@ export type BriefField =
   | { id: "line" }
   | { id: "focus"; label: string; placeholder: string; help: string }
   | { id: "seconds"; options: number[] }
-  | { id: "closing" };
+  | { id: "closing" }
+  | { id: "presets"; items: { label: string; text: string; seconds?: number }[] }
+  | { id: "narrate" };
 
 export interface BriefKind {
   id: BriefKindId;
@@ -247,6 +255,46 @@ export const BRIEF_KINDS: BriefKind[] = [
     narrate: true,
     maxSeconds: 40,
     example: { topic: "Breakfast foods, ranked. Cereal in S, plain toast in D." },
+  },
+  {
+    id: "animate",
+    group: "animate",
+    title: "Animate anything",
+    blurb: "Your style references and a rough idea become a film drawn entirely in code: no video model, no stock footage.",
+    youGive:
+      "1–3 images of a style you love (next step), a topic or story, a length, and if you like narration and an ending.",
+    youGet:
+      "An 8–30 s animated film in your style: a style guide, checked facts for explainers, 2–4 s shots with a moving camera, music in code, every shot checked against your references and fixed before render.",
+    fields: [
+      {
+        id: "presets",
+        items: [
+          { label: "Hummingbird explainer", text: "A cool explainer video on how a hummingbird hovers", seconds: 15 },
+          { label: "Kids' story", text: "A tiny paper rocket that dreams of touching the moon, told in 6 shots with a happy ending", seconds: 30 },
+          { label: "Product ad", text: "A launch ad for my app [name + one line about what it does]. Show the problem, the app solving it, and end on the logo", seconds: 20 },
+          { label: "Science explainer", text: "How bees tell each other where the flowers are (the waggle dance). Verify the facts", seconds: 15 },
+          { label: "Milestone", text: "My channel hit 10,000 followers. Big number count-up, my brand colours, a confetti burst", seconds: 8 },
+        ],
+      },
+      {
+        id: "topic",
+        label: "Story or topic",
+        placeholder: "A cool explainer video on how a hummingbird hovers",
+        help: "A rough idea is enough. For explainers we only show facts we can source, and keep the sources.",
+      },
+      { id: "seconds", options: [8, 10, 15, 20, 30] },
+      { id: "narrate" },
+      {
+        id: "focus",
+        label: "Words or an ending (optional)",
+        placeholder: "e.g. end on “Hover like a hummingbird”",
+        help: "Pure animation beats on-screen text: most shots have no words at all.",
+      },
+    ],
+    preset: "animate-studio",
+    narrate: false,
+    maxSeconds: 31,
+    example: { topic: "A cool explainer video on how a hummingbird hovers", seconds: "15" },
   },
   {
     id: "product",

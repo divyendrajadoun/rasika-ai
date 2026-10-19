@@ -22,11 +22,15 @@ export function StepPhotos({
   projectId,
   value,
   onChange,
+  purpose = "photos",
 }: {
   projectId: string;
   value: PhotoItem[];
   onChange: (v: PhotoItem[]) => void;
+  /** "style": 1–3 references for an /animate film (they guide the look, they are never shown) */
+  purpose?: "photos" | "style";
 }) {
+  const MAX = purpose === "style" ? 3 : 15;
   const [busy, setBusy] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [cropping, setCropping] = useState<PhotoItem | null>(null);
@@ -34,9 +38,9 @@ export function StepPhotos({
   const add = async (files: FileList | null) => {
     if (!files) return;
     setError(null);
-    const room = 15 - value.length;
+    const room = MAX - value.length;
     const list = Array.from(files).slice(0, room);
-    if (files.length > room) setError(`Up to 15 photos per reel (${files.length - room} skipped).`);
+    if (files.length > room) setError(`Up to ${MAX} ${purpose === "style" ? "style images" : "photos per reel"} (${files.length - room} skipped).`);
     const added: PhotoItem[] = [];
     for (const f of list) {
       if (!ACCEPTED_IMAGE.includes(f.type)) {
@@ -78,25 +82,33 @@ export function StepPhotos({
 
   return (
     <div>
-      <p className="text-muted">
-        Optional. Add up to 15 photos. Tell us which word each one belongs to — “show this when I
-        say <em>balcony</em>”.
-      </p>
+      {purpose === "style" ? (
+        <p className="text-muted">
+          Add 1–3 images of a style you love: an illustration, a frame from a film, a Pinterest pin. Bold
+          shapes, a small palette and visible texture work best. They guide the look only: every frame is
+          redrawn in code, the images themselves never appear. Skip this and we choose a style for the topic.
+        </p>
+      ) : (
+        <p className="text-muted">
+          Optional. Add up to 15 photos. Tell us which word each one belongs to — “show this when I
+          say <em>balcony</em>”.
+        </p>
+      )}
 
       <label
         htmlFor="photos"
         className="bg-surface hover:bg-raised mt-5 flex cursor-pointer items-center justify-center gap-3 rounded-[8px] border-2 border-dashed border-border p-5 text-center transition-colors transition"
       >
         <ImagePlus className="text-accent size-6" aria-hidden />
-        <span className="font-semibold">{busy ? `Uploading ${busy}…` : "Add photos"}</span>
-        <span className="text-muted-foreground text-sm">({value.length}/15)</span>
+        <span className="font-semibold">{busy ? `Uploading ${busy}…` : purpose === "style" ? "Add style images" : "Add photos"}</span>
+        <span className="text-muted-foreground text-sm">({value.length}/{MAX})</span>
         <input
           id="photos"
           type="file"
           accept="image/*"
           multiple
           className="sr-only"
-          disabled={value.length >= 15}
+          disabled={value.length >= MAX}
           onChange={(e) => void add(e.target.files)}
         />
       </label>

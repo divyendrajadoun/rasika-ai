@@ -132,6 +132,16 @@ KINDS: dict[str, dict[str, Any]] = {
         "concrete example. Payoff: pull back to the whole, complete diagram and a one-line takeaway. Never more "
         "than seven words on screen; every fact right (never invent numbers or quotes).",
     },
+    "animate": {
+        "title": "Animate anything",
+        "needs": ["topic"],
+        "preset": "animate-studio",
+        "mood": "journey",
+        "narrate": False,
+        "seconds": (8, 31),
+        "brief": "The /animate studio: the user's style references and a rough idea become a film drawn "
+        "entirely in code (animate.py does the writing).",
+    },
     "recipe": {
         "title": "Recipe explainer",
         "needs": ["recipe"],

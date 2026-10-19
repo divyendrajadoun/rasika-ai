@@ -99,6 +99,7 @@ import versusArcade from "../presets/versus-arcade.json";
 import musicMachine from "../presets/music-machine.json";
 import grandBudapest from "../presets/grand-budapest.json";
 import punchyFun from "../presets/punchy-fun.json";
+import animateStudio from "../presets/animate-studio.json";
 import kurzExplainer from "../presets/kurz-explainer.json";
 import cutPaperVivid from "../presets/cut-paper-vivid.json";
 import paperCutRed from "../presets/paper-cut-red.json";
@@ -208,6 +209,7 @@ export const presets: readonly StyleTokens[] = [
   musicMachine,
   grandBudapest,
   punchyFun,
+  animateStudio,
   kurzExplainer,
   cutPaperVivid,
   paperCutRed,

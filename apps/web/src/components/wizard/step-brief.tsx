@@ -19,6 +19,7 @@ export interface BriefState {
   seconds: string;
   closeLine: string;
   closeTail: string;
+  narrate: boolean;
 }
 
 export const defaultBriefState: BriefState = {
@@ -36,6 +37,7 @@ export const defaultBriefState: BriefState = {
   seconds: "",
   closeLine: "",
   closeTail: "",
+  narrate: false,
 };
 
 const BRIEF_EXAMPLE_TOPICS = Object.fromEntries(
@@ -55,6 +57,7 @@ export function briefReady(b: BriefState): boolean {
     case "flyover":
       return /^https?:\/\/[^\s/]+\.[^\s]+/i.test(b.url.trim()) && Boolean(b.closeLine.trim());
     case "diagram":
+    case "animate":
       return b.topic.trim().length >= 6;
     case "recipe":
       return b.recipe.trim().length >= 15;
@@ -221,6 +224,39 @@ export function StepBrief({ value, onChange }: { value: BriefState; onChange: (v
                   </p>
                 </div>
               </div>
+            );
+          if (f.id === "presets")
+            return (
+              <div key="presets">
+                <p className="label">Start from an example</p>
+                <div className="flex flex-wrap gap-2">
+                  {f.items.map((it) => (
+                    <button
+                      key={it.label}
+                      type="button"
+                      className="bg-raised hover:bg-surface rounded-full border border-border px-4 py-2 text-[14px] transition-colors"
+                      onClick={() => set({ topic: it.text, ...(it.seconds ? { seconds: String(it.seconds) } : {}) })}
+                    >
+                      {it.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          if (f.id === "narrate")
+            return (
+              <label key="narrate" className="bg-raised flex items-center justify-between rounded-[8px] p-4">
+                <span>
+                  <span className="block font-semibold">Narration</span>
+                  <span className="text-muted text-[13px]">A voice tells it over the music, with captions. Off: music only.</span>
+                </span>
+                <input
+                  type="checkbox"
+                  className="size-5 accent-[var(--ter)]"
+                  checked={value.narrate}
+                  onChange={(e) => set({ narrate: e.target.checked })}
+                />
+              </label>
             );
           if (f.id === "focus")
             return (

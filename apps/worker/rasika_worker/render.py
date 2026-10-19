@@ -158,9 +158,20 @@ def build_harness(work: Path, settings: Settings, spec: RenderSpec, grain: bool)
     return eng / "index.html"
 
 
+def _local_only(route: Any) -> None:
+    url = str(route.request.url)
+    if url.startswith(("file:", "data:", "blob:", "about:")):
+        route.continue_()
+    else:
+        route.abort()
+
+
 def _open(p: Any, html: Path, size: tuple[int, int]) -> tuple[Any, Any, Any]:
     browser = p.chromium.launch(args=CHROMIUM_ARGS)
     page = browser.new_page(viewport={"width": size[0], "height": size[1]}, device_scale_factor=1)
+    # the renderer needs no network: films can carry model-written drawing code (codeScene), so
+    # every request that leaves the machine is refused
+    page.route("**/*", _local_only)
     page.add_init_script("window.__RENDER__ = true;")
     page.goto(html.resolve().as_uri())
     page.wait_for_function(

@@ -613,6 +613,16 @@ class PlanElement14(BaseModel):
     top: float | None = Field(240, ge=-4000.0, le=4000.0)
 
 
+class PlanElement15(BaseModel):
+    id: str = Field(..., max_length=64, min_length=1)
+    t0: float = Field(..., ge=0.0, le=600.0)
+    t1: float = Field(..., ge=0.0, le=600.0)
+    anchorWordIndex: int | None = Field(None, ge=0, le=9007199254740991)
+    type: Literal["codeScene"]
+    code: str = Field(..., max_length=24000, min_length=20)
+    seed: int | None = Field(7, ge=0, le=1000000000)
+
+
 class Anim(StrEnum):
     rise = "rise"
     pop = "pop"
@@ -1104,6 +1114,7 @@ class Plan(BaseModel):
         | PlanElement12
         | PlanElement13
         | PlanElement14
+        | PlanElement15
     ]
     sfx: Sfx
     endCard: EndCard | None = None
