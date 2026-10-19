@@ -45,6 +45,17 @@ Docker or run `docker compose down`.
 | Animated explainer | a topic or question | 40–60 s Kurzgesagt-style: illustrated world, flying bee host, numbers as little figures, narrated |
 | Editorial explainer | a topic or story | 40–60 s Vox-style: paper clippings with a red marker, narrated |
 | Tier list | what to rank | 25–40 s: S–D board, each pick flies into its tier on the word, narrated |
+| Product film | website link (+ focus, length) | 40 s through-line film on the real interface |
+| Referral promo | referral page link (+ the programme in a line) | 15 s: how it works, what you get, how to start |
+| Hype launch | website link (+ focus, length) | 20 s punchy through-line launch |
+| Landing-page fly-over | landing page link + a two-part closing line | 14.5 s 3D fly-over landing on the hero card |
+| Diagram explainer | what to explain (+ link) | 60 s: one diagram, zoom into each part, pull back |
+
+**Through-line films** (launch, showreel, app, product, referral, hype): one real element of the product
+(its main button, then its logo) carries the whole film, a cursor clicks the page's real controls while
+the camera zooms screen-studio style, in the site's own colours and typeface, on a 120 BPM beat. Kinds are
+grouped in the wizard: From your website · From a topic · Fun formats. The dashboard has a
+**Try something new** gallery with every way to start, every film and the looks that need input.
 
 Website links are captured safely: the worker refuses private, internal and loopback addresses.
 
@@ -69,6 +80,10 @@ style has its own fonts, motion, caption format and sound kit, plus a real rende
 | **Podcast Glow** | hypit-ai/hypit (podcast) | My video → upload a podcast clip; Clean cut on |
 
 The style step shows these steps under the grid when the look is picked ("How to get this look").
+
+**Hook first** (the TikTok edit prompt): one Claude call picks the take's strongest sentence and the cut
+plays it first; the rest follows in order without it. Turning it on turns on Clean cut. The punchy edit
+itself is the **Punchy Fun** look (one-word bold captions, graphics on the key points, upbeat music).
 
 **Clean cut** (all four cutting repos do this): the worker takes ums/uhs, words said twice and pauses
 longer than 0.6 s out of a recorded take (each word keeps 80 ms before and 150 ms after; a long pause

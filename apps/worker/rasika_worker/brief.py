@@ -696,6 +696,54 @@ def write(
     return out, usage
 
 
+# ───────────────────────────── narration ─────────────────────────────
+
+
+def align_to_script(words: list[dict[str, Any]], script: str) -> list[dict[str, Any]]:
+    """Speech recognition times the narration; the words are the script's own (we wrote them).
+
+    "Cereal" heard as "Syria" keeps its timing and gets its spelling back. Recognised words with no
+    script counterpart are dropped; script words the recogniser missed share their neighbours' time.
+    """
+    import difflib
+
+    toks = script.split()
+    if not toks or not words:
+        return words
+
+    def norm(s: str) -> str:
+        return re.sub(r"[^\w']+", "", s.lower())
+
+    a = [norm(str(w.get("w", ""))) for w in words]
+    b = [norm(t) for t in toks]
+    out: list[dict[str, Any]] = []
+    for op, i1, i2, j1, j2 in difflib.SequenceMatcher(a=a, b=b, autojunk=False).get_opcodes():
+        if op == "delete":
+            continue
+        if i2 > i1:
+            t0, t1 = float(words[i1]["t"]), float(words[i2 - 1]["end"])
+        else:  # inserted: squeeze between the neighbours
+            t0 = float(words[i1 - 1]["end"]) if i1 > 0 else 0.0
+            t1 = float(words[i1]["t"]) if i1 < len(words) else t0 + 0.3 * (j2 - j1)
+            t1 = max(t1, t0 + 0.05 * (j2 - j1))
+        if op == "equal" or (op == "replace" and i2 - i1 == j2 - j1):
+            for k in range(j2 - j1):
+                src = words[i1 + k]
+                out.append({**src, "w": toks[j1 + k]})
+            continue
+        step = (t1 - t0) / (j2 - j1)
+        for k in range(j2 - j1):
+            out.append(
+                {
+                    "w": toks[j1 + k],
+                    "t": round(t0 + k * step, 3),
+                    "end": round(t0 + (k + 1) * step, 3),
+                    "conf": 0.9,
+                }
+            )
+    return out
+
+
 # ───────────────────────────── timeline ─────────────────────────────
 
 

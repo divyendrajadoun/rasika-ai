@@ -592,6 +592,11 @@ class Pipeline:
         result = self.transcriber().transcribe(audio, hint, prog, vocab)
         t_tr = round(time.time() - t0, 2)
         words = [w.as_dict() for w in result.words]
+        narration = ((project.get("style_options") or {}).get("film") or {}).get("narration")
+        if narration:  # we wrote these words: recognition only times them
+            from rasika_worker import brief as film_brief
+
+            words = film_brief.align_to_script(words, str(narration))
         version = self.repo.insert_transcript(job.project_id, result.language, words)
         self.repo.audit(
             job.user_id,
@@ -612,7 +617,7 @@ class Pipeline:
         timings: dict[str, float] = {"transcribe_sec": t_tr, "transcript_words": float(len(words))}
 
         # cheap correction pass: safe fixes applied as a new version, the rest kept as suggestions
-        if self.s.anthropic_api_key and words:
+        if self.s.anthropic_api_key and words and not narration:
             pub.update(JobStatus.TRANSCRIBING, 96, "Checking spellings and names…", **timings)
             t0 = time.time()
             try:

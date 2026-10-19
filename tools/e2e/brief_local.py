@@ -65,7 +65,7 @@ def main() -> int:
         audio16k = work / "audio16k.wav"
         media.extract_audio(s.ffmpeg_bin, voice, work / "voice48.wav", audio16k)
         tr = make_transcriber(s).transcribe(audio16k, "en", lambda p, m: None, [])
-        words = [w.as_dict() for w in tr.words]
+        words = brief.align_to_script([w.as_dict() for w in tr.words], str(film["narration"]))
         t["voice"] = round(time.time() - t0, 1)
         music_bed = work / "music_bed.wav"
         music.write(music_bed, music.compose(kind["mood"], duration, film["music"].get("bpm")))
