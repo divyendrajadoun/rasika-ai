@@ -307,3 +307,7 @@ route. Built on HeyGen v3 (the v1/v2 endpoints are legacy and go away on 2026-10
 before/after), worker `presenter` job → probe chain, wizard Presenter step (script, your photo or a
 stock photo-avatar look, HeyGen voices incl. the account's private ones, three consent boxes),
 `createPresenterEdit`. The Source card enables itself when the worker has the key.
+Pilot: `tools/e2e/presenter_reel.py` with the account's own portrait look "Casual host in a cozy
+setting" and the Elowen voice — HeyGen rendered the 8 s take in 102 s for $0.32 (wallet before /
+after recorded in the job timings), the normal chain finished the Cinema Navy reel 240 s after the
+click: captions on the avatar, card mode, a strike line, the arch end card.

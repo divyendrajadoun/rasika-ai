@@ -65,6 +65,7 @@ Warm transcription (model already resident) is ≈ 10 s for a minute of speech; 
 |---|---|---|---|
 | Script only (Paper Manuscript, Athena voice, 66 words) | 20 s | synth 12 s TTS → probe → Deepgram 2 s → plan 35–43 s (6.3 k in / 4.5 k out, 24 k cached) → preview + final 68 s | **152 s** |
 | Script only + stock B-roll (Cinema Navy, Orion voice, Pexels) | 23 s | as above + Pexels search + download 2.0 s in `plan`, window frames 0.4 s in `render` | **172 s** |
+| AI presenter (HeyGen look "Casual host", Elowen voice, 2-sentence script) | 8 s | HeyGen render 102 s (wallet $11.65 → $11.33 = **$0.32**, ≈ $0.04 per second of presenter) → probe → transcribe → plan 53 s → render 42 s | **240 s** |
 | Match a reference (12 s take, Slam Neon demo as reference, fidelity look) | 12 s | probe → transcribe → analyse 1.6 s + style call 17 s (4.2 k in / 1.8 k out) → plan 36 s → render 33 s | **116 s** |
 
 The script reel's narration costs ≈ 500 characters of Aura-2 (≈ $0.015); the reference style call is one
