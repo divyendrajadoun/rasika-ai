@@ -88,7 +88,7 @@ def pick_hook(client: Any, model: str, words: list[dict[str, Any]]) -> tuple[int
     )
     resp = client.messages.create(
         model=model,
-        max_tokens=200,
+        max_tokens=2000,  # the fast model thinks first; a small budget left no answer
         system="You pick the hook for a short vertical video: the single strongest, most surprising or "
         "intriguing sentence, which must make sense heard first, and be at most ~4 seconds long. Reply with JSON "
         '{"sentence": <number>} only.',

@@ -701,7 +701,7 @@ class Pipeline:
         plan = cleancut.plan_cuts(words, duration, hook=hook)
         ledger = {
             "cleanCut": True,
-            "cleanCutOf": asset["id"],
+            "cleanCutOf": str(asset["id"]),
             "removedSec": plan.removed_sec,
             "removed": plan.removed[:400],
             "keep": plan.keep,
