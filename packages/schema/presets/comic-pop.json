@@ -1,0 +1,59 @@
+{
+  "id": "comic-pop",
+  "name": "Comic Pop",
+  "tagline": "code-video's comic: cream newsprint, Ben-Day halftone, Bangers shouts in red, yellow and blue, hard ink borders.",
+  "palette": {
+    "stage": "#f4ecd6",
+    "mar": "#f4ecd6",
+    "ter": "#e23b2e",
+    "gold": "#ffd43b",
+    "goldd": "#2a6fdb",
+    "iv": "#fffaf0",
+    "ink": "#141414"
+  },
+  "fonts": {
+    "poster": "Bangers",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Bangers"
+  },
+  "grain": 0.08,
+  "pace": 0.85,
+  "captionStyle": "box",
+  "captionSize": 80,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "stamp",
+    "counter",
+    "chips",
+    "imageCard",
+    "strikeLine",
+    "propPunchIn",
+    "bleedPlate"
+  ],
+  "motion": {
+    "family": "collage",
+    "caseStyle": "auto",
+    "enter": "slam",
+    "exit": "cut",
+    "easing": "steps",
+    "speed": 0.7,
+    "camera": "cut",
+    "sfxKit": "hype",
+    "texture": "halftone",
+    "direction": "code-video `comic`. Cream newsprint with Ben-Day halftone; Bangers shout words in red `ter` with hard 4 px ink borders and offset shadows, yellow `gold` speech-bubble captions (spoken word boxed), blue `goldd` for the calm panel. Panels cut hard; every landing is held poses (on twos); a `stamp` POW / NOPE / TRUE on verdicts, `strikeLine` as a marker scratch, `counter`s in a burst; `bleedPlate` for the splash page. Loud, flat, no gradients; one gag per panel.",
+    "avoidElements": [
+      "lockCard",
+      "ring",
+      "filmStrip",
+      "patternCard",
+      "feedPhone",
+      "chapterCard",
+      "focusRing"
+    ]
+  }
+}

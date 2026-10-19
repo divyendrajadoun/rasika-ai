@@ -1,0 +1,59 @@
+{
+  "id": "kolase-paper",
+  "name": "Kolase Paper",
+  "tagline": "bang-motion's kartun kolase: cream paper with stains, flat cut-outs, mustard / orange / red / teal pills, Caveat handwriting.",
+  "palette": {
+    "stage": "#F4E9D3",
+    "mar": "#E9DCC1",
+    "ter": "#F26B1D",
+    "gold": "#F2B807",
+    "goldd": "#1F9E95",
+    "iv": "#fff8ea",
+    "ink": "#221E1B"
+  },
+  "fonts": {
+    "poster": "Fraunces",
+    "accent": "Caveat",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Caveat"
+  },
+  "grain": 0.1,
+  "pace": 0.65,
+  "captionStyle": "box",
+  "captionSize": 68,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "chips",
+    "stamp",
+    "imageCard",
+    "counter",
+    "chapterCard",
+    "strikeLine"
+  ],
+  "motion": {
+    "family": "collage",
+    "caseStyle": "sentence",
+    "enter": "pop",
+    "exit": "lift",
+    "easing": "spring",
+    "speed": 0.9,
+    "camera": "glide",
+    "sfxKit": "pop",
+    "texture": "paper",
+    "direction": "bang-motion kartun kolase. Cream paper with grain and stains; flat paper cut-outs (`imageCard`s with a white sticker edge), colour pills (`chips`) in mustard `gold`, orange `ter`, red and teal `goldd`; Fraunces 700–800 titles and Caveat 600–700 handwriting for annotations (≥ 48 px). Elements pop on a spring and lift out; 3–5 elements stack per scene, one per phrase; every named thing gets a picture. Text pocket ≤ 25 % or ≥ 80 % luminance; backgrounds never flat. Sentence case; caps-bold only in ONE emphasis scene.",
+    "avoidElements": [
+      "lockCard",
+      "ring",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "focusRing"
+    ]
+  }
+}

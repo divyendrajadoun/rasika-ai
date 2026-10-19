@@ -91,8 +91,13 @@ export const TextureKind = z.enum([
 ]);
 export type TextureKind = z.infer<typeof TextureKind>;
 
+export const CaseStyle = z.enum(["auto", "upper", "sentence"]);
+export type CaseStyle = z.infer<typeof CaseStyle>;
+
 export const Motion = z.object({
   family: MotionFamily.default("editorial"),
+  /** poster-type case: auto = the family's habit (editorial / hype / collage / beat shout) */
+  caseStyle: CaseStyle.default("auto"),
   enter: EnterKind.default("rise"),
   exit: ExitKind.default("lift"),
   easing: EasingKind.default("spring"),

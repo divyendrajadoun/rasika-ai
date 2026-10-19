@@ -1,0 +1,59 @@
+{
+  "id": "tabloid-headline",
+  "name": "Tabloid Headline",
+  "tagline": "ravyn's headline: the face 94 % of the time, red Anton shout words rising through a mask, Playfair whispers, no music.",
+  "palette": {
+    "stage": "#F5F5F2",
+    "mar": "#F5F5F2",
+    "ter": "#BB0001",
+    "gold": "#BB0001",
+    "goldd": "#8a0001",
+    "iv": "#ffffff",
+    "ink": "#12120F"
+  },
+  "fonts": {
+    "poster": "Anton",
+    "accent": "Playfair Display",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Playfair Display Roman"
+  },
+  "grain": 0.0,
+  "pace": 0.4,
+  "captionStyle": "phrase",
+  "captionSize": 60,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "imageCard",
+    "stamp"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "auto",
+    "enter": "mask",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 0.6,
+    "camera": "still",
+    "sfxKit": "none",
+    "texture": "dots",
+    "direction": "ravyn `headline`. A tabloid talking head: the face stays on screen 94 % of the time, no punch-ins. Red `ter` Anton SHOUT words (180–205 px, 1–2 words) rise through a mask in 3–11 frames; a Playfair italic whisper line (≈105 px) answers them; captions are Playfair bold phrases hard-swapped every ~0.9 s. Paper `mar` cards with a dotted grid hold B&W `imageCard`s; a black badge `stamp` for the verdict. NO music, NO SFX, hard cuts only. Rapid speech, ~220 wpm feel.",
+    "avoidElements": [
+      "chips",
+      "chapterCard",
+      "lockCard",
+      "ring",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "focusRing",
+      "strikeLine"
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "id": "impacto-board",
+  "name": "Impacto Board",
+  "tagline": "heditor's impacto: a calm board of navy cards on a gold seam, progressive word fill, two hard bursts per reel.",
+  "palette": {
+    "stage": "#03090e",
+    "mar": "#0e283a",
+    "ter": "#edc580",
+    "gold": "#7dd3fc",
+    "goldd": "#2a576f",
+    "iv": "#f3f9fc",
+    "ink": "#020507"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.04,
+  "pace": 0.45,
+  "captionStyle": "karaoke",
+  "captionSize": 68,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "chips",
+    "counter",
+    "chapterCard",
+    "imageCard",
+    "lockCard"
+  ],
+  "motion": {
+    "family": "blocks",
+    "caseStyle": "auto",
+    "enter": "rise",
+    "exit": "fade",
+    "easing": "smooth",
+    "speed": 1.1,
+    "camera": "still",
+    "sfxKit": "click",
+    "texture": "none",
+    "direction": "heditor `impacto`. A calm board: navy cards (`mar`) with a thin `goldd` border and one gold seam; text fills progressively, word by word, gold `ter` for the hook act and cyan `gold` for the explanation act (78 / 68 / 64 px by act). Exactly TWO hard emphasis bursts per reel (a `posterText` at 150 px that lands in 0.2 s) — everything else rises 0.4 s expo.out and fades 0.25 s. Lists as `chips`, numbers as `counter`, chapters as `chapterCard`. No slams, no stamps, no shakes; a visual change every 3–5 s.",
+    "avoidElements": [
+      "stamp",
+      "strikeLine",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn"
+    ]
+  }
+}

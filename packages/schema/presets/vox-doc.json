@@ -1,0 +1,59 @@
+{
+  "id": "vox-doc",
+  "name": "Vox Doc",
+  "tagline": "charlie947's vox-explainer: torn paper documentary — red, cream, navy, a yellow accent — stepped on twos, cards not lines.",
+  "palette": {
+    "stage": "#14213D",
+    "mar": "#F1E6D0",
+    "ter": "#B8312A",
+    "gold": "#F2C230",
+    "goldd": "#FBF7EE",
+    "iv": "#FBF7EE",
+    "ink": "#0b1122"
+  },
+  "fonts": {
+    "poster": "Oswald",
+    "accent": "Instrument Serif",
+    "ui": "IBM Plex Mono",
+    "devanagari": "Mukta",
+    "caption": "Oswald"
+  },
+  "grain": 0.08,
+  "pace": 0.75,
+  "captionStyle": "phrase",
+  "captionSize": 60,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "imageCard",
+    "counter",
+    "chips",
+    "stamp",
+    "chapterCard",
+    "focusRing",
+    "strikeLine"
+  ],
+  "motion": {
+    "family": "collage",
+    "caseStyle": "upper",
+    "enter": "pop",
+    "exit": "cut",
+    "easing": "steps",
+    "speed": 0.8,
+    "camera": "cut",
+    "sfxKit": "pop",
+    "texture": "halftone",
+    "direction": "charlie947 vox-explainer. Palette strictly red `ter`, cream `mar`, navy `stage` with a yellow `gold` accent; bold condensed Oswald type set as blocks; kinetic statements of three short lines on a torn paper strip (`posterText`); torn-edge paper `imageCard`s dropping in with small shadows; before / after with a date chip flip (`chips`); a marker circle that draws itself (`focusRing`); `counter`s; a grid where one card breaks (`strikeLine`). STEPPED motion, on twos — hold each pose 2 frames, never smooth corporate easing; 8–14 shots of one sentence each, shot 1 is the question, the first surprise within 5 s, the last shot a takeaway ≤ 5 words. Score: low bed, a hit on each new shot. No typewriter, no glow, no gradients.",
+    "avoidElements": [
+      "lockCard",
+      "ring",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn"
+    ]
+  }
+}

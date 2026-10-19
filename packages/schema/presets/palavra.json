@@ -1,0 +1,58 @@
+{
+  "id": "palavra",
+  "name": "Palavra",
+  "tagline": "editor-video-ia's face-first recipe: one word at a time at 104 px, a cream emphasis word, zoom alternating 1.0 / 1.12.",
+  "palette": {
+    "stage": "#111214",
+    "mar": "#F5F3EF",
+    "ter": "#FF5A1F",
+    "gold": "#FFF6D6",
+    "goldd": "#2F6BFF",
+    "iv": "#ffffff",
+    "ink": "#16171A"
+  },
+  "fonts": {
+    "poster": "Jost",
+    "accent": "Fraunces",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Jost"
+  },
+  "grain": 0.07,
+  "pace": 0.6,
+  "captionStyle": "one-word",
+  "captionSize": 104,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "imageCard",
+    "counter",
+    "chips",
+    "chapterCard",
+    "lockCard"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "sentence",
+    "enter": "pop",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 0.9,
+    "camera": "cut",
+    "sfxKit": "pop",
+    "texture": "grain",
+    "direction": "editor-video-ia « rosto e ideia ». One word at a time: Jost 800 at 104 px, white with a soft shadow, the emphasis word scaled and cream `gold`; commas kept, periods stripped; a 0.3 s clean pause at the end of each sentence. Zoom alternates 1.0 / 1.12 per cut with a slow creep; a screen every 4–8 s (`card` with an `imageCard`, a tweet-style `lockCard`, a `counter`, `chips`); 1–2 s dark / light \"breaths\" with one big phrase on `mar`. Fraunces 600 for titles, orange `ter` as the brand accent, blue `goldd` second; `cru` finish: warm soft-light tint, 7 % grain, vignette, taped tilted images. Never two animations at once; never eat a word.",
+    "avoidElements": [
+      "stamp",
+      "strikeLine",
+      "ring",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn"
+    ]
+  }
+}

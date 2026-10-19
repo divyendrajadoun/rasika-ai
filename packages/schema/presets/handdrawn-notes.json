@@ -1,0 +1,58 @@
+{
+  "id": "handdrawn-notes",
+  "name": "Hand-drawn Notes",
+  "tagline": "code-video's handdrawn default: warm paper, wobbly ink lines, one coral, Caveat annotations — nothing else is coloured.",
+  "palette": {
+    "stage": "#f4f2ee",
+    "mar": "#f4f2ee",
+    "ter": "#D97757",
+    "gold": "#D97757",
+    "goldd": "#1c1b1a",
+    "iv": "#ffffff",
+    "ink": "#2b2a28"
+  },
+  "fonts": {
+    "poster": "Fraunces",
+    "accent": "Caveat",
+    "ui": "IBM Plex Mono",
+    "devanagari": "Mukta",
+    "caption": "Caveat"
+  },
+  "grain": 0.05,
+  "pace": 0.5,
+  "captionStyle": "phrase",
+  "captionSize": 66,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chips",
+    "imageCard",
+    "chapterCard",
+    "strikeLine",
+    "stamp"
+  ],
+  "motion": {
+    "family": "whiteboard",
+    "caseStyle": "auto",
+    "enter": "draw",
+    "exit": "fade",
+    "easing": "smooth",
+    "speed": 1.0,
+    "camera": "still",
+    "sfxKit": "marker",
+    "texture": "paper",
+    "direction": "code-video `handdrawn`. Warm paper, ink `#2b2a28` at 2–2.5 px wobbly lines, a serif (Fraunces) for headings and Caveat for annotations; the ONE colour is coral `ter` — nothing else is coloured. Lines are drawn, not faded (`draw` entrance, left to right); a `strikeLine` scribbles out the wrong idea; `chips` as hand-boxed labels; `imageCard`s taped at a tilt with a Caveat caption; `counter`s written like a tally. Sentence case, generous margins, one idea per frame, the board accumulates then clears per chapter.",
+    "avoidElements": [
+      "lockCard",
+      "ring",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn"
+    ]
+  }
+}

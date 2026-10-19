@@ -99,7 +99,7 @@ light-wall tokens (`mar` / `ter` / `goldd`), chapter cards and reveals included.
 
 ## Presets
 
-Twenty-six presets live in `packages/schema/presets`. The original fourteen — Mikku Royal (default),
+Ninety-three presets live in `packages/schema/presets`. The original fourteen — Mikku Royal (default),
 Katana Pop, Noir Minimal, Bold Creator, Creator Yellow, Editorial Ivory, Clinic Clean, Brutalist
 Acid, Cinema Bebas, Paper Collage, Neon Pop, Sage Wellness, Boardroom Navy, Festive Bandhani — now
 each carry a motion block (hype cuts slam and whip, Noir blurs in and cuts, Ivory fades on a still
@@ -130,6 +130,29 @@ green; Chalkboard Maths is 3Blue1Brown's #1a1a2e with mono labels and one colour
 Cut uses the TikTok skill's Montserrat 800 karaoke captions with the #FFE45E active word; Launch
 Spotlight is the launch-kit's warm #faf7f2 ground with hero words punching in from 2.4× and glass
 clicks instead of whooshes.
+
+**The third wave (2026-10-19): 67 more community looks.** Every repo in the
+awesome-claude-video-skills list that defines a *look* (not a pipeline, MCP server, avatar tool or
+image-model workflow) was shallow-cloned and read; read-only research agents extracted typography,
+hex values, motion numbers, caption rules, structure, sound and bans per repo, and each preset below
+carries those numbers in its `motion.direction`. Repos under non-commercial or missing licences
+(SeeCut, onetake, MotionTalk, eian-riso, jc-remotion, doudou-whiteboard, Samin, krusemediallc,
+misbahsy, santmun) were read for context only and nothing was taken from them; the proprietary
+Motion-graphics-skill was excluded. The wizard shows the source as plain text ("measured from …"),
+no links. New engine vocabulary for this wave: `steps` easing (stop-motion poses), `type` entrance
+(typewriter with cursor), textures `halftone` / `scan` / `lines` / `grain` with light-stage variants,
+`motion.caseStyle` (auto / upper / sentence), and the fonts Space Grotesk, Oswald, Playfair Display
+Roman, Jost, Press Start 2P, Fraunces, IBM Plex Sans and IBM Plex Mono.
+
+- **beat** — Podcast On Air (pycodebr/heditor · podcast); High Energy (Barty-Bart/motion-graphics · explainer-high-energy); Swiss Poster (crawfordxx/xiaoma-studio · swiss + HRuiCcc/RuiC-motion-reel · swiss-editorial)
+- **blocks** — Impacto Board (pycodebr/heditor · impacto); Halftone Collage (pyang5166/gbro-collage-info); Pixel RPG (yammaku/typewriter-video · pixel-art + heditor · game); Paper Blue (adunext/adu-motion-video · default route); Morph Canvas (Barty-Bart/motion-graphics · motion-broll); Fun Pop (Neelshah1810/Claude-Video-Skills · Fun); Brew Cards (Finderchangchang/promo-video-skill · cards / warm-emotion); Paper Grid (alisadiq-ai/favstash-ai-video-editing-skills · paper-grid)
+- **collage** — Zine Collage (RahmanBuildsAI/ravyn-reel-kit · collage); Papercut (0xS4N4TG/papercut-explainer); Comic Pop (Changroro/code-video · comic); Guofeng Paper (AllenAI2014/remotion-guofeng-starter); Kolase Paper (bangtutorial/bang-motion · kartun kolase); Vox Doc (charlie947/motion-graphics-skills · vox-explainer); Vox Paper (jaredcassoutt/vox-editorial · vox-skill)
+- **editorial** — Revista (pycodebr/heditor · revista); Tabloid Headline (RahmanBuildsAI/ravyn-reel-kit · headline); Viewfinder (RahmanBuildsAI/ravyn-reel-kit · camera); Vibe Life (adriiita/vertical-video-editing-skill · vibe-life); Craft Kraft (mcdenil-skills/AutoMontage-Agent · craft); Paper Manuscript (TryWorld2026/paper-algorithm (skill: MIT)); Oneshot Paper (kvrancic/oneshot-video · paper); Premium Serif (Neelshah1810/Claude-Video-Skills · Premium); Warm Paper (ahmdd4vd/MotionCraft · warm-paper); Visual Journalism (bangtutorial/bang-motion · jurnalisme visual); Vintage Sketch (bangtutorial/bang-motion · sketsa vintage); Ligne Paper (cblain100-prog/motion-design-claude-code · ligne du temps v8); Museum Doc (crawfordxx/xiaoma-studio · museum); Ghost Clean (kurbaitaev/ghost-editor · clean); Ghost Editorial (kurbaitaev/ghost-editor · editorial); Ghost Cinematic (kurbaitaev/ghost-editor · cinematic); Palavra (nomicsadmin/editor-video-ia · rosto e ideia); Kurgu Ink (onuryildriim/claude-kurgu-atolyesi)
+- **hype** — Cinema Navy (pycodebr/heditor · cinema); Cyber Lime (mcdenil-skills/AutoMontage-Agent · cyber); Navy Foil (generalizingai/shadowcast · demo brand); INEMA Amber (inematds/skill-video-plan-editor (values measured; no licence file)); Bold Ad (Neelshah1810/Claude-Video-Skills · Bold); Neon HUD (HRuiCcc/RuiC-motion-reel · neon-hud + chuspeeism/dashi · 霓虹赛博); Multiverse Comic (bestagentkits/motion-video-skill · comic multiverse); Neon Cyber (chuspeeism/dashi-animationstyle · 霓虹赛博); Ghost Pop (kurbaitaev/ghost-editor · pop)
+- **kinetic** — Nativo (pycodebr/heditor · nativo); Thriller CCTV (pycodebr/heditor · thriller); Kinetic Editorial (ouerf-man/kinetic-editorial-skill); Retro Terminal (yammaku/typewriter-video · retro-terminal); Ohneis (Maartenlouis/remotion-ads · ohneis); Memo Pop (Kimeur/motion-launch-videos · motion-captions (acme-memo)); Pi Light (ahmdd4vd/MotionCraft · pi-v2); Ghost Kinetic (kurbaitaev/ghost-editor · kinetic)
+- **launch** — Missão Sunset (pycodebr/heditor · missao); Window (RahmanBuildsAI/ravyn-reel-kit · window); Paper Explainer (RahmanBuildsAI/ravyn-reel-kit · paper); Porcelain Keynote (isaachang/motion-video-workflow); AI Studio (hassancs91/claude-youtube-editor · brand.md); Dark iOS (Barty-Bart/motion-graphics · explainer-engaging); Dark Stat (marketcalls/story-telling · reel template); Glass Violet (alisadiq-ai/favstash-ai-video-editing-skills · adaptive-glass (soft-violet)); Breakout Card (alisadiq-ai/favstash-ai-video-editing-skills · breakout-card); Glass Keynote (bestagentkits/motion-video-skill · glass keynote); Black-Gold Brief (jackjls/jtxvideo-skill + chuspeeism/dashi · 黑底科技); Ghost Launch (kurbaitaev/ghost-editor · launch)
+- **whiteboard** — Hand-drawn Notes (Changroro/code-video · handdrawn); Pencil Notes (chuspeeism/dashi-animationstyle · 手绘笔记)
+
 
 ## Validation (`validatePlan`)
 

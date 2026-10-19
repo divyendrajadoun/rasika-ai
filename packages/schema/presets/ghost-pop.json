@@ -1,0 +1,59 @@
+{
+  "id": "ghost-pop",
+  "name": "Ghost Pop",
+  "tagline": "ghost-editor's pop: giant 900-weight display words around the speaker, hot pink, uppercase captions in a hot box.",
+  "palette": {
+    "stage": "#0b0b0e",
+    "mar": "#16161b",
+    "ter": "#FF2E88",
+    "gold": "#FF2E88",
+    "goldd": "#D1106A",
+    "iv": "#ffffff",
+    "ink": "#050507"
+  },
+  "fonts": {
+    "poster": "Archivo Black",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.9,
+  "captionStyle": "box",
+  "captionSize": 56,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "stamp",
+    "chips",
+    "imageCard",
+    "strikeLine",
+    "propPunchIn"
+  ],
+  "motion": {
+    "family": "hype",
+    "caseStyle": "upper",
+    "enter": "slam",
+    "exit": "cut",
+    "easing": "spring",
+    "speed": 0.7,
+    "camera": "whip",
+    "sfxKit": "hype",
+    "texture": "none",
+    "direction": "ghost-editor `pop`. Giant display words (Archivo Black 900, line-height 0.86, letter-spacing −6 px, UPPERCASE) framing the speaker — in the source they sit behind the head via a matte; here keep them above and beside the head, never over the face. Captions uppercase on a hot pink `ter` box, 1–3 words. Slams (scale 1.5 → 1 in 0.16 s back.out 2.6), alternating ±2 / −3° rotation, shake steps 0.03 s; `stamp` verdicts; `counter` punches; whip pans. Beats 1.8–2.5 s; one card + one reaction at a time.",
+    "avoidElements": [
+      "lockCard",
+      "ring",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "chapterCard",
+      "focusRing"
+    ]
+  }
+}

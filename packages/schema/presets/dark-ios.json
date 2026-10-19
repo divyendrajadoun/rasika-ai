@@ -1,0 +1,58 @@
+{
+  "id": "dark-ios",
+  "name": "Dark iOS",
+  "tagline": "Barty-Bart's explainer-engaging: a dark iOS surface, dot grid, one system blue, a one-take follow-cam with squash.",
+  "palette": {
+    "stage": "#0C0C0E",
+    "mar": "#1C1C1F",
+    "ter": "#0A84FF",
+    "gold": "#0A84FF",
+    "goldd": "#8E8E93",
+    "iv": "#F2F2F7",
+    "ink": "#050506"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.55,
+  "captionStyle": "karaoke",
+  "captionSize": 60,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "chips",
+    "counter",
+    "lockCard",
+    "imageCard",
+    "chapterCard"
+  ],
+  "motion": {
+    "family": "launch",
+    "caseStyle": "sentence",
+    "enter": "pop",
+    "exit": "fade",
+    "easing": "spring",
+    "speed": 1.0,
+    "camera": "glide",
+    "sfxKit": "click",
+    "texture": "dots",
+    "direction": "Barty-Bart engaging explainer. A dark iOS world: surfaces `mar` / `#2C2C2E`, text `iv`, secondary `goldd`, one system blue `ter`, a faint dot grid. ONE-TAKE follow-cam: no cuts, no fades to black — the camera glides from element to element (spring ω ≈ 6) and the thing it lands on reacts (squash 1.25 × 0.8 for 60 ms, reveal from 0.3× with 15–25° rotateX). `chips` as iOS pills, `lockCard` as a notification island, `counter` with tabular digits, `imageCard` with 22 px radius. No explanatory text overlays — the UI is the explanation; captions karaoke under the chin.",
+    "avoidElements": [
+      "stamp",
+      "strikeLine",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring"
+    ]
+  }
+}

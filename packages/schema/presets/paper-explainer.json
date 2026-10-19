@@ -1,0 +1,58 @@
+{
+  "id": "paper-explainer",
+  "name": "Paper Explainer",
+  "tagline": "ravyn's paper: an off-white explainer where karaoke words land grey → ink, one terracotta on decoration only.",
+  "palette": {
+    "stage": "#F6F6F6",
+    "mar": "#F6F6F6",
+    "ter": "#C5735F",
+    "gold": "#111111",
+    "goldd": "#6F6F6F",
+    "iv": "#ffffff",
+    "ink": "#232323"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.55,
+  "captionStyle": "karaoke",
+  "captionSize": 66,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "chips",
+    "counter",
+    "chapterCard",
+    "imageCard",
+    "lockCard"
+  ],
+  "motion": {
+    "family": "launch",
+    "caseStyle": "auto",
+    "enter": "pop",
+    "exit": "lift",
+    "easing": "spring",
+    "speed": 1.1,
+    "camera": "still",
+    "sfxKit": "click",
+    "texture": "none",
+    "direction": "ravyn `paper`. A faceless-friendly explainer on `#F6F6F6`: Inter 900 hook at 126 px, bullets ≈56 px as `chips`, karaoke words landing grey `goldd` → ink within 0.1 s, the one terracotta `ter` only on decoration (underline, pill, index). Entries 0.5–0.7 s back.out(1.1–1.4); idle drift 4–9 px; a refocus transition (blur 16 px + scale 1.045 over 0.5 s) between ideas. No music; ~45 soft clicks a minute.",
+    "avoidElements": [
+      "stamp",
+      "strikeLine",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring"
+    ]
+  }
+}

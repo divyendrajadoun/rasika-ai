@@ -1,0 +1,58 @@
+{
+  "id": "breakout-card",
+  "name": "Breakout Card",
+  "tagline": "favstash's breakout-card: a paper page with a static grid, the speaker in a card the head breaks out of, dark pills, blur-to-focus.",
+  "palette": {
+    "stage": "#fcfcfd",
+    "mar": "#eaeaef",
+    "ter": "#1e40af",
+    "gold": "#5b9eff",
+    "goldd": "#1c1c1f",
+    "iv": "#ffffff",
+    "ink": "#1c1c1f"
+  },
+  "fonts": {
+    "poster": "Montserrat",
+    "accent": "Instrument Serif",
+    "ui": "Montserrat",
+    "devanagari": "Mukta",
+    "caption": "Montserrat"
+  },
+  "grain": 0.0,
+  "pace": 0.6,
+  "captionStyle": "phrase",
+  "captionSize": 60,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "chips",
+    "counter",
+    "lockCard",
+    "imageCard",
+    "chapterCard",
+    "stamp"
+  ],
+  "motion": {
+    "family": "launch",
+    "caseStyle": "sentence",
+    "enter": "blur",
+    "exit": "fade",
+    "easing": "smooth",
+    "speed": 0.8,
+    "camera": "push",
+    "sfxKit": "click",
+    "texture": "grid",
+    "direction": "favstash `breakout-card`. Page `#fcfcfd` with a static 54 px grid; the speaker lives in a card (`card` mode, radius 18) the head appears to break out of; dark material `goldd` pills 96 px tall and cards radius 34–36 at y 200–1000; Montserrat: pills 38 bold, card text 32–37, headline 112 extra-bold, captions 60 bold lowercase. Everything \"blurs into focus\": opacity 0, scale 0.7–0.86, blur 16 → 0 in ~0.35 s; out 0.25 s; alternate page / camera every 4–10 s on hard cuts; push 1.2 → 1.27. Green / red only for a real check or strike (`stamp`). Navy `ter` accent.",
+    "avoidElements": [
+      "strikeLine",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring"
+    ]
+  }
+}

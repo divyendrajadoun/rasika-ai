@@ -1,0 +1,56 @@
+{
+  "id": "thriller-cctv",
+  "name": "Thriller CCTV",
+  "tagline": "heditor's thriller: CCTV tape on black, phosphor green, lowercase film subtitles, one keyword blinking red.",
+  "palette": {
+    "stage": "#000000",
+    "mar": "#0a0a0a",
+    "ter": "#39ff88",
+    "gold": "#ffd84d",
+    "goldd": "#ff3d57",
+    "iv": "#e8ffe8",
+    "ink": "#000000"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "JetBrains Mono",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.14,
+  "pace": 0.5,
+  "captionStyle": "clean",
+  "captionSize": 72,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "stamp",
+    "chapterCard",
+    "focusRing",
+    "imageCard"
+  ],
+  "motion": {
+    "family": "kinetic",
+    "caseStyle": "sentence",
+    "enter": "fade",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 0.9,
+    "camera": "still",
+    "sfxKit": "cinematic",
+    "texture": "scan",
+    "direction": "heditor `thriller`. Surveillance tape: scanlines, a timecode-style `chapterCard` in mono, lowercase film subtitles (Inter 600) as the captions, and one keyword per sentence that blinks to red `goldd` or phosphor `ter`. Poster lines are rare, lowercase, 90–120 px, cut in and out hard; numbers are mono `counter`s; a `stamp` EVIDENCE / CASE CLOSED on verdicts; a `focusRing` isolates what the speaker names. Camera still, cuts only, amber `gold` for warnings. Quiet, tense, never shouting.",
+    "avoidElements": [
+      "chips",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "ring"
+    ]
+  }
+}

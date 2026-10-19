@@ -218,10 +218,10 @@ export const features = {
 };
 
 export const styles = {
-  eyebrow: "26 styles, one take",
+  eyebrow: "93 styles, one take",
   title: "Pick a look. Drag to compare it with the raw clip.",
   sub: "Every style here was planned and rendered by Rasika from the same real 12-second phone clip — not a mock-up. Each one is a full design system: palette, type, caption format, and its own motion — how lines enter, how the camera cuts, which sounds land.",
-  note: "Nine motion families — editorial, kinetic type, whiteboard, chalkboard, hype cut, launch film, paper collage, colour blocks, beat type — each with its own sound kit. Twelve of the styles were built from the measured rules of the open video-skills community's looks (Apple-style recaps, whiteboard explainers, 3Blue1Brown lessons, TikTok retention cuts, launch films, Shenghua slams, Spotlight promos, Showreel blocks, motionmaxxing, kinetic typography, brand clips, SaaS launch cards) and run entirely inside Rasika. Describe a look in the wizard (“clinic white, navy, fewer effects”) and we map it to the nearest preset.",
+  note: "Nine motion families — editorial, kinetic type, whiteboard, chalkboard, hype cut, launch film, paper collage, colour blocks, beat type — each with its own sound kit. Seventy-nine of the styles were built from the measured rules of the open video-skills community's looks — Apple-style recaps, whiteboard and chalkboard explainers, TikTok retention cuts, launch films, heditor's cinema and podcast sets, ravyn's window and tabloid, ghost-editor's seven looks, Vox paper collages, halftone zines, retro terminals, pixel RPG boxes, Swiss posters, glass keynotes and more — every one planned and rendered inside Rasika, nothing redirected elsewhere. Describe a look in the wizard (“clinic white, navy, fewer effects”) and we map it to the nearest preset.",
   ctaLabel: "Use this style",
 };
 

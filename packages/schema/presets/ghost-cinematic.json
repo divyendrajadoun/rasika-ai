@@ -1,0 +1,58 @@
+{
+  "id": "ghost-cinematic",
+  "name": "Ghost Cinematic",
+  "tagline": "ghost-editor's cinematic: a desaturated look, Montserrat captions with Playfair italic keywords glowing gold, grain and vignette.",
+  "palette": {
+    "stage": "#0f0f10",
+    "mar": "#1b1b1d",
+    "ter": "#E7C27A",
+    "gold": "#E7C27A",
+    "goldd": "#B8914A",
+    "iv": "#EDE6DA",
+    "ink": "#070708"
+  },
+  "fonts": {
+    "poster": "Playfair Display Roman",
+    "accent": "Playfair Display",
+    "ui": "Montserrat",
+    "devanagari": "Mukta",
+    "caption": "Montserrat"
+  },
+  "grain": 0.07,
+  "pace": 0.4,
+  "captionStyle": "phrase",
+  "captionSize": 56,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chapterCard",
+    "imageCard",
+    "lockCard",
+    "stamp"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "sentence",
+    "enter": "fade",
+    "exit": "fade",
+    "easing": "soft",
+    "speed": 1.3,
+    "camera": "push",
+    "sfxKit": "cinematic",
+    "texture": "vignette",
+    "direction": "ghost-editor `cinematic`. Look: contrast 1.06, saturation 0.82, brightness 0.97, grain 0.07, vignette 0.45; `imageCard`s grayscale with contrast 1.15; sentence cards on `#0f0f10`. Captions Montserrat 56 px with the keyword in Playfair Display italic glowing gold `ter`. Poster lines are serif, sentence case, fading in slowly over a push; `counter`s roll; a `chapterCard` as a quiet title; boom and riser only on the two biggest moments. Ambient music far under; no stamps shouting, no snap zooms.",
+    "avoidElements": [
+      "chips",
+      "strikeLine",
+      "ring",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn"
+    ]
+  }
+}

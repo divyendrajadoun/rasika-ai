@@ -1,0 +1,58 @@
+{
+  "id": "brew-cards",
+  "name": "Brew Cards",
+  "tagline": "BrewReel's cards style: a warm two-colour gradient, 900-weight outlined captions in the upper third, one fact per beat.",
+  "palette": {
+    "stage": "#5A97E8",
+    "mar": "#86DDD0",
+    "ter": "#3B82F6",
+    "gold": "#FFE14D",
+    "goldd": "#F2915A",
+    "iv": "#ffffff",
+    "ink": "#0f1b33"
+  },
+  "fonts": {
+    "poster": "Poppins",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Poppins"
+  },
+  "grain": 0.0,
+  "pace": 0.75,
+  "captionStyle": "karaoke",
+  "captionSize": 72,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chips",
+    "stamp",
+    "imageCard",
+    "chapterCard",
+    "lockCard"
+  ],
+  "motion": {
+    "family": "blocks",
+    "caseStyle": "auto",
+    "enter": "pop",
+    "exit": "fade",
+    "easing": "spring",
+    "speed": 0.9,
+    "camera": "still",
+    "sfxKit": "pop",
+    "texture": "gradient",
+    "direction": "BrewReel `cards`, warm-emotion theme. A two-colour gradient ground (`mar` top → `stage` bottom), white info cards, 120 BPM; captions 900-weight white with a thick outline in the UPPER third (band y 260–540, above the content area), the highlighted word in hot yellow `gold`, word-by-word lit with the voice, ≤ 2 lines. Hook 2–3 s on frame 0 → 3–7 middle shots (compare / steps / meter / `counter`) → end card 4 s; one new fact per beat; ≥ 0.5 s stillness at the end. Spring entrances, no slams; no invented numbers.",
+    "avoidElements": [
+      "strikeLine",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring"
+    ]
+  }
+}

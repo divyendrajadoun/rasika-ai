@@ -1,0 +1,58 @@
+{
+  "id": "dark-stat",
+  "name": "Dark Stat",
+  "tagline": "story-telling's dark editorial kit: near-black, one sky-blue accent, Space Grotesk 800 headlines with tight tracking, a stat per scene.",
+  "palette": {
+    "stage": "#04060A",
+    "mar": "#0c1018",
+    "ter": "#7FD1FF",
+    "gold": "#7FD1FF",
+    "goldd": "#3b8fcf",
+    "iv": "#FFFFFF",
+    "ink": "#020306"
+  },
+  "fonts": {
+    "poster": "Space Grotesk",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Space Grotesk"
+  },
+  "grain": 0.0,
+  "pace": 0.45,
+  "captionStyle": "phrase",
+  "captionSize": 52,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chapterCard",
+    "chips",
+    "lockCard",
+    "imageCard"
+  ],
+  "motion": {
+    "family": "launch",
+    "caseStyle": "sentence",
+    "enter": "rise",
+    "exit": "fade",
+    "easing": "smooth",
+    "speed": 1.2,
+    "camera": "still",
+    "sfxKit": "none",
+    "texture": "none",
+    "direction": "marketcalls story kit. Eyebrow (28 px, tracking 10, accent `ter`) + headline (Space Grotesk 800, 84 px, line-height 0.96, tracking −5) + subline (44 px, muted) as the title `chapterCard`; ONE stat per scene as a `counter` (72 px, −3 tracking) in a bordered `lockCard` with a 2 px accent border and radius 20; scenes ≈ 10 s, titles enter 26 frames with ease (0.16, 1, 0.3, 1) rising 40 px and fade before the subs get busy. Captions: white phrase groups with a heavy dark shadow, bottom-anchored. No red/green switching, no charts as artwork, nothing hard-cut.",
+    "avoidElements": [
+      "stamp",
+      "strikeLine",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring"
+    ]
+  }
+}

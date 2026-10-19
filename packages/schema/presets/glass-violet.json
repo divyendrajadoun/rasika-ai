@@ -1,0 +1,58 @@
+{
+  "id": "glass-violet",
+  "name": "Glass Violet",
+  "tagline": "favstash's adaptive-glass: the speaker with moving proof in frosted violet glass panels, soft-violet palette.",
+  "palette": {
+    "stage": "#875ec1",
+    "mar": "#aa86dc",
+    "ter": "#f7f8fc",
+    "gold": "#f7f8fc",
+    "goldd": "#6b42a3",
+    "iv": "#f7f8fc",
+    "ink": "#271139"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.55,
+  "captionStyle": "phrase",
+  "captionSize": 54,
+  "captionAccent": "iv",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "imageCard",
+    "chips",
+    "counter",
+    "lockCard",
+    "chapterCard"
+  ],
+  "motion": {
+    "family": "launch",
+    "caseStyle": "sentence",
+    "enter": "slide",
+    "exit": "fade",
+    "easing": "smooth",
+    "speed": 1.0,
+    "camera": "cut",
+    "sfxKit": "click",
+    "texture": "gradient",
+    "direction": "favstash `adaptive-glass`, soft-violet. The speaker plus \"moving proof\" in frosted glass panels (`card` / `pip` modes = half and third splits, hard seam), palette taken from the room: violet `stage`, glow `mar`, deep `goldd`, heading ink `ink`, text `iv`. Panels arrive by moving ~18 px over 0.42 s ease-out (never fade an ancestor), shared-shape transitions 0.45–0.8 s, at most one low sweep after settling. Headings 52–76 px, captions ~54 px 1–2 lines on a dark backing when over footage; artefacts \"enter on the noun, act on the verb\". Camera shutter 4 frames before a layout cut; frame 1 already shows proof moving.",
+    "avoidElements": [
+      "stamp",
+      "strikeLine",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring"
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "revista",
+  "name": "Revista",
+  "tagline": "heditor's revista: charcoal and off-white, Bebas keyword + Playfair italic, lilac / mint / peach chips, a date page.",
+  "palette": {
+    "stage": "#17171b",
+    "mar": "#f3efe6",
+    "ter": "#c6ff3d",
+    "gold": "#cdbcff",
+    "goldd": "#ffd2bd",
+    "iv": "#f3efe6",
+    "ink": "#0f0f12"
+  },
+  "fonts": {
+    "poster": "Bebas Neue",
+    "accent": "Playfair Display",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.05,
+  "pace": 0.55,
+  "captionStyle": "phrase",
+  "captionSize": 64,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "chips",
+    "imageCard",
+    "chapterCard",
+    "counter",
+    "lockCard",
+    "stamp"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "auto",
+    "enter": "slide",
+    "exit": "wipe",
+    "easing": "smooth",
+    "speed": 1.0,
+    "camera": "glide",
+    "sfxKit": "click",
+    "texture": "none",
+    "direction": "heditor `revista`. A magazine layout: Bebas keyword lines with a Playfair italic second line, lists as `chips` in lilac `gold`, mint and peach, a lime `ter` highlight on the one word that matters, an `imageCard` as a torn magazine page, a `chapterCard` as a dated page (`stamp` with the date). Panels slide in from the side 0.4 s and leave with a 0.3 s wipe; the camera glides between modes. Clean grid, generous margins, one accent at full strength per frame.",
+    "avoidElements": [
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn"
+    ]
+  }
+}

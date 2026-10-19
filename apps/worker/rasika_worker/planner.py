@@ -456,7 +456,11 @@ class Planner:
             if len(kept) != len(plan["elements"]):
                 log.info("planner_dropped_banned", n=len(plan["elements"]) - len(kept))
             plan["elements"] = kept
-        if motion.get("family") in MIXED_CASE_FAMILIES and isinstance(plan.get("elements"), list):
+        case = str(motion.get("caseStyle") or "auto")
+        sentence = (
+            case == "sentence" or (case == "auto" and motion.get("family") in MIXED_CASE_FAMILIES)
+        )
+        if sentence and isinstance(plan.get("elements"), list):
             for el in plan["elements"]:
                 for line in el.get("lines") or []:
                     if isinstance(line, dict) and isinstance(line.get("text"), str):
@@ -534,7 +538,28 @@ def motion_brief(style: dict[str, Any], motion: dict[str, Any]) -> str:
         + stage_note
         + f"\n\n**Prefer:** {prefer}\n**Never use:** {never}\n\\n"
         + f"Entrance: {motion.get('enter', 'rise')} · exit: {motion.get('exit', 'lift')} · "
-        + f"camera: {motion.get('camera', 'glide')} · sound kit: {motion.get('sfxKit', 'pop')}."
+        + f"easing: {motion.get('easing', 'spring')} · camera: {motion.get('camera', 'glide')} · "
+        + f"sound kit: {motion.get('sfxKit', 'pop')} · texture: {motion.get('texture', 'none')}."
+        + (
+            "\n\nThe engine types poster lines letter by letter (`type`): keep them short, 1–4 words."
+            if motion.get("enter") == "type"
+            else ""
+        )
+        + (
+            "\n\nEvery move lands in held poses (stop-motion `steps` easing): fewer, bigger moves; "
+            "hold ≥ 0.8 s after each landing."
+            if motion.get("easing") == "steps"
+            else ""
+        )
+        + (
+            "\n\nThis style sets poster type in SENTENCE CASE: write lines as sentences, not shouts."
+            if motion.get("caseStyle") == "sentence"
+            else (
+                "\n\nThis style shouts: poster lines are UPPERCASE, 1–4 words."
+                if motion.get("caseStyle") == "upper"
+                else ""
+            )
+        )
     )
 
 

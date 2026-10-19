@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { FAMILY_LABEL, SFX_LABEL, presetCards, type PresetCard } from "@/config/presets";
+import { FAMILY_LABEL, PRESET_SOURCE, SFX_LABEL, presetCards, type PresetCard } from "@/config/presets";
 import { FamilyChips, useStyleFilter } from "@/components/style-filter";
 import { cn } from "@/lib/utils";
 
@@ -219,6 +219,11 @@ function PresetButton({
       </div>
       <p className="poster mt-2 text-xl">{card.tokens.name}</p>
       <p className="text-muted-foreground line-clamp-2 text-xs">{card.tokens.tagline}</p>
+      {PRESET_SOURCE[id] && (
+        <p className="text-muted-foreground/70 mt-1 truncate text-[0.6rem]" title={PRESET_SOURCE[id]}>
+          measured from {PRESET_SOURCE[id]}
+        </p>
+      )}
       <p className="mt-2 flex flex-wrap gap-1">
         <span className="bg-muted text-foreground/80 rounded-full px-2 py-0.5 text-[0.65rem]">
           {FAMILY_LABEL[m.family]}

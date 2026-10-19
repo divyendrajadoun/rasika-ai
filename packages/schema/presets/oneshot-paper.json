@@ -1,0 +1,58 @@
+{
+  "id": "oneshot-paper",
+  "name": "Oneshot Paper",
+  "tagline": "oneshot-video's paper palette: near-black ground, warm off-white type, one coral, 1.00/1.12 cut-zooms and ticks.",
+  "palette": {
+    "stage": "#111111",
+    "mar": "#1b1b1b",
+    "ter": "#FF7A4D",
+    "gold": "#FFB23F",
+    "goldd": "#C2410C",
+    "iv": "#F4F1EA",
+    "ink": "#0A0A0A"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.06,
+  "pace": 0.5,
+  "captionStyle": "karaoke",
+  "captionSize": 64,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "chips",
+    "counter",
+    "chapterCard",
+    "imageCard",
+    "lockCard",
+    "strikeLine"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "sentence",
+    "enter": "rise",
+    "exit": "fade",
+    "easing": "smooth",
+    "speed": 0.9,
+    "camera": "cut",
+    "sfxKit": "click",
+    "texture": "grain",
+    "direction": "oneshot-video `paper`. Sentence case, one family two weights (Inter 500/800) and ONE Instrument Serif italic voice-switch word; warm off-white `iv` on a near-black ground, coral `ter` the only accent, a 2 px hairline. Captions: word-timed pages, karaoke with unspoken words at 60 %, ≤ 1 emphasised word on ≤ 20 % of pages, never over the face. Camera `cutZoom` alternates 1.00 / 1.12 per segment, punch-ins 1.08–1.15 at most 2–4 per minute. Graphics one at a time: a `chapterCard` as HookBar in the first 3–6 s, `chips` beside the head 100–200 ms before the term, a `counter` counting up 0.8 s with an accent underline, a `strikeLine` swap-quote. A visual change every 3–6 s — 1.5 s cadence reads as frantic. Film grain 0.06.",
+    "avoidElements": [
+      "stamp",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring"
+    ]
+  }
+}

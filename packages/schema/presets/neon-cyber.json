@@ -1,0 +1,58 @@
+{
+  "id": "neon-cyber",
+  "name": "Neon Cyber",
+  "tagline": "dashi's 霓虹赛博: a violet night sky, magenta and cyan accent words, electric yellow warnings, HUD lines and CRT transitions.",
+  "palette": {
+    "stage": "#05030f",
+    "mar": "#2a0b45",
+    "ter": "#d6177e",
+    "gold": "#f5e663",
+    "goldd": "#27e1ff",
+    "iv": "#f3ecff",
+    "ink": "#03020a"
+  },
+  "fonts": {
+    "poster": "Space Grotesk",
+    "accent": "JetBrains Mono",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Space Grotesk"
+  },
+  "grain": 0.08,
+  "pace": 0.8,
+  "captionStyle": "box",
+  "captionSize": 60,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chips",
+    "stamp",
+    "focusRing",
+    "chapterCard",
+    "lockCard",
+    "propPunchIn"
+  ],
+  "motion": {
+    "family": "hype",
+    "caseStyle": "auto",
+    "enter": "blur",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 0.8,
+    "camera": "whip",
+    "sfxKit": "hype",
+    "texture": "gradient",
+    "direction": "dashi neon cyber. A night gradient (`stage` → violet `mar`), lavender HUD lines, magenta `ter` as accent A and cyan `goldd` as accent B on the two core nouns, electric yellow `gold` only for warnings; Space Grotesk display with a soft glow, mono readouts, a city-silhouette feel. Entrances blur in 0.2–0.45 s, CRT open / close and scanline wipes between sections (≤ 0.2 s glitch, white flashes ≥ 6 s apart), slow push 1–1.5 %/s. A / B words get solid colour blocks in the captions. Something new every 2–3 s, a big change every 3–5 s.",
+    "avoidElements": [
+      "imageCard",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "ring"
+    ]
+  }
+}

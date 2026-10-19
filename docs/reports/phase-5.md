@@ -248,3 +248,31 @@ from the skills themselves, and pointed out that edits still shared one pattern.
 
 Verified: schema 10 · engine 14 · web 12 · worker 23 tests; golden 0 failures; all seven family
 examples validate; 26 per-style plans regenerated with the family prefixes and rendered as demos.
+
+## Follow-up (19 Oct, night): every look in the list, and two new ways in
+
+The owner asked for every skill in awesome-claude-video-skills as a dashboard style, and for the
+workflow repos (lemo-opuscar, reelmimic, lanshu) to become product options.
+
+- **Research.** 113 candidate repos (all 40 Shorts & social, plus every editing / motion / story /
+  explainer / promo / toolkit repo that could define a look) shallow-cloned; six read-only agents
+  extracted rules per repo (`extract/group1–6.md` in the session scratchpad). 67 looks became presets
+  (93 total); non-commercial / unlicensed repos were read but not copied. The C: drive hit 0 bytes free
+  mid-clone — clones moved to `F:/a_openai/1_aa_new/_scratch_rasika`, `.git` and media stripped.
+- **Engine.** `steps` easing, `type` entrance, four print textures with light-stage variants,
+  `caseStyle`, eight fonts. Light stages now get dark texture lines (`.rk.light`).
+- **Script only.** Wizard Source step → StepScript (script, 12 Deepgram Aura-2 voices, length and credit
+  estimate) → `createDraftProject` / `createScriptEdit` → worker `synth` (tts.py → narration.wav →
+  stage-coloured 1080×1920 source clip → probe chain). Planner gets a "no speaker on screen" brief
+  (`style_options.faceless`). English only: Aura has no Hindi voice.
+- **Match a reference.** Second drop zone uploads a `reference_video`; fidelity pace / +camera / +look;
+  worker `analyse_reference` (ffmpeg scene cuts, 8 stills, Pillow colour stats → one planner-model
+  vision call → validated StyleTokens merged by fidelity → `style_options.referenceStyle`) runs between
+  transcribe and plan. Smoke-tested on the Slam Neon demo: 2 cuts found, a valid style in 18 s.
+- **AI presenter.** Shown in the Source step, disabled with the reason: it needs an avatar + lip-sync
+  provider (paid, unapproved).
+- **Dashboard.** Family filter chips + search in the wizard and on the landing; each community card says
+  which repo it was measured from (text, no link).
+
+Verified: schema 10 · engine 14 · web 12 · worker 37 tests; mypy and ruff clean; all 93 presets parse;
+tsc clean. Demo plans and renders for the 67 new presets: see the tail of this report.

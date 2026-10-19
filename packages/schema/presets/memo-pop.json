@@ -1,0 +1,57 @@
+{
+  "id": "memo-pop",
+  "name": "Memo Pop",
+  "tagline": "motion-launch-videos' captions: Montserrat 800 pop captions on deep indigo, the current word sun-yellow, emphasis pink.",
+  "palette": {
+    "stage": "#16122E",
+    "mar": "#251C52",
+    "ter": "#FFD23F",
+    "gold": "#FFD23F",
+    "goldd": "#FF6B9A",
+    "iv": "#FFFFFF",
+    "ink": "#0C0A1C"
+  },
+  "fonts": {
+    "poster": "Montserrat",
+    "accent": "Instrument Serif",
+    "ui": "IBM Plex Mono",
+    "devanagari": "Mukta",
+    "caption": "Montserrat"
+  },
+  "grain": 0.0,
+  "pace": 0.7,
+  "captionStyle": "karaoke",
+  "captionSize": 88,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chips",
+    "chapterCard",
+    "stamp",
+    "lockCard"
+  ],
+  "motion": {
+    "family": "kinetic",
+    "caseStyle": "auto",
+    "enter": "pop",
+    "exit": "fade",
+    "easing": "spring",
+    "speed": 0.8,
+    "camera": "push",
+    "sfxKit": "click",
+    "texture": "gradient",
+    "direction": "motion-launch-videos captions. Pop captions: Montserrat 800 at 88 px, 1–3 words centred a little below centre, each word popping on the frame its start time falls in (never early), the current word sun `gold`, one emphasis word pink `goldd` and ×1.12, a 0.1 em ink stroke. Springs: LAND ζ 0.72 for entrances (3.8 % overshoot, 0.12 s), no overshoot on exits; camera punch to 1.08 on the hook; blur 8–16 px on slams. Lower thirds as a `chapterCard` with a 12 px bar; `counter`s on numbers; cut cadence 2.5–3 s. Nothing under 40 px; captions ≥ 0.7 s on screen; ≤ 17 chars/s.",
+    "avoidElements": [
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring",
+      "strikeLine"
+    ]
+  }
+}

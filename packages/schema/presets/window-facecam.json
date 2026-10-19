@@ -1,0 +1,57 @@
+{
+  "id": "window-facecam",
+  "name": "Window",
+  "tagline": "ravyn's window: the camera is a window that changes shape — full face, stack, bubble — on warm paper with one blue.",
+  "palette": {
+    "stage": "#F4F1EA",
+    "mar": "#F4F1EA",
+    "ter": "#2B59FF",
+    "gold": "#2B59FF",
+    "goldd": "#1d3fb8",
+    "iv": "#ffffff",
+    "ink": "#141414"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.5,
+  "captionStyle": "karaoke",
+  "captionSize": 76,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "imageCard",
+    "chips",
+    "counter",
+    "chapterCard",
+    "lockCard"
+  ],
+  "motion": {
+    "family": "launch",
+    "caseStyle": "auto",
+    "enter": "slide",
+    "exit": "lift",
+    "easing": "spring",
+    "speed": 1.0,
+    "camera": "glide",
+    "sfxKit": "click",
+    "texture": "none",
+    "direction": "ravyn `window`. The camera is a window: FULL FACE → STACK (`card` mode with the element above the window) → BUBBLE (`pip`) → ELEMENTS ONLY (`arch`) — the window move IS the transition (0.5 s, small overshoot), never the same mode more than 4 scenes in a row; open and close on FULL FACE. Captions Inter 800, every word, 2 lines max, one Instrument Serif italic emphasis word in blue `ter`; mono labels in JetBrains Mono. Screenshots push 1.00 → 1.10. Light paper, ink type, one blue, nothing else.",
+    "avoidElements": [
+      "stamp",
+      "strikeLine",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn"
+    ]
+  }
+}

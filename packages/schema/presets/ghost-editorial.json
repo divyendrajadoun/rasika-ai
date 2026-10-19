@@ -1,0 +1,58 @@
+{
+  "id": "ghost-editorial",
+  "name": "Ghost Editorial",
+  "tagline": "ghost-editor's editorial: lowercase captions that blur in, the previous line fading light, tilted red tag pills, highlight wipes.",
+  "palette": {
+    "stage": "#262626",
+    "mar": "#333333",
+    "ter": "#D13F34",
+    "gold": "#D13F34",
+    "goldd": "#B93026",
+    "iv": "#ffffff",
+    "ink": "#161616"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.03,
+  "pace": 0.5,
+  "captionStyle": "phrase",
+  "captionSize": 58,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "chips",
+    "counter",
+    "chapterCard",
+    "imageCard",
+    "lockCard",
+    "stamp"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "sentence",
+    "enter": "blur",
+    "exit": "fade",
+    "easing": "smooth",
+    "speed": 1.0,
+    "camera": "glide",
+    "sfxKit": "click",
+    "texture": "none",
+    "direction": "ghost-editor `editorial`. Lowercase captions blur in (blur 10 px, y 10 → 0, 0.26 s power3.out); the previous line turns light (weight 300, 86 % white) while the new one lands. Tilted accent tag pills (`chips`, scale 0.5 rot −16° → rot −6° in 0.3 s back.out) in red `ter`; a highlight bar wiping scaleX in 0.28 s under the key word. Full-screen scenes 30–50 % of runtime: a `chapterCard` as a sentence card, a `counter` stats card, a grayscale `imageCard`. Scene ins: blur 28 px 0.22 s or a clip-expand 0.42 s expo.inOut; the camera glides. Tense, minimal; music far under.",
+    "avoidElements": [
+      "strikeLine",
+      "ring",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn"
+    ]
+  }
+}

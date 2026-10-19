@@ -244,6 +244,15 @@
                 "beat"
               ]
             },
+            "caseStyle": {
+              "default": "auto",
+              "type": "string",
+              "enum": [
+                "auto",
+                "upper",
+                "sentence"
+              ]
+            },
             "enter": {
               "default": "rise",
               "type": "string",

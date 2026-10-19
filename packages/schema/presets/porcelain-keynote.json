@@ -1,0 +1,57 @@
+{
+  "id": "porcelain-keynote",
+  "name": "Porcelain Keynote",
+  "tagline": "motion-video-workflow's porcelain shell: cool white, one blue, highlighter yellow, stamps that land 1.9 → 1 in 0.24 s.",
+  "palette": {
+    "stage": "#F4F5F8",
+    "mar": "#E9EDF6",
+    "ter": "#2F6BFF",
+    "gold": "#FFD54A",
+    "goldd": "#18C8FF",
+    "iv": "#ffffff",
+    "ink": "#101218"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.7,
+  "captionStyle": "phrase",
+  "captionSize": 60,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "stamp",
+    "counter",
+    "chips",
+    "chapterCard",
+    "imageCard",
+    "lockCard"
+  ],
+  "motion": {
+    "family": "launch",
+    "caseStyle": "auto",
+    "enter": "slam",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 0.8,
+    "camera": "whip",
+    "sfxKit": "hype",
+    "texture": "none",
+    "direction": "motion-video-workflow porcelain keynote. A cool white keynote: Inter 900 titles (74 px, slight skew), a `stamp` that lands 1.9 → 1 in 0.24 s with 7° → 0 rotation, a highlighter bar in yellow `gold` under the key word, `counter`s with 128 px tabular numbers (1.6 → 1 in 0.24 s), `chips` as pills, a 6 px progress line. Camera-continuous transitions (whip 0.22 s with blur) 3–4 per minute; key info holds ≥ 0.9–1.2 s; one message per frame, keywords become picture elements — never whole sentences. One blue `ter`, cyan `goldd` as the second accent.",
+    "avoidElements": [
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "ring",
+      "strikeLine"
+    ]
+  }
+}

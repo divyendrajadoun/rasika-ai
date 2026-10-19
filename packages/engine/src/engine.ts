@@ -83,7 +83,9 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
     `L rk-pattern${plan.style.pattern === "none" ? " none" : ""} tex-${motion.texture}`;
 
   // ── stage + layers ──
-  const stage = div(`rk fam-${motion.family}`);
+  const stageClass = () =>
+    `rk fam-${motion.family}${hexLuma(plan.style.palette.stage) >= 0.5 ? " light" : ""}`;
+  const stage = div(stageClass());
   const style = document.createElement("style");
   const families = fontsForStyle(plan.style.fonts);
   style.textContent =
@@ -138,7 +140,7 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
     fx.replaceChildren();
     bl.replaceChildren();
     motion = motionOf(plan.style);
-    stage.className = `rk fam-${motion.family}`;
+    stage.className = stageClass();
     const p = plan.style.palette;
     C = {
       mar: p.mar,

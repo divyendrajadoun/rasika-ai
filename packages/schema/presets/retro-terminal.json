@@ -1,0 +1,58 @@
+{
+  "id": "retro-terminal",
+  "name": "Retro Terminal",
+  "tagline": "typewriter-video's retro terminal: phosphor green on black, amber for the key line, scanlines, text typed with a cursor.",
+  "palette": {
+    "stage": "#0A0A0A",
+    "mar": "#121212",
+    "ter": "#33FF33",
+    "gold": "#FFAA33",
+    "goldd": "#1f9f1f",
+    "iv": "#d8ffd8",
+    "ink": "#000000"
+  },
+  "fonts": {
+    "poster": "JetBrains Mono",
+    "accent": "JetBrains Mono",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "JetBrains Mono"
+  },
+  "grain": 0.1,
+  "pace": 0.6,
+  "captionStyle": "clean",
+  "captionSize": 58,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chips",
+    "chapterCard",
+    "stamp",
+    "lockCard"
+  ],
+  "motion": {
+    "family": "kinetic",
+    "caseStyle": "sentence",
+    "enter": "type",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 1.0,
+    "camera": "still",
+    "sfxKit": "click",
+    "texture": "scan",
+    "direction": "typewriter-video `retro-terminal`. A phosphor terminal: every poster line is TYPED character by character (2–3 frames each) with a block cursor, in JetBrains Mono, green `ter`; the key line of a chapter in amber `gold`; a `chapterCard` as a new file tab (`$ chapter 02`), lists as `chips` typed in a burst, numbers as mono `counter`s, a `stamp` [OK] / [FAIL] / [DONE]. Text appears 0.3–0.5 s before the phrase ends and never lags the speaker; one board note every 4–6 s, max 6 s blank. Camera still, hard cuts, keyboard clicks per character. Lowercase, terse — the board is a simplified version of the speech.",
+    "avoidElements": [
+      "imageCard",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring",
+      "focusRing"
+    ]
+  }
+}

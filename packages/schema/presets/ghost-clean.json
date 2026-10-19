@@ -1,0 +1,58 @@
+{
+  "id": "ghost-clean",
+  "name": "Ghost Clean",
+  "tagline": "ghost-editor's clean: Montserrat 800 mixed-case captions, the active word yellow, snap zooms, rare cards, no music.",
+  "palette": {
+    "stage": "#111111",
+    "mar": "#1c1c1c",
+    "ter": "#FFD23F",
+    "gold": "#FFD23F",
+    "goldd": "#E0B400",
+    "iv": "#ffffff",
+    "ink": "#050505"
+  },
+  "fonts": {
+    "poster": "Montserrat",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Montserrat"
+  },
+  "grain": 0.0,
+  "pace": 0.55,
+  "captionStyle": "karaoke",
+  "captionSize": 64,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chips",
+    "imageCard",
+    "chapterCard",
+    "strikeLine"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "sentence",
+    "enter": "pop",
+    "exit": "cut",
+    "easing": "spring",
+    "speed": 0.9,
+    "camera": "cut",
+    "sfxKit": "pop",
+    "texture": "none",
+    "direction": "ghost-editor `clean` — \"Hormozi-restrained\". Captions Montserrat 800 mixed case, groups ≤ 3 words, new group on punctuation or a 0.6 s pause, shown 0.05 s early, held 0.3 s after, the active word yellow `gold` (set on word start, no pulse); the placer keeps captions below the chin, never over eyes or mouth. Snap zooms: instant cuts to 1.06 (origin at the face) on beats; cards are rare — a `counter` or `chips` in the band under the chin, a `strikeLine` on the wrong claim, at most one card and one reaction at a time. Beats default 2.5 s. Nothing on screen the speaker did not say; no music; 6–12 subtle hits a minute.",
+    "avoidElements": [
+      "stamp",
+      "lockCard",
+      "ring",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn"
+    ]
+  }
+}

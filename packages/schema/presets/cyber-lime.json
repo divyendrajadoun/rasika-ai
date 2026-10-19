@@ -1,0 +1,56 @@
+{
+  "id": "cyber-lime",
+  "name": "Cyber Lime",
+  "tagline": "AutoMontage's cyber theme: near-black, lime glow, Oswald captions on dark glass, masks and jump cuts.",
+  "palette": {
+    "stage": "#0E0E0C",
+    "mar": "#16170F",
+    "ter": "#A5FF00",
+    "gold": "#A5FF00",
+    "goldd": "#7BC400",
+    "iv": "#F2FFE0",
+    "ink": "#070805"
+  },
+  "fonts": {
+    "poster": "Oswald",
+    "accent": "JetBrains Mono",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Oswald"
+  },
+  "grain": 0.06,
+  "pace": 0.75,
+  "captionStyle": "karaoke",
+  "captionSize": 72,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "chips",
+    "counter",
+    "stamp",
+    "imageCard",
+    "chapterCard",
+    "lockCard"
+  ],
+  "motion": {
+    "family": "hype",
+    "caseStyle": "auto",
+    "enter": "mask",
+    "exit": "cut",
+    "easing": "spring",
+    "speed": 0.9,
+    "camera": "cut",
+    "sfxKit": "hype",
+    "texture": "grid",
+    "direction": "AutoMontage `cyber`. Dark cards (`mar`, radius 18) with a lime `ter` 2 px border and a lime glow, Oswald uppercase, mono labels. Elements enter under an 8-frame mask (0.32 s, ease 0.16/1/0.3/1) or a spring pop, exit in 5 frames; word stagger 2–3 frames. Captions: karaoke groups < 4 words, lime on the spoken word. Jump cuts 1.0 / 1.18 / 1.12, a punch to 1.15 on the single peak. ≤ 2 moving text blocks at once, no bounce on text, same motion never 3× in a row, nothing on the face in the first 2 s.",
+    "avoidElements": [
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "ring"
+    ]
+  }
+}

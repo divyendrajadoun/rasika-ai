@@ -1,0 +1,58 @@
+{
+  "id": "pi-light",
+  "name": "Pi Light",
+  "tagline": "MotionCraft's pi-v2: cool white glows, ink type, one blue, words rising out of blur exactly when spoken.",
+  "palette": {
+    "stage": "#f7f8fa",
+    "mar": "#eaf1fb",
+    "ter": "#2b7fd4",
+    "gold": "#ffb900",
+    "goldd": "#1f9d63",
+    "iv": "#ffffff",
+    "ink": "#16181d"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.55,
+  "captionStyle": "phrase",
+  "captionSize": 52,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chips",
+    "chapterCard",
+    "imageCard",
+    "lockCard"
+  ],
+  "motion": {
+    "family": "kinetic",
+    "caseStyle": "sentence",
+    "enter": "blur",
+    "exit": "fade",
+    "easing": "spring",
+    "speed": 1.0,
+    "camera": "glide",
+    "sfxKit": "pop",
+    "texture": "gradient",
+    "direction": "MotionCraft `pi-v2`. Headline words rise out of blur (10 px, 0.28 em rise, 12 frames, stagger 4–5 frames, spring d11 / s140) exactly when spoken — two frames early, \"eyes lead ears\"; one accent word per sentence in blue `ter` (colour, never another font); h0 120–150 px, h1 64–76, ≤ 2 lines × 7 words, no all-caps sentences, tabular figures. Cards rise 180 px with 12° rotateX and 12 px blur, radius 22; pills radius 999; scenes overlap 17 frames with a blur-crossfade — never a hard cut; camera drift 8 px, zoom ≤ 1.2. Hold 0.8 s + 0.25 s per word; ≥ 1.5 s between transitions. Two soft background glows, no grain.",
+    "avoidElements": [
+      "stamp",
+      "strikeLine",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring"
+    ]
+  }
+}

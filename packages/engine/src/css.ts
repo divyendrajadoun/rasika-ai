@@ -146,9 +146,14 @@ export function engineCss(o: EngineCssOptions): string {
   const posterWeight = POSTER_WEIGHT[poster] ?? "400";
   const m = o.motion ?? motionOf({});
   // mixed-case families: the hand, the board and the recap never shout in caps
-  const upper = ["kinetic", "launch", "whiteboard", "chalk", "blocks"].includes(m.family)
-    ? "none"
-    : "uppercase";
+  const upper =
+    m.caseStyle === "sentence"
+      ? "none"
+      : m.caseStyle === "upper"
+        ? "uppercase"
+        : ["kinetic", "launch", "whiteboard", "chalk", "blocks"].includes(m.family)
+          ? "none"
+          : "uppercase";
   const posterTracking = poster === "Bebas Neue" ? ".03em" : poster === "Anton" ? ".01em" : "0";
   const capAccent = `var(--${o.captionAccent})`;
   const capWeight =
@@ -247,7 +252,13 @@ export function familyCss(
 .rk .rk-pattern.none.tex-scan{background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 2px,transparent 2px 5px),radial-gradient(ellipse at 50% 45%,rgba(255,255,255,.07),rgba(0,0,0,.5) 100%);background-size:auto,auto;background-position:0 0,0 0}
 .rk .rk-pattern.none.tex-lines{background-image:repeating-linear-gradient(0deg,transparent 0 58px,rgba(0,0,0,.14) 58px 60px),linear-gradient(90deg,transparent 0 120px,rgba(200,40,40,.25) 120px 123px,transparent 123px)}
 .rk .rk-pattern.none.tex-grain{background-image:radial-gradient(circle,rgba(255,255,255,.12) 0 1px,transparent 1.6px),radial-gradient(circle,rgba(0,0,0,.18) 0 1px,transparent 1.6px),radial-gradient(ellipse at 50% 40%,transparent 40%,rgba(0,0,0,.55) 100%);background-size:7px 7px,5px 5px,auto;background-position:0 0,3px 2px,0 0}
-.rk .ch.cur::after{content:"";display:inline-block;width:.55em;height:1em;margin-left:.06em;vertical-align:-.12em;background:currentColor;opacity:.9}`;
+.rk .ch.cur::after{content:"";display:inline-block;width:.55em;height:1em;margin-left:.06em;vertical-align:-.12em;background:currentColor;opacity:.9}
+.rk.light .rk-pattern.none.tex-grid{background-image:linear-gradient(rgba(0,0,0,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.09) 1px,transparent 1px)}
+.rk.light .rk-pattern.none.tex-dots{background-image:radial-gradient(circle,rgba(0,0,0,.14) 3px,transparent 4px)}
+.rk.light .rk-pattern.none.tex-scan{background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.07) 0 2px,transparent 2px 5px)}
+.rk.light .rk-pattern.none.tex-vignette{background-image:radial-gradient(ellipse at 50% 42%,transparent 0,transparent 50%,rgba(0,0,0,.18) 100%)}
+.rk.light .rk-pattern.none.tex-grain{background-image:radial-gradient(circle,rgba(0,0,0,.10) 0 1px,transparent 1.6px),radial-gradient(circle,rgba(255,255,255,.5) 0 1px,transparent 1.6px),radial-gradient(ellipse at 50% 40%,transparent 50%,rgba(0,0,0,.14) 100%)}
+.rk.light .rk-pattern.none.tex-board{background-image:radial-gradient(ellipse at 50% 40%,rgba(255,255,255,.5),rgba(0,0,0,.08) 95%),radial-gradient(circle,rgba(0,0,0,.05) 1px,transparent 2px)}`;
   const fam: Record<Motion["family"], string> = {
     editorial: "",
     collage: `

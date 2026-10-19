@@ -1,0 +1,59 @@
+{
+  "id": "multiverse-comic",
+  "name": "Multiverse Comic",
+  "tagline": "bestagentkits' comic multiverse: Ben-Day halftone, 6 px ink borders, cyan / magenta offset shadows, Anton shouts in yellow, on twos.",
+  "palette": {
+    "stage": "#0d0a1a",
+    "mar": "#fff6e5",
+    "ter": "#ff2e9a",
+    "gold": "#ffd21f",
+    "goldd": "#19d3ff",
+    "iv": "#fff6e5",
+    "ink": "#0d0a1a"
+  },
+  "fonts": {
+    "poster": "Anton",
+    "accent": "Bangers",
+    "ui": "Permanent Marker",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.1,
+  "pace": 0.9,
+  "captionStyle": "box",
+  "captionSize": 64,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "stamp",
+    "counter",
+    "chips",
+    "imageCard",
+    "strikeLine",
+    "propPunchIn",
+    "bleedPlate"
+  ],
+  "motion": {
+    "family": "hype",
+    "caseStyle": "auto",
+    "enter": "slam",
+    "exit": "cut",
+    "easing": "steps",
+    "speed": 0.7,
+    "camera": "whip",
+    "sfxKit": "hype",
+    "texture": "halftone",
+    "direction": "bestagentkits comic multiverse, 110 BPM. Anton uppercase headlines in yellow `gold` with a 3 px ink stroke, Bangers labels and SFX words (`stamp` BAM / NOPE), Permanent Marker signature, halftone dots over everything, 6 px ink borders, triple offset shadows (cyan `goldd`, magenta `ter`, ink); RGB misregistration kicked on alternate beats; motion ON TWOS (12 steps/s). `slam` 1.3 → 1 power4.in + shake, headline words flip in staggered, a dot wipe between panels, flash 0.8 + shake on drops. Captions in a yellow box with a 5 px ink border, the current word magenta. Loud, playful, no Marvel names.",
+    "avoidElements": [
+      "lockCard",
+      "ring",
+      "filmStrip",
+      "patternCard",
+      "feedPhone",
+      "chapterCard",
+      "focusRing"
+    ]
+  }
+}

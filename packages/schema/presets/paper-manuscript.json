@@ -1,0 +1,58 @@
+{
+  "id": "paper-manuscript",
+  "name": "Paper Manuscript",
+  "tagline": "paper-algorithm's manuscript: cream paper, ink serif, one vermilion accent and a secondary ink-blue, ink-drop entrances.",
+  "palette": {
+    "stage": "#F4EFE4",
+    "mar": "#F4EFE4",
+    "ter": "#C0452F",
+    "gold": "#C0452F",
+    "goldd": "#2E5E8C",
+    "iv": "#fbf7ee",
+    "ink": "#1C1916"
+  },
+  "fonts": {
+    "poster": "Playfair Display Roman",
+    "accent": "Playfair Display",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Fraunces"
+  },
+  "grain": 0.05,
+  "pace": 0.4,
+  "captionStyle": "clean",
+  "captionSize": 58,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chapterCard",
+    "imageCard",
+    "chips",
+    "lockCard",
+    "stamp"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "sentence",
+    "enter": "rise",
+    "exit": "fade",
+    "easing": "soft",
+    "speed": 1.3,
+    "camera": "still",
+    "sfxKit": "none",
+    "texture": "paper",
+    "direction": "paper-algorithm manuscript. Scientific paper on cream: Playfair 900 serif headings in sentence case, data in JetBrains Mono with tabular figures, full-sentence ink captions where the sentence's keyword turns vermilion `ter`. Vermilion is the ONLY accent (max 2 per frame, one focus at a time); ink-blue `goldd` only for annotations and guide lines. Three signatures, never repeating an entrance within a scene: ink-drop (rise 40–80 px, power3.out 0.5–0.8 s), brush-write (scale 0.2 → 1 with 3–6° rotation), seal-stamp (`stamp` 1.4 → 1, back.out). One accent every 8–15 s, scenes 5–15 s, nothing static over 3 s, no hard cuts, no exits except the last scene. A red seal `stamp` top-right on the final card.",
+    "avoidElements": [
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring",
+      "strikeLine"
+    ]
+  }
+}

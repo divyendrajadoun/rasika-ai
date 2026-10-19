@@ -1,0 +1,57 @@
+{
+  "id": "viewfinder",
+  "name": "Viewfinder",
+  "tagline": "ravyn's camera: a viewfinder frame with corner brackets, dark and light grounds alternating, Space Grotesk caps, 5 % grain.",
+  "palette": {
+    "stage": "#08080A",
+    "mar": "#F0ECE5",
+    "ter": "#4C9DFF",
+    "gold": "#4C9DFF",
+    "goldd": "#2d6fcf",
+    "iv": "#F0ECE5",
+    "ink": "#050506"
+  },
+  "fonts": {
+    "poster": "Space Grotesk",
+    "accent": "Instrument Serif",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Space Grotesk"
+  },
+  "grain": 0.05,
+  "pace": 0.6,
+  "captionStyle": "phrase",
+  "captionSize": 60,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "focusRing",
+    "counter",
+    "chapterCard",
+    "imageCard",
+    "chips"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "upper",
+    "enter": "blur",
+    "exit": "wipe",
+    "easing": "smooth",
+    "speed": 1.0,
+    "camera": "push",
+    "sfxKit": "click",
+    "texture": "grain",
+    "direction": "ravyn `camera`. A viewfinder: `focusRing` brackets lock onto what is named, a 5 px progress bar in `ter`, Space Grotesk 700 uppercase captions with no plate in the band y 1240–1450. Grounds alternate dark `stage` and light `mar` between chapters (`chapterCard` on the flip); each ground slides over 0.52 s with a 14 px blur. The frame breathes to 1.12 over 1.5 s. Hairline accents at 40 %, one blue, grain 5 %.",
+    "avoidElements": [
+      "stamp",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "lockCard"
+    ]
+  }
+}

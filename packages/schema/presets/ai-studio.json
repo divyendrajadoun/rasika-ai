@@ -1,0 +1,58 @@
+{
+  "id": "ai-studio",
+  "name": "AI Studio",
+  "tagline": "hassancs91's calm-premium studio brand: ivory paper, indigo, teal, a dotted grid, fade-and-rise with no bounce.",
+  "palette": {
+    "stage": "#fffef7",
+    "mar": "#faf8f5",
+    "ter": "#6366F1",
+    "gold": "#f5d76e",
+    "goldd": "#4db8a8",
+    "iv": "#ffffff",
+    "ink": "#1a1a2e"
+  },
+  "fonts": {
+    "poster": "Space Grotesk",
+    "accent": "Instrument Serif",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.45,
+  "captionStyle": "phrase",
+  "captionSize": 52,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "chips",
+    "counter",
+    "chapterCard",
+    "imageCard",
+    "lockCard"
+  ],
+  "motion": {
+    "family": "launch",
+    "caseStyle": "auto",
+    "enter": "rise",
+    "exit": "fade",
+    "easing": "soft",
+    "speed": 1.1,
+    "camera": "still",
+    "sfxKit": "click",
+    "texture": "dots",
+    "direction": "hassancs91 AI-studio brand: Linear / Vercel polish. Ivory paper with a faint dotted grid and a soft radial glow, Space Grotesk 600–700 display with tight tracking, Inter body, JetBrains Mono for stats and code. Indigo `ter` is the accent, teal `goldd` the secondary, yellow `gold` only as a highlight sweep. Entrances fade + rise 24 px over ~14 frames, ease-out, no overshoot; exits fade + fall faster; emphasis is an indigo underline wipe or a scale pop ≤ 1.06; stagger 3–4 frames; radius 14–16, soft shadows. A `chapterCard` for every \"step N\"; overlays only in the top / bottom bands, never over the presenter. No hard shadows, no 3 px borders, no stickers, no engagement-bait outro; felt-not-heard sound.",
+    "avoidElements": [
+      "stamp",
+      "strikeLine",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring"
+    ]
+  }
+}

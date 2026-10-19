@@ -1,0 +1,58 @@
+{
+  "id": "warm-paper",
+  "name": "Warm Paper",
+  "tagline": "MotionCraft's warm-paper: lo-fi desk energy — warm off-white, terracotta accent, soft cards, slow and kind.",
+  "palette": {
+    "stage": "#faf7f1",
+    "mar": "#f1e8da",
+    "ter": "#c2552d",
+    "gold": "#c2552d",
+    "goldd": "#8a8178",
+    "iv": "#fffdf9",
+    "ink": "#221c16"
+  },
+  "fonts": {
+    "poster": "Fraunces",
+    "accent": "Instrument Serif",
+    "ui": "IBM Plex Mono",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.03,
+  "pace": 0.4,
+  "captionStyle": "phrase",
+  "captionSize": 54,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chips",
+    "chapterCard",
+    "imageCard",
+    "lockCard"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "sentence",
+    "enter": "rise",
+    "exit": "fade",
+    "easing": "soft",
+    "speed": 1.3,
+    "camera": "glide",
+    "sfxKit": "click",
+    "texture": "paper",
+    "direction": "MotionCraft `warm-paper`, energy ≈ 0.4. Warm off-white paper, Fraunces 700 headings in sentence case, IBM Plex Mono labels, terracotta `ter` as the one accent word per sentence; cards `iv` with a warm glow and radius 22. Words rise 0.28 em from a soft blur over 12 frames; scenes blur-crossfade; camera drifts gently; hold 0.8 s + 0.25 s per word; nothing moves at once. No grain, no hard cuts, no stamps; 84 BPM calm.",
+    "avoidElements": [
+      "stamp",
+      "strikeLine",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring"
+    ]
+  }
+}

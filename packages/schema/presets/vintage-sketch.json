@@ -1,0 +1,58 @@
+{
+  "id": "vintage-sketch",
+  "name": "Vintage Sketch",
+  "tagline": "bang-motion's sketsa vintage: sepia paper, Playfair display, rust and gold inks, engravings, tracked caps labels.",
+  "palette": {
+    "stage": "#EFE4CC",
+    "mar": "#EFE4CC",
+    "ter": "#9A3B22",
+    "gold": "#B8862B",
+    "goldd": "#5B4634",
+    "iv": "#fbf4e4",
+    "ink": "#2E2115"
+  },
+  "fonts": {
+    "poster": "Playfair Display Roman",
+    "accent": "Playfair Display",
+    "ui": "Fraunces",
+    "devanagari": "Mukta",
+    "caption": "Fraunces"
+  },
+  "grain": 0.08,
+  "pace": 0.4,
+  "captionStyle": "clean",
+  "captionSize": 54,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "imageCard",
+    "chapterCard",
+    "stamp",
+    "lockCard"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "sentence",
+    "enter": "fade",
+    "exit": "fade",
+    "easing": "soft",
+    "speed": 1.3,
+    "camera": "push",
+    "sfxKit": "none",
+    "texture": "paper",
+    "direction": "bang-motion sketsa vintage. Sepia paper with a multiply texture; Playfair Display 700–900 titles (≈104 px) in sentence case, tracked small caps labels (0.16 em) in rust `ter`, gold `gold` rules and ornaments (`back.out(2)` 0.5 s), ink `#2E2115` and a second ink `goldd`; `imageCard`s as engravings (grayscale, multiply) in oval or square plates; a wax-seal `stamp`; `counter`s in old-style figures. Everything fades and settles slowly, the camera pushes 1–2 %; nothing bounces. Clean serif captions.",
+    "avoidElements": [
+      "chips",
+      "strikeLine",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring"
+    ]
+  }
+}

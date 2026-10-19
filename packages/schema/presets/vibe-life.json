@@ -1,0 +1,57 @@
+{
+  "id": "vibe-life",
+  "name": "Vibe Life",
+  "tagline": "adriiita's editorial house look: cream paper, ink outlines, Space Grotesk claims with one Instrument Serif word in a peach pill.",
+  "palette": {
+    "stage": "#f3ecd9",
+    "mar": "#ece2c9",
+    "ter": "#f0a87a",
+    "gold": "#f0c860",
+    "goldd": "#5b7a4a",
+    "iv": "#faf6ec",
+    "ink": "#161513"
+  },
+  "fonts": {
+    "poster": "Space Grotesk",
+    "accent": "Instrument Serif",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Instrument Serif"
+  },
+  "grain": 0.05,
+  "pace": 0.55,
+  "captionStyle": "phrase",
+  "captionSize": 56,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "chips",
+    "imageCard",
+    "chapterCard",
+    "counter",
+    "lockCard",
+    "stamp"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "sentence",
+    "enter": "rise",
+    "exit": "cut",
+    "easing": "smooth",
+    "speed": 0.9,
+    "camera": "push",
+    "sfxKit": "click",
+    "texture": "paper",
+    "direction": "adriiita `vibe-life`. Cream paper with a faint grid, ink outlines (0.2 cqw) and flat hard shadows, no blur on chrome. Headlines: Space Grotesk 500 sentence case + exactly ONE Instrument Serif italic word per frame, in a peach `ter` or butter `gold` pill — never two accents at full strength. Captions are small serif-italic phrases on the seam between footage and card (`card` mode = stacked split, B-roll top, face bottom). \"Paper cuts\" of 80–120 ms replace crossfades; the camera pushes 1.0 → 1.12 over 2–3 s. Section turns via a dark `chapterCard`; the emphasis ladder is caption → pill → bar → headline → one glow word.",
+    "avoidElements": [
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "strikeLine"
+    ]
+  }
+}

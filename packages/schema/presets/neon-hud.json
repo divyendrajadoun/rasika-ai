@@ -1,0 +1,57 @@
+{
+  "id": "neon-hud",
+  "name": "Neon HUD",
+  "tagline": "RuiC's neon-hud card with dashi's neon cyber palette: near-black, cyan and magenta, Archivo Black and mono readouts, scanlines.",
+  "palette": {
+    "stage": "#05090F",
+    "mar": "#120a2e",
+    "ter": "#27e1ff",
+    "gold": "#f5e663",
+    "goldd": "#d6177e",
+    "iv": "#eef4ff",
+    "ink": "#02050a"
+  },
+  "fonts": {
+    "poster": "Archivo Black",
+    "accent": "JetBrains Mono",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.06,
+  "pace": 0.9,
+  "captionStyle": "karaoke",
+  "captionSize": 60,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "focusRing",
+    "chips",
+    "stamp",
+    "chapterCard",
+    "lockCard",
+    "propPunchIn"
+  ],
+  "motion": {
+    "family": "hype",
+    "caseStyle": "auto",
+    "enter": "slam",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 0.75,
+    "camera": "whip",
+    "sfxKit": "hype",
+    "texture": "scan",
+    "direction": "Neon HUD. Near-black with scanlines, cyan `ter` and magenta `goldd` as the A / B accents, electric yellow `gold` for one warning; Archivo Black uppercase readouts, mono labels, `focusRing` target boxes locking onto what is named, `counter`s rolling like specs, a `stamp` LOCKED / SCAN; 128–160 BPM cadence, entrances 4–6 frames, riser + impact on cuts, whip pans with blur. Glitch ≤ 0.2 s, flashes ≥ 6 s apart. No purple-blue gradients outside the accent pair.",
+    "avoidElements": [
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "imageCard"
+    ]
+  }
+}

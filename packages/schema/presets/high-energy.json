@@ -1,0 +1,57 @@
+{
+  "id": "high-energy",
+  "name": "High Energy",
+  "tagline": "Barty-Bart's explainer-high-energy: ink and cream, one orange and an electric blue, Archivo Black slams on a 128 BPM grid.",
+  "palette": {
+    "stage": "#0B0B10",
+    "mar": "#EDEBE4",
+    "ter": "#FF4F1A",
+    "gold": "#2F47FF",
+    "goldd": "#c93f14",
+    "iv": "#EDEBE4",
+    "ink": "#06060a"
+  },
+  "fonts": {
+    "poster": "Archivo Black",
+    "accent": "Instrument Serif",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Archivo Black"
+  },
+  "grain": 0.06,
+  "pace": 0.95,
+  "captionStyle": "karaoke",
+  "captionSize": 72,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "stamp",
+    "chips",
+    "imageCard",
+    "focusRing",
+    "propPunchIn"
+  ],
+  "motion": {
+    "family": "beat",
+    "caseStyle": "auto",
+    "enter": "letters",
+    "exit": "cut",
+    "easing": "spring",
+    "speed": 0.7,
+    "camera": "whip",
+    "sfxKit": "hype",
+    "texture": "vignette",
+    "direction": "Barty-Bart high-energy explainer. 128 BPM: scenes 1.5–3 s, every cut on a kick, overshoot ζ 0.6–0.7 on impacts, letters masked in on 1/16 beats; ALL CAPS Archivo Black slams with ONE Instrument Serif italic human line; a `focusRing` HUD viewfinder with corner brackets and timecode; grain + vignette. Spine: spark → brand slam → kinetic triplet (three `posterText`s, one per beat) → signature visual → proof `counter` → morph bridge → end card. Max 3 colours per scene (ink `stage`, cream `iv`, orange `ter`; electric blue `gold` as the alternate). No static scene, no emoji, riser into every slam.",
+    "avoidElements": [
+      "lockCard",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "chapterCard"
+    ]
+  }
+}

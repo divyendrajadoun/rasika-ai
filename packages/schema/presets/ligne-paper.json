@@ -1,0 +1,58 @@
+{
+  "id": "ligne-paper",
+  "name": "Ligne Paper",
+  "tagline": "cblain's « La ligne du temps »: paper to near-black pivot, terracotta on the moments that count, oversize-and-blurred arrivals.",
+  "palette": {
+    "stage": "#f6f1e9",
+    "mar": "#efe7dc",
+    "ter": "#c25b28",
+    "gold": "#d4703f",
+    "goldd": "#e08a5c",
+    "iv": "#fffdf9",
+    "ink": "#1a1612"
+  },
+  "fonts": {
+    "poster": "IBM Plex Sans",
+    "accent": "Instrument Serif",
+    "ui": "IBM Plex Mono",
+    "devanagari": "Mukta",
+    "caption": "IBM Plex Sans"
+  },
+  "grain": 0.03,
+  "pace": 0.75,
+  "captionStyle": "karaoke",
+  "captionSize": 62,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chips",
+    "chapterCard",
+    "imageCard",
+    "lockCard",
+    "strikeLine"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "sentence",
+    "enter": "blur",
+    "exit": "lift",
+    "easing": "snap",
+    "speed": 0.7,
+    "camera": "glide",
+    "sfxKit": "click",
+    "texture": "dots",
+    "direction": "cblain « La ligne du temps ». A paper world (`stage` / `mar`) for the solution and a near-black pivot (`card` mode) for the problem; ONE accent, terracotta `ter`, only for the moments that count. Subtitles 60–64 px IBM Plex Sans 600, ≤ 45 chars, word by word on the voice: each word arrives at 35 % then goes to ink in 0.2 s, one key word per sentence in a small accent box (radius 3, never black). An EVENT every 0.5–1 s (0.1–0.3 s in the hook): gestures 1–6 frames, the whole shot drifting 1–10 %/s; elements arrive too big (×1.1 whole shot, ×3–6 object) and blurred 6–12 px, settling in 1–9 frames; camera notches 0.08–0.15 s with blur; numbers roll or rush from camera, never faded; 2–3 \"typographic moments\" at 84 px per film, 3–4 giant emotional peaks at most. Bridge object at every seam; no grey filler bars, no abstract symbols.",
+    "avoidElements": [
+      "stamp",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring"
+    ]
+  }
+}

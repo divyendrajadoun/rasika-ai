@@ -70,6 +70,12 @@ class Family(StrEnum):
     beat = "beat"
 
 
+class CaseStyle(StrEnum):
+    auto = "auto"
+    upper = "upper"
+    sentence = "sentence"
+
+
 class Enter(StrEnum):
     rise = "rise"
     pop = "pop"
@@ -133,6 +139,7 @@ class Texture(StrEnum):
 
 class Motion(BaseModel):
     family: Family | None = "editorial"
+    caseStyle: CaseStyle | None = "auto"
     enter: Enter | None = "rise"
     exit: Exit | None = "lift"
     easing: Easing | None = "spring"

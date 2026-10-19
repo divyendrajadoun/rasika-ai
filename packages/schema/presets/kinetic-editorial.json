@@ -1,0 +1,57 @@
+{
+  "id": "kinetic-editorial",
+  "name": "Kinetic Editorial",
+  "tagline": "ouerf-man's kinetic editorial: cream and black scenes hard-cut against each other, one red, words blur in on the syllable.",
+  "palette": {
+    "stage": "#060505",
+    "mar": "#FFF8F3",
+    "ter": "#E71F28",
+    "gold": "#E71F28",
+    "goldd": "#8E8E8E",
+    "iv": "#ffffff",
+    "ink": "#151211"
+  },
+  "fonts": {
+    "poster": "IBM Plex Sans",
+    "accent": "Instrument Serif",
+    "ui": "IBM Plex Mono",
+    "devanagari": "Mukta",
+    "caption": "IBM Plex Sans"
+  },
+  "grain": 0.04,
+  "pace": 0.85,
+  "captionStyle": "karaoke",
+  "captionSize": 84,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "imageCard",
+    "stamp",
+    "chips",
+    "propPunchIn"
+  ],
+  "motion": {
+    "family": "kinetic",
+    "caseStyle": "auto",
+    "enter": "blur",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 0.75,
+    "camera": "push",
+    "sfxKit": "click",
+    "texture": "vignette",
+    "direction": "ouerf-man kinetic editorial. Every spoken word appears as said and stays, building the sentence; the block leaves on the cut. Setup words IBM Plex Sans 500 (≈84 px), the ONE keyword per block 700 at 170 px in red `ter`; words reveal blur 16–26 px → 0 with scale 1.2 → 1 in 5–9 frames, the keyword as a `slam` landing on its syllable. Scenes ≈1.4 s; light `mar` and dark `stage` scenes hard-cut against each other (max 2–3 of one tone in a row — use `card`/`arch` for dark, `full` for light). Push-in 1.05–1.12 per scene, a shake on impacts; soft tap per word, thud on keywords. One literal hero object per clause.",
+    "avoidElements": [
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "lockCard",
+      "ring",
+      "chapterCard"
+    ]
+  }
+}

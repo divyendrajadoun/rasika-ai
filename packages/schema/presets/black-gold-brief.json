@@ -1,0 +1,58 @@
+{
+  "id": "black-gold-brief",
+  "name": "Black-Gold Brief",
+  "tagline": "jtxvideo's black-gold business brief: black stage, gold numbers, a translucent gold-bordered caption bar, speaker always visible.",
+  "palette": {
+    "stage": "#050505",
+    "mar": "#10120F",
+    "ter": "#E0B14A",
+    "gold": "#F4D36A",
+    "goldd": "#B88A2D",
+    "iv": "#F4F0E6",
+    "ink": "#0A0B0A"
+  },
+  "fonts": {
+    "poster": "Oswald",
+    "accent": "Playfair Display",
+    "ui": "IBM Plex Mono",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.05,
+  "pace": 0.5,
+  "captionStyle": "phrase",
+  "captionSize": 46,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chips",
+    "lockCard",
+    "chapterCard",
+    "imageCard",
+    "stamp"
+  ],
+  "motion": {
+    "family": "launch",
+    "caseStyle": "sentence",
+    "enter": "letters",
+    "exit": "fade",
+    "easing": "smooth",
+    "speed": 1.0,
+    "camera": "still",
+    "sfxKit": "click",
+    "texture": "grid",
+    "direction": "jtxvideo black-gold brief. Black stage with a faint grid (0.10–0.18), dark glass cards (`mar`, 88–92 %), thin gold lines; big numbers in condensed Oswald 112–156 px gold `ter` landing exactly on the spoken beat (never early), bright gold `gold` for very few key numbers, dark gold `goldd` borders, text `iv`; letters blur 7–12 px → 0 rising 8–16 px, 0.03–0.08 s apart. Captions 46 px, weight 800, in a translucent bar with a 6 px gold left border, bottom 360 px, never fully opaque black. The speaker stays visible all the time: overlays sit upper-centre and at the sides (5–8 highlights per video: event, key data, core contrast, bottleneck, conclusion), never a full-screen takeover; cyan only for tool / model chips (≤ 15 % of a card); red `stamp` seal rare. No gold light sweeps, no particles, no neon.",
+    "avoidElements": [
+      "strikeLine",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring"
+    ]
+  }
+}

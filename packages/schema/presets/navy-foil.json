@@ -1,0 +1,58 @@
+{
+  "id": "navy-foil",
+  "name": "Navy Foil",
+  "tagline": "shadowcast's studio kit: deep navy, foil-gold type, Inter 900 stroked captions, a punch-in on every cut, stamps that shake.",
+  "palette": {
+    "stage": "#030F20",
+    "mar": "#041B38",
+    "ter": "#E9A82C",
+    "gold": "#F6CB62",
+    "goldd": "#BE8617",
+    "iv": "#F8F3E8",
+    "ink": "#020a16"
+  },
+  "fonts": {
+    "poster": "Anton",
+    "accent": "Playfair Display",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.85,
+  "captionStyle": "karaoke",
+  "captionSize": 58,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "stamp",
+    "chips",
+    "imageCard",
+    "strikeLine",
+    "chapterCard",
+    "propPunchIn"
+  ],
+  "motion": {
+    "family": "hype",
+    "caseStyle": "auto",
+    "enter": "slam",
+    "exit": "cut",
+    "easing": "spring",
+    "speed": 0.7,
+    "camera": "cut",
+    "sfxKit": "hype",
+    "texture": "vignette",
+    "direction": "shadowcast VShort. Deep navy with a gold ramp: Anton uppercase `Big` statements (120 px, letter-spacing 2), foil-gold `gold` numbers as `counter`s that count up, a `stamp` slamming 2.3 → 1 in 5 frames with a decaying shake (rot −9°), `strikeLine` as the red X on the false claim, `chips` for the Fact stack, a `chapterCard` as the Kicker; Inter 900 UPPERCASE captions with a black stroke, the spoken word in `gold`, ≤ 3 words, in their own band at y 1440–1520. EVERY cut lands with a punch-in 1.06 → 1 over 7 frames; a new beat every 4–8 s, never > 10 s static; 3–6 SFX per minute; hook ≤ 5 s, no \"welcome back\". Same layout never 3× in a row; nothing above y 120 or below y 1420.",
+    "avoidElements": [
+      "lockCard",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "ring"
+    ]
+  }
+}

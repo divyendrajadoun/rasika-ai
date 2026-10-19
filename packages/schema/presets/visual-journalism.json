@@ -1,0 +1,59 @@
+{
+  "id": "visual-journalism",
+  "name": "Visual Journalism",
+  "tagline": "bang-motion's jurnalisme visual: black and grain, condensed Oswald titles, yellow highlighter, red for the fact that hurts.",
+  "palette": {
+    "stage": "#0B0B0C",
+    "mar": "#1a1a1c",
+    "ter": "#E8402F",
+    "gold": "#FFD400",
+    "goldd": "#B9B3A6",
+    "iv": "#F5F2EA",
+    "ink": "#050506"
+  },
+  "fonts": {
+    "poster": "Oswald",
+    "accent": "Instrument Serif",
+    "ui": "IBM Plex Mono",
+    "devanagari": "Mukta",
+    "caption": "Oswald"
+  },
+  "grain": 0.1,
+  "pace": 0.7,
+  "captionStyle": "karaoke",
+  "captionSize": 64,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "imageCard",
+    "chips",
+    "chapterCard",
+    "strikeLine",
+    "stamp",
+    "focusRing"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "upper",
+    "enter": "slide",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 0.9,
+    "camera": "push",
+    "sfxKit": "click",
+    "texture": "grain",
+    "direction": "bang-motion visual journalism. Black with grain; Oswald condensed 600–800 titles up to 112 px, IBM Plex Mono source tags under every `imageCard` (real photos only, with their source), a yellow `gold` highlighter mark drawn under the key word, red `ter` ONLY for the fact that hurts, dashed annotations (`focusRing`). Entrances slide in with a directional blur (scaleY 1.45 → 1, 0.8 s power4.out), exits up with blur 0.4 s; push-through transitions between sections; viewpoints change (never 3 same compositions in a row). Body ≥ 44 px, nothing under 30 px; sentence case for body, caps only in the one emphasis scene.",
+    "avoidElements": [
+      "lockCard",
+      "ring",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn"
+    ]
+  }
+}

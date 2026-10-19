@@ -1,0 +1,58 @@
+{
+  "id": "museum-doc",
+  "name": "Museum Doc",
+  "tagline": "xiaoma's museum documentary: near-black, parchment type, antique gold and a red stamp, grain and vignette, words fade in one by one.",
+  "palette": {
+    "stage": "#0b0a08",
+    "mar": "#17150f",
+    "ter": "#c9a35b",
+    "gold": "#c9a35b",
+    "goldd": "#b0412e",
+    "iv": "#ece4d3",
+    "ink": "#050403"
+  },
+  "fonts": {
+    "poster": "Playfair Display Roman",
+    "accent": "Playfair Display",
+    "ui": "IBM Plex Mono",
+    "devanagari": "Mukta",
+    "caption": "Fraunces"
+  },
+  "grain": 0.08,
+  "pace": 0.35,
+  "captionStyle": "clean",
+  "captionSize": 54,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chapterCard",
+    "imageCard",
+    "stamp",
+    "lockCard"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "sentence",
+    "enter": "rise",
+    "exit": "fade",
+    "easing": "soft",
+    "speed": 1.4,
+    "camera": "push",
+    "sfxKit": "cinematic",
+    "texture": "grain",
+    "direction": "xiaoma museum documentary. Near-black (never pure black), parchment `iv`, antique gold `ter` ≤ 10 % of the frame, red `goldd` only for the citation `stamp`; Playfair serif titles in sentence case, italic serif for quotes, tracked caps meta in mono. Four corners: year / chapter big number top-left (`chapterCard`), citation + red stamp top-right, subtitle bottom, faint signature bottom-right; the centre is always the moving evidence (`imageCard`, `counter`). Subtitles are the narration: one sentence per screen, words fade in one by one (stagger 0.045), hold 0.5 s after read, then fade. 1–3 % slow push on the whole film, mask-rise reveals 0.45 s outExpo; something new every 2–4 s; grain .08, vignette .6. First 2 s: an object moving, never a title fading on a gradient.",
+    "avoidElements": [
+      "chips",
+      "strikeLine",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring"
+    ]
+  }
+}

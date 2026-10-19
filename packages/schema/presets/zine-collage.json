@@ -1,0 +1,58 @@
+{
+  "id": "zine-collage",
+  "name": "Zine Collage",
+  "tagline": "ravyn's collage: a zine diorama — halftone, red-channel split, Anton mega numbers, Montserrat caps on a yellow pill, cuts every 0.6 s.",
+  "palette": {
+    "stage": "#000000",
+    "mar": "#D8A880",
+    "ter": "#902410",
+    "gold": "#FEB600",
+    "goldd": "#B86018",
+    "iv": "#f5ead8",
+    "ink": "#0a0602"
+  },
+  "fonts": {
+    "poster": "Anton",
+    "accent": "Playfair Display",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Montserrat"
+  },
+  "grain": 0.12,
+  "pace": 0.9,
+  "captionStyle": "box",
+  "captionSize": 88,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "imageCard",
+    "stamp",
+    "chips",
+    "bleedPlate",
+    "propPunchIn"
+  ],
+  "motion": {
+    "family": "collage",
+    "caseStyle": "auto",
+    "enter": "slam",
+    "exit": "cut",
+    "easing": "steps",
+    "speed": 0.7,
+    "camera": "push",
+    "sfxKit": "hype",
+    "texture": "halftone",
+    "direction": "ravyn `collage`. A zine diorama: halftone over everything, walls in `mar` / `goldd` / `ter`, Anton MEGA numbers (up to 600 px) as `counter`s, Montserrat 800 caps captions on a yellow `gold` pill 154 px tall at y 1458. Hard cuts about every 0.6 s; the camera never stops (slow pull-back); every move lands in held poses (stop-motion). Taped `imageCard`s, a `stamp` on verdicts, a `bleedPlate` for the big claim. Loud and physical; nothing fades.",
+    "avoidElements": [
+      "lockCard",
+      "ring",
+      "filmStrip",
+      "patternCard",
+      "feedPhone",
+      "focusRing",
+      "chapterCard"
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "id": "morph-canvas",
+  "name": "Morph Canvas",
+  "tagline": "Barty-Bart's motion-broll: a warm grey canvas, white components, one orange, springs with a tiny overshoot, blur swaps.",
+  "palette": {
+    "stage": "#E9E7E2",
+    "mar": "#F4F2EE",
+    "ter": "#FF5A1F",
+    "gold": "#FF5A1F",
+    "goldd": "#8a8a8a",
+    "iv": "#ffffff",
+    "ink": "#0B0B0B"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.6,
+  "captionStyle": "phrase",
+  "captionSize": 58,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "chips",
+    "counter",
+    "lockCard",
+    "imageCard",
+    "chapterCard"
+  ],
+  "motion": {
+    "family": "blocks",
+    "caseStyle": "sentence",
+    "enter": "blur",
+    "exit": "wipe",
+    "easing": "spring",
+    "speed": 1.0,
+    "camera": "push",
+    "sfxKit": "click",
+    "texture": "none",
+    "direction": "Barty-Bart motion-broll. Motion-graphic B-roll timed to the words: one container that never cuts — content swaps by blurring out fast and blurring in after the beat; springs ζ 0.84–0.95 (a tiny overshoot, never a bounce); the camera zooms per state (cards ≈1.2–1.6×, pills 1.8–2.2×). Vocabulary: `chips` as pill + click, `lockCard` as a status island, `counter` with tabular numbers, `chapterCard`, `imageCard` as a card drag. One change per spoken beat 0.4–1.2 s apart; cutaways 3–10 s with ≥ 2 s of face between; never cut away in the first second or on an emotional line. Warm grey `stage`, white components, one orange `ter`; no gradients on chrome, no particles, no glows.",
+    "avoidElements": [
+      "stamp",
+      "strikeLine",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring"
+    ]
+  }
+}

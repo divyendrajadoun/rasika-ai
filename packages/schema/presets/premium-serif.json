@@ -1,0 +1,58 @@
+{
+  "id": "premium-serif",
+  "name": "Premium Serif",
+  "tagline": "Neelshah's Premium preset: near-black, bone and antique gold, a thin high-contrast serif at 80 BPM, nothing rushed.",
+  "palette": {
+    "stage": "#0c0b0a",
+    "mar": "#1a1816",
+    "ter": "#c8a96a",
+    "gold": "#c8a96a",
+    "goldd": "#a39b8e",
+    "iv": "#f4efe6",
+    "ink": "#060504"
+  },
+  "fonts": {
+    "poster": "Playfair Display Roman",
+    "accent": "Playfair Display",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.05,
+  "pace": 0.3,
+  "captionStyle": "clean",
+  "captionSize": 52,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chapterCard",
+    "imageCard",
+    "lockCard"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "sentence",
+    "enter": "fade",
+    "exit": "fade",
+    "easing": "soft",
+    "speed": 1.5,
+    "camera": "push",
+    "sfxKit": "cinematic",
+    "texture": "vignette",
+    "direction": "Neelshah `Premium`. 80 BPM: enter 1.10 s / stagger 0.12 / exit 0.60. Playfair 400 display at 160 px in sentence case, caps labels tracked 0.24 em, radius 2, antique gold `ter` the only colour on bone `iv`. Holds ≥ 2 s after a line lands; cuts every 2–4 bars; secondary motion a 1–3 % push; anticipation 2–6 %. Captions are clean full sentences, small, lower third. A `counter` rolls slowly; `imageCard`s are straight and large; a `chapterCard` as a quiet title plate. No slams, no stamps, no shakes, ≤ 1 flash per reel.",
+    "avoidElements": [
+      "stamp",
+      "strikeLine",
+      "chips",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring"
+    ]
+  }
+}

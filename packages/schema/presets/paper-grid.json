@@ -1,0 +1,58 @@
+{
+  "id": "paper-grid",
+  "name": "Paper Grid",
+  "tagline": "favstash's paper-grid: a white paper pane with a drifting grid above the speaker, ink and navy, typing and counters.",
+  "palette": {
+    "stage": "#fbfbfd",
+    "mar": "#fbfbfd",
+    "ter": "#1e40af",
+    "gold": "#5b9eff",
+    "goldd": "#64748b",
+    "iv": "#ffffff",
+    "ink": "#0f172a"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.55,
+  "captionStyle": "phrase",
+  "captionSize": 56,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "chips",
+    "counter",
+    "lockCard",
+    "imageCard",
+    "chapterCard"
+  ],
+  "motion": {
+    "family": "blocks",
+    "caseStyle": "sentence",
+    "enter": "rise",
+    "exit": "lift",
+    "easing": "spring",
+    "speed": 1.0,
+    "camera": "still",
+    "sfxKit": "pop",
+    "texture": "grid",
+    "direction": "favstash `paper-grid`. A white paper pane with a 45 / 180 px grid (`card` mode: pane top, speaker bottom, hard seam at y 960); white cards radius 30 with a 1 px rim, 740–820 wide, centred; ink `#0f172a`, muted `goldd`, navy `ter` / `gold`; `chips` as 64 px capsules, hero figures 200–270 px as `counter`s (20–50 frames power2.out). Entrances 0.35–0.45 s rising 50 px, exits 0.2 s, leaving 6 frames before the next item; one card at a time; the grid drifts one cell per reel. Captions 1–2 lines under the chin.",
+    "avoidElements": [
+      "stamp",
+      "strikeLine",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring"
+    ]
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "id": "pencil-notes",
+  "name": "Pencil Notes",
+  "tagline": "dashi's hand-drawn notes: paper, ink-blue, pencil greys and one orange, Kalam handwriting, a pen that writes as you speak.",
+  "palette": {
+    "stage": "#f6f6ef",
+    "mar": "#fcfcf8",
+    "ter": "#f8711c",
+    "gold": "#f8711c",
+    "goldd": "#98999a",
+    "iv": "#ffffff",
+    "ink": "#15192d"
+  },
+  "fonts": {
+    "poster": "Kalam",
+    "accent": "Caveat",
+    "ui": "IBM Plex Mono",
+    "devanagari": "Mukta",
+    "caption": "Kalam"
+  },
+  "grain": 0.05,
+  "pace": 0.5,
+  "captionStyle": "phrase",
+  "captionSize": 64,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "chips",
+    "counter",
+    "strikeLine",
+    "imageCard",
+    "chapterCard",
+    "stamp"
+  ],
+  "motion": {
+    "family": "whiteboard",
+    "caseStyle": "auto",
+    "enter": "draw",
+    "exit": "wipe",
+    "easing": "soft",
+    "speed": 1.0,
+    "camera": "glide",
+    "sfxKit": "marker",
+    "texture": "lines",
+    "direction": "dashi hand-drawn notes. Ruled notebook paper, ink-blue `ink` handwriting (Kalam 700, subtitles ≥ 60 px), pencil greys `goldd` for sketches, ONE orange `ter` as accent A and ink-blue as accent B — the two core nouns keep their colours in picture, data and captions; a grainy stamp title (`stamp`, 104–112 px). The pen writes as the speaker talks (`draw`), lines 0.3–0.75 s, pops 0.2–0.45 s outBack, scene change 0.6–0.7 s inOutCubic, a slow push 1–1.5 %/s; the camera glides down the note. Hold after reveal = chars/9 + 0.5 s; something new every 2–3 s, never static > 2 s. Pencil doodles in the margins; no gradients.",
+    "avoidElements": [
+      "lockCard",
+      "ring",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "focusRing"
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "id": "guofeng-paper",
+  "name": "Guofeng Paper",
+  "tagline": "remotion-guofeng's Chinese-ink paper cut-out: cream paper, vermilion seal as the one saturated colour, springs and a red tear.",
+  "palette": {
+    "stage": "#efe2c6",
+    "mar": "#f8efd9",
+    "ter": "#8f2019",
+    "gold": "#b3833f",
+    "goldd": "#806a4d",
+    "iv": "#fff8e9",
+    "ink": "#241a14"
+  },
+  "fonts": {
+    "poster": "Playfair Display Roman",
+    "accent": "Playfair Display",
+    "ui": "IBM Plex Mono",
+    "devanagari": "Mukta",
+    "caption": "Fraunces"
+  },
+  "grain": 0.06,
+  "pace": 0.45,
+  "captionStyle": "phrase",
+  "captionSize": 56,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "stamp",
+    "imageCard",
+    "chapterCard",
+    "counter",
+    "chips"
+  ],
+  "motion": {
+    "family": "collage",
+    "caseStyle": "sentence",
+    "enter": "rise",
+    "exit": "wipe",
+    "easing": "spring",
+    "speed": 1.2,
+    "camera": "glide",
+    "sfxKit": "pop",
+    "texture": "paper",
+    "direction": "Guofeng paper cut-out. Warm paper layers with torn edges and a hard paper shadow; all strokes in ink `#241a14`, never black; vermilion `ter` is the ONE saturated colour, small area — the seal `stamp` on hits, heavy characters, the ending flood; ochre `gold` and dust `goldd` for the rest. Layers enter staggered on a spring (damping 18, stiffness 150; primary 1.4 s from scale 0.84, secondary 1.2 s, tertiary 1.0 s), idle breathing, camera 1.02 → 1.045 glide; transitions are a vermilion torn-paper sweep (`wipe`). One shot ≈ 4 s; captions cream with a dark stroke at the bottom; a `chapterCard` as a torn tag top-left. No photos, no 3D, no neon, no gradients.",
+    "avoidElements": [
+      "lockCard",
+      "ring",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "strikeLine"
+    ]
+  }
+}

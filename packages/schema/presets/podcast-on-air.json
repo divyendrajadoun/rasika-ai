@@ -1,0 +1,55 @@
+{
+  "id": "podcast-on-air",
+  "name": "Podcast On Air",
+  "tagline": "heditor's podcast: tilted camera print, ON AIR sign, Bebas karaoke with the word black on a rotating yellow / cyan / pink pill.",
+  "palette": {
+    "stage": "#2a0838",
+    "mar": "#3a1048",
+    "ter": "#ff5b35",
+    "gold": "#ffe14d",
+    "goldd": "#5ff3ff",
+    "iv": "#fff7f0",
+    "ink": "#150418"
+  },
+  "fonts": {
+    "poster": "Bebas Neue",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Bebas Neue"
+  },
+  "grain": 0.1,
+  "pace": 0.7,
+  "captionStyle": "box",
+  "captionSize": 96,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "chips",
+    "counter",
+    "stamp",
+    "imageCard",
+    "chapterCard",
+    "ring"
+  ],
+  "motion": {
+    "family": "beat",
+    "caseStyle": "auto",
+    "enter": "pop",
+    "exit": "wipe",
+    "easing": "spring",
+    "speed": 0.7,
+    "camera": "glide",
+    "sfxKit": "pop",
+    "texture": "halftone",
+    "direction": "heditor `podcast`. A plum set with halftone, the speaker as a tilted (−3°) print; captions are Bebas Neue karaoke, 1–3 words, each group popping from 0.25 → 1.06 in 0.16 s, the spoken word black on a pill whose colour rotates yellow `gold` → cyan `goldd` → pink. Every claim gets a `posterText` in coral `ter` or a `chips` row; numbers roll as `counter`; a `stamp` ON AIR / HOT TAKE on verdicts; wipes 0.46 s between segments. Something new every 2 s; loud, warm, never dark text on a mid-tone pill.",
+    "avoidElements": [
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "lockCard"
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "id": "halftone-collage",
+  "name": "Halftone Collage",
+  "tagline": "gbro's halftone paper collage: milk field, deep-green accent, cut-letter type, stop-motion landings on a 10 fps grid.",
+  "palette": {
+    "stage": "#EEE7D6",
+    "mar": "#F6F1E4",
+    "ter": "#1F5142",
+    "gold": "#D6A92B",
+    "goldd": "#E0783C",
+    "iv": "#FCF8ED",
+    "ink": "#26241F"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.06,
+  "pace": 0.5,
+  "captionStyle": "phrase",
+  "captionSize": 62,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chips",
+    "imageCard",
+    "chapterCard",
+    "stamp",
+    "lockCard"
+  ],
+  "motion": {
+    "family": "blocks",
+    "caseStyle": "auto",
+    "enter": "slide",
+    "exit": "cut",
+    "easing": "steps",
+    "speed": 1.0,
+    "camera": "still",
+    "sfxKit": "pop",
+    "texture": "halftone",
+    "direction": "gbro halftone collage, info edition. Paper cards (`mar`, 2 px knife-edge highlight, one-direction shadow) hand-tilted ±0.3–1.6° on a milk field; Inter 600 as cut letters (no bold, no stroke), NUMBERS are the strongest object (168 px, −0.05 em) as `counter`s; mono kicker + a 5 px rule on every frame. Everything lands in held poses (stop-motion, 10 fps grid): landing 0.3 s in 3 steps, slide-in 0.4 s in 4, counters in 24 steps; hold ≥ 0.8 s after each landing; one main motion per card, never repeated. Exactly one accent annotation per frame (box / underline / lead in `ter`, < 10 % area). No gradients, no icons, no fades.",
+    "avoidElements": [
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring",
+      "strikeLine"
+    ]
+  }
+}

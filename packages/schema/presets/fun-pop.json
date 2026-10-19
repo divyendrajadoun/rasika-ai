@@ -1,0 +1,57 @@
+{
+  "id": "fun-pop",
+  "name": "Fun Pop",
+  "tagline": "Neelshah's Fun preset: warm cream, orange, violet and green, rounded Jost type, playful springs and stickers.",
+  "palette": {
+    "stage": "#fff8ec",
+    "mar": "#ffefd6",
+    "ter": "#ff5a36",
+    "gold": "#7c5cff",
+    "goldd": "#2bb673",
+    "iv": "#ffffff",
+    "ink": "#1b1b1f"
+  },
+  "fonts": {
+    "poster": "Jost",
+    "accent": "Instrument Serif",
+    "ui": "Jost",
+    "devanagari": "Mukta",
+    "caption": "Jost"
+  },
+  "grain": 0.0,
+  "pace": 0.7,
+  "captionStyle": "box",
+  "captionSize": 64,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "stamp",
+    "chips",
+    "counter",
+    "imageCard",
+    "chapterCard",
+    "ring"
+  ],
+  "motion": {
+    "family": "blocks",
+    "caseStyle": "auto",
+    "enter": "pop",
+    "exit": "lift",
+    "easing": "spring",
+    "speed": 0.85,
+    "camera": "glide",
+    "sfxKit": "pop",
+    "texture": "none",
+    "direction": "Neelshah `Fun`. 118 BPM: enter 0.55 s / stagger 0.06 / exit 0.28 with back / elastic eases; Jost 700 display at 160 px, radius 28, stickers (`stamp`) and `chips` in orange `ter`, violet `gold`, green `goldd`; `ring` highlights; `counter`s that bounce once. Cream `stage`, panel `mar`. One accent per element, three across the frame; something pops every 2–3 s; captions on a rounded box with the spoken word orange. Playful, never sarcastic; no hard shadows.",
+    "avoidElements": [
+      "strikeLine",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "lockCard"
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "id": "bold-ad",
+  "name": "Bold Ad",
+  "tagline": "Neelshah's Bold preset: black, white, signal red and warning yellow, Archivo caps slamming every beat at 128 BPM.",
+  "palette": {
+    "stage": "#0a0a0a",
+    "mar": "#18181b",
+    "ter": "#ff3b30",
+    "gold": "#ffcc00",
+    "goldd": "#22c55e",
+    "iv": "#ffffff",
+    "ink": "#050505"
+  },
+  "fonts": {
+    "poster": "Archivo Black",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.95,
+  "captionStyle": "karaoke",
+  "captionSize": 60,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "stamp",
+    "chips",
+    "imageCard",
+    "strikeLine",
+    "propPunchIn"
+  ],
+  "motion": {
+    "family": "hype",
+    "caseStyle": "auto",
+    "enter": "slam",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 0.65,
+    "camera": "cut",
+    "sfxKit": "hype",
+    "texture": "none",
+    "direction": "Neelshah `Bold` social ad. 128 BPM: enter 0.32 s / stagger 0.035 / exit 0.20; Archivo Black caps at 190 px with −0.03 em tracking; word slams on every beat, hard cuts, COLOUR FLIPS (use `card` mode's dark plate vs `full`) between sections. Spine: 0–1 s something moves in frame 1 (no logo, no fade from black) → problem / promise in big type cut on the beat → proof with karaoke captions (54–64 px) → 2–3 single-word slams with flips → CTA. Red `ter` is the accent, yellow `gold` the warning / highlight, green `goldd` only for OK. ≤ 3 flashes per second; no system fonts, no hype words.",
+    "avoidElements": [
+      "lockCard",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "ring",
+      "chapterCard"
+    ]
+  }
+}

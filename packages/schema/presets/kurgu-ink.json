@@ -1,0 +1,58 @@
+{
+  "id": "kurgu-ink",
+  "name": "Kurgu Ink",
+  "tagline": "kurgu-atolyesi's vertical grammar: flat ink plates, one blue, mono micro-labels, a graphics band above the head, punch-ins on cuts.",
+  "palette": {
+    "stage": "#111318",
+    "mar": "#1B1E25",
+    "ter": "#5B8CFF",
+    "gold": "#5B8CFF",
+    "goldd": "#A3A9B4",
+    "iv": "#F2F4F7",
+    "ink": "#0B0C10"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.6,
+  "captionStyle": "phrase",
+  "captionSize": 56,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chips",
+    "chapterCard",
+    "lockCard",
+    "strikeLine",
+    "imageCard"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "auto",
+    "enter": "slide",
+    "exit": "fade",
+    "easing": "smooth",
+    "speed": 0.9,
+    "camera": "cut",
+    "sfxKit": "click",
+    "texture": "none",
+    "direction": "kurgu-atolyesi vertical (V0–V5). Flat ink plates (`stage` / `mar`, line `#2C313B`), text `iv`, muted `goldd`, ONE accent blue `ter`, negative red only for the strike; Inter 800 titles (72 px, tracking −1.2, soft shadow), accent word 124 px, mono micro-labels `// KICKER`, `● 03 CHAPTER` (JetBrains Mono, uppercase, tracking 6). Graphics live in the band above the head (y 160–720); one message at a time, each exits before the next; something changes every 1–2 s. Enter 0.38 s sliding 28 px with ease (0.16, 1, 0.3, 1), exit 0.22 s; punch-ins 100 ↔ 112–118 % on cuts; cold open 0–6 s with a strike headline and a counting number; a chapter tag + one persistent device (timeline / total / checklist); a source line under every external fact. Text never moves once placed; faces never under graphics.",
+    "avoidElements": [
+      "stamp",
+      "ring",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn"
+    ]
+  }
+}

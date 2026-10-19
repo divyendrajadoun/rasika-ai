@@ -1,0 +1,59 @@
+{
+  "id": "ghost-kinetic",
+  "name": "Ghost Kinetic",
+  "tagline": "ghost-editor's kinetic: full-screen word-by-word type on hot yellow, orange accent, the speaker in a round bubble.",
+  "palette": {
+    "stage": "#FFE14D",
+    "mar": "#FFE14D",
+    "ter": "#FF5A1F",
+    "gold": "#D9440F",
+    "goldd": "#141414",
+    "iv": "#141414",
+    "ink": "#141414"
+  },
+  "fonts": {
+    "poster": "Montserrat",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Montserrat"
+  },
+  "grain": 0.0,
+  "pace": 0.9,
+  "captionStyle": "karaoke",
+  "captionSize": 60,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chips",
+    "stamp",
+    "chapterCard"
+  ],
+  "motion": {
+    "family": "kinetic",
+    "caseStyle": "auto",
+    "enter": "letters",
+    "exit": "lift",
+    "easing": "snap",
+    "speed": 0.8,
+    "camera": "glide",
+    "sfxKit": "pop",
+    "texture": "none",
+    "direction": "ghost-editor `kinetic`. Full-screen word-by-word type on hot yellow `stage`: ink `#141414` words with the stressed word orange `ter`, letters rising yPercent 118 with 5° rotation, expo-out; the camera glides word to word; the speaker lives in a round `pip` bubble. Mixed case, Montserrat 800; `counter`s as giant numbers; a `stamp` for verdicts; percussive bed; beats ≈ 2 s. Never leave the yellow empty.",
+    "avoidElements": [
+      "imageCard",
+      "lockCard",
+      "ring",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "strikeLine",
+      "focusRing"
+    ]
+  }
+}

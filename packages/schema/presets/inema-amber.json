@@ -1,0 +1,57 @@
+{
+  "id": "inema-amber",
+  "name": "INEMA Amber",
+  "tagline": "INEMA's dark premium amber: navy-black, bone type, amber keyword, Anton hooks, karaoke 1–3 words, pattern interrupts.",
+  "palette": {
+    "stage": "#0D1321",
+    "mar": "#1D2D44",
+    "ter": "#FFC300",
+    "gold": "#FF6B35",
+    "goldd": "#2EC4B6",
+    "iv": "#F0EBD8",
+    "ink": "#070b14"
+  },
+  "fonts": {
+    "poster": "Anton",
+    "accent": "Instrument Serif",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Anton"
+  },
+  "grain": 0.08,
+  "pace": 0.85,
+  "captionStyle": "karaoke",
+  "captionSize": 56,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "stamp",
+    "chips",
+    "imageCard",
+    "chapterCard",
+    "propPunchIn",
+    "lockCard"
+  ],
+  "motion": {
+    "family": "hype",
+    "caseStyle": "auto",
+    "enter": "pop",
+    "exit": "dive",
+    "easing": "spring",
+    "speed": 0.9,
+    "camera": "whip",
+    "sfxKit": "hype",
+    "texture": "vignette",
+    "direction": "INEMA `viral` / `acao`. Anton 900 hooks at 88–110 px, titles in a clean sans 48–72, mono kickers (JetBrains Mono 18–22, tracking 3 px, uppercase), karaoke captions 1–3 words at a time (~280 ms per word) with the keyword in amber `ter` or on a teal `goldd` box; `number pop` back.out(2); a 5 px rule from amber to orange `gold` under titles; hero push 1.05 + 12 % over the beat. Cuts 0.8–1.5 s (viral) with whips and punch-zooms; a pattern interrupt every 3–5 s; `power2.in` exits (dive). Hook 0–3 s high energy → value with interrupts → peak before the CTA (amber with glow). Grain .08, halation vignette.",
+    "avoidElements": [
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "ring"
+    ]
+  }
+}

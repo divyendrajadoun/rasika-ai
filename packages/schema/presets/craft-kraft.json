@@ -1,0 +1,57 @@
+{
+  "id": "craft-kraft",
+  "name": "Craft Kraft",
+  "tagline": "AutoMontage's craft theme: black stage, kraft cards, terracotta accent, Oswald captions, jump cuts and one peak per reel.",
+  "palette": {
+    "stage": "#000000",
+    "mar": "#F0EAE0",
+    "ter": "#CC785C",
+    "gold": "#CC785C",
+    "goldd": "#B85C3E",
+    "iv": "#FBF7F0",
+    "ink": "#3D2E24"
+  },
+  "fonts": {
+    "poster": "Oswald",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Oswald"
+  },
+  "grain": 0.0,
+  "pace": 0.6,
+  "captionStyle": "box",
+  "captionSize": 72,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "chips",
+    "counter",
+    "imageCard",
+    "chapterCard",
+    "stamp",
+    "lockCard"
+  ],
+  "motion": {
+    "family": "editorial",
+    "caseStyle": "auto",
+    "enter": "pop",
+    "exit": "cut",
+    "easing": "spring",
+    "speed": 1.0,
+    "camera": "cut",
+    "sfxKit": "pop",
+    "texture": "none",
+    "direction": "AutoMontage `craft`. Kraft cards (`mar`, radius 26, warm shadow) on black, terracotta `ter` accent, Oswald display; captions < 4 words, < 1.6 s, milk text on a dark plate with the spoken word in `ter`. Camera: jump cuts between 1.0 / 1.18 / 1.12 (≥ 15 % scale change) — never a hold over 2.2 s without an event; cards sit beside the face (≤ 28 % width, alternating sides), never over it. Text holds ≥ 1.2 s (+0.3 s per word over four); a visual event every 1.5–2.2 s; exactly ONE peak per reel (punch + hit + big `posterText`), not in the first 2 s. No bounce, no elastic, nothing covering the speaker early.",
+    "avoidElements": [
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "ring",
+      "propPunchIn"
+    ]
+  }
+}

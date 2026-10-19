@@ -1,0 +1,58 @@
+{
+  "id": "ghost-launch",
+  "name": "Ghost Launch",
+  "tagline": "ghost-editor's launch: violet on near-black, JetBrains Mono, dark UI windows and phone frames, blur-in entrances.",
+  "palette": {
+    "stage": "#0E0E12",
+    "mar": "#17171d",
+    "ter": "#7C5CFF",
+    "gold": "#7C5CFF",
+    "goldd": "#5B3EE6",
+    "iv": "#f4f2ff",
+    "ink": "#070709"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.65,
+  "captionStyle": "karaoke",
+  "captionSize": 58,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chips",
+    "lockCard",
+    "feedPhone",
+    "imageCard",
+    "chapterCard"
+  ],
+  "motion": {
+    "family": "launch",
+    "caseStyle": "sentence",
+    "enter": "blur",
+    "exit": "fade",
+    "easing": "snap",
+    "speed": 0.8,
+    "camera": "push",
+    "sfxKit": "click",
+    "texture": "vignette",
+    "direction": "ghost-editor `launch`. Violet `ter` on near-black, mono labels in JetBrains Mono, dark UI windows (`lockCard`) and a `feedPhone` frame for the product; entrances are a fast blur-in (default `glitch` in the source — here a 0.22 s blur from 28 px), exits fade; captions karaoke with the spoken word violet. Poster lines sentence case, 96 px, letter-spacing −2; `counter`s with tabular digits; a `chapterCard` per feature. Vignette 0.2, upbeat electronic bed far under, UI clicks on every landing.",
+    "avoidElements": [
+      "stamp",
+      "strikeLine",
+      "ring",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "propPunchIn"
+    ]
+  }
+}

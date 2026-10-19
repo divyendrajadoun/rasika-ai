@@ -1,0 +1,58 @@
+{
+  "id": "paper-blue",
+  "name": "Paper Blue",
+  "tagline": "adu-motion-video's default route: paper white, ink, one blue, mono labels, a new visual event every 2–4 seconds.",
+  "palette": {
+    "stage": "#F7F7F5",
+    "mar": "#F7F7F5",
+    "ter": "#2462EA",
+    "gold": "#2462EA",
+    "goldd": "#E5484D",
+    "iv": "#ffffff",
+    "ink": "#0A0A0A"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "JetBrains Mono",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.55,
+  "captionStyle": "phrase",
+  "captionSize": 60,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "chips",
+    "counter",
+    "chapterCard",
+    "imageCard",
+    "lockCard",
+    "strikeLine"
+  ],
+  "motion": {
+    "family": "blocks",
+    "caseStyle": "sentence",
+    "enter": "rise",
+    "exit": "wipe",
+    "easing": "smooth",
+    "speed": 1.0,
+    "camera": "glide",
+    "sfxKit": "click",
+    "texture": "none",
+    "direction": "adu-motion-video default route. Paper `#F7F7F5`, ink titles 600–800 with tight tracking (−1 to −6 px), grey mono labels (`// 02 — measured`), blue `ter` for the keyword and `slam` emphasis, red `goldd` ONLY for negation (`strikeLine`), green only for PASS. A new visual event every 2–4 s; the keyword lands the moment it is spoken; entrances 0.55 s expo (up / left / pop / slam / mask), transitions wipe or circle from the speaker; counters on numbers; a segment tag top-left per chapter (`chapterCard`); progress line. Phrase subtitles, no karaoke. Never stretch the person; the first frame shows person + claim.",
+    "avoidElements": [
+      "stamp",
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring"
+    ]
+  }
+}

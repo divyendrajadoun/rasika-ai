@@ -1,0 +1,55 @@
+{
+  "id": "missao-sunset",
+  "name": "Missão Sunset",
+  "tagline": "heditor's missao: a GTA sunset sky from gold to indigo, magenta accents, sentence-case subtitles on a magenta pill.",
+  "palette": {
+    "stage": "#07031a",
+    "mar": "#ffd27a",
+    "ter": "#ff2bd6",
+    "gold": "#ffc94a",
+    "goldd": "#ffd27a",
+    "iv": "#fff5e6",
+    "ink": "#05020f"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.06,
+  "pace": 0.7,
+  "captionStyle": "box",
+  "captionSize": 70,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chips",
+    "stamp",
+    "chapterCard",
+    "imageCard",
+    "propPunchIn"
+  ],
+  "motion": {
+    "family": "launch",
+    "caseStyle": "auto",
+    "enter": "pop",
+    "exit": "dive",
+    "easing": "spring",
+    "speed": 0.9,
+    "camera": "glide",
+    "sfxKit": "hype",
+    "texture": "gradient",
+    "direction": "heditor `missao`. A sunset gradient stage (gold `mar` at the top into indigo `stage`), sentence-case Inter 800 subtitles with the spoken word white on a magenta `ter` pill, missions as `chapterCard`s (MISSION 01 — THE HOOK), rewards as gold `counter`s with a `stamp` COMPLETE, lists as `chips`. Elements pop in with spring and dive out; the camera glides. Playful game energy, a new objective every 3 s.",
+    "avoidElements": [
+      "filmStrip",
+      "bleedPlate",
+      "patternCard",
+      "lockCard"
+    ]
+  }
+}

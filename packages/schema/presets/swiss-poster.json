@@ -1,0 +1,59 @@
+{
+  "id": "swiss-poster",
+  "name": "Swiss Poster",
+  "tagline": "xiaoma's swiss reel theme: ink ground, bone type, red / yellow / Klein blue swaps on the beat, Archivo Black wide, HUD brackets.",
+  "palette": {
+    "stage": "#111111",
+    "mar": "#f1ece2",
+    "ter": "#e8452c",
+    "gold": "#f2c230",
+    "goldd": "#2b44e8",
+    "iv": "#f4f1ea",
+    "ink": "#0a0a0a"
+  },
+  "fonts": {
+    "poster": "Archivo Black",
+    "accent": "Instrument Serif",
+    "ui": "IBM Plex Mono",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.0,
+  "pace": 0.9,
+  "captionStyle": "phrase",
+  "captionSize": 56,
+  "captionAccent": "ter",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "counter",
+    "chips",
+    "chapterCard",
+    "focusRing",
+    "imageCard",
+    "bleedPlate"
+  ],
+  "motion": {
+    "family": "beat",
+    "caseStyle": "upper",
+    "enter": "mask",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 0.7,
+    "camera": "cut",
+    "sfxKit": "click",
+    "texture": "none",
+    "direction": "Swiss reel. A strict grid: Archivo Black wide uppercase, mono HUD labels, `focusRing` corner brackets and a timecode; full-screen colour swaps on the downbeat between ink `stage`, red `ter`, yellow `gold` and Klein blue `goldd` (use `bleedPlate` for the swap); one scene per bar (≈1.9 s at 128 BPM), every cut on a downbeat, entrances 4–6 frames under a mask, stagger 0.04–0.06 s, out_expo. Numbers as `counter`s in mono; lists as `chips` on the grid. No bloom, no fades, no rounded cards; \"2 frames off and it falls apart\".",
+    "avoidElements": [
+      "stamp",
+      "strikeLine",
+      "lockCard",
+      "ring",
+      "filmStrip",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn"
+    ]
+  }
+}

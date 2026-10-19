@@ -1,0 +1,58 @@
+{
+  "id": "ohneis",
+  "name": "Ohneis",
+  "tagline": "remotion-ads' Ohneis beat: dark minimal, lowercase Inter with one Instrument Serif keyword, hard cuts, slow Ken Burns.",
+  "palette": {
+    "stage": "#0a0a0a",
+    "mar": "#1a1a1a",
+    "ter": "#c8c4bb",
+    "gold": "#e8e6e1",
+    "goldd": "#8a877f",
+    "iv": "#e8e6e1",
+    "ink": "#050505"
+  },
+  "fonts": {
+    "poster": "Inter",
+    "accent": "Instrument Serif",
+    "ui": "Inter",
+    "devanagari": "Mukta",
+    "caption": "Inter"
+  },
+  "grain": 0.08,
+  "pace": 0.6,
+  "captionStyle": "phrase",
+  "captionSize": 56,
+  "captionAccent": "gold",
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+    "posterText",
+    "imageCard",
+    "counter",
+    "chapterCard",
+    "bleedPlate"
+  ],
+  "motion": {
+    "family": "kinetic",
+    "caseStyle": "sentence",
+    "enter": "fade",
+    "exit": "cut",
+    "easing": "snap",
+    "speed": 0.7,
+    "camera": "push",
+    "sfxKit": "cinematic",
+    "texture": "vignette",
+    "direction": "Ohneis. Moody and minimal: everything lowercase, Inter 400 for the sentence and ONE Instrument Serif italic keyword 15 % larger; charcoal stage, bone `iv` text, muted `ter`. Hard cuts only, 0.5–2 s per beat, entries 4 frames (fade + scale 0.92 → 1); photos (`imageCard`, `bleedPlate`) carry all the colour, with a slow Ken Burns 1.0 → 1.03 alternating direction; a padded frame with 8 % border for the hero image. Rhythm: text → photo → text → photo, never three of the same frame type in a row, no crossfades, no stamps.",
+    "avoidElements": [
+      "stamp",
+      "chips",
+      "strikeLine",
+      "filmStrip",
+      "patternCard",
+      "feedPhone",
+      "propPunchIn",
+      "ring",
+      "lockCard"
+    ]
+  }
+}

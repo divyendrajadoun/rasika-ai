@@ -52,7 +52,7 @@ describe("landing content", () => {
 
   it("exposes all twenty-six presets with the original four first", () => {
     const ids = presetCards.map((p) => p.tokens.id);
-    expect(ids).toHaveLength(26);
+    expect(ids).toHaveLength(93);
     expect(ids.slice(0, 4)).toEqual(["mikku-royal", "katana-pop", "noir-minimal", "bold-creator"]);
     for (const p of presetCards) expect(p.preview.big.length).toBeGreaterThan(0);
     expect(presetCards[0]?.badge).toBe("Default");
