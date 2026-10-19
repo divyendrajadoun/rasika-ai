@@ -80,6 +80,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
             <div className="mt-4 space-y-4">
               <video
                 src={output.url}
+                crossOrigin="anonymous"
                 controls
                 playsInline
                 preload="metadata"
@@ -122,6 +123,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
             <div className="mt-4 space-y-3">
               <video
                 src={preview.url}
+                crossOrigin="anonymous"
                 controls
                 playsInline
                 preload="metadata"
@@ -154,6 +156,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
             <>
               <video
                 src={source.url}
+                crossOrigin="anonymous"
                 controls
                 playsInline
                 preload="metadata"
@@ -176,6 +179,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                   {/* eslint-disable-next-line @next/next/no-img-element -- presigned S3 URL */}
                   <img
                     src={img.url}
+                    crossOrigin="anonymous"
                     alt={img.meta.label ?? ""}
                     className="aspect-[4/5] w-full rounded-sm object-cover"
                   />

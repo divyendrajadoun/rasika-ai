@@ -16,10 +16,21 @@
 
   /* ── the hero's product chips ── */
   .chip {
-    background: var(--chip, var(--surface));
     color: var(--chip-ink, var(--text));
-    border-radius: 6px;
-    transition: background-color 500ms ease, color 500ms ease;
+    border-radius: 14px;
+    transition: color 500ms ease;
+  }
+  /* a faint light inside the glass, so the pane reads on a flat field (the dye can only darken) */
+  .chip::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(255, 255, 255, 0.07);
+    pointer-events: none;
+  }
+  .chip > * {
+    position: relative;
   }
   .chip-range {
     appearance: none;
@@ -111,27 +122,24 @@
     background: var(--iv);
     pointer-events: none;
   }
-  .compare-handle::after {
-    content: "";
+  /* the handle's knob is a lens of liquid glass: it magnifies the seam between the two clips */
+  .compare-knob {
     position: absolute;
     top: 50%;
-    left: 50%;
-    width: 44px;
-    height: 44px;
-    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    margin: -30px 0 0 -30px;
     border-radius: 50%;
-    border: 4px solid var(--iv);
   }
   .compare-tag {
     position: absolute;
     top: 12px;
-    padding: 4px 8px;
+    padding: 6px 10px;
     font-size: 14px;
     font-weight: 500;
     line-height: 1.2;
-    background: rgba(17, 17, 17, 0.72);
     color: #fff;
-    border-radius: 4px;
+    border-radius: 10px;
   }
 
   /* ── the style tiles: a picture and a name, one tone off the ground ── */
@@ -275,6 +283,58 @@
     color: var(--accent);
   }
 
+
+  /* ── liquid glass (liquidGL; components/motion/liquid-glass.tsx) ──
+     Each pane carries the z-index its liquidGL() group was given: the library draws the glass on a
+     canvas one step below, so the pane's own children (the real controls) stay on top. It turns
+     pointer events off on the pane; the children turn them back on. Before the library runs, and
+     where a device has no WebGL, the pane is a frosted tint so the first paint already reads. */
+  :where([data-glass]) {
+    position: relative;
+  }
+  [data-glass] {
+    background: var(--glass-tint, rgba(18, 4, 6, 0.42));
+    -webkit-backdrop-filter: blur(14px) saturate(1.35);
+    backdrop-filter: blur(14px) saturate(1.35);
+  }
+  [data-glass] * {
+    pointer-events: auto;
+  }
+  [data-glass="bar"] {
+    z-index: 60;
+    border-radius: 18px;
+    color: #f3efe9;
+  }
+  [data-glass="chip"] {
+    z-index: 12;
+  }
+  [data-glass="tag"] {
+    z-index: 13;
+    --glass-tint: rgba(10, 10, 10, 0.38);
+  }
+  [data-glass="knob"] {
+    z-index: 14;
+    --glass-tint: rgba(255, 255, 255, 0.08);
+    pointer-events: none;
+  }
+  [data-glass="panel"] {
+    z-index: 20;
+    --glass-tint: rgba(241, 240, 236, 0.7);
+  }
+  [data-theme="dark"] [data-glass="panel"] {
+    --glass-tint: rgba(18, 4, 6, 0.55);
+  }
+  .field [data-glass="panel"] {
+    --glass-tint: rgba(30, 8, 12, 0.55);
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    [data-glass] {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      background: var(--glass-solid, #2b0a10);
+    }
+  }
+
   /* ── the FAQ tiles ── */
   .faq-tile {
     background: var(--surface);
@@ -342,20 +402,26 @@
 
   /* ── the closing dialog: the wizard's first step on the bone sheet ── */
   .dialog {
-    background: var(--bg);
     color: var(--text);
     --text: var(--foreground);
-    border-radius: 10px;
+    border-radius: 20px;
   }
+  /* on the oxblood field the dialog is dark glass with ivory ink; its field stays bone for typing */
   .field .dialog {
+    color: #f3efe9;
+    --text: #f3efe9;
+    --muted-ink: #d8cbc1;
+    --surface: rgba(255, 255, 255, 0.1);
+    --raised: rgba(255, 255, 255, 0.16);
+    --bg: #2b0a10;
+  }
+  .field .dialog .field-input {
     background: #f1f0ec;
     color: #2b0a10;
-    --accent-ink: #f3f2ee;
-    --text: #2b0a10;
-    --muted-ink: #5a4a4d;
-    --surface: #e8e6e0;
-    --raised: #dedbd3;
-    --bg: #f1f0ec;
+  }
+  .field .dialog .seg > button[aria-pressed="true"] {
+    background: #f1f0ec;
+    color: #2b0a10;
   }
   .field-input {
     width: 100%;

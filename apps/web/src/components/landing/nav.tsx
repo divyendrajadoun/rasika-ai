@@ -8,9 +8,10 @@ import { nav } from "@/content/landing";
 import { cn } from "@/lib/utils";
 
 /**
- * The plain form: the name at one end, four text links and one action at the other, all at text size
- * on the page ground. Not fixed, so it never sits on content. On a phone: the name, the action and
- * a "Menu" text button that opens a full-screen sheet.
+ * A floating bar of liquid glass that stays at the top of the page and refracts whatever scrolls
+ * under it: the hero's headline, the reels, the tiles. The name at one end, four text links, one
+ * action. It takes no room in the flow (the negative margin lets the hero start under it). On a
+ * phone: the name, the action and a "Menu" text button that opens a full-screen sheet.
  */
 export function Nav({ className }: { className?: string }) {
   const [open, setOpen] = useState(false);
@@ -25,8 +26,12 @@ export function Nav({ className }: { className?: string }) {
     };
   }, [open]);
   return (
-    <header className={cn("wrap relative z-20", className)}>
-      <nav className="flex h-16 items-center justify-between gap-6" aria-label="Primary">
+    <header className={cn("wrap sticky top-3 z-[60] -mb-[76px] pt-3", className)}>
+      <nav
+        data-glass="bar"
+        className="flex h-[52px] items-center justify-between gap-6 px-5"
+        aria-label="Primary"
+      >
         <Wordmark />
         <ul className="hidden items-center gap-7 md:flex">
           {nav.links.map((l) => (
@@ -61,7 +66,8 @@ export function Nav({ className }: { className?: string }) {
           role="dialog"
           aria-modal="true"
           aria-label="Menu"
-          className="bg-bg text-text fixed inset-0 z-50 flex flex-col px-4 py-4"
+          className="bg-bg text-text fixed inset-0 z-[70] flex flex-col px-4 py-4"
+          data-liquid-ignore
         >
           <div className="flex h-16 items-center justify-between">
             <Wordmark />

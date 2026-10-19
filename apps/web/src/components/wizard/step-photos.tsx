@@ -118,6 +118,7 @@ export function StepPhotos({
                   {/* eslint-disable-next-line @next/next/no-img-element -- local object URL */}
                   <img
                     src={p.previewUrl}
+                    crossOrigin={p.previewUrl.startsWith("http") ? "anonymous" : undefined}
                     alt=""
                     className="h-full w-full object-cover"
                     style={cropStyle(p)}

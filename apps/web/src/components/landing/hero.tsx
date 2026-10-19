@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { reelColours } from "@/components/brand/reel-fragment";
-import { Nav } from "@/components/landing/nav";
+import { refreshGlass } from "@/components/motion/liquid-glass";
 import { presetCards } from "@/config/presets";
 import { hero as c } from "@/content/landing";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,8 @@ import { cn } from "@/lib/utils";
  *  Style        a range over the 93 presets; the field, the ink and the lit word take that preset's tokens
  *  Caption pace words per minute; the words of the sentence light one by one at that pace
  *  Language     English ↔ Hindi; the sentence is set in Devanagari, as the reel would set it
+ * The three controls are panes of liquid glass in a row under the sentence, lit faintly from inside
+ * so they read against the flat field; the field behind them takes the chosen style's colour.
  * The headline is in the HTML and painted on the first frame; the masked line rise only adds arrival.
  */
 export function Hero() {
@@ -38,48 +40,44 @@ export function Hero() {
       i = i + 1;
       if (i >= total + 3) i = -1;
       setLit(i);
+      // between cycles no word is lit: let the glass over the sentence re-take its picture then
+      if (i === -1) window.setTimeout(() => refreshGlass("#hero"), 60);
       t = window.setTimeout(tick, i === total ? beat * 2 : beat);
     };
     t = window.setTimeout(tick, 1400);
     return () => window.clearTimeout(t);
   }, [wpm, total]);
 
+  // the field and the sentence behind the glass changed: re-take the snapshot once the colour settles
+  useEffect(() => {
+    const t = window.setTimeout(() => refreshGlass("#hero"), 560);
+    return () => window.clearTimeout(t);
+  }, [styleIx, hindi]);
+
+  // light stages (paper, porcelain, white) take the preset's dark ink, so every style stays readable
+  const ink = contrast(colours.stage, colours.ink) >= 4.5 ? colours.ink : colours.dark;
+  // the dye multiplies what lies behind: a pale one keeps the field's own colour inside the glass
+  const tint = hexA(ink, 0.12);
   const field = {
     background: colours.stage,
-    color: colours.ink,
+    color: ink,
     "--chip": colours.panel,
-    "--chip-ink": colours.ink,
+    "--chip-ink": ink,
     "--lit": colours.accent,
-    "--on": colours.ink,
+    "--on": ink,
     "--on-ink": colours.stage,
   } as CSSProperties;
 
   let n = 0;
   return (
     <section
-      className="relative flex min-h-[94svh] flex-col transition-[background-color,color] duration-500"
+      id="hero"
+      className="relative flex min-h-[94svh] flex-col pt-[88px] transition-[background-color,color] duration-500"
       style={field}
     >
-      <Nav />
       <div className="wrap relative flex flex-1 flex-col items-center justify-center pb-[6svh] pt-6 sm:pt-0">
-        {/* the sentence, with the controls around it */}
+        {/* the sentence, with its three controls in a row beneath it */}
         <div className="relative w-full max-w-[1120px]">
-          <Chip
-            label={c.chips.style}
-            readout={`${card.tokens.name} · ${styleIx + 1} of ${presetCards.length}`}
-            className="lg:absolute lg:-top-[88px] lg:left-[2%] lg:-rotate-2"
-          >
-            <input
-              type="range"
-              min={0}
-              max={presetCards.length - 1}
-              value={styleIx}
-              onChange={(e) => setStyleIx(Number(e.target.value))}
-              aria-label="Style preset"
-              aria-valuetext={card.tokens.name}
-              className="chip-range"
-            />
-          </Chip>
 
           <h1
             className={cn(
@@ -110,11 +108,27 @@ export function Hero() {
             ))}
           </h1>
 
-          <div className="mt-6 grid grid-cols-2 gap-3 lg:mt-0 lg:block">
+          <div className="mt-8 grid gap-3 sm:grid-cols-3 lg:mt-12 lg:flex lg:justify-center lg:gap-5">
+            <Chip
+              label={c.chips.style}
+              readout={`${card.tokens.name} · ${styleIx + 1} of ${presetCards.length}`}
+              tint={tint}
+            >
+              <input
+                type="range"
+                min={0}
+                max={presetCards.length - 1}
+                value={styleIx}
+                onChange={(e) => setStyleIx(Number(e.target.value))}
+                aria-label="Style preset"
+                aria-valuetext={card.tokens.name}
+                className="chip-range"
+              />
+            </Chip>
             <Chip
               label={c.chips.captions}
               readout={`${wpm} words a minute`}
-              className="lg:absolute lg:-bottom-[100px] lg:left-[3%] lg:rotate-[2.5deg]"
+              tint={tint}
             >
               <input
                 type="range"
@@ -130,7 +144,7 @@ export function Hero() {
             <Chip
               label={c.chips.hindi}
               readout={hindi ? "हिन्दी · Devanagari" : "English"}
-              className="lg:absolute lg:-bottom-[100px] lg:right-[3%] lg:rotate-[-2deg]"
+              tint={tint}
             >
               <div className="chip-switch" role="group" aria-label="Language">
                 <button type="button" aria-pressed={!hindi} onClick={() => setHindi(false)}>
@@ -146,7 +160,7 @@ export function Hero() {
 
         <p
           data-load
-          className="mx-auto mt-10 max-w-[40ch] text-center leading-normal lg:mt-[136px]"
+          className="mx-auto mt-10 max-w-[40ch] text-center leading-normal"
           style={{ "--d": "420ms" } as CSSProperties}
         >
           {c.sub}
@@ -155,7 +169,7 @@ export function Hero() {
           <Link
             href={c.primary.href}
             className="button"
-            style={{ background: colours.ink, color: colours.stage }}
+            style={{ background: ink, color: colours.stage }}
           >
             {c.primary.label}
           </Link>
@@ -171,23 +185,55 @@ export function Hero() {
   );
 }
 
-/** One of the product's control chips: a label, a live readout and the control itself. */
+/** WCAG contrast ratio of two `#rrggbb` colours. */
+function contrast(a: string, b: string) {
+  const lum = (hex: string) => {
+    const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex.trim());
+    if (!m) return 0;
+    const ch = [m[1]!, m[2]!, m[3]!].map((x) => {
+      const v = parseInt(x, 16) / 255;
+      return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * ch[0]! + 0.7152 * ch[1]! + 0.0722 * ch[2]!;
+  };
+  const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p) as [number, number];
+  return (x + 0.05) / (y + 0.05);
+}
+
+/** `#rrggbb` → `rgba(r, g, b, a)` for the glass dye. */
+function hexA(hex: string, a: number) {
+  const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex.trim());
+  if (!m) return `rgba(20, 6, 8, ${a})`;
+  return `rgba(${parseInt(m[1]!, 16)}, ${parseInt(m[2]!, 16)}, ${parseInt(m[3]!, 16)}, ${a})`;
+}
+
+/** One of the product's control chips, as a pane of liquid glass: a label, a live readout, the control. */
 function Chip({
   label,
   readout,
+  tint,
+  flip = false,
   className,
   children,
 }: {
   label: string;
   readout: string;
+  tint: string;
+  /** label row at the foot (for the panes whose top lies across the letters) */
+  flip?: boolean;
   className?: string;
   children: React.ReactNode;
 }) {
   return (
     <div
       data-ui
+      data-glass="chip"
+      data-glass-snapshot="#hero"
+      data-glass-tint={tint}
+      style={{ "--glass-tint": tint } as CSSProperties}
       className={cn(
-        "chip z-[2] flex w-full flex-col justify-between gap-2 px-4 py-3 lg:h-[84px] lg:w-[300px]",
+        "chip flex w-full justify-between gap-2 px-4 py-3 lg:h-[84px] lg:w-[300px]",
+        flip ? "flex-col lg:flex-col-reverse" : "flex-col",
         className,
       )}
     >

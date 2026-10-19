@@ -27,7 +27,7 @@ export function ProjectCard({ project: p }: { project: Project }) {
       <Link href={`/dashboard/p/${p.id}`} className="relative block aspect-[9/12] overflow-clip bg-[#111]">
         {p.thumbnailUrl ? (
           // eslint-disable-next-line @next/next/no-img-element -- presigned S3 URL
-          <img src={p.thumbnailUrl} alt="" className="h-full w-full object-cover" />
+          <img src={p.thumbnailUrl} crossOrigin="anonymous" alt="" className="h-full w-full object-cover" />
         ) : (
           <div className="flex h-full items-end justify-center pb-6">
             <div className="bg-raised h-2/3 w-1/2 rounded-t-full" aria-hidden />

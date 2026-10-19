@@ -29,7 +29,7 @@ export function StyleShowcase() {
     <section id="styles" className="section wrap scroll-mt-6">
       <div className="grid12 items-start">
         <div className="col-span-12 lg:sticky lg:top-6 lg:col-span-4">
-          <Compare key={card.tokens.id} card={card} />
+          <Compare card={card} />
         </div>
         <div className="col-span-12 mt-12 min-w-0 lg:col-start-5 lg:col-span-8 lg:mt-0">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -105,6 +105,20 @@ function Compare({ card }: { card: PresetCard }) {
     };
   }, []);
 
+  // a new style: the clip's src changed under the same element; start both from the top together
+  useEffect(() => {
+    const a = styleRef.current;
+    const b = rawRef.current;
+    if (!a || !b) return;
+    a.load();
+    b.currentTime = 0;
+    if (playing) {
+      void a.play().catch(() => undefined);
+      void b.play().catch(() => undefined);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [demo.video]);
+
   const toggle = useCallback(() => {
     const a = styleRef.current;
     const b = rawRef.current;
@@ -130,6 +144,7 @@ function Compare({ card }: { card: PresetCard }) {
     <div className="mx-auto w-full max-w-[380px]">
       <div
         data-ui
+        id="style-frame"
         ref={frameRef}
         className="relative aspect-[9/16] cursor-ew-resize select-none overflow-clip bg-[#111]"
         onPointerDown={(e) => {
@@ -140,18 +155,30 @@ function Compare({ card }: { card: PresetCard }) {
         onPointerMove={(e) => dragging.current && setFromClientX(e.clientX)}
         onPointerUp={() => (dragging.current = false)}
         onPointerCancel={() => (dragging.current = false)}
+        onDragStart={(e) => e.preventDefault()}
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- lazy poster under the clips */}
-        <img src={RAW.poster} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
+        <img src={RAW.poster} alt="" draggable={false} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
         <video ref={rawRef} src={RAW.video} poster={RAW.poster} muted loop playsInline preload="none" className="absolute inset-0 h-full w-full object-cover" aria-label="Raw phone clip" />
         <div className="absolute inset-0" style={{ clipPath: `inset(0 0 0 ${pos}%)` }}>
           {/* eslint-disable-next-line @next/next/no-img-element -- lazy poster under the clip */}
-          <img src={demo.poster} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
+          <img src={demo.poster} alt="" draggable={false} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
           <video ref={styleRef} src={demo.video} poster={demo.poster} muted loop playsInline preload="none" className="absolute inset-0 h-full w-full object-cover" aria-label={`${card.tokens.name} edit`} />
         </div>
         <div aria-hidden className="compare-handle" style={{ left: `${pos}%` }} />
-        <span className="compare-tag left-3">Raw</span>
-        <span className="compare-tag right-3">{card.tokens.name}</span>
+        <div
+          aria-hidden
+          data-glass="knob"
+          data-glass-snapshot="#style-frame"
+          className="compare-knob"
+          style={{ left: `${pos}%` }}
+        />
+        <span data-glass="tag" data-glass-snapshot="#style-frame" className="compare-tag left-3">
+          Raw
+        </span>
+        <span data-glass="tag" data-glass-snapshot="#style-frame" className="compare-tag right-3">
+          {card.tokens.name}
+        </span>
       </div>
       <div className="mt-4 flex items-center gap-4">
         <button type="button" onClick={toggle} className="link h-11 font-medium" aria-pressed={playing}>

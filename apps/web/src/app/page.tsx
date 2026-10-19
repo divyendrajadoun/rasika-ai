@@ -4,6 +4,8 @@ import { FinalCta } from "@/components/landing/final-cta";
 import { Footer } from "@/components/landing/footer";
 import { Hero } from "@/components/landing/hero";
 import { HowItWorks } from "@/components/landing/how-it-works";
+import { Nav } from "@/components/landing/nav";
+import { LiquidGlass } from "@/components/motion/liquid-glass";
 import { Pricing } from "@/components/landing/pricing";
 import { Showcase } from "@/components/landing/showcase";
 import { StyleShowcase } from "@/components/landing/style-showcase";
@@ -41,6 +43,7 @@ export default function LandingPage() {
 
   return (
     <>
+      <Nav />
       <main id="main">
         <Hero />
         <Showcase />
@@ -52,6 +55,7 @@ export default function LandingPage() {
         <FinalCta presenterEnabled={env.presenterEnabled} />
       </main>
       <Footer />
+      <LiquidGlass />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
     </>
   );

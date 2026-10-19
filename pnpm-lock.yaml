@@ -71,6 +71,9 @@ importers:
       ioredis:
         specifier: ^5
         version: 5.11.1
+      liquid-gl:
+        specifier: 3.0.0
+        version: 3.0.0
       lucide-react:
         specifier: ^0.475.0
         version: 0.475.0(react@19.1.0)
@@ -3161,6 +3164,9 @@ packages:
   lightningcss@1.32.0:
     resolution: {integrity: sha512-NXYBzinNrblfraPGyrbPoD19C1h9lfI/1mzgWYvXUTe414Gz/X1FD2XBZSZM7rRTrMA8JL3OtAaGifrIKhQ5yQ==}
     engines: {node: '>= 12.0.0'}
+
+  liquid-gl@3.0.0:
+    resolution: {integrity: sha512-UzNJQ7ggJzhZ0px7h/mJGo+KEeYjAwmsKJSVsC8y4eIm0+OpcTD/c5vX3v+f0uNa5VzC1yMqITdepTBGrk6yxQ==}
 
   locate-path@3.0.0:
     resolution: {integrity: sha512-7AO748wWnIhNqAuaty2ZWHkQHRSNfPVIsPIfwEOWO22AmaoVrWavlOcMR5nzTLNYvp36X220/maaRsrec1G65A==}
@@ -7117,6 +7123,8 @@ snapshots:
       lightningcss-linux-x64-musl: 1.32.0
       lightningcss-win32-arm64-msvc: 1.32.0
       lightningcss-win32-x64-msvc: 1.32.0
+
+  liquid-gl@3.0.0: {}
 
   locate-path@3.0.0:
     dependencies:

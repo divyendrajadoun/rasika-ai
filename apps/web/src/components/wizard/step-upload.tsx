@@ -215,7 +215,7 @@ export function StepUpload({
         <div className="bg-[#111] w-24 shrink-0 overflow-hidden rounded-[8px] sm:w-32">
           {value?.thumbnailUrl ? (
             // eslint-disable-next-line @next/next/no-img-element -- local object URL
-            <img src={value.thumbnailUrl} alt="" className="aspect-[9/16] w-full object-cover" />
+            <img src={value.thumbnailUrl} crossOrigin="anonymous" alt="" className="aspect-[9/16] w-full object-cover" />
           ) : (
             <div className="flex aspect-[9/16] items-center justify-center">
               <FileVideo className="text-accent size-8" aria-hidden />

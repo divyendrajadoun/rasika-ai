@@ -78,6 +78,7 @@ export const DemoVideo = forwardRef<HTMLVideoElement | null, DemoVideoProps>(fun
         <img
           src={poster}
           alt={alt}
+          draggable={false}
           className={cn(
             "absolute inset-0 h-full w-full object-cover transition-opacity duration-500",
             playing && "opacity-0",

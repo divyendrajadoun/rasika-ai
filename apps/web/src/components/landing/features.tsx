@@ -96,6 +96,7 @@ export function Features() {
         >
           <div
             data-ui
+            id="ba-frame"
             ref={frameRef}
             className="relative aspect-[9/16] w-full touch-none select-none overflow-clip bg-[#111]"
             onPointerDown={(e) => {
@@ -106,14 +107,26 @@ export function Features() {
             onPointerMove={(e) => dragging.current && setFromClientX(e.clientX)}
             onPointerUp={() => (dragging.current = false)}
             onPointerCancel={() => (dragging.current = false)}
+            onDragStart={(e) => e.preventDefault()}
           >
             <DemoVideo ref={beforeRef} className="absolute inset-0" src={beforeAfter.before.src} poster="/demo/styles/raw.jpg" alt={beforeAfter.before.label} />
             <div className="absolute inset-0" style={{ clipPath: `inset(0 0 0 ${shown}%)` }}>
               <DemoVideo ref={afterRef} className="absolute inset-0" src={beforeAfter.after.src} poster="/demo/after-poster.webp" alt={beforeAfter.after.label} />
             </div>
             <div aria-hidden className="compare-handle" style={{ left: `${shown}%` }} />
-            <span className="compare-tag left-3">{beforeAfter.before.label}</span>
-            <span className="compare-tag right-3">{beforeAfter.after.label}</span>
+            <div
+              aria-hidden
+              data-glass="knob"
+              data-glass-snapshot="#ba-frame"
+              className="compare-knob"
+              style={{ left: `${shown}%` }}
+            />
+            <span data-glass="tag" data-glass-snapshot="#ba-frame" className="compare-tag left-3">
+              {beforeAfter.before.label}
+            </span>
+            <span data-glass="tag" data-glass-snapshot="#ba-frame" className="compare-tag right-3">
+              {beforeAfter.after.label}
+            </span>
             <label className="sr-only" htmlFor="ba-slider">
               Comparison position
             </label>

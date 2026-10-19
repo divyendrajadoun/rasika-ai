@@ -514,7 +514,11 @@ export function Wizard({
         </p>
       )}
 
-      <div className="mt-8 flex flex-wrap items-center justify-between gap-3 pt-6">
+      <div className="sticky bottom-4 z-20 mt-8">
+      <div
+        data-glass="panel"
+        className="flex flex-wrap items-center justify-between gap-3 rounded-[18px] px-4 py-3"
+      >
         <button
           type="button"
           className="button button-ghost"
@@ -550,6 +554,7 @@ export function Wizard({
             </button>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

@@ -24,6 +24,8 @@ export function ThemeToggle({ className }: { className?: string }) {
       /* private mode */
     }
     setTheme(next);
+    // the glass re-dyes its panels and re-takes its pictures of the re-coloured page
+    window.dispatchEvent(new Event("rasika:theme"));
   };
 
   return (
