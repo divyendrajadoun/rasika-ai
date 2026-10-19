@@ -1,65 +1,72 @@
 "use client";
 
 import Link from "next/link";
-import { Pause, Play } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { PhoneMockup } from "@/components/brand/phone-mockup";
-import { Reveal } from "@/components/motion/reveal";
-import { Section } from "@/components/brand/section";
-import { presetCards, type PresetCard } from "@/config/presets";
 import { FamilyChips, useStyleFilter } from "@/components/style-filter";
+import { FAMILY_LABEL, presetCards, type PresetCard } from "@/config/presets";
 import { styles as c } from "@/content/landing";
+import { cn } from "@/lib/utils";
 
 const DEMO = (id: string) => ({
   video: `/demo/styles/${id}.mp4`,
   poster: `/demo/styles/${id}.jpg`,
 });
 const RAW = { video: "/demo/styles/raw.mp4", poster: "/demo/styles/raw.jpg" };
+const FIRST = 23;
 
 /**
- * Styles — the same 12 seconds of a real take rendered by the engine in every preset.
- * Left: a phone with the raw clip underneath and the chosen style on top, split by a draggable
- * divider, both playing in sync. Right: the style index; hovering a card plays its loop.
+ * Proof — "Large marks on tiles". The board is the 93 real renders of one 12-second take: each tile
+ * a style's demo poster that plays on hover, the first tile the heading. Pick a tile and the compare
+ * plate on the left shows that style over the raw clip, split by a handle.
  */
 export function StyleShowcase() {
   const [activeId, setActiveId] = useState(presetCards[0]!.tokens.id);
+  const [all, setAll] = useState(false);
   const card = presetCards.find((p) => p.tokens.id === activeId) ?? presetCards[0]!;
   const filter = useStyleFilter(presetCards);
+  const list = all || filter.family !== "all" || filter.query ? filter.filtered : filter.filtered.slice(0, FIRST);
   return (
-    <Section id="styles" eyebrow={c.eyebrow} title={c.title} sub={c.sub} tone="maroon">
-      <div className="grid min-w-0 items-start gap-10 lg:grid-cols-[400px_1fr] lg:gap-14">
-        <Reveal
-          kind="card"
-          className="mx-auto w-full max-w-[320px] sm:max-w-[360px] lg:sticky lg:top-24"
-        >
+    <section id="styles" className="section wrap scroll-mt-6">
+      <div className="grid12 items-start">
+        <div className="col-span-12 lg:sticky lg:top-6 lg:col-span-4">
           <Compare key={card.tokens.id} card={card} />
-        </Reveal>
-        <div className="min-w-0">
-          <div className="mb-4">
-            <FamilyChips
-              counts={filter.counts}
-              total={presetCards.length}
-              value={filter.family}
-              onChange={filter.setFamily}
-              tone="dark"
+        </div>
+        <div className="col-span-12 mt-12 min-w-0 lg:col-start-5 lg:col-span-8 lg:mt-0">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <FamilyChips counts={filter.counts} total={presetCards.length} value={filter.family} onChange={filter.setFamily} />
+            <label className="sr-only" htmlFor="style-search">
+              Search styles
+            </label>
+            <input
+              id="style-search"
+              type="search"
+              placeholder="Search a look"
+              value={filter.query}
+              onChange={(e) => filter.setQuery(e.target.value)}
+              className="input h-11 md:max-w-[240px]"
             />
           </div>
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-            {filter.filtered.map((p) => (
+          <ul className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
+            <li className="col-span-2 flex flex-col justify-between p-6" style={{ background: "var(--accent)", color: "var(--accent-ink)" }}>
+              <h2 className="text-[clamp(2rem,3vw,3rem)] font-semibold leading-[0.98] tracking-[-0.03em]">{c.title}</h2>
+              <p className="mt-6 max-w-[30ch]">{c.sub}</p>
+            </li>
+            {list.map((p) => (
               <li key={p.tokens.id}>
-                <StyleCard
-                  card={p}
-                  active={p.tokens.id === activeId}
-                  onPick={() => setActiveId(p.tokens.id)}
-                  index={presetCards.indexOf(p)}
-                />
+                <StyleTile card={p} active={p.tokens.id === activeId} onPick={() => setActiveId(p.tokens.id)} />
               </li>
             ))}
           </ul>
-          <p className="text-iv/60 mt-6 max-w-2xl text-sm">{c.note}</p>
+          {!all && filter.family === "all" && !filter.query && filter.filtered.length > FIRST && (
+            <button type="button" onClick={() => setAll(true)} className="button button-ghost mt-6 w-full sm:w-auto">
+              Show all {presetCards.length} styles
+            </button>
+          )}
+          <p className="text-muted mt-8 max-w-[62ch]">{c.note2}</p>
+          <p className="text-muted small mt-4 max-w-[62ch]">{c.note}</p>
         </div>
       </div>
-    </Section>
+    </section>
   );
 }
 
@@ -120,125 +127,51 @@ function Compare({ card }: { card: PresetCard }) {
   }, []);
 
   return (
-    <div>
-      <PhoneMockup>
-        <div
-          ref={frameRef}
-          className="absolute inset-0 cursor-ew-resize select-none"
-          onPointerDown={(e) => {
-            dragging.current = true;
-            (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-            setFromClientX(e.clientX);
-          }}
-          onPointerMove={(e) => dragging.current && setFromClientX(e.clientX)}
-          onPointerUp={() => (dragging.current = false)}
-          onPointerCancel={() => (dragging.current = false)}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element -- lazy poster under the clips */}
-          <img
-            src={RAW.poster}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-          <video
-            ref={rawRef}
-            src={RAW.video}
-            muted
-            loop
-            playsInline
-            preload="none"
-            className="absolute inset-0 h-full w-full object-cover"
-            aria-label="Raw phone clip"
-          />
-          <div className="absolute inset-0" style={{ clipPath: `inset(0 0 0 ${pos}%)` }}>
-            {/* eslint-disable-next-line @next/next/no-img-element -- lazy poster under the clip */}
-            <img
-              src={demo.poster}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-            <video
-              ref={styleRef}
-              src={demo.video}
-              muted
-              loop
-              playsInline
-              preload="none"
-              className="absolute inset-0 h-full w-full object-cover"
-              aria-label={`${card.tokens.name} edit`}
-            />
-          </div>
-          <div
-            className="bg-gold pointer-events-none absolute bottom-0 top-0 w-[2px] shadow-[0_0_0_1px_rgba(0,0,0,.35)]"
-            style={{ left: `${pos}%` }}
-          >
-            <span className="bg-gold text-ink absolute left-1/2 top-1/2 flex size-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-xs font-bold shadow-lg">
-              ⇔
-            </span>
-          </div>
-          <span className="kicker absolute left-3 top-3 rounded-full bg-black/50 px-2 py-1 text-[0.55rem] text-white">
-            Raw
-          </span>
-          <span className="kicker absolute right-3 top-3 rounded-full bg-black/50 px-2 py-1 text-[0.55rem] text-white">
-            {card.tokens.name}
-          </span>
+    <div className="mx-auto w-full max-w-[380px]">
+      <div
+        data-ui
+        ref={frameRef}
+        className="relative aspect-[9/16] cursor-ew-resize select-none overflow-clip bg-[#111]"
+        onPointerDown={(e) => {
+          dragging.current = true;
+          (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+          setFromClientX(e.clientX);
+        }}
+        onPointerMove={(e) => dragging.current && setFromClientX(e.clientX)}
+        onPointerUp={() => (dragging.current = false)}
+        onPointerCancel={() => (dragging.current = false)}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element -- lazy poster under the clips */}
+        <img src={RAW.poster} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
+        <video ref={rawRef} src={RAW.video} poster={RAW.poster} muted loop playsInline preload="none" className="absolute inset-0 h-full w-full object-cover" aria-label="Raw phone clip" />
+        <div className="absolute inset-0" style={{ clipPath: `inset(0 0 0 ${pos}%)` }}>
+          {/* eslint-disable-next-line @next/next/no-img-element -- lazy poster under the clip */}
+          <img src={demo.poster} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
+          <video ref={styleRef} src={demo.video} poster={demo.poster} muted loop playsInline preload="none" className="absolute inset-0 h-full w-full object-cover" aria-label={`${card.tokens.name} edit`} />
         </div>
-      </PhoneMockup>
-      <div className="mt-4 flex items-center justify-between gap-3">
-        <button
-          type="button"
-          onClick={toggle}
-          className="border-gold/40 text-gold hover:bg-gold/10 inline-flex h-9 items-center gap-2 rounded-full border px-4 text-xs"
-          aria-pressed={playing}
-        >
-          {playing ? (
-            <Pause className="size-3.5" aria-hidden />
-          ) : (
-            <Play className="size-3.5" aria-hidden />
-          )}
+        <div aria-hidden className="compare-handle" style={{ left: `${pos}%` }} />
+        <span className="compare-tag left-3">Raw</span>
+        <span className="compare-tag right-3">{card.tokens.name}</span>
+      </div>
+      <div className="mt-4 flex items-center gap-4">
+        <button type="button" onClick={toggle} className="link h-11 font-medium" aria-pressed={playing}>
           {playing ? "Pause" : "Play"}
         </button>
-        <input
-          type="range"
-          min={0}
-          max={100}
-          value={pos}
-          onChange={(e) => setPos(Number(e.target.value))}
-          className="accent-gold flex-1"
-          aria-label="Reveal the styled version"
-        />
+        <input type="range" min={0} max={100} value={pos} onChange={(e) => setPos(Number(e.target.value))} className="chip-range flex-1" aria-label="Reveal the styled version" />
       </div>
-      <p className="font-accent text-iv/80 mt-3 text-center text-lg italic">
-        {card.tokens.tagline}
-      </p>
-      <Link
-        href={`/dashboard/new?style=${card.tokens.id}`}
-        className="btn-ter mt-3 flex w-full justify-center"
-      >
-        {c.ctaLabel}: {card.tokens.name}
+      <p className="mt-4 font-medium leading-snug">{card.tokens.name}</p>
+      <p className="text-muted mt-1">{card.tokens.tagline}</p>
+      <Link href={`/dashboard/new?style=${card.tokens.id}`} className="button button-accent mt-5 w-full">
+        {c.ctaLabel}
       </Link>
     </div>
   );
 }
 
-function StyleCard({
-  card,
-  active,
-  onPick,
-  index,
-}: {
-  card: PresetCard;
-  active: boolean;
-  onPick: () => void;
-  index: number;
-}) {
+function StyleTile({ card, active, onPick }: { card: PresetCard; active: boolean; onPick: () => void }) {
   const vid = useRef<HTMLVideoElement>(null);
   const demo = DEMO(card.tokens.id);
-  // the clip is attached on first hover/focus so 14 cards cost 14 lazy posters, not 14 videos
+  // the clip is attached on first hover/focus so 93 tiles cost 93 lazy posters, not 93 videos
   const play = () => {
     const v = vid.current;
     if (!v) return;
@@ -260,44 +193,29 @@ function StyleCard({
       onFocus={play}
       onBlur={stop}
       aria-pressed={active}
-      className={
-        "group relative w-full overflow-hidden rounded-2xl text-left transition " +
-        (active
-          ? "ring-gold shadow-[0_20px_60px_rgba(0,0,0,.45)] ring-2"
-          : "ring-1 ring-white/10 hover:ring-white/30")
-      }
+      className={cn("tile group flex h-full w-full flex-col text-left", active && "is-active")}
     >
-      <div className="relative aspect-[9/16] w-full bg-black">
+      <div className="relative aspect-[9/16] w-full overflow-clip bg-[#111]">
         {/* eslint-disable-next-line @next/next/no-img-element -- static demo poster */}
-        <img
-          src={demo.poster}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+        <img src={demo.poster} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
         <video
           ref={vid}
+          poster={demo.poster}
           muted
           loop
           playsInline
           preload="none"
-          className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+          className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100"
           aria-hidden
           tabIndex={-1}
         />
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3 pt-10">
-          <p className="kicker text-[0.55rem] text-white/60">
-            {String(index + 1).padStart(2, "0")}
-          </p>
-          <p className="poster text-lg leading-none text-white">{card.tokens.name}</p>
-          <p className="mt-1 line-clamp-2 text-[11px] text-white/70">{card.tokens.tagline}</p>
-        </div>
-        {card.badge && (
-          <span className="kicker bg-gold text-ink absolute left-2 top-2 rounded-full px-2 py-0.5 text-[0.5rem]">
-            {card.badge}
-          </span>
-        )}
+      </div>
+      <div className="flex flex-1 flex-col px-3 pb-3 pt-2">
+        <span className="font-medium leading-snug">{card.tokens.name}</span>
+        <span className="text-muted small mt-0.5">
+          {FAMILY_LABEL[card.tokens.motion.family]}
+          {card.badge ? ` · ${card.badge}` : ""}
+        </span>
       </div>
     </button>
   );

@@ -1,88 +1,62 @@
 "use client";
 
-import { useLayoutEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 interface RevealProps {
   children: ReactNode;
   className?: string;
-  /** Seconds. */
-  delay?: number;
-  /** "up" = rise + fade (default). "card" = fly in from below with outBack, like the engine's cards. */
-  kind?: "up" | "card";
+  /** Position in its group; the CSS staggers siblings by --stagger-item. */
+  index?: number;
+  /** "rise" = 24px rise + fade (default). "shutter" = opens from the top like a clip wipe. */
+  kind?: "rise" | "shutter";
+  as?: "div" | "li" | "article" | "figure";
 }
 
-/* ── batched scheduler: read every pending element's rect first, then write classes once ──
-   (one Reveal per card × ~40 cards would otherwise force ~40 synchronous layouts). */
-const pending = new Set<HTMLElement>();
-let flushScheduled = false;
+/* One shared observer for the page; each element is shown once, when its top passes 88% of the viewport. */
 let observer: IntersectionObserver | null = null;
-
 function getObserver() {
   observer ??= new IntersectionObserver(
     (entries) => {
       for (const e of entries) {
         if (e.isIntersecting) {
-          (e.target as HTMLElement).classList.add("reveal-shown");
+          e.target.classList.add("is-in");
           observer?.unobserve(e.target);
         }
       }
     },
-    { rootMargin: "0px 0px -10% 0px" },
+    { rootMargin: "0px 0px -12% 0px" },
   );
   return observer;
 }
 
-function flush() {
-  flushScheduled = false;
-  const vh = window.innerHeight;
-  const toHide: HTMLElement[] = [];
-  for (const el of pending) {
-    const r = el.getBoundingClientRect(); // reads only
-    if (!(r.top < vh && r.bottom > 0)) toHide.push(el);
-  }
-  pending.clear();
-  const io = getObserver();
-  for (const el of toHide) {
-    el.classList.add("reveal-hidden"); // writes only
-    io.observe(el);
-  }
-}
-
-function schedule(el: HTMLElement) {
-  pending.add(el);
-  if (!flushScheduled) {
-    flushScheduled = true;
-    queueMicrotask(flush);
-  }
-}
-
 /**
- * Scroll-linked reveal that is visible in server HTML (good LCP, works without JS).
- * After hydration, elements still below the fold are hidden and animated in when they
- * intersect; elements already on screen are left alone (no flash). Reduced motion → static.
+ * Section entrance. The content is in the server HTML and painted on the first frame; only when
+ * scripts run and motion is allowed (globals.css: `.js [data-reveal]`) does the start state apply,
+ * and this flips it when the element scrolls in. Reduced motion → the finished page.
  */
-export function Reveal({ children, className, delay = 0, kind = "up" }: RevealProps) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useLayoutEffect(() => {
+export function Reveal({ children, className, index = 0, kind = "rise", as = "div" }: RevealProps) {
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    schedule(el);
-    return () => {
-      pending.delete(el);
-      observer?.unobserve(el);
-    };
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      el.classList.add("is-in");
+      return;
+    }
+    const io = getObserver();
+    io.observe(el);
+    return () => io.unobserve(el);
   }, []);
-
+  const Tag = as as "div";
   return (
-    <div
-      ref={ref}
-      className={cn("reveal", kind === "card" ? "reveal-card" : "reveal-up", className)}
-      style={{ transitionDelay: `${delay}s` }}
+    <Tag
+      ref={ref as never}
+      data-reveal=""
+      className={cn(kind === "shutter" && "shutter", className)}
+      style={{ "--i": index } as CSSProperties}
     >
       {children}
-    </div>
+    </Tag>
   );
 }

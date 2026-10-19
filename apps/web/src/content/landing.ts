@@ -6,19 +6,22 @@ import { brand } from "@/config/brand";
 
 export const nav = {
   links: [
-    { label: "Industries", href: "#industries" },
     { label: "How it works", href: "#how-it-works" },
     { label: "Styles", href: "#styles" },
     { label: "Pricing", href: "#pricing" },
     { label: "FAQ", href: "#faq" },
   ],
-  cta: { label: "Get started", href: "/dashboard" },
+  cta: { label: "Edit a reel free", href: "/dashboard" },
 };
 
 export const hero = {
-  /** Words rise one by one; the word in `goldWord` is coloured gold. */
-  headline: "TALK TO YOUR PHONE. POST LIKE A STUDIO.",
-  goldWord: "STUDIO",
+  headline: "Talk to your phone. Post like a studio.",
+  /** The two authored lines of the headline (two lines at most, on every width). */
+  lines: ["Talk to your phone.", "Post like a studio."],
+  /** The same sentence as Rasika sets it for a Hindi take: Devanagari, never romanised. */
+  hindiLines: ["फ़ोन से बोलो।", "स्टूडियो जैसा पोस्ट करो।"],
+  /** The three live controls on the sentence (the product's own: style, caption timing, language). */
+  chips: { style: "Style", captions: "Caption timing", hindi: "Language" },
   sub: "Realtors, doctors, coaches, founders — upload one talking video. Rasika writes the titles, times every caption, lands your photos on the exact word, adds sound, and renders the reel. Minutes, not days.",
   primary: { label: "Edit my first reel — free", href: "/dashboard" },
   secondary: { label: "Watch a real before / after", href: "#before-after" },
@@ -31,7 +34,6 @@ export const hero = {
 };
 
 export const beforeAfter = {
-  eyebrow: "Before / after",
   title: "Same take. Different reel.",
   sub: "Drag the handle. The raw phone clip is on the left, the Rasika edit on the right — playing in sync.",
   before: { src: "/demo/before.mp4", label: "Raw clip" },
@@ -39,131 +41,25 @@ export const beforeAfter = {
   note: "Real footage from a small jewellery brand. Yours might be a listing, a clinic, a classroom or a kitchen — the craft is the same.",
 };
 
-export const industries = {
-  eyebrow: "Every industry",
-  title: "You already know what to say. We make it look like you hired a studio.",
-  sub: "Pick your world. The phone shows a real take rendered by Rasika in the style we suggest for that industry; the beat on the left is what it designs from your words.",
-  realNote:
-    "Real footage, real render — a jewellery founder's take. Your listing, clinic or kitchen gets the same craft in the style you pick.",
-  items: [
-    {
-      id: "real-estate",
-      preset: "bold-creator",
-      label: "Real estate",
-      who: "Realtors & builders",
-      line: "“Three bedrooms, east-facing balcony, one crore eighteen.”",
-      poster: ["3 BHK", "EAST-FACING", "balcony"],
-      counter: { from: 0, to: 118, suffix: " L", label: "ALL INCLUSIVE" },
-      card: "BALCONY VIEW",
-      caption: "balcony",
-      chapter: "01 · THE BALCONY",
-    },
-    {
-      id: "doctors",
-      preset: "clinic-clean",
-      label: "Doctors & clinics",
-      who: "Doctors, dentists, physios",
-      line: "“Three reasons you wake up at 3 am — and the one nobody tells you.”",
-      poster: ["WHY YOU WAKE", "AT 3 AM", "the honest answer"],
-      counter: { from: 0, to: 3, suffix: "", label: "REASONS" },
-      card: "LATE DINNER",
-      caption: "thyroid",
-      chapter: "03 · SCREENS",
-    },
-    {
-      id: "coaches",
-      preset: "creator-yellow",
-      label: "Coaches & educators",
-      who: "Tutors, trainers, course creators",
-      line: "“The rule I give every student before an exam.”",
-      poster: ["ONE RULE", "BEFORE", "every exam"],
-      counter: { from: 0, to: 90, suffix: "%", label: "PASS RATE" },
-      card: "THE 2-MINUTE RULE",
-      caption: "revise",
-      chapter: "02 · THE RULE",
-    },
-    {
-      id: "founders",
-      preset: "noir-minimal",
-      label: "Founders & D2C",
-      who: "Product, fashion, food brands",
-      line: "“We went from zero to ten thousand orders without an ad.”",
-      poster: ["ZERO TO", "10,000 ORDERS", "no ads"],
-      counter: { from: 0, to: 10000, suffix: "", label: "ORDERS" },
-      card: "THE FIRST BATCH",
-      caption: "orders",
-      chapter: "01 · THE BET",
-    },
-    {
-      id: "food",
-      preset: "cinema-bebas",
-      label: "Restaurants & chefs",
-      who: "Cafés, cloud kitchens, home chefs",
-      line: "“The secret to our butter chicken is forty minutes, not cream.”",
-      poster: ["THE SECRET", "40 MINUTES", "not cream"],
-      counter: { from: 0, to: 40, suffix: " MIN", label: "ON LOW FLAME" },
-      card: "THE GRAVY",
-      caption: "simmer",
-      chapter: "02 · THE GRAVY",
-    },
-    {
-      id: "fitness",
-      preset: "sage-wellness",
-      label: "Fitness & wellness",
-      who: "Trainers, yoga, nutrition",
-      line: "“Lose the belly without losing your lunch: three swaps.”",
-      poster: ["THREE SWAPS", "NOT", "a diet"],
-      counter: { from: 0, to: 3, suffix: "", label: "SWAPS" },
-      card: "SWAP ONE: ROTI",
-      caption: "protein",
-      chapter: "01 · ROTI",
-    },
-    {
-      id: "law-finance",
-      preset: "boardroom-navy",
-      label: "Lawyers & finance",
-      who: "CAs, advisors, legal explainers",
-      line: "“Before you sign a rent agreement, read clause eleven.”",
-      poster: ["READ", "CLAUSE 11", "before you sign"],
-      counter: { from: 0, to: 11, suffix: "", label: "THE CLAUSE" },
-      card: "LOCK-IN PERIOD",
-      caption: "deposit",
-      chapter: "01 · THE DEPOSIT",
-    },
-    {
-      id: "agencies",
-      preset: "editorial-ivory",
-      label: "Agencies",
-      who: "Social teams running many clients",
-      line: "“Forty client reels a month, one brand kit each, no editor on payroll.”",
-      poster: ["40 REELS", "A MONTH", "per editor"],
-      counter: { from: 0, to: 40, suffix: "", label: "REELS / MONTH" },
-      card: "CLIENT KIT",
-      caption: "approved",
-      chapter: "02 · THE KIT",
-    },
-  ],
-};
-
 export const howItWorks = {
-  eyebrow: "How it works",
-  title: "Three steps. No timeline.",
+  title: "How it works",
+  sub: "Three steps. No timeline.",
   steps: [
     {
-      n: "01",
-      line: "UPLOAD YOUR VIDEO",
+      lead: "First, upload your take.",
+      line: "Upload your video",
       italic: "a phone selfie clip, 15 s to 3 min",
       body: "Phone footage is fine. HEVC, MOV, MP4 — up to 600 MB, resumable if your network drops.",
     },
     {
-      n: "02",
-      line: "ADD PHOTOS & PICK A STYLE",
+      lead: "Then add photos and pick a style.",
+      line: "Add photos & pick a style",
       italic: "“show this when I say balcony”",
       body: "Drop in listing photos, before/afters, product shots or slides. Tell us which word they belong to. Pick a preset or describe your look.",
     },
     {
-      n: "03",
-      line: "PREVIEW, TWEAK, DOWNLOAD",
+      lead: "Then preview, tweak, download.",
+      line: "Preview, tweak, download",
       italic: "change a title, retime a photo",
       body: "A quick preview lands in a minute, the full 1080 × 1920 render a couple of minutes later. Edit in the browser, render again, post.",
     },
@@ -171,8 +67,8 @@ export const howItWorks = {
 };
 
 export const features = {
-  eyebrow: "What the edit does",
-  title: "Everything a motion designer would do by hand.",
+  title: "What the edit does",
+  sub: "Everything a motion designer would do by hand.",
   items: [
     {
       id: "poster",
@@ -218,25 +114,31 @@ export const features = {
 };
 
 export const styles = {
-  eyebrow: "93 styles, one take",
-  title: "Pick a look. Drag to compare it with the raw clip.",
-  sub: "Every style here was planned and rendered by Rasika from the same real 12-second phone clip — not a mock-up. Each one is a full design system: palette, type, caption format, and its own motion — how lines enter, how the camera cuts, which sounds land.",
+  title: "93 styles, one take",
+  sub: "Pick a look. Drag to compare it with the raw clip.",
+  note2: "Every style here was planned and rendered by Rasika from the same real 12-second phone clip — not a mock-up. Each one is a full design system: palette, type, caption format, and its own motion — how lines enter, how the camera cuts, which sounds land.",
   note: "Nine motion families — editorial, kinetic type, whiteboard, chalkboard, hype cut, launch film, paper collage, colour blocks, beat type — each with its own sound kit. Seventy-nine of the styles were built from the measured rules of the open video-skills community's looks — Apple-style recaps, whiteboard and chalkboard explainers, TikTok retention cuts, launch films, heditor's cinema and podcast sets, ravyn's window and tabloid, ghost-editor's seven looks, Vox paper collages, halftone zines, retro terminals, pixel RPG boxes, Swiss posters, glass keynotes and more — every one planned and rendered inside Rasika, nothing redirected elsewhere. Describe a look in the wizard (“clinic white, navy, fewer effects”) and we map it to the nearest preset.",
   ctaLabel: "Use this style",
 };
 
 export const pricing = {
-  eyebrow: "Pricing",
-  title: "Start free. Pay when it pays off.",
-  sub: "Prices in INR with UPI and cards. International? Toggle to USD.",
+  title: "Plans",
+  sub: "Start free. Pay when it pays off.",
+  currencyNote: "Prices in INR with UPI and cards. International? Toggle to USD.",
   creditsTitle: "Or buy credits",
   creditsSub: "1 credit = 1 reel up to 90 s. Longer reels use more credits.",
-  perMonth: "/ mo",
+  perMonth: "a month",
+  rows: {
+    reels: "Reels a month",
+    length: "Longest reel",
+    export: "Export",
+    watermark: "End card",
+    extras: "Also",
+  },
 };
 
 export const faq = {
-  eyebrow: "FAQ",
-  title: "Questions, answered.",
+  title: "Questions, answered",
   items: [
     {
       q: "Does it work for my industry?",
@@ -271,39 +173,36 @@ export const faq = {
 
 export const finalCta = {
   title: brand.tagline,
+  /** The closing line as two authored lines. */
+  lines: ["Feel your reel.", "Don't just post it."],
   sub: "Your first reel is free. No card needed.",
-  cta: { label: "Edit my first reel", href: "/dashboard" },
+  after: "You sign in, the take uploads, and the first preview is back in about a minute.",
+  dialogTitle: "Name your reel",
+  dialogExample: "Balcony walkthrough, Tuesday",
+  cta: { label: "Edit my first reel", href: "/dashboard/new" },
 };
 
+/** One quiet line: what this is · links · year and privacy. */
 export const footer = {
-  columns: [
-    {
-      title: "Product",
-      links: [
-        { label: "Industries", href: "#industries" },
-        { label: "How it works", href: "#how-it-works" },
-        { label: "Styles", href: "#styles" },
-        { label: "Pricing", href: "#pricing" },
-        { label: "FAQ", href: "#faq" },
-      ],
-    },
-    {
-      title: "Company",
-      links: [
-        { label: "Contact", href: `mailto:${brand.email}` },
-        { label: "Instagram", href: brand.social.instagram },
-        { label: "X", href: brand.social.x },
-      ],
-    },
-    {
-      title: "Legal",
-      links: [
-        { label: "Terms", href: "/terms" },
-        { label: "Privacy", href: "/privacy" },
-      ],
-    },
+  what: "Reels from one phone take",
+  links: [
+    { label: "Contact", href: `mailto:${brand.email}` },
+    { label: "Instagram", href: brand.social.instagram },
+    { label: "X", href: brand.social.x },
+    { label: "Terms", href: "/terms" },
   ],
+  privacy: { label: "Privacy", href: "/privacy" },
   madeIn: brand.madeIn,
+};
+
+/** The showcase: a spoken line you can type, set the way the reel sets it. */
+export const showcase = {
+  title: "Type a line. It is set like the reel.",
+  initial: "Read clause eleven first",
+  examples: ["Three bedrooms, east facing", "Forty minutes, not cream", "Zero to ten thousand orders"],
+  /** The presets offered under the line; all four set their poster in Anton, the face this page has. */
+  styleIds: ["mikku-royal", "boardroom-navy", "tabloid-headline", "festive-bandhani"],
+  note: "The poster line, the caption and the lit word use the style's own tokens. The 93 reels below are the full renders.",
 };
 
 export const seo = {

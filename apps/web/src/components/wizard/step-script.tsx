@@ -29,11 +29,11 @@ export function StepScript({
   const voice = VOICES.find((v) => v.id === value.voice) ?? VOICES[0]!;
   return (
     <div className="space-y-6">
-      <p className="font-accent text-muted-foreground text-xl italic">
+      <p className="text-muted">
         Write it the way you would say it. One paragraph per idea — each paragraph becomes a beat.
       </p>
       <label className="block">
-        <span className="kicker text-goldd dark:text-gold mb-2 flex items-baseline justify-between">
+        <span className="label flex items-baseline justify-between">
           <span>Script</span>
           <span className="text-muted-foreground font-normal normal-case tracking-normal">
             {words} words · about {Math.round(est)} s spoken
@@ -41,7 +41,7 @@ export function StepScript({
         </span>
         <textarea
           id="script-text"
-          className="input min-h-64 font-mono text-sm leading-relaxed"
+          className="input min-h-64 text-sm leading-relaxed"
           maxLength={SCRIPT_MAX_CHARS}
           placeholder={
             "Most people buy jewellery for the wrong reason.\n\nThey buy the shine. The shine is gone in a month…"
@@ -50,7 +50,7 @@ export function StepScript({
           onChange={(e) => set({ text: e.target.value })}
           aria-invalid={tooLong}
         />
-        <span className="text-muted-foreground mt-1 block text-xs">
+        <span className="text-muted-foreground mt-1 block text-[13px]">
           Numbers are read as digits; write “twenty twenty-six” if you want it spoken as a year.
           English only for now — the narration voices do not speak Hindi yet.
         </span>
@@ -63,7 +63,7 @@ export function StepScript({
       </label>
 
       <div>
-        <p className="kicker text-goldd dark:text-gold mb-2">Voice</p>
+        <p className="label">Voice</p>
         <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3" role="radiogroup" aria-label="Voice">
           {VOICES.map((v) => {
             const on = v.id === value.voice;
@@ -75,12 +75,12 @@ export function StepScript({
                   aria-checked={on}
                   onClick={() => set({ voice: v.id })}
                   className={
-                    "bg-card w-full rounded-xl border px-3 py-2 text-left transition " +
-                    (on ? "border-ter ring-ter/40 ring-2" : "hover:border-ter/60")
+                    "bg-surface w-full rounded-[8px] border px-3 py-2 text-left transition " +
+                    (on ? "ring-2 ring-text" : "hover:ring-2 ring-text/60")
                   }
                 >
                   <span className="block font-semibold">{v.name}</span>
-                  <span className="text-muted-foreground block text-xs">
+                  <span className="text-muted-foreground block text-[13px]">
                     {v.accent} · {v.tone}
                   </span>
                 </button>
@@ -88,13 +88,13 @@ export function StepScript({
             );
           })}
         </ul>
-        <p className="text-muted-foreground mt-2 text-xs">
+        <p className="text-muted-foreground mt-2 text-[13px]">
           Narrated by {voice.name}. The voice is recorded once per edit; re-editing in another style
           reuses it.
         </p>
       </div>
 
-      <p className="bg-card rounded-xl border p-4 text-sm">
+      <p className="bg-surface rounded-[8px] p-4 text-sm">
         Cost: <strong>{creditCost(Math.max(1, est))} credit{creditCost(Math.max(1, est)) === 1 ? "" : "s"}</strong>{" "}
         at the estimated length — the same rate as an uploaded take of that length.
       </p>

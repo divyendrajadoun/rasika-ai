@@ -7,6 +7,7 @@ export const metadata: Metadata = { title: "Sign in", robots: { index: false } }
 
 type Q = { next?: string; error?: string; sent?: string; email?: string; mode?: string };
 
+/** Sign in: one column on the page ground, the product named, one filled action. */
 export default async function LoginPage({ searchParams }: { searchParams: Promise<Q> }) {
   const { next = "/dashboard", error, sent, email = "", mode } = await searchParams;
   const passwordMode = mode === "password";
@@ -17,42 +18,41 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         ? decodeURIComponent(error)
         : null;
   const label = (id: string, text: string) => (
-    <label htmlFor={id} className="kicker text-gold mb-2 block text-[0.65rem]">
+    <label htmlFor={id} className="label">
       {text}
     </label>
   );
 
   return (
-    <main
-      id="main"
-      className="jaali grain text-iv flex min-h-dvh items-center justify-center px-4 py-16"
-    >
-      <div className="border-gold/25 bg-mar/60 relative z-[2] w-full max-w-md rounded-3xl border p-8 shadow-[0_40px_90px_rgba(0,0,0,.45)] backdrop-blur-sm">
+    <main id="main" className="wrap flex min-h-dvh flex-col">
+      <div className="flex h-16 items-center">
         <Wordmark />
-        <h1 className="poster mt-6 text-4xl">Sign in</h1>
+      </div>
+      <div className="grid12 flex-1 items-center py-12">
+        <div className="col-span-12 w-full max-w-[400px] lg:col-span-5">
+        <h1 className="text-2xl font-semibold leading-tight tracking-[-0.02em]">Sign in</h1>
+        <p className="text-muted mt-2">
+          {passwordMode ? "With your email and password." : "We email you a link. No password."}
+        </p>
 
         {sent === "link" && (
-          <div className="border-gold/40 bg-ink/40 mt-6 rounded-xl border p-4" role="status">
-            <p className="font-accent text-gold text-xl italic">Check your inbox</p>
-            <p className="text-iv/80 mt-1 text-sm">
-              We sent a magic link to <strong>{email}</strong>. Open it on this device to continue.
+          <div className="bg-surface mt-6 rounded-[8px] p-4" role="status">
+            <p className="font-medium">Check your inbox</p>
+            <p className="text-muted mt-1 text-[14px]">
+              We sent a magic link to <strong className="text-text">{email}</strong>. Open it on this device to continue.
             </p>
           </div>
         )}
         {sent === "confirm" && (
-          <div className="border-gold/40 bg-ink/40 mt-6 rounded-xl border p-4" role="status">
-            <p className="font-accent text-gold text-xl italic">Confirm your email</p>
-            <p className="text-iv/80 mt-1 text-sm">
-              We sent a confirmation link to <strong>{email}</strong>. After confirming, sign in
-              with your password.
+          <div className="bg-surface mt-6 rounded-[8px] p-4" role="status">
+            <p className="font-medium">Confirm your email</p>
+            <p className="text-muted mt-1 text-[14px]">
+              We sent a confirmation link to <strong className="text-text">{email}</strong>. After confirming, sign in with your password.
             </p>
           </div>
         )}
         {errorText && (
-          <p
-            className="mt-4 rounded-lg bg-[#ff8a66]/15 px-3 py-2 text-sm text-[#ff8a66]"
-            role="alert"
-          >
+          <p className="text-destructive bg-surface mt-4 rounded-[6px] px-3 py-2 text-[14px]" role="alert">
             {errorText}
           </p>
         )}
@@ -60,9 +60,6 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         {!passwordMode ? (
           <form action={sendMagicLink} className="mt-6 space-y-4">
             <input type="hidden" name="next" value={next} />
-            <p className="font-accent text-iv/85 text-xl italic">
-              We&apos;ll email you a magic link. No password.
-            </p>
             <div>
               {label("email", "Email")}
               <input
@@ -74,17 +71,14 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
                 required
                 defaultValue={email}
                 placeholder="you@brand.in"
-                className="input-dark"
+                className="input"
               />
             </div>
-            <button type="submit" className="btn-ter w-full">
+            <button type="submit" className="button w-full">
               Send magic link
             </button>
-            <p className="text-iv/60 text-center text-xs">
-              <a
-                href={`/login?next=${encodeURIComponent(next)}&mode=password`}
-                className="hover:text-gold underline"
-              >
+            <p className="text-muted text-[14px]">
+              <a href={`/login?next=${encodeURIComponent(next)}&mode=password`} className="link text-text">
                 Use a password instead
               </a>
             </p>
@@ -95,15 +89,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
               <input type="hidden" name="next" value={next} />
               <div>
                 {label("email", "Email")}
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  defaultValue={email}
-                  className="input-dark"
-                />
+                <input id="email" name="email" type="email" autoComplete="email" required defaultValue={email} className="input" />
               </div>
               <div>
                 {label("password", "Password")}
@@ -114,40 +100,44 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
                   autoComplete="current-password"
                   required
                   minLength={8}
-                  className="input-dark"
+                  className="input"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <button type="submit" className="btn-ter">
+                <button type="submit" className="button">
                   Sign in
                 </button>
-                <button type="submit" formAction={signUpWithPassword} className="btn-outline-gold">
+                <button type="submit" formAction={signUpWithPassword} className="button button-ghost">
                   Create account
                 </button>
               </div>
             </form>
-            <p className="text-iv/60 text-center text-xs">
-              <a
-                href={`/login?next=${encodeURIComponent(next)}`}
-                className="hover:text-gold underline"
-              >
+            <p className="text-muted text-[14px]">
+              <a href={`/login?next=${encodeURIComponent(next)}`} className="link text-text">
                 Use a magic link instead
               </a>
             </p>
           </div>
         )}
 
-        <p className="text-iv/60 mt-6 text-center text-xs">
+        <p className="text-muted mt-8 text-[13px]">
           By continuing you agree to {brand.name}&apos;s{" "}
-          <a href="/terms" className="hover:text-gold underline">
+          <a href="/terms" className="link text-text">
             Terms
           </a>{" "}
           and{" "}
-          <a href="/privacy" className="hover:text-gold underline">
+          <a href="/privacy" className="link text-text">
             Privacy
           </a>
           .
         </p>
+        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element -- the demo reel's poster frame */}
+        <img
+          src="/demo/after-poster.webp"
+          alt="A reel edited by Rasika: poster type above the speaker and a one-word caption."
+          className="col-span-12 mt-12 hidden aspect-[9/16] w-full max-w-[380px] rounded-[8px] object-cover lg:col-start-8 lg:col-span-5 lg:mt-0 lg:block lg:justify-self-end"
+        />
       </div>
     </main>
   );

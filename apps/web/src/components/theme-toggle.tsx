@@ -1,18 +1,18 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 type Theme = "dark" | "light";
 
 function readTheme(): Theme {
-  if (typeof document === "undefined") return "dark";
-  return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+  if (typeof document === "undefined") return "light";
+  return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
 }
 
+/** A text control, the same size as the navigation links: "Dark" on the light site, "Light" on the dark one. */
 export function ThemeToggle({ className }: { className?: string }) {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme>("light");
   useEffect(() => setTheme(readTheme()), []);
 
   const toggle = () => {
@@ -30,18 +30,11 @@ export function ThemeToggle({ className }: { className?: string }) {
     <button
       type="button"
       onClick={toggle}
-      aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-      aria-pressed={theme === "light"}
-      className={cn(
-        "border-gold/30 text-iv hover:bg-gold/10 inline-flex size-10 items-center justify-center rounded-full border transition",
-        className,
-      )}
+      aria-label={theme === "dark" ? "Switch to the light theme" : "Switch to the dark theme"}
+      aria-pressed={theme === "dark"}
+      className={cn("link inline-flex h-11 items-center text-current", className)}
     >
-      {theme === "dark" ? (
-        <Sun className="size-4" aria-hidden />
-      ) : (
-        <Moon className="size-4" aria-hidden />
-      )}
+      {theme === "dark" ? "Light" : "Dark"}
     </button>
   );
 }

@@ -1,85 +1,97 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { nav } from "@/content/landing";
 import { cn } from "@/lib/utils";
 
-export function Nav() {
+/**
+ * The plain form: the name at one end, four text links and one action at the other, all at text size
+ * on the page ground. Not fixed, so it never sits on content. On a phone: the name, the action and
+ * a "Menu" text button that opens a full-screen sheet.
+ */
+export function Nav({ className }: { className?: string }) {
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [open]);
   return (
-    <header className="border-gold/10 bg-stage/70 text-iv sticky top-0 z-50 border-b backdrop-blur-xl backdrop-saturate-150">
-      <nav
-        className="container-x flex h-16 items-center justify-between gap-4"
-        aria-label="Primary"
-      >
+    <header className={cn("wrap relative z-20", className)}>
+      <nav className="flex h-16 items-center justify-between gap-6" aria-label="Primary">
         <Wordmark />
         <ul className="hidden items-center gap-7 md:flex">
           {nav.links.map((l) => (
             <li key={l.href}>
-              <a
-                href={l.href}
-                className="text-iv/85 hover:text-gold text-sm font-medium transition"
-              >
+              <a href={l.href} className="link inline-flex h-11 items-center">
                 {l.label}
               </a>
             </li>
           ))}
+          <li>
+            <ThemeToggle />
+          </li>
         </ul>
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <Link
-            href={nav.cta.href}
-            className="bg-ter hidden h-10 items-center rounded-full px-5 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(200,69,47,.35)] transition hover:bg-[#d8553d] sm:inline-flex"
-          >
+        <div className="flex items-center gap-6">
+          <Link href={nav.cta.href} className="link inline-flex h-11 items-center font-medium">
             {nav.cta.label}
           </Link>
           <button
             type="button"
-            className="border-gold/30 inline-flex size-10 items-center justify-center rounded-full border md:hidden"
+            className="link inline-flex h-11 items-center md:hidden"
             aria-expanded={open}
-            aria-controls="mobile-nav"
-            aria-label={open ? "Close menu" : "Open menu"}
-            onClick={() => setOpen((v) => !v)}
+            aria-controls="menu-sheet"
+            onClick={() => setOpen(true)}
           >
-            {open ? <X className="size-5" aria-hidden /> : <Menu className="size-5" aria-hidden />}
+            Menu
           </button>
         </div>
       </nav>
-      <div
-        id="mobile-nav"
-        className={cn(
-          "container-x grid overflow-hidden transition-[grid-template-rows] duration-300 md:hidden",
-          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
-        )}
-      >
-        <div className="min-h-0">
-          <ul className="flex flex-col gap-1 pb-4">
+      {open && (
+        <div
+          id="menu-sheet"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu"
+          className="bg-bg text-text fixed inset-0 z-50 flex flex-col px-4 py-4"
+        >
+          <div className="flex h-16 items-center justify-between">
+            <Wordmark />
+            <button
+              type="button"
+              className="link inline-flex h-11 items-center"
+              onClick={() => setOpen(false)}
+            >
+              Close
+            </button>
+          </div>
+          <ul className="mt-10 flex flex-col gap-2">
             {nav.links.map((l) => (
               <li key={l.href}>
-                <a
-                  href={l.href}
-                  onClick={() => setOpen(false)}
-                  className="text-iv/90 hover:bg-gold/10 block rounded-lg px-3 py-3 text-base font-medium"
-                >
+                <a href={l.href} onClick={() => setOpen(false)} className="head block py-2">
                   {l.label}
                 </a>
               </li>
             ))}
-            <li className="pt-2 sm:hidden">
-              <Link
-                href={nav.cta.href}
-                className="bg-ter flex h-11 items-center justify-center rounded-full text-sm font-semibold text-white"
-              >
+            <li className="pt-6">
+              <Link href={nav.cta.href} className="button w-full">
                 {nav.cta.label}
               </Link>
             </li>
+            <li className="pt-2">
+              <ThemeToggle />
+            </li>
           </ul>
         </div>
-      </div>
+      )}
     </header>
   );
 }

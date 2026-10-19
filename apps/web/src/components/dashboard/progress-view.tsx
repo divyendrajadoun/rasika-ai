@@ -1,6 +1,5 @@
 "use client";
 
-import { Check, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { retryEdit } from "@/app/dashboard/actions";
 import { STATUS_LABEL, useJobEvents } from "@/components/dashboard/status-pill";
@@ -36,6 +35,10 @@ const ACTIVE = new Set([
 /** No progress report for this long while a stage is active → offer a retry. */
 const STALE_AFTER_SEC = 120;
 
+/**
+ * The live state of a render: the stage in words, the worker's last message, one progress bar in
+ * the data hue, and the seven stages as a row of marks (done · current · ahead).
+ */
 export function ProgressView({
   projectId,
   initial,
@@ -49,41 +52,33 @@ export function ProgressView({
   const staleFor = useStaleSeconds(s.updatedAt ?? null, ACTIVE.has(s.status));
   const stale = staleFor >= STALE_AFTER_SEC;
   return (
-    <section className="bg-card mt-8 rounded-2xl border p-6" aria-live="polite">
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="poster text-3xl">
+    <section className="bg-surface mt-8 rounded-[8px] p-6" aria-live="polite">
+      <div className="flex items-baseline justify-between gap-4">
+        <h2 className="text-xl font-semibold leading-tight tracking-[-0.02em]">
           {failed ? "Something went wrong" : (STATUS_LABEL[s.status] ?? s.status)}
         </h2>
-        {ACTIVE.has(s.status) && <span className="poster text-ter text-3xl">{s.progress}%</span>}
+        {ACTIVE.has(s.status) && <span className="text-xl font-medium tabular-nums">{s.progress}%</span>}
       </div>
-      <p className="font-accent text-muted-foreground mt-1 text-xl italic">
-        {s.message || STAGES[Math.floor(idx)]?.copy}
-      </p>
+      <p className="text-muted mt-1 text-[14px]">{s.message || STAGES[Math.floor(idx)]?.copy}</p>
       {(stale || failed) && (
-        <form
-          action={retryEdit}
-          className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-dashed p-3 text-sm"
-        >
+        <form action={retryEdit} className="bg-raised mt-4 flex flex-wrap items-center gap-3 rounded-[6px] p-3 text-[14px]">
           <input type="hidden" name="id" value={projectId} />
-          <span className="text-muted-foreground">
+          <span className="text-muted">
             {failed
               ? "This run failed. Retrying starts again from the video check; nothing is charged twice."
               : `No progress report for ${Math.round(staleFor / 60)} min. The worker may have been restarted.`}
           </span>
-          <button type="submit" className="btn-outline-gold h-9 px-4 text-xs">
+          <button type="submit" className="button h-9 px-4 text-[14px]">
             Retry this edit
           </button>
         </form>
       )}
       {ACTIVE.has(s.status) && (
-        <div className="bg-muted mt-4 h-2 overflow-hidden rounded-full">
-          <div
-            className="bg-ter h-full transition-[width] duration-700"
-            style={{ width: `${Math.max(3, s.progress)}%` }}
-          />
+        <div className="bg-raised mt-4 h-[4px] overflow-clip rounded-[2px]">
+          <div className="bg-accent h-full transition-[width] duration-700" style={{ width: `${Math.max(3, s.progress)}%` }} />
         </div>
       )}
-      <ol className="mt-6 grid gap-2 sm:grid-cols-2">
+      <ol className="mt-6 grid grid-cols-2 gap-x-6 gap-y-2 text-[14px] sm:grid-cols-4">
         {STAGES.map((st, i) => {
           const doneStage = idx > i || s.status === "done";
           const current = idx === i && s.status !== "done";
@@ -91,34 +86,27 @@ export function ProgressView({
             <li
               key={st.key}
               className={cn(
-                "flex items-center gap-3 rounded-xl border px-3 py-2 text-sm",
-                doneStage && "border-gold/40 text-foreground",
-                current && "border-ter",
-                !doneStage && !current && "text-muted-foreground",
+                "flex items-center gap-2",
+                doneStage && "text-text",
+                current && "text-text font-medium",
+                !doneStage && !current && "text-muted",
               )}
+              aria-current={current ? "step" : undefined}
             >
               <span
                 className={cn(
-                  "flex size-6 items-center justify-center rounded-full",
-                  doneStage ? "bg-gold text-ink" : current ? "bg-ter text-white" : "bg-muted",
+                  "size-2 shrink-0 rounded-full",
+                  doneStage ? "bg-text" : current ? "bg-accent" : "bg-raised",
                 )}
-              >
-                {doneStage ? (
-                  <Check className="size-3.5" aria-hidden />
-                ) : current ? (
-                  <Loader2 className="size-3.5 animate-spin" aria-hidden />
-                ) : (
-                  <span className="text-[10px]">{i + 1}</span>
-                )}
-              </span>
+                aria-hidden
+              />
               <span>{st.label}</span>
             </li>
           );
         })}
       </ol>
-      <p className="text-muted-foreground mt-5 text-xs">
-        You can close this page. We&apos;ll email you when the reel is ready (email arrives in Phase
-        8; the dashboard updates live meanwhile).
+      <p className="text-muted mt-5 text-[13px]">
+        You can close this page. We&apos;ll email you when the reel is ready (email arrives in Phase 8; the dashboard updates live meanwhile).
       </p>
     </section>
   );

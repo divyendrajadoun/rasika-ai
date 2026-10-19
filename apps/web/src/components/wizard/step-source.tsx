@@ -70,7 +70,7 @@ export function StepSource({
   );
   return (
     <div className="space-y-4">
-      <p className="font-accent text-muted-foreground text-xl italic">
+      <p className="text-muted">
         Three ways in. Every one of them ends in the same editor and the same styles.
       </p>
       <ul className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Source">
@@ -86,22 +86,22 @@ export function StepSource({
                 disabled={Boolean(o.disabled)}
                 onClick={() => onChange(o.id)}
                 className={cn(
-                  "bg-card flex h-full w-full flex-col gap-2 rounded-2xl border p-5 text-left transition",
-                  on && "border-ter ring-ter/40 ring-2",
-                  o.disabled ? "cursor-not-allowed opacity-60" : "hover:-translate-y-0.5",
+                  "bg-surface flex h-full w-full flex-col gap-2 rounded-[8px] p-5 text-left transition-colors",
+                  on && "ring-2 ring-text",
+                  o.disabled ? "cursor-not-allowed opacity-60" : "",
                 )}
               >
                 <span className="flex items-center justify-between">
-                  <Icon className="text-ter size-6" aria-hidden />
+                  <Icon className="text-accent size-6" aria-hidden />
                   {o.disabled && (
-                    <span className="kicker bg-muted text-foreground/70 rounded-full px-2 py-0.5 text-[0.55rem]">
+                    <span className="text-[12px] font-medium bg-raised text-foreground/70 rounded-full px-2 py-0.5 text-[11px]">
                       {o.disabled}
                     </span>
                   )}
                 </span>
-                <span className="poster text-2xl leading-none">{o.title}</span>
+                <span className="text-lg font-semibold leading-tight tracking-[-0.02em]">{o.title}</span>
                 <span className="text-sm">{o.blurb}</span>
-                <span className="text-muted-foreground text-xs">{o.detail}</span>
+                <span className="text-muted-foreground text-[13px]">{o.detail}</span>
               </button>
             </li>
           );

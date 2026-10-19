@@ -1,106 +1,138 @@
 "use client";
 
-import { Check } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { Reveal } from "@/components/motion/reveal";
-import { Section } from "@/components/brand/section";
-import { creditPacks, formatPrice, plans, type Currency } from "@/config/pricing";
+import { creditPacks, formatPrice, plans, type Currency, type Plan } from "@/config/pricing";
 import { pricing as c } from "@/content/landing";
 import { cn } from "@/lib/utils";
 
+const length = (p: Plan) => (p.maxSeconds >= 60 ? `${Math.round(p.maxSeconds / 60)} min` : `${p.maxSeconds} s`);
+const reels = (p: Plan) => (p.reelsPerMonth === null ? "Volume credits" : `${p.reelsPerMonth}`);
+const endCard = (p: Plan) => (p.watermark ? "Small Rasika mark" : "Clean");
+const extras = (p: Plan) =>
+  p.features.filter((f) => !/reel|export|up to|watermark|mark on/i.test(f)).join(" · ") || "—";
+
+/**
+ * Pricing — "Plans as a large table". Four plans compared in words, the type far larger than a
+ * table usually gets; the recommended plan is the one column on the accent tone.
+ */
 export function Pricing() {
   const [cur, setCur] = useState<Currency>("INR");
+  const rows: Array<[string, (p: Plan) => string]> = [
+    [c.rows.reels, reels],
+    [c.rows.length, length],
+    [c.rows.export, (p) => p.resolution],
+    [c.rows.watermark, endCard],
+    [c.rows.extras, extras],
+  ];
   return (
-    <Section id="pricing" eyebrow={c.eyebrow} title={c.title} sub={c.sub}>
-      <div className="mb-10 flex justify-center">
-        <div
-          role="group"
-          aria-label="Currency"
-          className="bg-card inline-flex rounded-full border p-1 text-sm font-semibold"
-        >
-          {(["INR", "USD"] as Currency[]).map((k) => (
-            <button
-              key={k}
-              type="button"
-              onClick={() => setCur(k)}
-              aria-pressed={cur === k}
-              className={cn(
-                "rounded-full px-5 py-2 transition",
-                cur === k ? "bg-ter text-white" : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {k === "INR" ? "₹ INR" : "$ USD"}
-            </button>
-          ))}
+    <section id="pricing" className="section wrap scroll-mt-6">
+      <div className="flex flex-wrap items-end justify-between gap-6">
+        <div>
+          <h2 className="head">{c.title}</h2>
+          <p className="text-muted mt-3 max-w-[40ch]">{c.sub}</p>
+        </div>
+        <div className="flex flex-col items-start gap-2 sm:items-end">
+          <div role="group" aria-label="Currency" className="seg" data-ui>
+            {(["INR", "USD"] as Currency[]).map((k) => (
+              <button key={k} type="button" onClick={() => setCur(k)} aria-pressed={cur === k}>
+                {k === "INR" ? "₹ INR" : "$ USD"}
+              </button>
+            ))}
+          </div>
+          <p className="text-muted small">{c.currencyNote}</p>
         </div>
       </div>
 
-      <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-        {plans.map((p, i) => (
-          <li key={p.id}>
-            <Reveal kind="card" delay={i * 0.08} className="h-full">
-              <article
-                className={cn(
-                  "bg-card relative flex h-full flex-col rounded-2xl border p-6 shadow-[0_20px_50px_rgba(30,0,5,.12)]",
-                  p.highlight && "border-gold ring-gold/50 ring-2",
-                )}
-              >
-                {p.highlight && (
-                  <span className="kicker bg-gold text-ink absolute -top-3 left-6 rounded-full px-3 py-1 text-[0.6rem]">
-                    Most popular
-                  </span>
-                )}
-                <h3 className="poster text-3xl">{p.name}</h3>
-                <p className="font-accent text-muted-foreground mt-1 text-lg italic">{p.blurb}</p>
-                <p className="mt-5 flex items-baseline gap-1">
-                  <span className="poster text-ter text-5xl">{formatPrice(p.price[cur], cur)}</span>
-                  {p.price[cur] !== null && (
-                    <span className="text-muted-foreground text-sm">{c.perMonth}</span>
-                  )}
-                </p>
-                <ul className="mt-5 flex-1 space-y-2.5 text-sm">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2">
-                      <Check
-                        className="text-goldd dark:text-gold mt-0.5 size-4 shrink-0"
-                        aria-hidden
-                      />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href={p.href}
-                  className={cn(
-                    "mt-7 inline-flex h-11 items-center justify-center rounded-full text-sm font-semibold transition",
-                    p.highlight
-                      ? "bg-ter text-white hover:bg-[#d8553d]"
-                      : "border-goldd/50 text-foreground hover:bg-gold/10 dark:border-gold/40 border",
-                  )}
-                >
+      {/* desktop: the table */}
+      <table className="plans mt-12 hidden w-full lg:table">
+        <thead>
+          <tr>
+            <th scope="col" className="w-1/3 align-top">
+              <span className="sr-only">Compared</span>
+            </th>
+            {plans.map((p) => (
+              <th key={p.id} scope="col" className={cn("align-top", p.highlight && "is-rec")}>
+                <span className="block text-[clamp(1.5rem,3vw,2.75rem)] font-semibold leading-none tracking-[-0.03em]">{p.name}</span>
+                <span className="mt-2 block text-[clamp(1.5rem,3vw,2.75rem)] font-normal leading-none tracking-[-0.02em] tabular-nums">
+                  {formatPrice(p.price[cur], cur)}
+                </span>
+                <span className="mt-2 block text-[1rem] font-normal opacity-80">
+                  {p.price[cur] === null ? "custom" : p.price[cur] === 0 ? "forever" : c.perMonth}
+                </span>
+                <span className="mt-3 block text-[1rem] font-normal opacity-80">{p.blurb}</span>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(([label, f]) => (
+            <tr key={label}>
+              <th scope="row">{label}</th>
+              {plans.map((p) => (
+                <td key={p.id} className={cn(p.highlight && "is-rec")}>
+                  {f(p)}
+                </td>
+              ))}
+            </tr>
+          ))}
+          <tr>
+            <th scope="row">
+              <span className="sr-only">Choose</span>
+            </th>
+            {plans.map((p) => (
+              <td key={p.id} className={cn(p.highlight && "is-rec")}>
+                <Link href={p.href} className={cn("button w-full", p.highlight ? "button-field" : undefined)}>
                   {p.cta}
                 </Link>
-              </article>
-            </Reveal>
+              </td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+
+      {/* phone and tablet: the plans as blocks */}
+      <ul className="mt-10 grid gap-10 md:grid-cols-2 lg:hidden">
+        {plans.map((p) => (
+          <li key={p.id} className={cn("flex flex-col p-6", p.highlight ? "is-rec-block" : "panel")}>
+            <p className="text-[clamp(2.25rem,9vw,3rem)] font-semibold leading-none tracking-[-0.03em]">{p.name}</p>
+            <p className="mt-2 text-[clamp(2.25rem,9vw,3rem)] font-normal leading-none tracking-[-0.02em] tabular-nums">
+              {formatPrice(p.price[cur], cur)}
+              <span className="ml-2 text-[1rem] opacity-80">
+                {p.price[cur] === null ? "custom" : p.price[cur] === 0 ? "forever" : c.perMonth}
+              </span>
+            </p>
+            <p className="mt-3 opacity-80">{p.blurb}</p>
+            <dl className="mt-6 grid gap-3">
+              {rows.map(([label, f]) => (
+                <div key={label}>
+                  <dt className="opacity-70">{label}</dt>
+                  <dd>{f(p)}</dd>
+                </div>
+              ))}
+            </dl>
+            <Link href={p.href} className={cn("button mt-8 w-full", p.highlight ? "button-field" : undefined)}>
+              {p.cta}
+            </Link>
           </li>
         ))}
       </ul>
 
-      <div className="mt-16 text-center">
-        <h3 className="poster text-3xl">{c.creditsTitle}</h3>
-        <p className="font-accent text-muted-foreground mt-1 text-lg italic">{c.creditsSub}</p>
-        <ul className="mx-auto mt-6 grid max-w-3xl gap-4 sm:grid-cols-3">
-          {creditPacks.map((cp) => (
-            <li key={cp.id} className="bg-card rounded-2xl border p-5">
-              <p className="poster text-ter text-4xl">{cp.credits}</p>
-              <p className="kicker text-muted-foreground mt-1 text-[0.6rem]">credits</p>
-              <p className="mt-3 text-xl font-bold">{formatPrice(cp.price[cur], cur)}</p>
-              {cur === "INR" && <p className="text-muted-foreground text-xs">{cp.note}</p>}
+      <div className="grid12 mt-20">
+        <div className="col-span-12 lg:col-span-4">
+          <h3 className="lead font-semibold leading-tight tracking-[-0.02em]">{c.creditsTitle}</h3>
+          <p className="text-muted mt-2 max-w-[32ch]">{c.creditsSub}</p>
+        </div>
+        <ul className="col-span-12 mt-6 lg:col-start-5 lg:col-span-8 lg:mt-0">
+          {creditPacks.map((cp, i) => (
+            <li key={cp.id} className={cn("flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-5 py-4", i % 2 === 0 && "panel")}>
+              <span className="font-medium">{cp.credits} credits</span>
+              <span className="tabular-nums">{formatPrice(cp.price[cur], cur)}</span>
+              <span className="text-muted">{cur === "INR" ? cp.note : " "}</span>
             </li>
           ))}
         </ul>
       </div>
-    </Section>
+    </section>
   );
 }

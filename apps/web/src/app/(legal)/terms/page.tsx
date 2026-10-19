@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Terms of Service" };
 export default function TermsPage() {
   return (
     <article>
-      <p className="kicker text-ter">Draft · for legal review</p>
+      
       <h1>Terms of Service</h1>
       <p>
         These terms govern your use of {brand.name}. By creating an account you agree to them. The

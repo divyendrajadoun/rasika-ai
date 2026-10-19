@@ -75,20 +75,15 @@ export function StatusPill({
   const active = ACTIVE.has(s.status);
   const tone =
     s.status === "done" || s.status === "ready_preview" || s.status === "awaiting_plan_review"
-      ? "bg-gold text-ink"
+      ? "pill-positive"
       : s.status === "failed"
-        ? "bg-[#ff8a66] text-ink"
+        ? "pill-negative"
         : active
-          ? "bg-ter text-white"
-          : "bg-ink/70 text-iv";
+          ? "pill-active"
+          : "pill-neutral";
   return (
-    <span
-      className={cn(
-        "kicker inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-[0.58rem]",
-        tone,
-      )}
-    >
-      {active && <span className="size-1.5 animate-pulse rounded-full bg-white" aria-hidden />}
+    <span className={cn("pill", tone)}>
+      {active && <span className="size-1.5 rounded-full bg-current" aria-hidden />}
       {STATUS_LABEL[s.status] ?? s.status}
       {active && s.progress > 0 && <span>{s.progress}%</span>}
     </span>

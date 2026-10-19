@@ -34,20 +34,21 @@ describe("pricing config", () => {
 describe("landing content", () => {
   it("has every section the spec lists", () => {
     expect(landing.nav.links.map((l) => l.label)).toEqual([
-      "Industries",
       "How it works",
       "Styles",
       "Pricing",
       "FAQ",
     ]);
-    expect(landing.hero.headline).toBe("TALK TO YOUR PHONE. POST LIKE A STUDIO.");
+    expect(landing.hero.headline).toBe("Talk to your phone. Post like a studio.");
+    expect(landing.hero.lines).toHaveLength(2);
+    expect(landing.hero.hindiLines).toHaveLength(2);
     expect(landing.howItWorks.steps).toHaveLength(3);
     expect(landing.features.items).toHaveLength(8);
-    expect(landing.industries.items).toHaveLength(8);
-    for (const it of landing.industries.items) expect(it.poster).toHaveLength(3);
+    expect(landing.showcase.styleIds).toHaveLength(4);
     expect(landing.faq.items.length).toBeGreaterThanOrEqual(6);
     expect(landing.finalCta.title).toBe(brand.tagline);
     expect(landing.footer.madeIn).toBe("Made in India");
+    expect(landing.footer.links.length).toBeGreaterThanOrEqual(3);
   });
 
   it("exposes all twenty-six presets with the original four first", () => {

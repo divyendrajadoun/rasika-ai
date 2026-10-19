@@ -89,6 +89,7 @@ export const DemoVideo = forwardRef<HTMLVideoElement | null, DemoVideoProps>(fun
       <video
         ref={videoRef}
         className="h-full w-full object-cover"
+        poster={poster}
         muted
         loop
         playsInline

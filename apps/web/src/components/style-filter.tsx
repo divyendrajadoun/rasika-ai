@@ -28,52 +28,33 @@ export function useStyleFilter(cards: readonly PresetCard[]) {
   return { family, setFamily, query, setQuery, counts, filtered };
 }
 
+/** Flat filled chips: the chosen one in ink, the rest one tone off the ground. */
 export function FamilyChips({
   counts,
   total,
   value,
   onChange,
-  tone = "light",
 }: {
   counts: Map<Family, number>;
   total: number;
   value: FamilyPick;
   onChange: (f: FamilyPick) => void;
-  /** light = app surfaces · dark = the maroon landing section */
+  /** kept for callers; the chips take their colours from the theme now */
   tone?: "light" | "dark";
 }) {
   const families = (Object.keys(FAMILY_LABEL) as Family[]).filter((f) => counts.has(f));
   const chip = (on: boolean) =>
     cn(
-      "rounded-full border px-3 py-1 text-xs transition",
-      tone === "light"
-        ? on
-          ? "border-ter bg-ter text-white"
-          : "bg-card text-foreground/80 hover:border-ter/60 border-border"
-        : on
-          ? "border-gold bg-gold text-ink"
-          : "text-iv/80 border-white/15 hover:border-white/40",
+      "inline-flex h-9 items-center gap-1.5 px-3 text-[14px] transition-colors duration-150",
+      on ? "bg-text text-bg" : "bg-surface text-text hover:bg-raised",
     );
   return (
-    <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filter styles by motion family">
-      <button
-        type="button"
-        role="tab"
-        aria-selected={value === "all"}
-        className={chip(value === "all")}
-        onClick={() => onChange("all")}
-      >
+    <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Filter styles by motion family">
+      <button type="button" role="tab" aria-selected={value === "all"} className={chip(value === "all")} onClick={() => onChange("all")}>
         All <span className="opacity-60">{total}</span>
       </button>
       {families.map((f) => (
-        <button
-          key={f}
-          type="button"
-          role="tab"
-          aria-selected={value === f}
-          className={chip(value === f)}
-          onClick={() => onChange(f)}
-        >
+        <button key={f} type="button" role="tab" aria-selected={value === f} className={chip(value === f)} onClick={() => onChange(f)}>
           {FAMILY_LABEL[f]} <span className="opacity-60">{counts.get(f)}</span>
         </button>
       ))}

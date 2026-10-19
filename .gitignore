@@ -60,3 +60,8 @@ out/
 tools/styledemos/plans/*.raw.json
 tools/styledemos/plans/*.report.json
 .work-e2e/
+
+# taste-skill run: keep the direction sheets and notes, not the screenshots
+.taste-skill/**/*.jpg
+.taste-skill/**/*.png
+.taste-skill/**/report.json

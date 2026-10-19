@@ -92,6 +92,8 @@ const draftKey = (projectId: string) => `rasika:wizard:${projectId}`;
 export function Wizard({
   initialStyle,
   initialIndustry,
+  initialSource,
+  initialTitle,
   resumeProjectId,
   credits,
   maxSeconds,
@@ -104,6 +106,9 @@ export function Wizard({
   initialStyle?: string;
   /** From the landing page's industry picker — seeds the free-text style wish. */
   initialIndustry?: string;
+  /** From the landing page's closing step: where the reel comes from, and its title. */
+  initialSource?: string;
+  initialTitle?: string;
   resumeProjectId?: string;
   credits: number;
   maxSeconds: number;
@@ -121,7 +126,7 @@ export function Wizard({
   const [consent, setConsent] = useState(false);
   const [draft, setDraft] = useState<Draft>({
     step: 0,
-    mode: "take",
+    mode: (["take", "script", "reference", "presenter"] as SourceMode[]).find((m) => m === initialSource) ?? "take",
     upload: null,
     reference: null,
     fidelity: "camera",
@@ -139,7 +144,7 @@ export function Wizard({
       broll: false,
     },
     brand: { name: "", handle: "", endLine: "", cta: "" },
-    title: "",
+    title: (initialTitle ?? "").slice(0, 80),
   });
 
   // restore a draft for the project being resumed (upload state itself resumes via localStorage too)
@@ -360,10 +365,12 @@ export function Wizard({
 
   return (
     <div className="mx-auto max-w-3xl">
-      <p className="kicker text-goldd dark:text-gold mb-2">New edit</p>
-      <h1 className="poster text-5xl">{STEP_LABEL[stepId]}</h1>
+      <p className="text-muted text-[14px]">
+        New edit · step {draft.step + 1} of {steps.length}
+      </p>
+      <h1 className="mt-1 text-[1.75rem] font-semibold leading-tight tracking-[-0.02em]">{STEP_LABEL[stepId]}</h1>
 
-      <ol className="mt-6 grid grid-cols-5 gap-2" aria-label="Steps">
+      <ol className="mt-5 flex flex-wrap gap-1.5" aria-label="Steps">
         {steps.map((s, i) => (
           <li key={s}>
             <button
@@ -371,19 +378,16 @@ export function Wizard({
               disabled={i > draft.step && !canNext}
               onClick={() => i <= draft.step && setDraft((d) => ({ ...d, step: i }))}
               className={cn(
-                "w-full rounded-xl border px-2 py-2 text-left transition",
+                "inline-flex h-9 items-center rounded-[6px] px-3 text-[14px] transition-colors",
                 i === draft.step
-                  ? "border-ter"
+                  ? "bg-text text-bg font-medium"
                   : i < draft.step
-                    ? "border-gold/50"
-                    : "text-muted-foreground",
+                    ? "bg-surface text-text hover:bg-raised"
+                    : "bg-surface text-muted",
               )}
               aria-current={i === draft.step ? "step" : undefined}
             >
-              <span className="poster text-gold block text-2xl leading-none">0{i + 1}</span>
-              <span className="mt-1 block truncate text-[0.7rem] font-semibold uppercase tracking-wide">
-                {STEP_LABEL[s]}
-              </span>
+              {STEP_LABEL[s]}
             </button>
           </li>
         ))}
@@ -432,7 +436,7 @@ export function Wizard({
             {draft.mode === "reference" && (
               <div className="space-y-4">
                 <div>
-                  <p className="kicker text-goldd dark:text-gold mb-1">The reference</p>
+                  <p className="label mb-1">The reference</p>
                   <p className="text-muted-foreground text-sm">
                     {draft.upload?.complete
                       ? "Now the reel whose rhythm and look you want. We measure its cuts, camera and palette, write a style from them, and cut your take that way."
@@ -450,7 +454,7 @@ export function Wizard({
                   />
                 )}
                 <div>
-                  <p className="kicker text-goldd dark:text-gold mb-2">How closely</p>
+                  <p className="label">How closely</p>
                   <ul className="grid gap-2 sm:grid-cols-3" role="radiogroup" aria-label="Fidelity">
                     {FIDELITY.map((f) => (
                       <li key={f.id}>
@@ -460,12 +464,12 @@ export function Wizard({
                           aria-checked={draft.fidelity === f.id}
                           onClick={() => setDraft((d) => ({ ...d, fidelity: f.id }))}
                           className={cn(
-                            "bg-card h-full w-full rounded-xl border px-3 py-2 text-left transition",
-                            draft.fidelity === f.id && "border-ter ring-ter/40 ring-2",
+                            "bg-surface h-full w-full rounded-[8px] px-3 py-2 text-left transition-colors",
+                            draft.fidelity === f.id && "ring-2 ring-text",
                           )}
                         >
                           <span className="block font-semibold">{f.label}</span>
-                          <span className="text-muted-foreground block text-xs">{f.blurb}</span>
+                          <span className="text-muted-foreground block text-[13px]">{f.blurb}</span>
                         </button>
                       </li>
                     ))}
@@ -503,29 +507,29 @@ export function Wizard({
 
       {error && (
         <p
-          className="mt-6 rounded-lg bg-[#ff8a66]/15 px-3 py-2 text-sm text-[#ff8a66]"
+          className="mt-6 rounded-[6px] bg-surface px-3 py-2 text-sm text-[#ff8a66]"
           role="alert"
         >
           {error}
         </p>
       )}
 
-      <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t pt-6">
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-3 pt-6">
         <button
           type="button"
-          className="btn-outline-gold"
+          className="button button-ghost"
           disabled={draft.step === 0}
           onClick={() => setDraft((d) => ({ ...d, step: Math.max(0, d.step - 1) }))}
         >
-          ← Back
+          Back
         </button>
         {draft.step < steps.length - 1 ? (
-          <button type="button" className="btn-ter" disabled={!canNext || pending} onClick={next}>
+          <button type="button" className="button" disabled={!canNext || pending} onClick={next}>
             {pending
               ? "One moment…"
               : stepId === "photos" && draft.photos.length === 0
-                ? "Skip photos →"
-                : "Continue →"}
+                ? "Skip photos"
+                : "Continue"}
           </button>
         ) : (
           <div className="flex items-center gap-4">
@@ -538,7 +542,7 @@ export function Wizard({
             </span>
             <button
               type="button"
-              className="btn-ter"
+              className="button"
               disabled={pending || !consent || credits < cost}
               onClick={submit}
             >

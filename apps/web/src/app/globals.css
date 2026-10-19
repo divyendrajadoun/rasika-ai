@@ -1,12 +1,22 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "./components.css";
 
-/* Theme switching: `data-theme` on <html>. Dark (maroon) is the default. */
+/*
+  Rasika — page and app tokens.
+  Direction "The product performs" (taste-skill v2, seed 1170911086): one grotesk (Switzer), one
+  ground, one ink, one accent, flat surfaces told apart by a tone step, no gradients, no shadows
+  at rest, no hairlines. The palette's proportions are the dealt "Sheet and biro"; its colours are
+  the subject's own: bone ground, oxblood ink, deep gold as the one accent, an oxblood field for the
+  inverted chapters. The reels inside `[data-ui]` fragments keep the engine's own colours and faces.
+  `data-theme="dark"` (the dashboard, and the landing's toggle) inverts to the app sheet
+  "True-black flat": a warm near-black ground, elevation by lightness alone.
+*/
 @custom-variant dark (&:is([data-theme="dark"] *));
 
 @theme inline {
-  /* ── brand tokens (same names as the engine's colour tokens) ── */
+  /* ── brand tokens (same names as the engine's colour tokens; used inside reel fragments) ── */
   --color-stage: var(--stage);
   --color-mar: var(--mar);
   --color-ter: var(--ter);
@@ -14,6 +24,17 @@
   --color-goldd: var(--goldd);
   --color-iv: var(--iv);
   --color-ink: var(--ink);
+
+  /* ── page roles ── */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-text: var(--text);
+  --color-muted: var(--muted-ink);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-field: var(--field-1);
+  --color-field-ink: var(--field-1-ink);
 
   /* ── semantic (shadcn) ── */
   --color-background: var(--background);
@@ -26,9 +47,7 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-border: var(--border);
@@ -48,26 +67,38 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-anton), Impact, "Arial Narrow Bold", sans-serif;
-  --font-accent: var(--font-serif), Georgia, serif;
+  --font-sans: var(--font-switzer), "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-switzer), "Helvetica Neue", Arial, sans-serif;
+  --font-heading: var(--font-switzer), "Helvetica Neue", Arial, sans-serif;
+  /* the reel's own faces, only inside [data-ui] fragments */
+  --font-reel: var(--font-anton), Impact, "Arial Narrow Bold", sans-serif;
+  --font-reel-text: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-devanagari: var(--font-tiro), "Noto Sans Devanagari", serif;
-  --font-heading: var(--font-display);
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  /* square by direction; the app sheet's controls keep 4–6px */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
 
-  --animate-caption-pop: caption-pop 0.19s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  --animate-drift: drift 6s linear infinite;
+  /* type steps (type.md §2); the display size is the hero blueprint's */
+  --text-small: var(--step-small);
+  --text-body: var(--step-body);
+  --text-lead: var(--step-lead);
+  --text-head: var(--step-head);
+  --text-display: var(--step-display);
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-exit: cubic-bezier(0.55, 0.055, 0.675, 0.19);
 }
 
-/* ── brand palette: identical in both themes (matches apps/web/src/config/brand.ts) ── */
+/* ── brand palette (the engine's tokens; identical in both themes) ── */
 :root {
   --stage: #3a0a11;
   --mar: #5a0f1a;
@@ -76,85 +107,120 @@
   --goldd: #9a6a14;
   --iv: #f6ecd8;
   --ink: #1a0a0c;
-  --radius: 0.75rem;
+  --radius: 0px;
+
+  --step-small: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
+  --step-body: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+  --step-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
+  --step-head: clamp(2rem, 1.3rem + 3.2vw, 4rem);
+  --step-display: clamp(3.5rem, 1rem + 7.5vw, 8.5rem);
+  --step-closing: clamp(2.5rem, 1.2rem + 4.4vw, 4.5rem);
+
+  --margin: clamp(1rem, 2.2vw, 2rem);
+  --gutter: clamp(0.75rem, 1.4vw, 1.5rem);
+  --section-gap: clamp(4rem, 2.5rem + 4.5vw, 7.5rem);
+
+  --t-press: 140ms;
+  --t-hover: 180ms;
+  --t-ui: 240ms;
+  --t-reveal: 800ms;
+  --stagger-line: 90ms;
+  --stagger-item: 70ms;
 }
 
-/* ── Light (ivory) theme ── */
-:root[data-theme="light"] {
-  color-scheme: light;
-  --background: #f6ecd8;
-  --foreground: #1a0a0c;
-  --card: #fbf5e8;
-  --card-foreground: #1a0a0c;
-  --popover: #fbf5e8;
-  --popover-foreground: #1a0a0c;
-  --primary: #c8452f;
-  --primary-foreground: #fff6e2;
-  --secondary: #efe2c8;
-  --secondary-foreground: #3a0a11;
-  --muted: #efe2c8;
-  --muted-foreground: #5f4b43;
-  --accent: #efe2c8;
-  --accent-foreground: #3a0a11;
-  --destructive: #b3261e;
-  --border: rgba(58, 10, 17, 0.14);
-  --input: rgba(58, 10, 17, 0.18);
-  --ring: #9a6a14;
-  --chart-1: #c8452f;
-  --chart-2: #e6b450;
-  --chart-3: #5a0f1a;
-  --chart-4: #9a6a14;
-  --chart-5: #3a0a11;
-  --sidebar: #fbf5e8;
-  --sidebar-foreground: #1a0a0c;
-  --sidebar-primary: #c8452f;
-  --sidebar-primary-foreground: #fff6e2;
-  --sidebar-accent: #efe2c8;
-  --sidebar-accent-foreground: #3a0a11;
-  --sidebar-border: rgba(58, 10, 17, 0.14);
-  --sidebar-ring: #9a6a14;
-}
-
-/* ── Dark (maroon) theme — the default ── */
+/* ── the page: bone ground, oxblood ink, deep gold accent ── */
 :root,
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --background: #1f070b;
-  --foreground: #f6ecd8;
-  --card: #2d0a10;
-  --card-foreground: #f6ecd8;
-  --popover: #2d0a10;
-  --popover-foreground: #f6ecd8;
-  --primary: #c8452f;
-  --primary-foreground: #fff6e2;
-  --secondary: #3a0a11;
-  --secondary-foreground: #f6ecd8;
-  --muted: #3a0a11;
-  --muted-foreground: #d9c4a8;
-  --accent: #4a0f17;
-  --accent-foreground: #f6ecd8;
-  --destructive: #ff8a66;
-  --border: rgba(230, 180, 80, 0.18);
-  --input: rgba(230, 180, 80, 0.22);
-  --ring: #e6b450;
-  --chart-1: #c8452f;
-  --chart-2: #e6b450;
-  --chart-3: #f6ecd8;
-  --chart-4: #9a6a14;
-  --chart-5: #5a0f1a;
-  --sidebar: #2d0a10;
-  --sidebar-foreground: #f6ecd8;
-  --sidebar-primary: #c8452f;
-  --sidebar-primary-foreground: #fff6e2;
-  --sidebar-accent: #4a0f17;
-  --sidebar-accent-foreground: #f6ecd8;
-  --sidebar-border: rgba(230, 180, 80, 0.18);
-  --sidebar-ring: #e6b450;
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f1f0ec;
+  --surface: #e8e6e0;
+  --raised: #dedbd3;
+  --text: #2b0a10;
+  --muted-ink: #5a4a4d;
+  --accent: #9a6a14;
+  --accent-strong: #7d5610;
+  --accent-ink: #f3f2ee;
+  --field-1: #3a0a11;
+  --field-1-ink: #f0efeb;
+  --field-1-muted: #d3c6bc;
+
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card: var(--surface);
+  --card-foreground: var(--text);
+  --popover: #f8f7f4;
+  --popover-foreground: var(--text);
+  --primary: var(--text);
+  --primary-foreground: #f1f0ec;
+  --secondary: var(--surface);
+  --secondary-foreground: var(--text);
+  --muted: var(--surface);
+  --muted-foreground: var(--muted-ink);
+  --accent-foreground: var(--accent-ink);
+  --destructive: #a8231b;
+  --border: rgba(43, 10, 16, 0.14);
+  --input: rgba(43, 10, 16, 0.18);
+  --ring: var(--accent);
+  --chart-1: #9a6a14;
+  --chart-2: #3a0a11;
+  --chart-3: #c8452f;
+  --chart-4: #6b5a5d;
+  --chart-5: #e6b450;
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--text);
+  --sidebar-primary: var(--text);
+  --sidebar-primary-foreground: #f1f0ec;
+  --sidebar-accent: var(--raised);
+  --sidebar-accent-foreground: var(--text);
+  --sidebar-border: rgba(43, 10, 16, 0.14);
+  --sidebar-ring: var(--accent);
 }
 
-/* Re-apply light when the toggle says so, even though :root above sets dark. */
-:root[data-theme="light"] {
-  color-scheme: light;
+/* ── the app: warm near-black, elevation by lightness alone (app sheet "True-black flat") ── */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #120406;
+  --surface: #1f0b0e;
+  --raised: #2d1317;
+  --text: #f0ebe4;
+  --muted-ink: #bba99f;
+  --accent: #e6b450;
+  --accent-strong: #f0c76a;
+  --accent-ink: #1a0a0c;
+  --field-1: #f1f0ec;
+  --field-1-ink: #2b0a10;
+  --field-1-muted: #5a4a4d;
+
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card: var(--surface);
+  --card-foreground: var(--text);
+  --popover: var(--raised);
+  --popover-foreground: var(--text);
+  --primary: var(--text);
+  --primary-foreground: #1a0a0c;
+  --secondary: var(--surface);
+  --secondary-foreground: var(--text);
+  --muted: var(--surface);
+  --muted-foreground: var(--muted-ink);
+  --accent-foreground: var(--accent-ink);
+  --destructive: #ff8a66;
+  --border: rgba(240, 235, 228, 0.14);
+  --input: rgba(240, 235, 228, 0.18);
+  --ring: var(--accent);
+  --chart-1: #e6b450;
+  --chart-2: #f0ebe4;
+  --chart-3: #c8452f;
+  --chart-4: #bda89b;
+  --chart-5: #9a6a14;
+  --sidebar: var(--bg);
+  --sidebar-foreground: var(--text);
+  --sidebar-primary: var(--text);
+  --sidebar-primary-foreground: #1a0a0c;
+  --sidebar-accent: var(--surface);
+  --sidebar-accent-foreground: var(--text);
+  --sidebar-border: rgba(240, 235, 228, 0.14);
+  --sidebar-ring: var(--accent);
 }
 
 @layer base {
@@ -162,20 +228,39 @@
     @apply border-border outline-ring/50;
   }
   html {
-    @apply scroll-smooth font-sans;
+    @apply font-sans;
     -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
   }
   body {
     @apply bg-background text-foreground antialiased;
     overflow-x: clip;
+    font-size: var(--step-body);
+    line-height: 1.5;
+    font-kerning: normal;
+    text-rendering: optimizeLegibility;
+    letter-spacing: -0.005em;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 0.98;
+    text-wrap: balance;
+    hyphens: none;
   }
   ::selection {
-    background: var(--gold);
-    color: var(--ink);
+    background: var(--accent);
+    color: var(--accent-ink);
   }
   :focus-visible {
-    outline: 3px solid var(--gold);
-    outline-offset: 3px;
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
   @media (prefers-reduced-motion: reduce) {
     html {
@@ -192,190 +277,222 @@
 }
 
 @layer components {
-  /* Gold-dot jaali pattern from the reference template's #pattern layer. */
-  .jaali {
-    background-color: var(--stage);
-    background-image:
-      radial-gradient(circle, rgba(230, 180, 80, 0.16) 2.5px, transparent 3.5px),
-      radial-gradient(circle, rgba(230, 180, 80, 0.08) 1.5px, transparent 2.5px);
-    background-size:
-      60px 60px,
-      60px 60px;
-    background-position:
-      0 0,
-      30px 30px;
+  /* ── the frame: one pair of margins, a 12-column grid felt through alignment ── */
+  .wrap,
+  .container-x {
+    padding-inline: var(--margin);
+    width: 100%;
   }
-  .jaali-drift {
-    animation: var(--animate-drift);
+  .grid12 {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--gutter);
   }
-  /* Film grain overlay at ~5 %. */
-  .grain {
-    position: relative;
-    isolation: isolate;
+  .section {
+    padding-block: var(--section-gap);
   }
-  .grain::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 1;
-    opacity: 0.05;
-    mix-blend-mode: soft-light;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-    background-size: 160px 160px;
+  .section-tight {
+    padding-block: calc(var(--section-gap) * 0.6);
   }
-  /* Palace-arch mask: the end card's `arch` shape. */
-  .arch {
-    border-radius: 999px 999px 40px 40px / 50% 50% 40px 40px;
+
+  /* ── type ── */
+  .display {
+    font-size: var(--step-display);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    font-weight: 600;
+    text-wrap: balance;
+    hyphens: none;
   }
-  .gold-rule {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--gold) 20%, var(--gold) 80%, transparent);
+  .head {
+    font-size: var(--step-head);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-weight: 600;
+    text-wrap: balance;
   }
-  .poster {
-    @apply font-display uppercase leading-[0.98] tracking-[0.01em];
+  .lead {
+    font-size: var(--step-lead);
+    line-height: 1.35;
+    font-weight: 400;
+    max-width: 40ch;
   }
-  .kicker {
-    @apply font-sans text-[0.72rem] font-extrabold uppercase tracking-[0.28em];
+  .small {
+    font-size: var(--step-small);
+    line-height: 1.45;
   }
-  .caption {
-    @apply font-sans font-extrabold;
+  .measure {
+    max-width: 62ch;
+  }
+  .lines .line {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.08em;
+    margin-bottom: -0.08em;
+  }
+  .lines [data-line] {
+    display: block;
+  }
+
+  /* ── controls: flat, one fill, rectangular ── */
+  .button,
+  .btn-ter,
+  .btn-outline-gold {
+    @apply inline-flex h-12 items-center justify-center px-6 font-medium;
+    background: var(--text);
+    color: var(--bg);
+    border-radius: 0;
+    font-size: var(--step-body);
+    transition:
+      transform var(--t-press) var(--ease-out),
+      background-color var(--t-hover) ease,
+      color var(--t-hover) ease;
+  }
+  .button:active {
+    transform: scale(0.97);
+  }
+  .button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .button-accent {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+  .button-ghost,
+  .btn-outline-gold {
+    background: var(--surface);
+    color: var(--text);
+  }
+  .button-field {
+    background: var(--field-1-ink);
+    color: var(--field-1);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .button:hover {
+      background: var(--accent);
+      color: var(--accent-ink);
+    }
+    .button-accent:hover {
+      background: var(--accent-strong);
+    }
+    .button-ghost:hover,
+    .btn-outline-gold:hover {
+      background: var(--raised);
+      color: var(--text);
+    }
+  }
+  .link {
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 0.07em;
+    transition: text-decoration-color var(--t-hover) ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .link:hover {
+      text-decoration-color: currentColor;
+    }
+  }
+  .input {
+    @apply h-12 w-full px-4 text-base outline-none;
+    background: var(--surface);
+    color: var(--text);
+    border: 0;
+    border-radius: 0;
+  }
+  .input::placeholder {
+    color: var(--muted-ink);
+  }
+  .input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  textarea.input {
+    @apply h-auto py-3;
+  }
+  select.input {
+    appearance: none;
+  }
+  /* .btn-ter / .btn-outline-gold are kept names for the app screens (same flat button) */
+  .icon-btn {
+    @apply inline-flex size-10 items-center justify-center;
+    color: var(--muted-ink);
+    transition: color var(--t-hover) ease, background-color var(--t-hover) ease;
+  }
+  .icon-btn:hover {
+    color: var(--text);
+    background: var(--surface);
+  }
+  /* a surface is a tone step, never a line */
+  .panel {
+    background: var(--surface);
+  }
+  .panel-raised {
+    background: var(--raised);
+  }
+
+  /* ── reel fragments: the product's own type, kept inside [data-ui] ── */
+  .reel-poster {
+    font-family: var(--font-reel);
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    line-height: 1.15;
+  }
+  .reel-caption {
+    font-family: var(--font-reel-text);
+    font-weight: 800;
     color: #fff6e2;
     -webkit-text-stroke: 0.14em #2a060c;
     paint-order: stroke fill;
   }
-  .caption-gold {
-    @apply font-accent italic;
-    color: var(--gold);
-    -webkit-text-stroke: 0.1em #2a060c;
-    paint-order: stroke fill;
-  }
-  .caption-red {
-    @apply font-display uppercase;
-    color: #ff8a66;
-    -webkit-text-stroke: 0.1em #2a060c;
-    paint-order: stroke fill;
-  }
-  .polaroid {
-    background: var(--iv);
-    padding: 4% 4% 14%;
-    border-radius: 4px;
-    box-shadow: 0 20px 50px rgba(30, 0, 5, 0.45);
+  /* the end card's arch — the one shape the engine owns */
+  .arch {
+    border-radius: 999px 999px 0 0 / 50% 50% 0 0;
   }
 
-  /* ── motion primitives (CSS-first so they run before hydration) ── */
-  .rise-mask {
-    display: inline-block;
-    overflow: hidden;
-    vertical-align: bottom;
-    padding: 0.14em 0.04em 0.1em;
-    margin: -0.14em 0 -0.1em;
+  /* ── motion (every hidden state only without reduced motion; the reduced page is the finished page) ── */
+  @media (prefers-reduced-motion: no-preference) {
+    .js .lines [data-line] {
+      transform: translateY(105%);
+      animation: line-up 900ms var(--ease-expo) forwards;
+      animation-delay: calc(var(--i, 0) * 110ms + 150ms);
+    }
+    .js [data-load] {
+      opacity: 0;
+      transform: translateY(12px);
+      animation: load-rise 500ms var(--ease-out) forwards;
+      animation-delay: var(--d, 420ms);
+    }
+    .js [data-reveal] {
+      opacity: 0;
+      transform: translateY(24px);
+      transition:
+        opacity 700ms var(--ease-expo),
+        transform 900ms var(--ease-expo);
+      transition-delay: calc(var(--i, 0) * var(--stagger-item));
+    }
+    .js [data-reveal].is-in {
+      opacity: 1;
+      transform: none;
+    }
+    .js .shutter {
+      clip-path: inset(0 0 100% 0);
+      transition: clip-path 1100ms var(--ease-in-out);
+    }
+    .js .shutter.is-in {
+      clip-path: inset(0);
+    }
   }
-  .rise-word {
-    display: inline-block;
-    will-change: transform;
-    transform: translateY(125%);
-    animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  @keyframes line-up {
+    to {
+      transform: none;
+    }
   }
-  .fade-up {
-    animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  .card-in {
-    animation: card-in 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  }
-  .reveal {
-    transition-property: opacity, transform;
-    transition-duration: 0.6s;
-    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .reveal-card {
-    transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  .reveal-hidden.reveal-up {
-    opacity: 0;
-    transform: translateY(28px);
-  }
-  .reveal-hidden.reveal-card {
-    opacity: 0;
-    transform: translateY(80px) rotate(3deg);
-  }
-  .reveal-hidden.reveal-shown {
-    opacity: 1;
-    transform: none;
-  }
-  .container-x {
-    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
-  }
-}
-
-@keyframes caption-pop {
-  from {
-    transform: translateY(18px) scale(0.72);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
-}
-@keyframes drift {
-  from {
-    background-position:
-      0 0,
-      30px 30px;
-  }
-  to {
-    background-position:
-      0 -60px,
-      30px -30px;
-  }
-}
-
-@keyframes rise {
-  from {
-    transform: translateY(125%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-@keyframes fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(28px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-@keyframes card-in {
-  from {
-    transform: translateY(80px) rotate(3deg);
-  }
-  to {
-    transform: translateY(0) rotate(0);
-  }
-}
-
-/* ── app form + button primitives (dashboard, wizard, login) ── */
-@layer components {
-  .input {
-    @apply bg-background text-foreground placeholder:text-muted-foreground focus-visible:border-gold h-11 w-full rounded-xl border px-3 text-base outline-none;
-  }
-  textarea.input {
-    @apply h-auto py-2;
-  }
-  .input-dark {
-    @apply border-gold/30 bg-ink/40 text-iv placeholder:text-iv/40 h-12 w-full rounded-xl border px-4 text-base outline-none;
-  }
-  .btn-ter {
-    @apply bg-ter inline-flex h-11 items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold text-white transition hover:bg-[#d8553d] disabled:cursor-not-allowed disabled:opacity-50;
-  }
-  .btn-outline-gold {
-    @apply border-goldd/50 dark:border-gold/40 hover:bg-gold/10 inline-flex h-11 items-center justify-center gap-2 rounded-full border px-5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50;
-  }
-  .icon-btn {
-    @apply text-muted-foreground hover:bg-gold/10 hover:text-foreground inline-flex size-9 items-center justify-center rounded-full transition;
+  @keyframes load-rise {
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 }

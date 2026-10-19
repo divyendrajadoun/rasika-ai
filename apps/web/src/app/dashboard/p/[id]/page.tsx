@@ -43,20 +43,20 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
       <div>
-        <Link href="/dashboard" className="text-muted-foreground text-sm hover:underline">
-          ← Projects
+        <Link href="/dashboard" className="link text-muted text-[14px]">
+          Projects
         </Link>
-        <h1 className="poster mt-3 text-5xl">{project.title}</h1>
-        <p className="text-muted-foreground mt-2">
+        <h1 className="mt-2 text-[1.75rem] font-semibold leading-tight tracking-[-0.02em]">{project.title}</h1>
+        <p className="text-muted mt-1 text-[14px]">
           {fmtDuration(project.durationSec)} · {preset} · {project.creditsCost} credit
           {project.creditsCost === 1 ? "" : "s"}
           {project.styleText ? ` · “${project.styleText}”` : ""}
         </p>
 
         {project.status === "draft" ? (
-          <div className="mt-8 rounded-2xl border border-dashed p-6">
-            <p className="font-accent text-2xl italic">This reel hasn&apos;t been submitted yet.</p>
-            <Link href={`/dashboard/new?project=${project.id}`} className="btn-ter mt-4">
+          <div className="bg-surface mt-8 rounded-[8px] p-6">
+            <p className="font-medium">This reel hasn&apos;t been submitted yet.</p>
+            <Link href={`/dashboard/new?project=${project.id}`} className="button mt-4">
               Continue setup
             </Link>
           </div>
@@ -75,7 +75,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         {transcript && <TranscriptPanel transcript={transcript} />}
 
         <section id="download" className="mt-10">
-          <h2 className="poster text-3xl">Export</h2>
+          <h2 className="text-xl font-semibold leading-tight tracking-[-0.02em]">Export</h2>
           {output ? (
             <div className="mt-4 space-y-4">
               <video
@@ -83,25 +83,25 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                 controls
                 playsInline
                 preload="metadata"
-                className="bg-stage aspect-[9/16] w-full max-w-xs rounded-xl"
+                className="bg-[#111] aspect-[9/16] w-full max-w-xs rounded-[8px]"
               />
               <div className="flex flex-wrap gap-2">
-                <a href={output.url} className="btn-ter" download>
+                <a href={output.url} className="button" download>
                   Download 1080p MP4
                 </a>
                 {share && (
-                  <a href={share.url} className="btn-outline-gold" download>
+                  <a href={share.url} className="button button-ghost" download>
                     720p share copy
                   </a>
                 )}
               </div>
-              <p className="text-muted-foreground text-xs">
+              <p className="text-muted-foreground text-[13px]">
                 {(output.sizeBytes / 1024 / 1024).toFixed(1)} MB · plan v
                 {output.meta.planVersion ?? plan?.version ?? "?"} · rendered in{" "}
                 {output.meta.chunks ?? "?"} parallel chunks
               </p>
               {stockCredits.length > 0 && (
-                <p className="text-muted-foreground text-xs">
+                <p className="text-muted-foreground text-[13px]">
                   Stock footage via Pexels:{" "}
                   {stockCredits.map(([author, url], i) => (
                     <span key={author}>
@@ -125,9 +125,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                 controls
                 playsInline
                 preload="metadata"
-                className="bg-stage aspect-[9/16] w-full max-w-xs rounded-xl"
+                className="bg-[#111] aspect-[9/16] w-full max-w-xs rounded-[8px]"
               />
-              <p className="text-muted-foreground text-xs">
+              <p className="text-muted-foreground text-[13px]">
                 540p preview · the full-quality render follows.
               </p>
             </div>
@@ -138,7 +138,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                 : "Your transcript is ready. The edit plan (Phase 5) and the final MP4 appear here after that step."}
             </p>
           )}
-          <p className="text-muted-foreground mt-3 text-xs">
+          <p className="text-muted-foreground mt-3 text-[13px]">
             <Link href={`/dev/engine?project=${project.id}`} className="hover:underline">
               Open in the engine dev player
             </Link>
@@ -148,8 +148,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       </div>
 
       <aside className="space-y-6">
-        <div className="bg-card rounded-2xl border p-4">
-          <p className="kicker text-goldd dark:text-gold mb-3">Your reel</p>
+        <div className="bg-surface rounded-[8px] p-4">
+          <p className="label">Your reel</p>
           {source ? (
             <>
               <video
@@ -157,9 +157,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                 controls
                 playsInline
                 preload="metadata"
-                className="bg-stage aspect-[9/16] w-full rounded-xl"
+                className="bg-[#111] aspect-[9/16] w-full rounded-[8px]"
               />
-              <p className="text-muted-foreground mt-2 truncate text-xs">
+              <p className="text-muted-foreground mt-2 truncate text-[13px]">
                 {source.filename} · {(source.sizeBytes / 1024 / 1024).toFixed(0)} MB
               </p>
             </>
@@ -168,22 +168,22 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
           )}
         </div>
         {images.length > 0 && (
-          <div className="bg-card rounded-2xl border p-4">
-            <p className="kicker text-goldd dark:text-gold mb-3">Photos ({images.length})</p>
+          <div className="bg-surface rounded-[8px] p-4">
+            <p className="label">Photos ({images.length})</p>
             <ul className="grid grid-cols-3 gap-2">
               {images.map((img) => (
-                <li key={img.id} className="polaroid !p-1 !pb-4">
+                <li key={img.id} className="bg-surface rounded-[6px] p-1 pb-2">
                   {/* eslint-disable-next-line @next/next/no-img-element -- presigned S3 URL */}
                   <img
                     src={img.url}
                     alt={img.meta.label ?? ""}
                     className="aspect-[4/5] w-full rounded-sm object-cover"
                   />
-                  <p className="poster text-mar mt-1 truncate text-center text-[10px]">
+                  <p className="font-semibold tracking-[-0.02em] text-text mt-1 truncate text-center text-[12px]">
                     {img.meta.label || "—"}
                   </p>
                   {img.meta.sayWhen && (
-                    <p className="text-mar/70 truncate text-center text-[9px] italic">
+                    <p className="text-muted truncate text-center text-[11px]">
                       “{img.meta.sayWhen}”
                     </p>
                   )}
@@ -192,8 +192,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
             </ul>
           </div>
         )}
-        <div className="bg-card rounded-2xl border p-4">
-          <p className="kicker text-goldd dark:text-gold mb-3">Brand & ending</p>
+        <div className="bg-surface rounded-[8px] p-4">
+          <p className="label">Brand & ending</p>
           <dl className="text-sm">
             <dt className="text-muted-foreground">Brand</dt>
             <dd>
@@ -208,13 +208,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         <div className="flex gap-2">
           <form action={duplicateProject} className="flex-1">
             <input type="hidden" name="id" value={project.id} />
-            <button type="submit" className="btn-outline-gold w-full">
+            <button type="submit" className="button button-ghost w-full">
               Duplicate
             </button>
           </form>
           <form action={deleteProject} className="flex-1">
             <input type="hidden" name="id" value={project.id} />
-            <button type="submit" className="btn-outline-gold w-full hover:text-[#ff8a66]">
+            <button type="submit" className="button button-ghost w-full hover:text-[#ff8a66]">
               Delete
             </button>
           </form>

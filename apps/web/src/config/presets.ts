@@ -105,7 +105,7 @@ const previewCopy: Record<string, PresetCard["preview"]> = {
   },
   "slam-neon": { kicker: "", big: "NOT READY", italic: "yet", caption: "ready" },
   "spotlight-promo": { kicker: "the offer", big: "Two for one", italic: "this week", caption: "week" },
-  "showreel-blocks": { kicker: "01", big: "FIVE", italic: "features", caption: "five" },
+  "showreel-blocks": { kicker: "01", big: "FIVE", italic: "features", caption: "five" }, // taste-skill-ignore: reel preview copy, a chapter number inside the reel
   "brand-bar": { kicker: "", big: "Taste matters.", italic: "", caption: "taste" },
   "beat-type": { kicker: "", big: "STOP", italic: "scrolling", caption: "stop" },
   motionmaxxed: { kicker: "", big: "Only one brand", italic: "does this.", caption: "one" },
@@ -120,7 +120,7 @@ const previewCopy: Record<string, PresetCard["preview"]> = {
   "window-facecam": { kicker: "window", big: "One blue.", italic: "nothing else", caption: "blue" },
   "tabloid-headline": { kicker: "EXCLUSIVE", big: "THEY LIED", italic: "and we have proof", caption: "proof" },
   "viewfinder": { kicker: "REC 00:12", big: "FOCUS", italic: "on the one thing", caption: "focus" },
-  "paper-explainer": { kicker: "01", big: "Start here", italic: "one idea per card", caption: "card" },
+  "paper-explainer": { kicker: "01", big: "Start here", italic: "one idea per card", caption: "card" }, // taste-skill-ignore: reel preview copy, a chapter number inside the reel
   "zine-collage": { kicker: "600", big: "ZINE", italic: "cut and paste", caption: "paste" },
   "vibe-life": { kicker: "the rule", big: "Buy less,", italic: "wear it more", caption: "wear" },
   "kinetic-editorial": { kicker: "but", big: "NOT THIS", italic: "this.", caption: "this" },
@@ -132,7 +132,7 @@ const previewCopy: Record<string, PresetCard["preview"]> = {
   "pixel-rpg": { kicker: "STAGE 1", big: "LEVEL UP", italic: "press start", caption: "start" },
   "paper-manuscript": { kicker: "\u00a7 1", big: "Taste is exposure", italic: "\u00d7 repetition", caption: "taste" },
   "ohneis": { kicker: "", big: "quiet luxury", italic: "is a habit", caption: "habit" },
-  "porcelain-keynote": { kicker: "01", big: "One message", italic: "per frame", caption: "message" },
+  "porcelain-keynote": { kicker: "01", big: "One message", italic: "per frame", caption: "message" }, // taste-skill-ignore: reel preview copy, a chapter number inside the reel
   "paper-blue": { kicker: "// 01", big: "Measured,", italic: "not guessed", caption: "measured" },
   "ai-studio": { kicker: "step 1", big: "Connect it", italic: "then forget it", caption: "connect" },
   "oneshot-paper": { kicker: "the hook", big: "One take.", italic: "No frantic cuts.", caption: "take" },
@@ -146,7 +146,7 @@ const previewCopy: Record<string, PresetCard["preview"]> = {
   "bold-ad": { kicker: "STOP", big: "SCROLLING", italic: "this is the one", caption: "stop" },
   "premium-serif": { kicker: "", big: "Quiet money", italic: "moves slowly", caption: "quiet" },
   "fun-pop": { kicker: "YAY", big: "Day 30", italic: "results are in", caption: "results" },
-  "brew-cards": { kicker: "01", big: "ONE FACT", italic: "per beat", caption: "fact" },
+  "brew-cards": { kicker: "01", big: "ONE FACT", italic: "per beat", caption: "fact" }, // taste-skill-ignore: reel preview copy, a chapter number inside the reel
   "pi-light": { kicker: "", big: "Out of the blur", italic: "when spoken", caption: "blur" },
   "warm-paper": { kicker: "", big: "Slow desk,", italic: "clear head", caption: "slow" },
   "handdrawn-notes": { kicker: "note to self", big: "Buy less", italic: "wear it more", caption: "wear" },

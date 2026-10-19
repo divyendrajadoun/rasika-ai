@@ -20,12 +20,12 @@ export function StepBrand({
   const set = (patch: Partial<BrandState>) => onChange({ ...value, ...patch });
   return (
     <div className="space-y-6">
-      <p className="font-accent text-muted-foreground text-xl italic">
+      <p className="text-muted">
         Optional. Everything here lands on the end card.
       </p>
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block sm:col-span-2">
-          <span className="kicker text-goldd dark:text-gold mb-2 block">Project title</span>
+          <span className="label">Project title</span>
           <input
             className="input"
             maxLength={120}
@@ -35,7 +35,7 @@ export function StepBrand({
           />
         </label>
         <label className="block">
-          <span className="kicker text-goldd dark:text-gold mb-2 block">Brand name</span>
+          <span className="label">Brand name</span>
           <input
             className="input"
             maxLength={60}
@@ -45,7 +45,7 @@ export function StepBrand({
           />
         </label>
         <label className="block">
-          <span className="kicker text-goldd dark:text-gold mb-2 block">Handle or website</span>
+          <span className="label">Handle or website</span>
           <input
             className="input"
             maxLength={60}
@@ -55,7 +55,7 @@ export function StepBrand({
           />
         </label>
         <label className="block">
-          <span className="kicker text-goldd dark:text-gold mb-2 block">End-card line</span>
+          <span className="label">End-card line</span>
           <input
             className="input"
             maxLength={120}
@@ -65,7 +65,7 @@ export function StepBrand({
           />
         </label>
         <label className="block">
-          <span className="kicker text-goldd dark:text-gold mb-2 block">Call to action</span>
+          <span className="label">Call to action</span>
           <input
             className="input"
             maxLength={60}
@@ -75,7 +75,7 @@ export function StepBrand({
           />
         </label>
       </div>
-      <label className="bg-card flex items-start gap-3 rounded-xl border p-4">
+      <label className="bg-surface flex items-start gap-3 rounded-[8px] p-4">
         <input
           type="checkbox"
           className="mt-0.5 size-5 shrink-0 accent-[var(--ter)]"

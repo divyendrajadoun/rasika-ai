@@ -32,8 +32,8 @@ export function StepStyle({
     <div className="space-y-8">
       <div>
         <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <p className="kicker text-goldd dark:text-gold">Style</p>
-          <p className="text-muted-foreground text-xs">
+          <p className="label mb-0">Style</p>
+          <p className="text-muted-foreground text-[13px]">
             Each style has its own motion and sound — hover a card to watch it on a real take.
           </p>
         </div>
@@ -74,7 +74,7 @@ export function StepStyle({
       </div>
 
       <div>
-        <label htmlFor="style-text" className="kicker text-goldd dark:text-gold mb-2 block">
+        <label htmlFor="style-text" className="label">
           Describe your style (optional)
         </label>
         <textarea
@@ -85,16 +85,16 @@ export function StepStyle({
           value={value.text}
           onChange={(e) => set({ text: e.target.value })}
         />
-        <p className="text-muted-foreground mt-1 text-xs">
+        <p className="text-muted-foreground mt-1 text-[13px]">
           We map this to safe design tokens (palette, fonts, pace). It never changes your words.
         </p>
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <label className="bg-card flex items-center justify-between rounded-xl border p-4">
+        <label className="bg-surface flex items-center justify-between rounded-[8px] p-4">
           <span>
             <span className="block font-semibold">Captions</span>
-            <span className="text-muted-foreground text-xs">
+            <span className="text-muted-foreground text-[13px]">
               In the style&apos;s own format, on the exact word
             </span>
           </span>
@@ -105,10 +105,10 @@ export function StepStyle({
             onChange={(e) => set({ captions: e.target.checked })}
           />
         </label>
-        <label className="bg-card flex items-center justify-between rounded-xl border p-4">
+        <label className="bg-surface flex items-center justify-between rounded-[8px] p-4">
           <span>
             <span className="block font-semibold">Music bed</span>
-            <span className="text-muted-foreground text-xs">
+            <span className="text-muted-foreground text-[13px]">
               Licensed library, ducked under your voice (Phase 9)
             </span>
           </span>
@@ -119,10 +119,10 @@ export function StepStyle({
             onChange={(e) => set({ music: e.target.checked })}
           />
         </label>
-        <label className="bg-card block rounded-xl border p-4">
+        <label className="bg-surface block rounded-[8px] p-4">
           <span className="flex items-center justify-between">
             <span className="font-semibold">Sound effects</span>
-            <span className="text-muted-foreground text-xs">
+            <span className="text-muted-foreground text-[13px]">
               {Math.round(value.sfxIntensity * 100)}%
             </span>
           </span>
@@ -136,19 +136,19 @@ export function StepStyle({
             className="mt-2 w-full accent-[var(--ter)]"
             aria-label="Sound effects intensity"
           />
-          <span className="text-muted-foreground mt-1 block text-xs">
+          <span className="text-muted-foreground mt-1 block text-[13px]">
             The sound kit comes from the style; this sets how loud it lands.
           </span>
         </label>
         <label
           className={cn(
-            "bg-card flex items-center justify-between rounded-xl border p-4",
+            "bg-surface flex items-center justify-between rounded-[8px] p-4",
             !stockEnabled && "opacity-60",
           )}
         >
           <span>
             <span className="block font-semibold">Stock B-roll</span>
-            <span className="text-muted-foreground text-xs">
+            <span className="text-muted-foreground text-[13px]">
               {stockEnabled
                 ? "Short Pexels clips cut in on the words that need a picture (free, credited)"
                 : "Needs a Pexels API key on the worker (PEXELS_API_KEY) — not set"}
@@ -162,7 +162,7 @@ export function StepStyle({
             onChange={(e) => set({ broll: e.target.checked })}
           />
         </label>
-        <label className="bg-card block rounded-xl border p-4">
+        <label className="bg-surface block rounded-[8px] p-4">
           <span className="block font-semibold">Language</span>
           <select
             className="input mt-2"
@@ -216,11 +216,11 @@ function PresetButton({
       onFocus={play}
       onBlur={stop}
       className={cn(
-        "bg-card group w-full rounded-2xl border p-3 text-left transition hover:-translate-y-0.5",
-        on && "border-ter ring-ter/40 ring-2",
+        "bg-surface group w-full rounded-[8px] border p-3 text-left transition ",
+        on && "ring-2 ring-text",
       )}
     >
-      <div className="relative aspect-[9/16] overflow-hidden rounded-lg bg-black" aria-hidden>
+      <div className="relative aspect-[9/16] overflow-hidden rounded-[6px] bg-black" aria-hidden>
         {/* eslint-disable-next-line @next/next/no-img-element -- static demo poster */}
         <img
           src={`/demo/styles/${id}.jpg`}
@@ -239,23 +239,23 @@ function PresetButton({
           className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
         />
         {card.badge && (
-          <span className="kicker bg-gold text-ink absolute left-2 top-2 rounded-full px-2 py-0.5 text-[0.5rem]">
+          <span className="text-[12px] font-medium bg-accent text-accent-ink absolute left-2 top-2 rounded-full px-2 py-0.5 text-[11px]">
             {card.badge}
           </span>
         )}
       </div>
-      <p className="poster mt-2 text-xl">{card.tokens.name}</p>
-      <p className="text-muted-foreground line-clamp-2 text-xs">{card.tokens.tagline}</p>
+      <p className="mt-2 text-base font-medium leading-snug">{card.tokens.name}</p>
+      <p className="text-muted-foreground line-clamp-2 text-[13px]">{card.tokens.tagline}</p>
       {PRESET_SOURCE[id] && (
-        <p className="text-muted-foreground/70 mt-1 truncate text-[0.6rem]" title={PRESET_SOURCE[id]}>
+        <p className="text-muted mt-1 truncate text-[12px]" title={PRESET_SOURCE[id]}>
           measured from {PRESET_SOURCE[id]}
         </p>
       )}
       <p className="mt-2 flex flex-wrap gap-1">
-        <span className="bg-muted text-foreground/80 rounded-full px-2 py-0.5 text-[0.65rem]">
+        <span className="bg-raised text-text rounded-full px-2 py-0.5 text-[12px]">
           {FAMILY_LABEL[m.family]}
         </span>
-        <span className="bg-muted text-foreground/80 rounded-full px-2 py-0.5 text-[0.65rem]">
+        <span className="bg-raised text-text rounded-full px-2 py-0.5 text-[12px]">
           {SFX_LABEL[m.sfxKit]}
         </span>
       </p>

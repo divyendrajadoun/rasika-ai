@@ -7,8 +7,8 @@ export const metadata: Metadata = { title: "Privacy Policy" };
 export default function PrivacyPage() {
   return (
     <article>
-      <p className="kicker text-ter">Draft · for legal review</p>
       <h1>Privacy Policy</h1>
+      <p className="text-muted text-[14px]">Draft, for legal review.</p>
       <p>
         {brand.name} stores the minimum needed to make your reels: your email, your uploads,
         transcripts, edit plans and rendered outputs.

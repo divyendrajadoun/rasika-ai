@@ -78,16 +78,16 @@ export function StepPhotos({
 
   return (
     <div>
-      <p className="font-accent text-muted-foreground text-xl italic">
+      <p className="text-muted">
         Optional. Add up to 15 photos. Tell us which word each one belongs to — “show this when I
         say <em>balcony</em>”.
       </p>
 
       <label
         htmlFor="photos"
-        className="border-gold/40 bg-card hover:border-gold mt-5 flex cursor-pointer items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-5 text-center transition"
+        className="bg-surface hover:bg-raised mt-5 flex cursor-pointer items-center justify-center gap-3 rounded-[8px] border-2 border-dashed border-border p-5 text-center transition-colors transition"
       >
-        <ImagePlus className="text-gold size-6" aria-hidden />
+        <ImagePlus className="text-accent size-6" aria-hidden />
         <span className="font-semibold">{busy ? `Uploading ${busy}…` : "Add photos"}</span>
         <span className="text-muted-foreground text-sm">({value.length}/15)</span>
         <input
@@ -102,7 +102,7 @@ export function StepPhotos({
       </label>
       {error && (
         <p
-          className="mt-3 rounded-lg bg-[#ff8a66]/15 px-3 py-2 text-sm text-[#ff8a66]"
+          className="mt-3 rounded-[6px] bg-surface px-3 py-2 text-sm text-[#ff8a66]"
           role="alert"
         >
           {error}
@@ -112,7 +112,7 @@ export function StepPhotos({
       {value.length > 0 && (
         <ul className="mt-6 grid gap-4 sm:grid-cols-2">
           {value.map((p, i) => (
-            <li key={p.assetId} className="bg-card flex gap-3 rounded-2xl border p-3">
+            <li key={p.assetId} className="bg-surface flex gap-3 rounded-[8px] p-3">
               <div className="polaroid w-24 shrink-0 !p-1 !pb-1">
                 <div className="relative aspect-[4/5] overflow-hidden rounded-sm">
                   {/* eslint-disable-next-line @next/next/no-img-element -- local object URL */}
@@ -144,7 +144,7 @@ export function StepPhotos({
                 <div className="flex gap-2">
                   <button
                     type="button"
-                    className="btn-outline-gold h-8 text-xs"
+                    className="button button-ghost h-8 text-[13px]"
                     onClick={() => setCropping(p)}
                   >
                     <Crop className="size-3.5" aria-hidden /> {p.crop ? "Re-crop" : "Crop"}

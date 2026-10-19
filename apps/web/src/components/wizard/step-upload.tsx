@@ -173,20 +173,20 @@ export function StepUpload({
             pick(e.dataTransfer.files[0]);
           }}
           className={
-            "border-gold/40 bg-card hover:border-gold flex min-h-64 cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed p-8 text-center transition " +
-            (dragOver ? "border-ter bg-ter/5" : "")
+            "bg-surface hover:bg-raised flex min-h-64 cursor-pointer flex-col items-center justify-center rounded-[8px] border-2 border-dashed border-border p-8 text-center transition-colors " +
+            (dragOver ? "bg-raised border-text" : "")
           }
         >
-          <Upload className="text-gold size-10" aria-hidden />
-          <p className="poster mt-4 text-3xl">
+          <Upload className="text-accent size-10" aria-hidden />
+          <p className="mt-4 text-xl font-semibold leading-tight tracking-[-0.02em]">
             {isRef ? "Drop the reel you want to match" : "Drop your reel here"}
           </p>
-          <p className="font-accent text-muted-foreground mt-1 text-xl italic">
+          <p className="text-muted mt-1 text-[14px]">
             {isRef
               ? "or tap to choose · MP4, MOV · up to 3 min · we measure it, we never reuse it"
               : `or tap to choose · MP4, MOV, HEVC · up to ${maxSeconds} s on ${planName}`}
           </p>
-          <p className="text-muted-foreground mt-3 text-xs">
+          <p className="text-muted-foreground mt-3 text-[13px]">
             Uploads resume automatically if your connection drops.
           </p>
           <input
@@ -199,7 +199,7 @@ export function StepUpload({
         </label>
         {error && (
           <p
-            className="mt-4 rounded-lg bg-[#ff8a66]/15 px-3 py-2 text-sm text-[#ff8a66]"
+            className="mt-4 rounded-[6px] bg-surface px-3 py-2 text-sm text-[#ff8a66]"
             role="alert"
           >
             {error}
@@ -210,20 +210,20 @@ export function StepUpload({
   }
 
   return (
-    <div className="bg-card rounded-3xl border p-5 sm:p-6">
+    <div className="bg-surface rounded-[8px] p-5 sm:p-6">
       <div className="flex gap-5">
-        <div className="bg-stage w-24 shrink-0 overflow-hidden rounded-xl sm:w-32">
+        <div className="bg-[#111] w-24 shrink-0 overflow-hidden rounded-[8px] sm:w-32">
           {value?.thumbnailUrl ? (
             // eslint-disable-next-line @next/next/no-img-element -- local object URL
             <img src={value.thumbnailUrl} alt="" className="aspect-[9/16] w-full object-cover" />
           ) : (
             <div className="flex aspect-[9/16] items-center justify-center">
-              <FileVideo className="text-gold size-8" aria-hidden />
+              <FileVideo className="text-accent size-8" aria-hidden />
             </div>
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="poster truncate text-2xl">{value?.filename ?? fileRef.current?.name}</p>
+          <p className="truncate text-lg font-semibold leading-tight tracking-[-0.02em]">{value?.filename ?? fileRef.current?.name}</p>
           <p className="text-muted-foreground mt-1 text-sm">
             {formatBytes(value?.sizeBytes ?? fileRef.current?.size ?? 0)}
             {value?.durationSec ? ` · ${Math.round(value.durationSec)} s` : ""}
@@ -233,10 +233,10 @@ export function StepUpload({
             {phase === "probing" && <p className="text-sm">Reading the file…</p>}
             {(phase === "uploading" || phase === "paused" || phase === "finishing") && (
               <>
-                <div className="bg-muted h-2 overflow-hidden rounded-full">
-                  <div className="bg-ter h-full transition-[width]" style={{ width: `${pct}%` }} />
+                <div className="bg-raised h-2 overflow-hidden rounded-full">
+                  <div className="bg-accent h-full transition-[width]" style={{ width: `${pct}%` }} />
                 </div>
-                <p className="text-muted-foreground mt-2 text-xs">
+                <p className="text-muted-foreground mt-2 text-[13px]">
                   {phase === "paused"
                     ? "Paused"
                     : phase === "finishing"
@@ -254,7 +254,7 @@ export function StepUpload({
               </>
             )}
             {phase === "done" && (
-              <p className="text-goldd dark:text-gold text-sm font-semibold">Uploaded ✓</p>
+              <p className="text-accent text-sm font-semibold">Uploaded</p>
             )}
             {phase === "error" && <p className="text-sm text-[#ff8a66]">{error}</p>}
           </div>

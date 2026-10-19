@@ -3,19 +3,17 @@ import { Wordmark } from "@/components/brand/wordmark";
 
 export default function NotFound() {
   return (
-    <main
-      id="main"
-      className="jaali grain text-iv flex min-h-dvh flex-col items-center justify-center px-4 text-center"
-    >
-      <div className="relative z-[2]">
+    <main id="main" className="wrap flex min-h-dvh flex-col">
+      <div className="flex h-16 items-center">
         <Wordmark />
-        <p className="poster text-gold mt-10 text-8xl">404</p>
-        <p className="font-accent mt-2 text-2xl italic">This page isn&apos;t in the edit.</p>
-        <Link
-          href="/"
-          className="bg-ter mt-8 inline-flex h-12 items-center rounded-full px-7 font-semibold text-white"
-        >
-          Back home
+      </div>
+      <div className="flex flex-1 flex-col justify-center pb-24">
+        <p className="head">This page isn&apos;t in the edit.</p>
+        <p className="text-muted mt-4 max-w-[40ch]">
+          The link may be old, or the reel it pointed at was deleted.
+        </p>
+        <Link href="/" className="button mt-8 w-fit">
+          Back to the start
         </Link>
       </div>
     </main>

@@ -16,16 +16,16 @@ export function TranscriptPanel({ transcript }: { transcript: TranscriptRow }) {
   return (
     <section className="mt-10">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="poster text-3xl">Transcript</h2>
-        <p className="text-muted-foreground text-xs">
+        <h2 className="text-xl font-semibold leading-tight tracking-[-0.02em]">Transcript</h2>
+        <p className="text-muted-foreground text-[13px]">
           {words.length} words · {lang} · v{transcript.version}
         </p>
       </div>
-      <details className="bg-card mt-4 rounded-2xl border p-4" open>
+      <details className="bg-surface mt-4 rounded-[8px] p-4" open>
         <summary className="cursor-pointer text-sm">Every word, timed</summary>
         <p className="mt-3 leading-8">
           {words.map((w, i) => (
-            <span key={i} title={fmt(w.t)} className="hover:text-ter mr-[0.3em] inline-block">
+            <span key={i} title={fmt(w.t)} className="hover:text-accent mr-[0.3em] inline-block">
               {w.w}
             </span>
           ))}

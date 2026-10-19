@@ -83,20 +83,20 @@ export function StepPresenter({
 
   return (
     <div className="space-y-6">
-      <p className="font-accent text-muted-foreground text-xl italic">
+      <p className="text-muted">
         A script and one face become a presenter video, rendered by HeyGen, then edited like any
         take. This spends HeyGen credits from your wallet.
       </p>
 
       <label className="block">
-        <span className="kicker text-goldd dark:text-gold mb-2 flex items-baseline justify-between">
+        <span className="label flex items-baseline justify-between">
           <span>Script</span>
           <span className="text-muted-foreground font-normal normal-case tracking-normal">
             {words} words · about {Math.round(est)} s spoken
           </span>
         </span>
         <textarea
-          className="input min-h-48 font-mono text-sm leading-relaxed"
+          className="input min-h-48 text-sm leading-relaxed"
           maxLength={PRESENTER_MAX_CHARS}
           placeholder={"Hi, I'm the founder of…\n\nHere is the one thing nobody tells you before you buy."}
           value={value.text}
@@ -105,18 +105,18 @@ export function StepPresenter({
       </label>
 
       <div>
-        <p className="kicker text-goldd dark:text-gold mb-2">Presenter</p>
+        <p className="label">Presenter</p>
         <div className="grid gap-3 sm:grid-cols-2">
           <button
             type="button"
             onClick={() => set({ kind: "photo" })}
             className={cn(
-              "bg-card rounded-2xl border p-4 text-left transition",
-              value.kind === "photo" && "border-ter ring-ter/40 ring-2",
+              "bg-surface rounded-[8px] p-4 text-left transition",
+              value.kind === "photo" && "ring-2 ring-text",
             )}
           >
             <span className="block font-semibold">Your photo</span>
-            <span className="text-muted-foreground block text-xs">
+            <span className="text-muted-foreground block text-[13px]">
               One clear, front-facing portrait of an adult you have the rights to. HeyGen animates
               the face and lip-syncs the script.
             </span>
@@ -124,7 +124,7 @@ export function StepPresenter({
               <span className="mt-3 flex items-center gap-3">
                 {value.photoPreview && (
                   // eslint-disable-next-line @next/next/no-img-element -- local preview blob
-                  <img src={value.photoPreview} alt="" className="size-16 rounded-lg object-cover" />
+                  <img src={value.photoPreview} alt="" className="size-16 rounded-[6px] object-cover" />
                 )}
                 <input
                   ref={fileRef}
@@ -141,7 +141,7 @@ export function StepPresenter({
                     fileRef.current?.click();
                   }}
                   onKeyDown={(e) => e.key === "Enter" && fileRef.current?.click()}
-                  className="btn-outline-gold text-xs"
+                  className="button button-ghost text-[13px]"
                 >
                   {busy ? "Uploading…" : value.photoAssetId ? "Change photo" : "Choose photo"}
                 </span>
@@ -152,12 +152,12 @@ export function StepPresenter({
             type="button"
             onClick={() => set({ kind: "look" })}
             className={cn(
-              "bg-card rounded-2xl border p-4 text-left transition",
-              value.kind === "look" && "border-ter ring-ter/40 ring-2",
+              "bg-surface rounded-[8px] p-4 text-left transition",
+              value.kind === "look" && "ring-2 ring-text",
             )}
           >
             <span className="block font-semibold">A stock presenter</span>
-            <span className="text-muted-foreground block text-xs">
+            <span className="text-muted-foreground block text-[13px]">
               One of HeyGen&apos;s licensed photo avatars. No upload, no rights to clear.
             </span>
           </button>
@@ -172,8 +172,8 @@ export function StepPresenter({
                   aria-checked={value.lookId === l.id}
                   onClick={() => set({ lookId: l.id })}
                   className={cn(
-                    "bg-card w-full overflow-hidden rounded-xl border text-left transition",
-                    value.lookId === l.id && "border-ter ring-ter/40 ring-2",
+                    "bg-surface w-full overflow-hidden rounded-[8px] border text-left transition",
+                    value.lookId === l.id && "ring-2 ring-text",
                   )}
                 >
                   <span className="relative block aspect-[3/4] bg-black/10">
@@ -182,7 +182,7 @@ export function StepPresenter({
                       <img src={l.preview} alt="" className="absolute inset-0 h-full w-full object-cover" />
                     )}
                   </span>
-                  <span className="block truncate px-2 py-1 text-[0.65rem]">{l.name}</span>
+                  <span className="block truncate px-2 py-1 text-[12px]">{l.name}</span>
                 </button>
               </li>
             ))}
@@ -192,7 +192,7 @@ export function StepPresenter({
       </div>
 
       <div>
-        <p className="kicker text-goldd dark:text-gold mb-2">Voice</p>
+        <p className="label">Voice</p>
         <select
           className="input"
           value={value.voiceId ?? ""}
@@ -218,7 +218,7 @@ export function StepPresenter({
         </select>
       </div>
 
-      <div className="bg-card space-y-2 rounded-xl border p-4 text-sm">
+      <div className="bg-surface space-y-2 rounded-[8px] p-4 text-sm">
         <label className="flex items-start gap-2">
           <input type="checkbox" className="mt-1 size-4 accent-[var(--ter)]" checked={value.rights} onChange={(e) => set({ rights: e.target.checked })} />
           <span>I own the rights to this photo and script, or have the person&apos;s permission.</span>

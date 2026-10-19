@@ -1,4 +1,3 @@
-import { Copy, Download, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { deleteProject, duplicateProject } from "@/app/dashboard/actions";
 import { StatusPill } from "@/components/dashboard/status-pill";
@@ -14,6 +13,7 @@ export function fmtDuration(sec: number | null | undefined): string {
   return m ? `${m}:${String(s).padStart(2, "0")}` : `${s} s`;
 }
 
+/** One reel: its frame, its status, and the three things you do with it. */
 export function ProjectCard({ project: p }: { project: Project }) {
   const preset =
     presetCards.find((c) => c.tokens.id === p.stylePreset)?.tokens.name ?? p.stylePreset;
@@ -23,68 +23,44 @@ export function ProjectCard({ project: p }: { project: Project }) {
     year: "numeric",
   });
   return (
-    <article className="bg-card group flex h-full flex-col overflow-hidden rounded-2xl border shadow-[0_20px_50px_rgba(30,0,5,.12)]">
-      <Link
-        href={`/dashboard/p/${p.id}`}
-        className="bg-stage relative block aspect-[9/12] overflow-hidden"
-      >
+    <article className="bg-surface group flex h-full flex-col overflow-clip rounded-[8px]">
+      <Link href={`/dashboard/p/${p.id}`} className="relative block aspect-[9/12] overflow-clip bg-[#111]">
         {p.thumbnailUrl ? (
           // eslint-disable-next-line @next/next/no-img-element -- presigned S3 URL
-          <img
-            src={p.thumbnailUrl}
-            alt=""
-            className="h-full w-full object-cover transition group-hover:scale-[1.02]"
-          />
+          <img src={p.thumbnailUrl} alt="" className="h-full w-full object-cover" />
         ) : (
-          <div className="jaali flex h-full items-end justify-center pb-6">
-            <div
-              className="arch ring-gold/70 h-2/3 w-1/2 bg-[linear-gradient(180deg,var(--mar),var(--stage))] ring-2"
-              aria-hidden
-            />
+          <div className="flex h-full items-end justify-center pb-6">
+            <div className="bg-raised h-2/3 w-1/2 rounded-t-full" aria-hidden />
           </div>
         )}
         <div className="absolute left-3 top-3">
-          <StatusPill
-            projectId={p.id}
-            status={p.job?.status ?? p.status}
-            progress={p.job?.progress ?? 0}
-          />
+          <StatusPill projectId={p.id} status={p.job?.status ?? p.status} progress={p.job?.progress ?? 0} />
         </div>
       </Link>
       <div className="flex flex-1 flex-col p-4">
-        <h2 className="poster truncate text-2xl">
+        <h2 className="truncate text-base font-medium leading-snug">
           <Link href={`/dashboard/p/${p.id}`}>{p.title}</Link>
         </h2>
-        <p className="text-muted-foreground mt-1 text-sm">
+        <p className="text-muted mt-1 text-[13px]">
           {fmtDuration(p.durationSec)} · {preset} · {created}
         </p>
-        <div className="mt-auto flex items-center gap-1 pt-4">
-          <Link href={`/dashboard/p/${p.id}`} className="btn-outline-gold h-9 flex-1 text-sm">
+        <div className="mt-auto flex items-center gap-4 pt-4 text-[14px]">
+          <Link href={`/dashboard/p/${p.id}`} className="link font-medium">
             Open
           </Link>
           <form action={duplicateProject}>
             <input type="hidden" name="id" value={p.id} />
-            <button type="submit" className="icon-btn" aria-label="Duplicate" title="Duplicate">
-              <Copy className="size-4" aria-hidden />
+            <button type="submit" className="link text-muted">
+              Duplicate
             </button>
           </form>
-          <Link
-            href={`/dashboard/p/${p.id}#download`}
-            className="icon-btn"
-            aria-label="Download"
-            title="Download"
-          >
-            <Download className="size-4" aria-hidden />
+          <Link href={`/dashboard/p/${p.id}#download`} className="link text-muted">
+            Download
           </Link>
-          <form action={deleteProject}>
+          <form action={deleteProject} className="ml-auto">
             <input type="hidden" name="id" value={p.id} />
-            <button
-              type="submit"
-              className="icon-btn hover:text-[#ff8a66]"
-              aria-label="Delete"
-              title="Delete"
-            >
-              <Trash2 className="size-4" aria-hidden />
+            <button type="submit" className="link text-muted hover:text-destructive">
+              Delete
             </button>
           </form>
         </div>

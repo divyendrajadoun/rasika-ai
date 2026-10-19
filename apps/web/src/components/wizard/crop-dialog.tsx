@@ -90,14 +90,14 @@ export function CropDialog({
       aria-modal="true"
       aria-label="Crop photo"
     >
-      <div className="bg-card w-full max-w-lg rounded-t-3xl border p-4 sm:rounded-3xl">
+      <div className="bg-surface w-full max-w-lg rounded-t-[12px] p-4 sm:rounded-[12px]">
         <div className="flex items-center justify-between">
-          <h2 className="poster text-2xl">Crop</h2>
-          <button type="button" className="btn-outline-gold h-8 text-xs" onClick={onClose}>
+          <h2 className="text-lg font-semibold leading-tight tracking-[-0.02em]">Crop</h2>
+          <button type="button" className="button button-ghost h-8 text-[13px]" onClick={onClose}>
             Close
           </button>
         </div>
-        <div className="bg-stage relative mt-3 h-[52vh] overflow-hidden rounded-xl sm:h-[420px]">
+        <div className="bg-[#111] relative mt-3 h-[52vh] overflow-hidden rounded-[8px] sm:h-[420px]">
           <Cropper
             image={src}
             crop={crop}
@@ -118,8 +118,8 @@ export function CropDialog({
               type="button"
               onClick={() => setAspect(a.value)}
               className={
-                "rounded-full border px-3 py-1 text-xs " +
-                (aspect === a.value ? "border-ter text-ter" : "")
+                "rounded-full border px-3 py-1 text-[13px] " +
+                (aspect === a.value ? "ring-2 ring-text text-accent" : "")
               }
               aria-pressed={aspect === a.value}
             >
@@ -128,13 +128,13 @@ export function CropDialog({
           ))}
           <button
             type="button"
-            className="btn-outline-gold ml-auto h-8 text-xs"
+            className="button button-ghost ml-auto h-8 text-[13px]"
             onClick={() => void autoTrim()}
           >
             Auto-trim screenshot UI
           </button>
         </div>
-        <label className="mt-3 block text-xs">
+        <label className="mt-3 block text-[13px]">
           Zoom
           <input
             type="range"
@@ -146,14 +146,14 @@ export function CropDialog({
             className="mt-1 w-full accent-[var(--ter)]"
           />
         </label>
-        {trimNote && <p className="text-muted-foreground mt-2 text-xs">{trimNote}</p>}
+        {trimNote && <p className="text-muted-foreground mt-2 text-[13px]">{trimNote}</p>}
         <div className="mt-4 flex justify-end gap-2">
-          <button type="button" className="btn-outline-gold" onClick={onClose}>
+          <button type="button" className="button button-ghost" onClick={onClose}>
             Cancel
           </button>
           <button
             type="button"
-            className="btn-ter"
+            className="button"
             disabled={!area}
             onClick={() =>
               area &&
