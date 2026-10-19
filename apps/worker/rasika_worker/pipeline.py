@@ -806,7 +806,9 @@ class Pipeline:
             if (a.get("meta") or {}).get("source") == "ai"
         ]
         want = min(imagegen.MAX_PER_REEL, int(opts.get("aiImageCount") or imagegen.MAX_PER_REEL))
-        n = want - len(have)
+        made_auto = sum(1 for a in have if (a.get("meta") or {}).get("auto"))
+        # N more than any drawn by hand, never past the reel's cap, never twice on a retry
+        n = min(want - made_auto, imagegen.MAX_PER_REEL - len(have))
         if n <= 0:
             return
         t0 = time.time()
@@ -857,6 +859,7 @@ class Pipeline:
                     "sayWhen": m["say_when"],
                     "order": 50 + i,
                     "source": "ai",
+                    "auto": True,
                     "prompt": m["prompt"],
                 },
                 replace=False,

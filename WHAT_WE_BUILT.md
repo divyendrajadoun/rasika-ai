@@ -93,6 +93,32 @@ project's audit log.
 What these repos do that Rasika does not (honest): Hypit's generated hosts and voices (Seedance, Fish
 Audio), the Kurzgesagt MorphSVG "fuse" morphs, real-photo cut-outs lifted by macOS Vision, and 16:9.
 
+## Animate anything (from the /animate skill)
+
+From a brief → **Animate anything**: 1–3 images of a style you love (the step after the brief), a topic or
+story (or one of the example prompts: hummingbird explainer, kids' story, product ad, waggle dance,
+10k followers), a length (8–30 s), narration on or off, an optional ending. The worker (`animate.py`):
+1. studies the references and writes a style bible (palette, line, texture, light, motion), the facts
+   it will show (explainers) and a shot list (2–4 s shots, the camera always moving);
+2. writes every shot as canvas drawing code (`codeScene`), three shots at a time;
+3. runs each shot at five moments in a page with no network: errors, blank frames, slow frames go back
+   to be fixed;
+4. compares a still of every shot with the references and fixes what is off (one loop; a fix that
+   breaks a shot is dropped).
+The references guide the look only; nothing from them is shown. The render page refuses all network
+requests, and drawing code that reaches for timers, clocks, storage, the document or the network is
+rejected. Vertical 9:16 only (the skill also does 16:9 and 1:1).
+
+## AI images (Higgsfield, up to 6 per reel)
+
+On the photos step of My video, Script only, AI presenter and Match a reference:
+- **Draw it now**: describe a picture, it is drawn (about 30 s) and added to your photos;
+- **Suggest pictures from my script** (script and presenter reels): Claude drafts prompts with the word
+  each belongs to; edit, then draw the ones you keep;
+- **Draw my key moments automatically** (1–6): after we hear your words, Claude picks the moments that
+  want a picture and Higgsfield draws them in your picture style; each lands on its word.
+Every image is paid from the Higgsfield account; no real faces, logos or text in the images.
+
 ## Extras
 
 - Stock B-roll from Pexels, with photographer credit under the reel.

@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { db, schema } from "@/db";
@@ -8,6 +8,11 @@ import { plans } from "@/config/pricing";
 import { requireUser } from "@/lib/auth";
 import { enqueueJob } from "@/lib/jobs/queue";
 import { briefKind } from "@/config/briefs";
+
+/** Photo settings from the wizard merge into what the asset already records (an AI image keeps its
+ *  source and prompt, every image its size) instead of replacing it. */
+const mergeMeta = (patch: Record<string, unknown>) =>
+  sql`${schema.assets.meta} || ${JSON.stringify(patch)}::jsonb` as unknown as schema.AssetMeta;
 import {
   BriefSubmission,
   PresenterSubmission,
@@ -83,7 +88,7 @@ export async function createEdit(input: unknown): Promise<ActionResult> {
     for (const [i, ph] of w.photos.entries()) {
       await tx
         .update(schema.assets)
-        .set({ meta: { label: ph.label, sayWhen: ph.sayWhen, crop: ph.crop, order: i } })
+        .set({ meta: mergeMeta({ label: ph.label, sayWhen: ph.sayWhen, crop: ph.crop, order: i }) })
         .where(and(eq(schema.assets.id, ph.assetId), eq(schema.assets.projectId, w.projectId)));
     }
     const [job] = await tx
@@ -176,7 +181,7 @@ export async function createScriptEdit(input: unknown): Promise<ActionResult> {
     for (const [i, ph] of w.photos.entries()) {
       await tx
         .update(schema.assets)
-        .set({ meta: { label: ph.label, sayWhen: ph.sayWhen, crop: ph.crop, order: i } })
+        .set({ meta: mergeMeta({ label: ph.label, sayWhen: ph.sayWhen, crop: ph.crop, order: i }) })
         .where(and(eq(schema.assets.id, ph.assetId), eq(schema.assets.projectId, w.projectId)));
     }
     const [job] = await tx
@@ -276,7 +281,7 @@ export async function createBriefEdit(input: unknown): Promise<ActionResult> {
     for (const [i, ph] of w.photos.entries()) {
       await tx
         .update(schema.assets)
-        .set({ meta: { label: ph.label, sayWhen: ph.sayWhen, crop: ph.crop, order: i } })
+        .set({ meta: mergeMeta({ label: ph.label, sayWhen: ph.sayWhen, crop: ph.crop, order: i }) })
         .where(and(eq(schema.assets.id, ph.assetId), eq(schema.assets.projectId, w.projectId)));
     }
     const [job] = await tx
@@ -367,7 +372,7 @@ export async function createPresenterEdit(input: unknown): Promise<ActionResult>
     for (const [i, ph] of w.photos.entries()) {
       await tx
         .update(schema.assets)
-        .set({ meta: { label: ph.label, sayWhen: ph.sayWhen, crop: ph.crop, order: i } })
+        .set({ meta: mergeMeta({ label: ph.label, sayWhen: ph.sayWhen, crop: ph.crop, order: i }) })
         .where(and(eq(schema.assets.id, ph.assetId), eq(schema.assets.projectId, w.projectId)));
     }
     const [job] = await tx
