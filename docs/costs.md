@@ -57,6 +57,16 @@ back-to-back jobs on a busy worker pay for it once.
 Warm transcription (model already resident) is ≈ 10 s for a minute of speech; the cold load of the
 3 GB model from the volume is most of the 72 s above.
 
+## Measured — script-only and reference reels (2026-10-19, Docker worker, host GPU)
+
+| Mode | Reel | Chain | Wall time |
+|---|---|---|---|
+| Script only (Paper Manuscript, Athena voice, 66 words) | 20 s | synth 12 s TTS → probe → Deepgram 2 s → plan 35–43 s (6.3 k in / 4.5 k out, 24 k cached) → preview + final 68 s | **152 s** |
+| Match a reference (12 s take, Slam Neon demo as reference, fidelity look) | 12 s | probe → transcribe → analyse 1.6 s + style call 17 s (4.2 k in / 1.8 k out) → plan 36 s → render 33 s | **116 s** |
+
+The script reel's narration costs ≈ 500 characters of Aura-2 (≈ $0.015); the reference style call is one
+planner-model vision request (≈ $0.15 at list price) on top of a normal plan.
+
 ## Levers
 
 - Chunk count = min(vCPUs, ceil(duration / 12 s)); more vCPUs → near-linear speed-up up to 8.

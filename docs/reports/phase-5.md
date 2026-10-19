@@ -276,3 +276,10 @@ workflow repos (lemo-opuscar, reelmimic, lanshu) to become product options.
 
 Verified: schema 10 · engine 14 · web 12 · worker 37 tests; mypy and ruff clean; all 93 presets parse;
 tsc clean. Demo plans and renders for the 67 new presets: see the tail of this report.
+
+**End to end (real worker container, 19 Oct night):** `tools/e2e/script_reel.py` — a 20 s Paper
+Manuscript reel from a 66-word script in 152 s (first run showed ivory captions on the cream plate and
+empty framed modes; fixed with `plan.meta.faceless` → ink captions, full mode pinned, centred 150–260 px
+lines). `tools/e2e/reference_reel.py` — a 12 s take matched to the Slam Neon demo at fidelity `look` in
+116 s: 2 cuts measured, the written style "Coral Hook" took the coral `#ff3d5a` accent, kinetic / pop /
+cut, and the render shows coral slam words, a pip tease card and coral karaoke.
