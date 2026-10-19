@@ -31,6 +31,7 @@ export const WizardSubmission = z.object({
     language: z.enum(["auto", "en", "hi", "hinglish"]).default("auto"),
     broll: z.boolean().default(false),
     cleanCut: z.boolean().default(false),
+    hookFirst: z.boolean().default(false),
   }),
   brand: z.object({
     name: z.string().max(60).default(""),
@@ -82,11 +83,31 @@ export const BriefSubmission = z
   .object({
     projectId: z.string().uuid(),
     title: z.string().max(120).default(""),
-    kind: z.enum(["launch", "showreel", "app", "recipe", "versus", "machine", "journey", "explainer", "editorial", "tierlist"]),
+    kind: z.enum([
+      "launch",
+      "showreel",
+      "app",
+      "recipe",
+      "versus",
+      "machine",
+      "journey",
+      "explainer",
+      "editorial",
+      "tierlist",
+      "product",
+      "referral",
+      "hype",
+      "flyover",
+      "diagram",
+    ]),
     url: z.string().trim().max(300).optional(),
     recipe: z.string().trim().max(1500).optional(),
     subject: z.string().trim().max(600).optional(),
     topic: z.string().trim().max(600).optional(),
+    focus: z.string().trim().max(400).optional(),
+    seconds: z.enum(["15", "20", "30", "40", "60"]).optional(),
+    closeLine: z.string().trim().max(60).optional(),
+    closeTail: z.string().trim().max(40).optional(),
     a: z.string().trim().max(40).optional(),
     b: z.string().trim().max(40).optional(),
     winner: z.enum(["", "a", "b"]).default(""),
@@ -111,11 +132,14 @@ export const BriefSubmission = z
     const need = (ok: boolean, path: string, message: string) => {
       if (!ok) ctx.addIssue({ code: "custom", path: [path], message });
     };
-    if (["launch", "showreel", "app"].includes(v.kind))
+    if (["launch", "showreel", "app", "product", "referral", "hype", "flyover"].includes(v.kind))
       need(/^https?:\/\/[^\s/]+\.[^\s]+/i.test(v.url ?? ""), "url", "Add the website link, starting with https://");
     if (v.kind === "recipe") need((v.recipe ?? "").length >= 15, "recipe", "Write the recipe: ingredients with measures.");
     if (v.kind === "journey") need((v.subject ?? "").length >= 10, "subject", "Say what the story is about.");
-    if (["explainer", "editorial", "tierlist"].includes(v.kind))
+    if (v.kind === "flyover") need(Boolean(v.closeLine), "closeLine", "Write the closing statement.");
+    if (v.kind === "diagram" && v.url)
+      need(/^https?:\/\/[^\s/]+\.[^\s]+/i.test(v.url), "url", "The link should start with https://");
+    if (["explainer", "editorial", "tierlist", "diagram"].includes(v.kind))
       need((v.topic ?? "").length >= 6, "topic", "Say what the film is about.");
     if (v.kind === "versus") need(Boolean(v.a && v.b), "a", "Name both contenders.");
     if (v.kind === "machine") need(Boolean(v.line), "line", "Write the line that types out.");

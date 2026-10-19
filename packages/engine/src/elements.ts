@@ -27,6 +27,7 @@ import {
   tierBoard,
   type BriefCtx,
 } from "./brief";
+import { diagramZoom, pageFlyover, screenFocus, throughLine } from "./product";
 import { patternSvg, type Colors } from "./patterns";
 import { E, lerp, prog, rng, transformStyle, type Easing, type Transform, steps } from "./toolkit";
 
@@ -599,6 +600,14 @@ export function buildElement(el: PlanElement, ctx: BuildCtx): Item[] {
       return crowd(el, briefCtx(ctx, dark));
     case "docCard":
       return docCard(el, briefCtx(ctx, dark));
+    case "screenFocus":
+      return screenFocus(el, briefCtx(ctx, dark));
+    case "throughLine":
+      return throughLine(el, briefCtx(ctx, dark));
+    case "pageFlyover":
+      return pageFlyover(el, briefCtx(ctx, dark));
+    case "diagramZoom":
+      return diagramZoom(el, briefCtx(ctx, dark));
   }
 }
 

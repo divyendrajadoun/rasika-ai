@@ -20,7 +20,7 @@
   },
   "grain": 0.0,
   "pace": 0.9,
-  "captionStyle": "box",
+  "captionStyle": "one-word",
   "captionSize": 70,
   "captionAccent": "gold",
   "endCardShape": "rounded",

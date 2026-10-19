@@ -484,6 +484,120 @@ export const DocCard = z.object({
   tilt: z.number().min(-8).max(8).default(-2),
 });
 
+const Box = z.object({ x: z.number(), y: z.number(), w: z.number().positive(), h: z.number().positive() });
+
+/**
+ * A screen-studio moment on the real interface: a window holding a screenshot (usually the full
+ * page) whose camera zooms to one region per step so that moment fills the window, while a cursor
+ * glides to a real control and clicks it. Boxes and cursor points are in the screenshot's pixels
+ * (the capture's `targets` give the real positions). The camera never sits still: each step pushes
+ * from 1.0 to 1.04 and the next starts where it ended.
+ */
+export const ScreenFocus = z.object({
+  ...Timed,
+  type: z.literal("screenFocus"),
+  imageId: Id,
+  url: z.string().max(80).optional().describe("shown in the address bar; omit for a frameless screen"),
+  x: Px.default(40),
+  y: Px.default(380),
+  w: z.number().min(300).max(1080).default(1000),
+  h: z.number().min(300).max(1700).default(1180),
+  steps: z
+    .array(
+      z.object({
+        at: z.number().min(0).describe("seconds after t0 this step's zoom starts"),
+        box: Box.describe("the region of the screenshot that fills the window"),
+        cursor: z.object({ x: z.number(), y: z.number() }).optional().describe("where the cursor goes (screenshot px)"),
+        click: z.boolean().default(false),
+      }),
+    )
+    .min(1)
+    .max(12),
+});
+
+/**
+ * The film's through-line object: one shape that carries from scene to scene, changing size,
+ * place, corner radius and colour on every key, optionally holding a real crop (the product's own
+ * button, then its logo) and a word. It never appears from nothing: it grows from its first key.
+ */
+export const ThroughLine = z.object({
+  ...Timed,
+  type: z.literal("throughLine"),
+  keys: z
+    .array(
+      z.object({
+        at: z.number().min(0),
+        x: Px,
+        y: Px,
+        w: z.number().min(8).max(1400),
+        h: z.number().min(8).max(2200),
+        radius: z.number().min(0).max(1000).default(24),
+        fill: Hex.default("#111111"),
+        imageId: Id.optional().describe("a crop shown inside (the real button, the logo)"),
+        text: z.string().max(40).optional(),
+        textColor: Hex.default("#ffffff"),
+      }),
+    )
+    .min(2)
+    .max(16),
+});
+
+/**
+ * A 3D fly-over of a landing page: the page lies on a bright studio floor; one continuous camera
+ * glides down it looking up the page, rises to show the whole page as one strip, dives into the
+ * hero and lands it as a card under a two-line title. Focus is thin: what crosses the middle of the
+ * frame is sharp. Phases are shares of the element's life.
+ */
+export const PageFlyover = z.object({
+  ...Timed,
+  type: z.literal("pageFlyover"),
+  imageId: Id.describe("the full-page screenshot"),
+  heroImageId: Id.optional().describe("the first-screen screenshot (the card the dive lands on)"),
+  logoImageId: Id.optional(),
+  brand: z.string().max(40).optional(),
+  line: z.string().min(1).max(60).describe("the closing statement"),
+  tail: z.string().max(60).optional().describe("the short italic tail"),
+  floor: Hex.default("#f2f3f6"),
+});
+
+/**
+ * A whole explanation as one diagram in one continuous space: parts (nodes) joined by flows
+ * (edges). Each step zooms into one part, shows one concrete example beside it, then the camera
+ * pulls back as the part locks in; `focus` null = the whole diagram. Parts appear on the step that
+ * first names them; flows draw and animate in the direction things move. Layout is fixed.
+ */
+export const DiagramZoom = z.object({
+  ...Timed,
+  type: z.literal("diagramZoom"),
+  nodes: z
+    .array(
+      z.object({
+        id: z.string().min(1).max(24),
+        label: z.string().min(1).max(28),
+        x: z.number().min(0).max(1000).describe("centre, in a 1000×1400 diagram space"),
+        y: z.number().min(0).max(1400),
+        shape: z.enum(["circle", "box", "pill"]).default("box"),
+      }),
+    )
+    .min(2)
+    .max(9),
+  edges: z
+    .array(z.object({ from: z.string(), to: z.string(), label: z.string().max(24).optional() }))
+    .max(14)
+    .default([]),
+  steps: z
+    .array(
+      z.object({
+        at: z.number().min(0),
+        focus: z.string().nullable().describe("a node id, or null for the whole diagram"),
+        example: z.string().max(48).optional().describe("one concrete example, ≤ 7 words"),
+      }),
+    )
+    .min(1)
+    .max(10),
+  top: Px.default(240),
+});
+
 export const PlanElement = z.discriminatedUnion("type", [
   PosterText,
   Broll,
@@ -511,6 +625,10 @@ export const PlanElement = z.discriminatedUnion("type", [
   ExplainerWorld,
   Crowd,
   DocCard,
+  ScreenFocus,
+  ThroughLine,
+  PageFlyover,
+  DiagramZoom,
 ]);
 export type PlanElement = z.infer<typeof PlanElement>;
 export type PlanElementInput = z.input<typeof PlanElement>;

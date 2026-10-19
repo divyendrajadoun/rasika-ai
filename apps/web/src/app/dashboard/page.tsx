@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ProjectCard } from "@/components/dashboard/project-card";
+import { TryGallery } from "@/components/dashboard/try-gallery";
 import { requireUser } from "@/lib/auth";
 import { listProjects } from "@/lib/projects";
 
@@ -14,7 +15,8 @@ export default async function DashboardPage() {
 
   if (projects.length === 0) {
     return (
-      <div className="mx-auto max-w-xl py-10">
+      <div className="py-10">
+        <div className="max-w-xl">
         <h1 className="text-2xl font-semibold leading-tight tracking-[-0.02em]">No edits yet</h1>
         <p className="text-muted mt-2">
           Upload a talking reel, or paste a script, and the first preview is back in about a minute.
@@ -28,6 +30,8 @@ export default async function DashboardPage() {
             Create your first edit
           </Link>
         </div>
+        </div>
+        <TryGallery />
       </div>
     );
   }
@@ -53,6 +57,7 @@ export default async function DashboardPage() {
           </li>
         ))}
       </ul>
+      <TryGallery />
     </>
   );
 }

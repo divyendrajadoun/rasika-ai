@@ -539,24 +539,6 @@ writer produced from the user's brief. Use the data verbatim (names, measures, c
 """
 
 FILM_KINDS = {
-    "launch": """### Kind: SaaS launch film
-- Open on the product name as huge poster type (200–300 px), one line, centred, with the tagline under it.
-- Each feature gets ~4–6 s: a `browserCard` holding the screenshot whose label the feature's `shot` names
-  (use that image's id; `url` = the product's host; scroll 0.25–0.6; tilt −4…4; vary x/y/w between
-  features), with the feature title as poster type (120–180 px) and its benefit line beside or under it.
-- Use the "Phone view" screenshot once as a tilted `imageCard` beside a browser window.
-- A `chips` row of 2–3 short benefits once; a quick montage of 2–3 screens near the end (short windows).
-- Close on the name again and the call to action, large. Something moves every 1.5–2.5 s.""",
-    "showreel": """### Kind: 15-second motion showreel
-- More motion than words: poster slams of 1–3 words (220–320 px) on the beat, every ~1 s.
-- Two or three `browserCard`s of the real screenshots flying through at bold tilts (±8°), overlapping
-  briefly with the type; one big reveal of the name (`reveal`) in the last 3 s.""",
-    "app": """### Kind: Apple-style app film
-- One idea per beat, generous empty space: a single sentence-case poster line (90–140 px) per beat,
-  centred around y 300–420, nothing else beside it.
-- The real screens presented calmly: a `browserCard` (scroll 0.1–0.25, tilt 0) or the "Phone view" as an
-  `imageCard` with no tilt, centred, below the line. Slow; ≥ 2.5 s per beat.
-- Final beat: the product name alone, large, centred.""",
     "recipe": """### Kind: recipe explainer
 - ONE `pourGlass` carries the film: t0 just before the first ingredient's line, t1 = the end. Its
   `layers` are the data's layers in order (name, amount, color, fill as given); each layer's `at` is the
@@ -590,6 +572,198 @@ FILM_KINDS = {
 - A `chapterCard` at each season change with the data's chapter titles (they sit above the window).
 - The deadpan lines as small, centred, symmetrical poster type in the accent face (serif, 54–76 px)
   at the top (y 160–330), one at a time. Symmetry everywhere: centred, nothing tilted.""",
+    "launch": """### Kind: through-line product film (SaaS launch film, 30 s)
+The site's real controls are in the data's `site.targets` (x, y, w, h in the full-page screenshot's
+pixels, 1440 wide) and its colours in `site.brand`. Images: "Homepage, full page (scrolls)" is the
+full-page screenshot; "Main button" and "Logo" are crops of the real button and logo.
+- Beat grid: 120 BPM = a beat every 0.5 s. Put every key, step and poster on the grid (t0/at multiples
+  of 0.5 from the film's start). Something changes on every beat; no hold longer than 0.5 s without
+  the camera pushing (the screenFocus push does that).
+- Hook (first 2 s): the data's `hook` as huge poster type (180–260 px, the poster face, centred,
+  y 600–900). The through-line object INTERRUPTS it: a `throughLine` whose first key (≈0.8 s) holds the
+  "Main button" crop (imageId) at about 2× the button's size, centred over the hook line.
+- ONE `throughLine` for the whole film (t0 ≈ 0.6 s → the end). Keys, in order: the hook key above;
+  then for each scene, ~0.25 s before the scene starts, it turns into that scene's UI element: a pill
+  (radius 999) holding the scene's `key` word as `text`, in the brand accent (`site.brand.accent` as
+  hex; textColor the button's text colour), placed just below the window (y 1640–1760, x centred);
+  finally it becomes the "Logo" crop (imageId) large and centred (w 520–640) for the end card, on a
+  key at the end-card time, fill the stage colour.
+- Each scene: ONE `screenFocus` on the full-page screenshot (url = the host), x 40, y 330, w 1000,
+  h 1240, for the scene's length. Its steps: a first step whose box frames the scene's `shot`
+  region (≈ 1440×1600 of the page around it); then at +0.5–1.0 s a step whose box fills the window
+  with the `zoom` target (box ≈ 3–4× the target's size, centred on it, keeping the window's aspect
+  1000:1240), with `cursor` at the centre of the clicked `target` and `click: true`. Boxes must stay
+  inside the screenshot. Consecutive scenes may reuse the same screenFocus (more steps) instead of a
+  new one: the camera then starts where the last ended.
+- Each scene's `line` as poster type (90–130 px, sentence case, the poster face) in the top band
+  (y 150–300), the key word in the accent (`color` of that line only). Outgoing and incoming lines never
+  overlap in time (gap ≥ 0.1 s).
+- End card (last 3–4 s): the logo (throughLine's last key), the product name as poster type
+  (120–180 px) under it, the `cta` as a smaller line (50–70 px). Nothing else on screen.
+- Nothing appears from nothing (posterText `anim` "rise" or "mask"; no fades from zero, no
+  crossfades). No chips, stamps, counters or stock footage. Captions off.""",
+    "showreel": """### Kind: through-line product film (15-second showreel)
+The site's real controls are in the data's `site.targets` (x, y, w, h in the full-page screenshot's
+pixels, 1440 wide) and its colours in `site.brand`. Images: "Homepage, full page (scrolls)" is the
+full-page screenshot; "Main button" and "Logo" are crops of the real button and logo.
+- Beat grid: 120 BPM = a beat every 0.5 s. Put every key, step and poster on the grid (t0/at multiples
+  of 0.5 from the film's start). Something changes on every beat; no hold longer than 0.5 s without
+  the camera pushing (the screenFocus push does that).
+- Hook (first 2 s): the data's `hook` as huge poster type (180–260 px, the poster face, centred,
+  y 600–900). The through-line object INTERRUPTS it: a `throughLine` whose first key (≈0.8 s) holds the
+  "Main button" crop (imageId) at about 2× the button's size, centred over the hook line.
+- ONE `throughLine` for the whole film (t0 ≈ 0.6 s → the end). Keys, in order: the hook key above;
+  then for each scene, ~0.25 s before the scene starts, it turns into that scene's UI element: a pill
+  (radius 999) holding the scene's `key` word as `text`, in the brand accent (`site.brand.accent` as
+  hex; textColor the button's text colour), placed just below the window (y 1640–1760, x centred);
+  finally it becomes the "Logo" crop (imageId) large and centred (w 520–640) for the end card, on a
+  key at the end-card time, fill the stage colour.
+- Each scene: ONE `screenFocus` on the full-page screenshot (url = the host), x 40, y 330, w 1000,
+  h 1240, for the scene's length. Its steps: a first step whose box frames the scene's `shot`
+  region (≈ 1440×1600 of the page around it); then at +0.5–1.0 s a step whose box fills the window
+  with the `zoom` target (box ≈ 3–4× the target's size, centred on it, keeping the window's aspect
+  1000:1240), with `cursor` at the centre of the clicked `target` and `click: true`. Boxes must stay
+  inside the screenshot. Consecutive scenes may reuse the same screenFocus (more steps) instead of a
+  new one: the camera then starts where the last ended.
+- Each scene's `line` as poster type (90–130 px, sentence case, the poster face) in the top band
+  (y 150–300), the key word in the accent (`color` of that line only). Outgoing and incoming lines never
+  overlap in time (gap ≥ 0.1 s).
+- End card (last 3–4 s): the logo (throughLine's last key), the product name as poster type
+  (120–180 px) under it, the `cta` as a smaller line (50–70 px). Nothing else on screen.
+- Nothing appears from nothing (posterText `anim` "rise" or "mask"; no fades from zero, no
+  crossfades). No chips, stamps, counters or stock footage. Captions off.""",
+    "app": """### Kind: through-line product film (Apple-style app film: white space, the device as the hero)
+The site's real controls are in the data's `site.targets` (x, y, w, h in the full-page screenshot's
+pixels, 1440 wide) and its colours in `site.brand`. Images: "Homepage, full page (scrolls)" is the
+full-page screenshot; "Main button" and "Logo" are crops of the real button and logo.
+- Beat grid: 120 BPM = a beat every 0.5 s. Put every key, step and poster on the grid (t0/at multiples
+  of 0.5 from the film's start). Something changes on every beat; no hold longer than 0.5 s without
+  the camera pushing (the screenFocus push does that).
+- Hook (first 2 s): the data's `hook` as huge poster type (180–260 px, the poster face, centred,
+  y 600–900). The through-line object INTERRUPTS it: a `throughLine` whose first key (≈0.8 s) holds the
+  "Main button" crop (imageId) at about 2× the button's size, centred over the hook line.
+- ONE `throughLine` for the whole film (t0 ≈ 0.6 s → the end). Keys, in order: the hook key above;
+  then for each scene, ~0.25 s before the scene starts, it turns into that scene's UI element: a pill
+  (radius 999) holding the scene's `key` word as `text`, in the brand accent (`site.brand.accent` as
+  hex; textColor the button's text colour), placed just below the window (y 1640–1760, x centred);
+  finally it becomes the "Logo" crop (imageId) large and centred (w 520–640) for the end card, on a
+  key at the end-card time, fill the stage colour.
+- Each scene: ONE `screenFocus` on the full-page screenshot (url = the host), x 40, y 330, w 1000,
+  h 1240, for the scene's length. Its steps: a first step whose box frames the scene's `shot`
+  region (≈ 1440×1600 of the page around it); then at +0.5–1.0 s a step whose box fills the window
+  with the `zoom` target (box ≈ 3–4× the target's size, centred on it, keeping the window's aspect
+  1000:1240), with `cursor` at the centre of the clicked `target` and `click: true`. Boxes must stay
+  inside the screenshot. Consecutive scenes may reuse the same screenFocus (more steps) instead of a
+  new one: the camera then starts where the last ended.
+- Each scene's `line` as poster type (90–130 px, sentence case, the poster face) in the top band
+  (y 150–300), the key word in the accent (`color` of that line only). Outgoing and incoming lines never
+  overlap in time (gap ≥ 0.1 s).
+- End card (last 3–4 s): the logo (throughLine's last key), the product name as poster type
+  (120–180 px) under it, the `cta` as a smaller line (50–70 px). Nothing else on screen.
+- Nothing appears from nothing (posterText `anim` "rise" or "mask"; no fades from zero, no
+  crossfades). No chips, stamps, counters or stock footage. Captions off.""",
+    "product": """### Kind: through-line product film (40-second product film)
+The site's real controls are in the data's `site.targets` (x, y, w, h in the full-page screenshot's
+pixels, 1440 wide) and its colours in `site.brand`. Images: "Homepage, full page (scrolls)" is the
+full-page screenshot; "Main button" and "Logo" are crops of the real button and logo.
+- Beat grid: 120 BPM = a beat every 0.5 s. Put every key, step and poster on the grid (t0/at multiples
+  of 0.5 from the film's start). Something changes on every beat; no hold longer than 0.5 s without
+  the camera pushing (the screenFocus push does that).
+- Hook (first 2 s): the data's `hook` as huge poster type (180–260 px, the poster face, centred,
+  y 600–900). The through-line object INTERRUPTS it: a `throughLine` whose first key (≈0.8 s) holds the
+  "Main button" crop (imageId) at about 2× the button's size, centred over the hook line.
+- ONE `throughLine` for the whole film (t0 ≈ 0.6 s → the end). Keys, in order: the hook key above;
+  then for each scene, ~0.25 s before the scene starts, it turns into that scene's UI element: a pill
+  (radius 999) holding the scene's `key` word as `text`, in the brand accent (`site.brand.accent` as
+  hex; textColor the button's text colour), placed just below the window (y 1640–1760, x centred);
+  finally it becomes the "Logo" crop (imageId) large and centred (w 520–640) for the end card, on a
+  key at the end-card time, fill the stage colour.
+- Each scene: ONE `screenFocus` on the full-page screenshot (url = the host), x 40, y 330, w 1000,
+  h 1240, for the scene's length. Its steps: a first step whose box frames the scene's `shot`
+  region (≈ 1440×1600 of the page around it); then at +0.5–1.0 s a step whose box fills the window
+  with the `zoom` target (box ≈ 3–4× the target's size, centred on it, keeping the window's aspect
+  1000:1240), with `cursor` at the centre of the clicked `target` and `click: true`. Boxes must stay
+  inside the screenshot. Consecutive scenes may reuse the same screenFocus (more steps) instead of a
+  new one: the camera then starts where the last ended.
+- Each scene's `line` as poster type (90–130 px, sentence case, the poster face) in the top band
+  (y 150–300), the key word in the accent (`color` of that line only). Outgoing and incoming lines never
+  overlap in time (gap ≥ 0.1 s).
+- End card (last 3–4 s): the logo (throughLine's last key), the product name as poster type
+  (120–180 px) under it, the `cta` as a smaller line (50–70 px). Nothing else on screen.
+- Nothing appears from nothing (posterText `anim` "rise" or "mask"; no fades from zero, no
+  crossfades). No chips, stamps, counters or stock footage. Captions off.""",
+    "referral": """### Kind: through-line product film (15-second referral promo: how it works and what you get)
+The site's real controls are in the data's `site.targets` (x, y, w, h in the full-page screenshot's
+pixels, 1440 wide) and its colours in `site.brand`. Images: "Homepage, full page (scrolls)" is the
+full-page screenshot; "Main button" and "Logo" are crops of the real button and logo.
+- Beat grid: 120 BPM = a beat every 0.5 s. Put every key, step and poster on the grid (t0/at multiples
+  of 0.5 from the film's start). Something changes on every beat; no hold longer than 0.5 s without
+  the camera pushing (the screenFocus push does that).
+- Hook (first 2 s): the data's `hook` as huge poster type (180–260 px, the poster face, centred,
+  y 600–900). The through-line object INTERRUPTS it: a `throughLine` whose first key (≈0.8 s) holds the
+  "Main button" crop (imageId) at about 2× the button's size, centred over the hook line.
+- ONE `throughLine` for the whole film (t0 ≈ 0.6 s → the end). Keys, in order: the hook key above;
+  then for each scene, ~0.25 s before the scene starts, it turns into that scene's UI element: a pill
+  (radius 999) holding the scene's `key` word as `text`, in the brand accent (`site.brand.accent` as
+  hex; textColor the button's text colour), placed just below the window (y 1640–1760, x centred);
+  finally it becomes the "Logo" crop (imageId) large and centred (w 520–640) for the end card, on a
+  key at the end-card time, fill the stage colour.
+- Each scene: ONE `screenFocus` on the full-page screenshot (url = the host), x 40, y 330, w 1000,
+  h 1240, for the scene's length. Its steps: a first step whose box frames the scene's `shot`
+  region (≈ 1440×1600 of the page around it); then at +0.5–1.0 s a step whose box fills the window
+  with the `zoom` target (box ≈ 3–4× the target's size, centred on it, keeping the window's aspect
+  1000:1240), with `cursor` at the centre of the clicked `target` and `click: true`. Boxes must stay
+  inside the screenshot. Consecutive scenes may reuse the same screenFocus (more steps) instead of a
+  new one: the camera then starts where the last ended.
+- Each scene's `line` as poster type (90–130 px, sentence case, the poster face) in the top band
+  (y 150–300), the key word in the accent (`color` of that line only). Outgoing and incoming lines never
+  overlap in time (gap ≥ 0.1 s).
+- End card (last 3–4 s): the logo (throughLine's last key), the product name as poster type
+  (120–180 px) under it, the `cta` as a smaller line (50–70 px). Nothing else on screen.
+- Nothing appears from nothing (posterText `anim` "rise" or "mask"; no fades from zero, no
+  crossfades). No chips, stamps, counters or stock footage. Captions off.""",
+    "hype": """### Kind: through-line product film (20-second hype launch: punchy, fast)
+The site's real controls are in the data's `site.targets` (x, y, w, h in the full-page screenshot's
+pixels, 1440 wide) and its colours in `site.brand`. Images: "Homepage, full page (scrolls)" is the
+full-page screenshot; "Main button" and "Logo" are crops of the real button and logo.
+- Beat grid: 120 BPM = a beat every 0.5 s. Put every key, step and poster on the grid (t0/at multiples
+  of 0.5 from the film's start). Something changes on every beat; no hold longer than 0.5 s without
+  the camera pushing (the screenFocus push does that).
+- Hook (first 2 s): the data's `hook` as huge poster type (180–260 px, the poster face, centred,
+  y 600–900). The through-line object INTERRUPTS it: a `throughLine` whose first key (≈0.8 s) holds the
+  "Main button" crop (imageId) at about 2× the button's size, centred over the hook line.
+- ONE `throughLine` for the whole film (t0 ≈ 0.6 s → the end). Keys, in order: the hook key above;
+  then for each scene, ~0.25 s before the scene starts, it turns into that scene's UI element: a pill
+  (radius 999) holding the scene's `key` word as `text`, in the brand accent (`site.brand.accent` as
+  hex; textColor the button's text colour), placed just below the window (y 1640–1760, x centred);
+  finally it becomes the "Logo" crop (imageId) large and centred (w 520–640) for the end card, on a
+  key at the end-card time, fill the stage colour.
+- Each scene: ONE `screenFocus` on the full-page screenshot (url = the host), x 40, y 330, w 1000,
+  h 1240, for the scene's length. Its steps: a first step whose box frames the scene's `shot`
+  region (≈ 1440×1600 of the page around it); then at +0.5–1.0 s a step whose box fills the window
+  with the `zoom` target (box ≈ 3–4× the target's size, centred on it, keeping the window's aspect
+  1000:1240), with `cursor` at the centre of the clicked `target` and `click: true`. Boxes must stay
+  inside the screenshot. Consecutive scenes may reuse the same screenFocus (more steps) instead of a
+  new one: the camera then starts where the last ended.
+- Each scene's `line` as poster type (90–130 px, sentence case, the poster face) in the top band
+  (y 150–300), the key word in the accent (`color` of that line only). Outgoing and incoming lines never
+  overlap in time (gap ≥ 0.1 s).
+- End card (last 3–4 s): the logo (throughLine's last key), the product name as poster type
+  (120–180 px) under it, the `cta` as a smaller line (50–70 px). Nothing else on screen.
+- Nothing appears from nothing (posterText `anim` "rise" or "mask"; no fades from zero, no
+  crossfades). No chips, stamps, counters or stock footage. Captions off.""",
+    "flyover": """### Kind: landing-page fly-over
+- ONE `pageFlyover` from 0 to the end: `imageId` = the "Homepage, full page (scrolls)" image,
+  `heroImageId` = "Homepage, first screen", `logoImageId` = "Logo" (if there is one), `brand`, `line` and
+  `tail` from the data, `floor` "#f2f3f6". Its phases are fixed by the element itself.
+- NOTHING else: no poster type, no captions, no chips — the end card is part of the element.""",
+    "diagram": """### Kind: diagram explainer (one diagram, one continuous space)
+- ONE `diagramZoom` from ~0.3 s to the end: `nodes` and `edges` from the data verbatim (the layout is
+  fixed: never move a node); `steps` = the data's steps in order, each `at` on the first word of that
+  step's line (minus t0), `focus` and `example` from the data. top 260.
+- Each step's line as poster type ABOVE the diagram (y 120–230, 64–84 px, one typeface, sentence
+  case), one at a time, outgoing gone before incoming. ≤ 7 words on screen at once.
+- Nothing else: no chips, cards, stamps or counters. One accent colour (`ter`). Captions off.""",
     "explainer": """### Kind: animated explainer (Kurzgesagt register)
 - ONE `explainerWorld` from 0 to the end: `world` from the data; `dolly` 0.3–0.6. Its `host` waypoints:
   one per beat, `at` on the first word of that beat's narration (minus the world's t0), the beat's

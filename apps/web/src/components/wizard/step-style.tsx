@@ -16,6 +16,8 @@ export interface StyleState {
   broll: boolean;
   /** cut the ums, repeats and long pauses out of the take before editing */
   cleanCut: boolean;
+  /** move the strongest line to the first two seconds (implies the clean cut) */
+  hookFirst: boolean;
 }
 
 export function StepStyle({
@@ -219,7 +221,23 @@ export function StepStyle({
               type="checkbox"
               className="size-5 accent-[var(--ter)]"
               checked={Boolean(value.cleanCut)}
-              onChange={(e) => set({ cleanCut: e.target.checked })}
+              onChange={(e) => set({ cleanCut: e.target.checked, hookFirst: e.target.checked && value.hookFirst })}
+            />
+          </label>
+        )}
+        {recorded && (
+          <label className="bg-surface flex items-center justify-between rounded-[8px] p-4">
+            <span>
+              <span className="block font-semibold">Hook first</span>
+              <span className="text-muted-foreground text-[13px]">
+                Your strongest line plays in the first two seconds, even if you said it later (turns on Clean cut)
+              </span>
+            </span>
+            <input
+              type="checkbox"
+              className="size-5 accent-[var(--ter)]"
+              checked={Boolean(value.hookFirst)}
+              onChange={(e) => set({ hookFirst: e.target.checked, cleanCut: e.target.checked || value.cleanCut })}
             />
           </label>
         )}

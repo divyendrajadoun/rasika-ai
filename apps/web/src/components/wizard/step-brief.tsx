@@ -1,6 +1,6 @@
 "use client";
 
-import { BRIEF_KINDS, briefKind, type BriefKindId } from "@/config/briefs";
+import { BRIEF_GROUPS, BRIEF_KINDS, briefKind, type BriefKindId } from "@/config/briefs";
 import { allPresetCards } from "@/config/presets";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +15,10 @@ export interface BriefState {
   winner: "" | "a" | "b";
   line: string;
   end: string;
+  focus: string;
+  seconds: string;
+  closeLine: string;
+  closeTail: string;
 }
 
 export const defaultBriefState: BriefState = {
@@ -28,6 +32,10 @@ export const defaultBriefState: BriefState = {
   winner: "",
   line: "",
   end: "",
+  focus: "",
+  seconds: "",
+  closeLine: "",
+  closeTail: "",
 };
 
 const BRIEF_EXAMPLE_TOPICS = Object.fromEntries(
@@ -40,7 +48,14 @@ export function briefReady(b: BriefState): boolean {
     case "launch":
     case "showreel":
     case "app":
+    case "product":
+    case "referral":
+    case "hype":
       return /^https?:\/\/[^\s/]+\.[^\s]+/i.test(b.url.trim());
+    case "flyover":
+      return /^https?:\/\/[^\s/]+\.[^\s]+/i.test(b.url.trim()) && Boolean(b.closeLine.trim());
+    case "diagram":
+      return b.topic.trim().length >= 6;
     case "recipe":
       return b.recipe.trim().length >= 15;
     case "journey":
@@ -80,6 +95,10 @@ export function StepBrief({ value, onChange }: { value: BriefState; onChange: (v
       b: value.b || ex.b || "",
       line: value.line || ex.line || "",
       end: value.end || ex.end || "",
+      focus: value.focus,
+      seconds: ex.seconds || "",
+      closeLine: value.closeLine || ex.closeLine || "",
+      closeTail: value.closeTail || ex.closeTail || "",
     });
   };
   return (
@@ -87,8 +106,12 @@ export function StepBrief({ value, onChange }: { value: BriefState; onChange: (v
       <p className="text-muted">
         No footage needed. Pick the kind of film; we write it, score it and design it, using only what you give us.
       </p>
-      <ul className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Kind of film">
-        {BRIEF_KINDS.map((k) => {
+      {BRIEF_GROUPS.map((g) => (
+      <section key={g.id} aria-label={g.title}>
+      <h3 className="text-lg font-semibold tracking-[-0.02em]">{g.title}</h3>
+      <p className="text-muted mb-3 text-[14px]">{g.blurb}</p>
+      <ul className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label={g.title}>
+        {BRIEF_KINDS.filter((k) => k.group === g.id).map((k) => {
           const on = k.id === value.kind;
           return (
             <li key={k.id}>
@@ -112,6 +135,8 @@ export function StepBrief({ value, onChange }: { value: BriefState; onChange: (v
           );
         })}
       </ul>
+      </section>
+      ))}
 
       <div className="bg-surface space-y-5 rounded-[8px] p-5">
         <div>
@@ -195,6 +220,64 @@ export function StepBrief({ value, onChange }: { value: BriefState; onChange: (v
                     People, brands or ideas all work. It roasts what they do, never their looks or identity.
                   </p>
                 </div>
+              </div>
+            );
+          if (f.id === "focus")
+            return (
+              <div key="focus">
+                <label htmlFor="brief-focus" className="label">
+                  {f.label}
+                </label>
+                <textarea
+                  id="brief-focus"
+                  className="input min-h-20"
+                  maxLength={400}
+                  placeholder={f.placeholder}
+                  value={value.focus}
+                  onChange={(e) => set({ focus: e.target.value })}
+                />
+                <p className="text-muted mt-1 text-[13px]">{f.help}</p>
+              </div>
+            );
+          if (f.id === "seconds")
+            return (
+              <div key="seconds">
+                <label htmlFor="brief-seconds" className="label">
+                  Length
+                </label>
+                <select
+                  id="brief-seconds"
+                  className="input"
+                  value={value.seconds}
+                  onChange={(e) => set({ seconds: e.target.value })}
+                >
+                  <option value="">The usual ({kind.maxSeconds <= 16 ? 15 : Math.round((kind.maxSeconds - 2) / 10) * 10} s)</option>
+                  {f.options.map((o) => (
+                    <option key={o} value={String(o)}>
+                      {o} seconds
+                    </option>
+                  ))}
+                </select>
+              </div>
+            );
+          if (f.id === "closing")
+            return (
+              <div key="closing" className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="brief-close" className="label">
+                    Closing statement
+                  </label>
+                  <input id="brief-close" className="input" maxLength={60} value={value.closeLine} onChange={(e) => set({ closeLine: e.target.value })} />
+                </div>
+                <div>
+                  <label htmlFor="brief-tail" className="label">
+                    Italic tail (short)
+                  </label>
+                  <input id="brief-tail" className="input" maxLength={40} value={value.closeTail} onChange={(e) => set({ closeTail: e.target.value })} />
+                </div>
+                <p className="text-muted text-[13px] sm:col-span-2">
+                  The two lines appear word by word on the end card, the tail in an italic serif. Your logo is taken from the page; your brand name comes from the Brand step.
+                </p>
               </div>
             );
           return (

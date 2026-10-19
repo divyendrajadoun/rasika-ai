@@ -230,7 +230,7 @@ export async function createBriefEdit(input: unknown): Promise<ActionResult> {
   if (!project) return { ok: false, error: "Project not found" };
 
   const plan = plans.find((p) => p.id === user.plan) ?? plans[0]!;
-  const seconds = Math.min(kind.maxSeconds, plan.maxSeconds);
+  const seconds = Math.min(w.seconds ? Number(w.seconds) + 2 : kind.maxSeconds, plan.maxSeconds);
   const cost = creditCost(seconds);
   if (user.credits < cost)
     return { ok: false, error: `This film needs ${cost} credit(s); you have ${user.credits}.` };
@@ -241,8 +241,11 @@ export async function createBriefEdit(input: unknown): Promise<ActionResult> {
     ...(w.recipe ? { recipe: w.recipe } : {}),
     ...(w.subject ? { subject: w.subject } : {}),
     ...(w.topic ? { topic: w.topic } : {}),
+    ...(w.focus ? { focus: w.focus } : {}),
+    ...(w.seconds ? { seconds: Number(w.seconds) } : {}),
+    ...(w.kind === "flyover" ? { brand: w.brand.name, line: w.closeLine ?? "", tail: w.closeTail ?? "" } : {}),
     ...(w.a ? { a: w.a, b: w.b, winner: w.winner } : {}),
-    ...(w.line ? { line: w.line, end: w.end || "ONE PROMPT" } : {}),
+    ...(w.kind === "machine" && w.line ? { line: w.line, end: w.end || "ONE PROMPT" } : {}),
     narrate: kind.narrate,
     ...(w.voice ? { voice: w.voice } : {}),
   };

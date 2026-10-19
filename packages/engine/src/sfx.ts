@@ -121,6 +121,28 @@ export function deriveSfx(plan: Plan): CueSheet {
           push({ t: el.t0, type: "whoosh", dur: 0.35, gain: 0.55 });
           if (el.mark) push({ t: el.t0 + el.markAt, type: "tick", repeat: 3, every: 0.12, gain: 0.45 });
           break;
+        case "screenFocus":
+          el.steps.forEach((st, i) => {
+            if (i > 0) push({ t: el.t0 + st.at, type: "whoosh", dur: 0.5, gain: 0.45 });
+            if (st.click) push({ t: el.t0 + st.at + 0.8, type: "tick", gain: 0.8 });
+          });
+          break;
+        case "throughLine":
+          for (const k of el.keys.slice(1)) push({ t: el.t0 + k.at - 0.1, type: "pop", gain: 0.55 });
+          break;
+        case "pageFlyover": {
+          const k = (el.t1 - el.t0) / 14.5;
+          push({ t: el.t0 + 8.66 * k, type: "whoosh", dur: 0.6, gain: 0.6 });
+          push({ t: el.t0 + 9.8 * k, type: "whoosh", dur: 0.4, gain: 0.6 });
+          push({ t: el.t0 + 9.97 * k, type: "impact", gain: 0.8 });
+          break;
+        }
+        case "diagramZoom":
+          for (const st of el.steps) {
+            push({ t: el.t0 + st.at, type: "pop", gain: 0.55 });
+            if (st.focus) push({ t: el.t0 + st.at + 0.35, type: "whoosh", dur: 0.6, gain: 0.35 });
+          }
+          break;
         case "explainerWorld":
           for (const h of el.host.slice(1)) push({ t: el.t0 + h.at - 0.8, type: "whoosh", dur: 0.7, gain: 0.3 });
           break;

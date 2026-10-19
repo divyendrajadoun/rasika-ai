@@ -472,6 +472,147 @@ class PlanElement10(BaseModel):
     tilt: float | None = Field(-2, ge=-8.0, le=8.0)
 
 
+class Box(BaseModel):
+    """
+    the region of the screenshot that fills the window
+    """
+
+    x: float
+    y: float
+    w: float = Field(..., gt=0.0)
+    h: float = Field(..., gt=0.0)
+
+
+class Cursor(BaseModel):
+    """
+    where the cursor goes (screenshot px)
+    """
+
+    x: float
+    y: float
+
+
+class Step(BaseModel):
+    at: float = Field(..., description="seconds after t0 this step's zoom starts", ge=0.0)
+    box: Box = Field(..., description="the region of the screenshot that fills the window")
+    cursor: Cursor | None = Field(None, description="where the cursor goes (screenshot px)")
+    click: bool | None = False
+
+
+class PlanElement11(BaseModel):
+    id: str = Field(..., max_length=64, min_length=1)
+    t0: float = Field(..., ge=0.0, le=600.0)
+    t1: float = Field(..., ge=0.0, le=600.0)
+    anchorWordIndex: int | None = Field(None, ge=0, le=9007199254740991)
+    type: Literal["screenFocus"]
+    imageId: str = Field(..., max_length=64, min_length=1)
+    url: str | None = Field(
+        None, description="shown in the address bar; omit for a frameless screen", max_length=80
+    )
+    x: float | None = Field(40, ge=-4000.0, le=4000.0)
+    y: float | None = Field(380, ge=-4000.0, le=4000.0)
+    w: float | None = Field(1000, ge=300.0, le=1080.0)
+    h: float | None = Field(1180, ge=300.0, le=1700.0)
+    steps: list[Step] = Field(..., max_length=12, min_length=1)
+
+
+class Key(BaseModel):
+    at: float = Field(..., ge=0.0)
+    x: float = Field(..., ge=-4000.0, le=4000.0)
+    y: float = Field(..., ge=-4000.0, le=4000.0)
+    w: float = Field(..., ge=8.0, le=1400.0)
+    h: float = Field(..., ge=8.0, le=2200.0)
+    radius: float | None = Field(24, ge=0.0, le=1000.0)
+    fill: str | None = Field(
+        "#111111",
+        description="a real colour (#rrggbb), for things that have one: a liquid, a fighter's corner",
+        pattern="^#[0-9a-fA-F]{6}$",
+    )
+    imageId: str | None = Field(
+        None,
+        description="a crop shown inside (the real button, the logo)",
+        max_length=64,
+        min_length=1,
+    )
+    text: str | None = Field(None, max_length=40)
+    textColor: str | None = Field(
+        "#ffffff",
+        description="a real colour (#rrggbb), for things that have one: a liquid, a fighter's corner",
+        pattern="^#[0-9a-fA-F]{6}$",
+    )
+
+
+class PlanElement12(BaseModel):
+    id: str = Field(..., max_length=64, min_length=1)
+    t0: float = Field(..., ge=0.0, le=600.0)
+    t1: float = Field(..., ge=0.0, le=600.0)
+    anchorWordIndex: int | None = Field(None, ge=0, le=9007199254740991)
+    type: Literal["throughLine"]
+    keys: list[Key] = Field(..., max_length=16, min_length=2)
+
+
+class PlanElement13(BaseModel):
+    id: str = Field(..., max_length=64, min_length=1)
+    t0: float = Field(..., ge=0.0, le=600.0)
+    t1: float = Field(..., ge=0.0, le=600.0)
+    anchorWordIndex: int | None = Field(None, ge=0, le=9007199254740991)
+    type: Literal["pageFlyover"]
+    imageId: str = Field(..., description="the full-page screenshot", max_length=64, min_length=1)
+    heroImageId: str | None = Field(
+        None,
+        description="the first-screen screenshot (the card the dive lands on)",
+        max_length=64,
+        min_length=1,
+    )
+    logoImageId: str | None = Field(None, max_length=64, min_length=1)
+    brand: str | None = Field(None, max_length=40)
+    line: str = Field(..., description="the closing statement", max_length=60, min_length=1)
+    tail: str | None = Field(None, description="the short italic tail", max_length=60)
+    floor: str | None = Field(
+        "#f2f3f6",
+        description="a real colour (#rrggbb), for things that have one: a liquid, a fighter's corner",
+        pattern="^#[0-9a-fA-F]{6}$",
+    )
+
+
+class Shape1(StrEnum):
+    circle = "circle"
+    box = "box"
+    pill = "pill"
+
+
+class Node(BaseModel):
+    id: str = Field(..., max_length=24, min_length=1)
+    label: str = Field(..., max_length=28, min_length=1)
+    x: float = Field(..., description="centre, in a 1000×1400 diagram space", ge=0.0, le=1000.0)
+    y: float = Field(..., ge=0.0, le=1400.0)
+    shape: Shape1 | None = "box"
+
+
+class Edge(BaseModel):
+    from_: str = Field(..., alias="from")
+    to: str
+    label: str | None = Field(None, max_length=24)
+
+
+class Step1(BaseModel):
+    at: float = Field(..., ge=0.0)
+    focus: str | None = Field(..., description="a node id, or null for the whole diagram")
+    example: str | None = Field(None, description="one concrete example, ≤ 7 words", max_length=48)
+
+
+class PlanElement14(BaseModel):
+    id: str = Field(..., max_length=64, min_length=1)
+    t0: float = Field(..., ge=0.0, le=600.0)
+    t1: float = Field(..., ge=0.0, le=600.0)
+    anchorWordIndex: int | None = Field(None, ge=0, le=9007199254740991)
+    type: Literal["diagramZoom"]
+    nodes: list[Node] = Field(..., max_length=9, min_length=2)
+    edges: list[Edge] | None = Field([], max_length=14, validate_default=True)
+    steps: list[Step1] = Field(..., max_length=10, min_length=1)
+    top: float | None = Field(240, ge=-4000.0, le=4000.0)
+
+
 class Anim(StrEnum):
     rise = "rise"
     pop = "pop"
@@ -959,6 +1100,10 @@ class Plan(BaseModel):
         | PlanElement8
         | PlanElement9
         | PlanElement10
+        | PlanElement11
+        | PlanElement12
+        | PlanElement13
+        | PlanElement14
     ]
     sfx: Sfx
     endCard: EndCard | None = None

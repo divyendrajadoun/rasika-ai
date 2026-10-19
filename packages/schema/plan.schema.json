@@ -1615,6 +1615,465 @@
             "type",
             "headline"
           ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "t0": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "t1": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "anchorWordIndex": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "type": {
+              "type": "string",
+              "const": "screenFocus"
+            },
+            "imageId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "url": {
+              "description": "shown in the address bar; omit for a frameless screen",
+              "type": "string",
+              "maxLength": 80
+            },
+            "x": {
+              "default": 40,
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            },
+            "y": {
+              "default": 380,
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            },
+            "w": {
+              "default": 1000,
+              "type": "number",
+              "minimum": 300,
+              "maximum": 1080
+            },
+            "h": {
+              "default": 1180,
+              "type": "number",
+              "minimum": 300,
+              "maximum": 1700
+            },
+            "steps": {
+              "minItems": 1,
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "at": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "seconds after t0 this step's zoom starts"
+                  },
+                  "box": {
+                    "type": "object",
+                    "properties": {
+                      "x": {
+                        "type": "number"
+                      },
+                      "y": {
+                        "type": "number"
+                      },
+                      "w": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "h": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      }
+                    },
+                    "required": [
+                      "x",
+                      "y",
+                      "w",
+                      "h"
+                    ],
+                    "description": "the region of the screenshot that fills the window"
+                  },
+                  "cursor": {
+                    "description": "where the cursor goes (screenshot px)",
+                    "type": "object",
+                    "properties": {
+                      "x": {
+                        "type": "number"
+                      },
+                      "y": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "x",
+                      "y"
+                    ]
+                  },
+                  "click": {
+                    "default": false,
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "at",
+                  "box"
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "t0",
+            "t1",
+            "type",
+            "imageId",
+            "steps"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "t0": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "t1": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "anchorWordIndex": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "type": {
+              "type": "string",
+              "const": "throughLine"
+            },
+            "keys": {
+              "minItems": 2,
+              "maxItems": 16,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "at": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "x": {
+                    "type": "number",
+                    "minimum": -4000,
+                    "maximum": 4000
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": -4000,
+                    "maximum": 4000
+                  },
+                  "w": {
+                    "type": "number",
+                    "minimum": 8,
+                    "maximum": 1400
+                  },
+                  "h": {
+                    "type": "number",
+                    "minimum": 8,
+                    "maximum": 2200
+                  },
+                  "radius": {
+                    "default": 24,
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1000
+                  },
+                  "fill": {
+                    "default": "#111111",
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "description": "a real colour (#rrggbb), for things that have one: a liquid, a fighter's corner"
+                  },
+                  "imageId": {
+                    "description": "a crop shown inside (the real button, the logo)",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "text": {
+                    "type": "string",
+                    "maxLength": 40
+                  },
+                  "textColor": {
+                    "default": "#ffffff",
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "description": "a real colour (#rrggbb), for things that have one: a liquid, a fighter's corner"
+                  }
+                },
+                "required": [
+                  "at",
+                  "x",
+                  "y",
+                  "w",
+                  "h"
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "t0",
+            "t1",
+            "type",
+            "keys"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "t0": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "t1": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "anchorWordIndex": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "type": {
+              "type": "string",
+              "const": "pageFlyover"
+            },
+            "imageId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "description": "the full-page screenshot"
+            },
+            "heroImageId": {
+              "description": "the first-screen screenshot (the card the dive lands on)",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "logoImageId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "brand": {
+              "type": "string",
+              "maxLength": 40
+            },
+            "line": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 60,
+              "description": "the closing statement"
+            },
+            "tail": {
+              "description": "the short italic tail",
+              "type": "string",
+              "maxLength": 60
+            },
+            "floor": {
+              "default": "#f2f3f6",
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$",
+              "description": "a real colour (#rrggbb), for things that have one: a liquid, a fighter's corner"
+            }
+          },
+          "required": [
+            "id",
+            "t0",
+            "t1",
+            "type",
+            "imageId",
+            "line"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "t0": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "t1": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 600
+            },
+            "anchorWordIndex": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "type": {
+              "type": "string",
+              "const": "diagramZoom"
+            },
+            "nodes": {
+              "minItems": 2,
+              "maxItems": 9,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "x": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1000,
+                    "description": "centre, in a 1000×1400 diagram space"
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1400
+                  },
+                  "shape": {
+                    "default": "box",
+                    "type": "string",
+                    "enum": [
+                      "circle",
+                      "box",
+                      "pill"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "label",
+                  "x",
+                  "y"
+                ]
+              }
+            },
+            "edges": {
+              "default": [],
+              "maxItems": 14,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "from": {
+                    "type": "string"
+                  },
+                  "to": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string",
+                    "maxLength": 24
+                  }
+                },
+                "required": [
+                  "from",
+                  "to"
+                ]
+              }
+            },
+            "steps": {
+              "minItems": 1,
+              "maxItems": 10,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "at": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "focus": {
+                    "description": "a node id, or null for the whole diagram",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "example": {
+                    "description": "one concrete example, ≤ 7 words",
+                    "type": "string",
+                    "maxLength": 48
+                  }
+                },
+                "required": [
+                  "at",
+                  "focus"
+                ]
+              }
+            },
+            "top": {
+              "default": 240,
+              "type": "number",
+              "minimum": -4000,
+              "maximum": 4000
+            }
+          },
+          "required": [
+            "id",
+            "t0",
+            "t1",
+            "type",
+            "nodes",
+            "steps"
+          ]
         }
       ]
     },

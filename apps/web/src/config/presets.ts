@@ -346,6 +346,14 @@ export const PRESET_SOURCE: Record<string, string> = {
  * style is picked). Styles that work with any talking take have no entry.
  */
 export const PRESET_HOW_TO: Record<string, { steps: string[]; cleanCut?: boolean }> = {
+  "punchy-fun": {
+    steps: [
+      "Upload your raw talking-head clip (up to a minute); say it however it comes out.",
+      "Turn on Hook first and Clean cut (below): your strongest line opens the reel, and every pause, filler word and false start goes.",
+      "Captions come word by word in bold white, graphics illustrate your key points, upbeat music sits under your voice.",
+    ],
+    cleanCut: true,
+  },
   "ai-studio": {
     steps: [
       "Record yourself explaining a product or a workflow, to camera.",

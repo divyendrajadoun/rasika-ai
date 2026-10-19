@@ -60,3 +60,22 @@ def test_a_clean_take_is_left_alone() -> None:
     clean = [w("Hello", 0.2, 0.5), w("there", 0.55, 0.9), w("friend.", 0.95, 1.4)]
     p = plan_cuts(clean, 2.0)
     assert p.removed == [] and len(p.keep) == 1
+
+
+def test_hook_moves_to_the_front_without_touching_its_neighbours() -> None:
+    ws = [
+        w("Hi", 0.2, 0.4),
+        w("there.", 0.45, 0.8),
+        w("Um", 1.0, 1.2),
+        w("money", 1.3, 1.6),
+        w("is", 1.65, 1.8),
+        w("fake.", 1.85, 2.3),
+        w("Here", 3.0, 3.2),
+        w("is", 3.25, 3.4),
+        w("why.", 3.45, 3.9),
+    ]
+    p = plan_cuts(ws, 5.0, hook=(2, 5))
+    assert p.moved
+    first = p.keep[0]
+    assert first[0] >= 1.2 and first[1] < 3.0  # the hook alone: no "Um", no "Here"
+    assert p.keep[1][0] == 0.0  # then the take from the top

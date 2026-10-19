@@ -62,7 +62,7 @@ describe("@rasika/schema presets", () => {
 });
 
 describe("Plan v1", () => {
-  it("knows all 26 element types (16 from the spec, stock broll, and 9 for brief films)", () => {
+  it("knows all 30 element types (16 from the spec, stock broll, and 13 for brief films)", () => {
     expect([...ELEMENT_TYPES].sort()).toEqual(
       [
         "posterText",
@@ -91,6 +91,10 @@ describe("Plan v1", () => {
         "explainerWorld",
         "crowd",
         "docCard",
+        "screenFocus",
+        "throughLine",
+        "pageFlyover",
+        "diagramZoom",
       ].sort(),
     );
   });

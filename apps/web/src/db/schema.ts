@@ -128,6 +128,8 @@ export interface StyleOptions {
   broll?: boolean;
   /** recorded takes: cut fillers, repeats and long pauses first (worker cleancut.py) */
   cleanCut?: boolean;
+  /** recorded takes: the strongest line moves to the first two seconds (worker cleancut.pick_hook) */
+  hookFirst?: boolean;
   /** reference matching: how much of the reference to honour */
   fidelity?: "pace" | "camera" | "look";
   /** reference matching: the style the worker wrote from the reference (StyleTokens) */

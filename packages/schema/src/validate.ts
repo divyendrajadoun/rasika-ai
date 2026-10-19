@@ -155,6 +155,14 @@ export function elementZone(el: PlanElement): Rect | null {
       return { x: el.x, y: el.y, w: el.w, h: docCardHeight(el) };
     case "explainerWorld":
       return null; // the world is the backdrop: everything else stands in front of it
+    case "screenFocus":
+      return { x: el.x, y: el.y, w: el.w, h: el.h + (el.url ? 56 : 0) };
+    case "throughLine":
+      return null; // it travels: each key is placed by the planner against the scene it joins
+    case "pageFlyover":
+      return null; // it is the whole frame
+    case "diagramZoom":
+      return { x: 40, y: el.top, w: 1000, h: 1400 };
     default:
       return null;
   }
@@ -328,6 +336,12 @@ export function validatePlan(
                 ? el.host.map((h) => h.at)
                 : el.type === "crowd"
                   ? [el.at]
+                  : el.type === "screenFocus"
+                    ? el.steps.map((x) => x.at)
+                    : el.type === "throughLine"
+                      ? el.keys.map((k) => k.at)
+                      : el.type === "diagramZoom"
+                        ? el.steps.map((x) => x.at)
                   : el.type === "docCard" && el.mark
                     ? [el.markAt]
                     : [];
@@ -354,6 +368,30 @@ export function validatePlan(
         level: "error",
         code: "tier-missing",
         message: `tierBoard "${el.id}": an item is ranked into a tier that does not exist (${el.tiers.length} tiers)`,
+        elementId: el.id,
+      });
+    if (el.type === "diagramZoom") {
+      const ids = new Set(el.nodes.map((n) => n.id));
+      const bad = [
+        ...el.edges.flatMap((e) => [e.from, e.to]),
+        ...el.steps.map((x) => x.focus).filter((f): f is string => f !== null),
+      ].filter((id) => !ids.has(id));
+      if (bad.length)
+        issues.push({
+          level: "error",
+          code: "diagram-missing-part",
+          message: `diagramZoom "${el.id}": links or steps name parts that are not in the diagram (${[...new Set(bad)].join(", ")})`,
+          elementId: el.id,
+        });
+    }
+    if (
+      (el.type === "throughLine" && el.keys.some((k, i) => i > 0 && k.at <= el.keys[i - 1]!.at)) ||
+      ((el.type === "screenFocus" || el.type === "diagramZoom") && el.steps.some((x, i) => i > 0 && x.at <= el.steps[i - 1]!.at))
+    )
+      issues.push({
+        level: "error",
+        code: "keys-out-of-order",
+        message: `${el.type} "${el.id}": its keys or steps must be in time order`,
         elementId: el.id,
       });
     if (el.type === "explainerWorld" && plan.meta.faceless !== true)
@@ -402,6 +440,8 @@ export function validatePlan(
       if ("imageId" in el) check(el.imageId, el);
       if (el.type === "splitCards") el.cards.forEach((c) => check(c.imageId, el));
       if (el.type === "filmStrip") el.imageIds.forEach((id) => check(id, el));
+      if (el.type === "pageFlyover") [el.heroImageId, el.logoImageId].forEach((id) => id && check(id, el));
+      if (el.type === "throughLine") el.keys.forEach((k) => k.imageId && check(k.imageId, el));
     }
     if (plan.endCard?.bgImageId && !have.has(plan.endCard.bgImageId)) {
       issues.push({
@@ -529,6 +569,23 @@ export function validatePlan(
           message: `"${line.text}" ${line.color}→${swap} for the ${dark ? "dark stage" : "light wall"}`,
         });
         line.color = swap;
+      }
+      // with no speaker the stage itself is behind the words: a token too close to it can't be read
+      if (faceless && line.color) {
+        const pal = plan.style.palette as Record<string, string>;
+        const c = pal[line.color];
+        if (c && Math.abs(hexLuma(c) - hexLuma(pal.stage!)) < 0.22) {
+          const to: ColorToken = stageDark ? "iv" : "ink";
+          if (to !== line.color) {
+            issues.push({
+              level: "fixed",
+              code: "color.contrast",
+              elementId: el.id,
+              message: `"${line.text}" ${line.color}→${to}: too close to the stage colour to read`,
+            });
+            line.color = to;
+          }
+        }
       }
     }
   }

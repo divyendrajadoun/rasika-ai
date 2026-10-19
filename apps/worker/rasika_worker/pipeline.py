@@ -223,7 +223,7 @@ class Pipeline:
         timings: dict[str, float] = {}
 
         capture = None
-        if "url" in kind["needs"]:
+        if "url" in kind["needs"] or (kind_id == "diagram" and b.get("url")):
             pub.update(JobStatus.PROBING, 4, "Visiting " + str(b.get("url") or "the site") + "…")
             t0 = time.time()
             try:
@@ -345,6 +345,11 @@ class Pipeline:
             opts["captions"] = False  # the lines are on screen already; captions would repeat them
         if kind_id == "machine":
             opts["sfxIntensity"] = 1.0  # the machine's notes are the music
+        if capture and (kind.get("through") or kind_id == "flyover") and capture.brand:
+            # the film wears the site's own colours and typeface
+            opts["referenceStyle"] = film_brief.brand_style(
+                self._style_tokens(project, use_override=False), capture.brand
+            )
         fields: dict[str, Any] = {"style_options": opts, "duration_sec": duration}
         if film.get("title") and not str(project.get("title") or "").strip():
             fields["title"] = str(film["title"])[:120]
@@ -644,7 +649,11 @@ class Pipeline:
                 log.warning("transcript_fix_failed", error=str(exc))
 
         opts = dict(project.get("style_options") or {})
-        if opts.get("cleanCut") and words and self._clean_cut(job, pub, work, words, timings):
+        if (
+            (opts.get("cleanCut") or opts.get("hookFirst"))
+            and words
+            and self._clean_cut(job, pub, work, words, timings)
+        ):
             return  # the cut goes back through probe → transcribe; planning waits for it
         if self.s.auto_plan and self.s.anthropic_api_key:
             if opts.get("source") == "reference" and not opts.get("referenceStyle"):
@@ -677,7 +686,14 @@ class Pipeline:
             (asset.get("meta") or {}).get("durationSec")
             or media.probe(self.s.ffprobe_bin, src).duration_sec
         )
-        plan = cleancut.plan_cuts(words, duration)
+        project = self.repo.project(job.project_id) or {}
+        hook = None
+        if (project.get("style_options") or {}).get("hookFirst") and self.s.anthropic_api_key:
+            try:
+                hook = cleancut.pick_hook(self.anthropic(), self.s.anthropic_fast_model, words)
+            except Exception as exc:  # never block the cut on the hook pick
+                log.warning("hook_pick_failed", error=str(exc))
+        plan = cleancut.plan_cuts(words, duration, hook=hook)
         ledger = {
             "cleanCut": True,
             "cleanCutOf": asset["id"],
@@ -692,7 +708,7 @@ class Pipeline:
             job.project_id,
             {k: v for k, v in ledger.items() if k != "keep"},
         )
-        if plan.removed_sec < 0.3:
+        if plan.removed_sec < 0.3 and not plan.moved:
             log.info("clean_cut_nothing", removed_sec=plan.removed_sec)
             return False
         pub.update(

@@ -16,6 +16,7 @@ from __future__ import annotations
 import contextlib
 import ipaddress
 import json
+import re
 import socket
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -26,6 +27,19 @@ from rasika_worker.reference import parse_json
 
 # ───────────────────────────── the kinds ─────────────────────────────
 
+THROUGH = (
+    "Pick ONE through-line object from the product itself (its main button, the logo's mark, a single data "
+    "point) and make every scene a transformation of it: it starts in the UI, changes shape or role in each "
+    "scene, and becomes the logo on the end card. The real interface drives it: a cursor clicks real controls "
+    "while the camera zooms screen-studio style so each moment fills the frame. One typeface, one accent colour "
+    "(the brand's) used only on the through-line object and the key word, lots of empty space. Hook (first bar): "
+    "the problem in three to five words, in big type that the through-line object interrupts. Middle: moments of "
+    "the product doing what it does best, each beginning with the object turning into the next UI element and "
+    "landing one readable idea. Payoff: the strongest moment on the biggest beat, then the object becomes the "
+    "logo and the end card (the name and a one-line call to action). 120 BPM; something changes on every beat. "
+    "Never invent features, screens or numbers."
+)
+
 KINDS: dict[str, dict[str, Any]] = {
     "launch": {
         "title": "SaaS launch film",
@@ -34,9 +48,8 @@ KINDS: dict[str, dict[str, Any]] = {
         "mood": "launch",
         "narrate": False,
         "seconds": (24, 32),
-        "brief": "A professionally edited product-launch film of the kind founders post on X: the product's name, "
-        "the problem in one line, three or four features each shown on the real page with a benefit line, "
-        "a quick montage, the call to action. Confident, fast, clean; every claim taken from the site.",
+        "through": True,
+        "brief": "A high-end 30-second launch film. " + THROUGH,
     },
     "showreel": {
         "title": "15-second motion showreel",
@@ -45,9 +58,9 @@ KINDS: dict[str, dict[str, Any]] = {
         "mood": "showreel",
         "narrate": False,
         "seconds": (14, 16),
-        "brief": "A dynamic 15-second motion-design showreel for this website, as if it were the reel that gets the "
-        "designer hired: the brand's name slammed in, two or three of its real screens flying through, kinetic "
-        "type on the beat, one surprising transition, the logo/name to close. More motion than words.",
+        "through": True,
+        "brief": "A 15-second showreel for this product, matching the landing page's styling and creative in what "
+        "it shows. " + THROUGH,
     },
     "app": {
         "title": "Apple-style app film",
@@ -56,9 +69,68 @@ KINDS: dict[str, dict[str, Any]] = {
         "mood": "launch",
         "narrate": False,
         "seconds": (26, 32),
-        "brief": "An Apple-style 30-second film for this app: calm white space, one idea per shot, short declarative "
-        'lines ("Meet …", "Designed for …"), the real screens presented on a clean stage, slow pushes, a final '
-        "name card. Understated and premium.",
+        "through": True,
+        "brief": "A 30-second Apple-style film for this app: keynote feel, white space, one idea per shot, the "
+        'device as the hero, short declarative lines ("Meet …", "Designed for …"). ' + THROUGH,
+    },
+    "product": {
+        "title": "Product film",
+        "needs": ["url"],
+        "preset": "porcelain-keynote",
+        "mood": "showreel",
+        "narrate": False,
+        "seconds": (36, 42),
+        "through": True,
+        "brief": "A 40-second product film: what it does, who it is for, shown on its real interface. "
+        + THROUGH,
+    },
+    "referral": {
+        "title": "Referral promo",
+        "needs": ["url"],
+        "preset": "porcelain-keynote",
+        "mood": "showreel",
+        "narrate": False,
+        "seconds": (14, 16),
+        "through": True,
+        "brief": "A 15-second promo for the product's referral programme: how it works and what you get, taken "
+        "from the site's own referral page or terms (if the site states no referral programme, say only what it "
+        "does state). The end card says how to start referring. " + THROUGH,
+    },
+    "hype": {
+        "title": "Hype launch",
+        "needs": ["url"],
+        "preset": "porcelain-keynote",
+        "mood": "showreel",
+        "narrate": False,
+        "seconds": (18, 22),
+        "through": True,
+        "brief": "A 20-second hype launch video: punchy, confident, fast. " + THROUGH,
+    },
+    "flyover": {
+        "title": "Landing-page fly-over",
+        "needs": ["url", "closing"],
+        "preset": "porcelain-keynote",
+        "mood": "showreel",
+        "narrate": False,
+        "seconds": (14, 15),
+        "brief": "A 14.5-second 3D fly-over of the landing page: the page lies flat on a bright studio floor, one "
+        "continuous camera glides down it looking up the page, rises to show the whole page as one strip, dives "
+        "into the hero and lands it as a card under a two-line title (the user's statement, then a short italic "
+        "tail). No text over the page before the end card; no cuts.",
+    },
+    "diagram": {
+        "title": "Diagram explainer",
+        "needs": ["topic"],
+        "preset": "porcelain-keynote",
+        "mood": "showreel",
+        "narrate": False,
+        "seconds": (55, 62),
+        "brief": "A 60-second explainer of why this earns its place, for someone deciding whether to use it, built "
+        "as ONE diagram in one continuous space: the camera zooms into a part to explain it and pulls back to "
+        "show how it fits. Every idea gets a picture before words; labels sit on the thing they name. Hook: a "
+        "question the viewer already has. Middle: three to five steps, each zooming into one part with one "
+        "concrete example. Payoff: pull back to the whole, complete diagram and a one-line takeaway. Never more "
+        "than seven words on screen; every fact right (never invent numbers or quotes).",
     },
     "recipe": {
         "title": "Recipe explainer",
@@ -146,6 +218,65 @@ KINDS: dict[str, dict[str, Any]] = {
 }
 
 
+def _hex(css: str) -> str | None:
+    m = re.match(r"rgba?\(([^)]+)\)", css or "")
+    if not m:
+        return css if re.fullmatch(r"#[0-9a-fA-F]{6}", css or "") else None
+    parts = [float(x) for x in m.group(1).split(",")]
+    if len(parts) > 3 and parts[3] < 0.6:
+        return None
+    return "#" + "".join(f"{int(round(v)):02x}" for v in parts[:3])
+
+
+def _luma(h: str) -> float:
+    n = int(h[1:], 16)
+    return (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255
+
+
+FONT_MAP = {
+    "inter": "Inter",
+    "geist": "Inter",
+    "sf pro": "Inter",
+    "helvetica": "Inter",
+    "arial": "Inter",
+    "space grotesk": "Space Grotesk",
+    "montserrat": "Montserrat",
+    "poppins": "Poppins",
+    "jost": "Jost",
+    "ibm plex sans": "IBM Plex Sans",
+    "playfair": "Playfair Display Roman",
+    "fraunces": "Fraunces",
+}
+
+
+def brand_style(tokens: dict[str, Any], brand: dict[str, str]) -> dict[str, Any]:
+    """The kind's preset in the site's own colours and (where we have it) its typeface."""
+    style: dict[str, Any] = dict(json.loads(json.dumps(tokens)))
+    pal = dict(style["palette"])
+    bg, text, accent = (
+        _hex(brand.get("background", "")),
+        _hex(brand.get("text", "")),
+        _hex(brand.get("accent", "")),
+    )
+    if bg:
+        pal["stage"] = bg
+        dark = _luma(bg) < 0.45
+        if text and abs(_luma(text) - _luma(bg)) > 0.4:
+            pal["iv" if dark else "mar"] = text
+            pal["ink"] = text if not dark else pal["ink"]
+        if accent and abs(_luma(accent) - _luma(bg)) > 0.18:
+            pal["gold" if dark else "ter"] = accent
+    style["palette"] = pal
+    face = (brand.get("font") or "").lower()
+    for key, fam in FONT_MAP.items():
+        if key in face:
+            style["fonts"] = {**style["fonts"], "poster": fam, "ui": fam, "caption": fam}
+            break
+    style["id"] = f"{tokens.get('id', 'brand')}-brand"
+    style["name"] = f"{brand.get('font') or 'Brand'} look"
+    return style
+
+
 def kind_of(opts: dict[str, Any]) -> dict[str, Any]:
     brief = opts.get("brief") or {}
     k = KINDS.get(str(brief.get("kind")))
@@ -201,6 +332,10 @@ class SiteCapture:
     headings: list[str]
     text: str
     shots: list[tuple[str, Path]] = field(default_factory=list)  # (label, png)
+    # where the real controls sit on the full-page screenshot (px), for cursor moves and zooms
+    targets: list[dict[str, Any]] = field(default_factory=list)
+    # the page's own colours and typeface, read from the rendered page
+    brand: dict[str, str] = field(default_factory=dict)
 
     def as_prompt(self) -> str:
         return json.dumps(
@@ -211,9 +346,65 @@ class SiteCapture:
                 "headings": self.headings[:30],
                 "text": self.text[:4000],
                 "screenshots": [label for label, _ in self.shots],
+                "brand": self.brand,
+                "targets": [
+                    {k: t[k] for k in ("id", "kind", "label", "x", "y", "w", "h")}
+                    for t in self.targets[:40]
+                ],
             },
             ensure_ascii=False,
         )
+
+
+TARGETS_JS = """() => {
+  const vis = (e) => { const r = e.getBoundingClientRect(); const cs = getComputedStyle(e);
+    return r.width > 8 && r.height > 8 && cs.visibility !== 'hidden' && cs.display !== 'none' && +cs.opacity > 0.05; };
+  const box = (e) => { const r = e.getBoundingClientRect();
+    return { x: Math.round(r.left + scrollX), y: Math.round(r.top + scrollY), w: Math.round(r.width), h: Math.round(r.height) }; };
+  const txt = (e) => (e.innerText || e.getAttribute('aria-label') || e.getAttribute('alt') || e.value || '').trim().replace(/\\s+/g, ' ').slice(0, 40);
+  const out = []; const seen = new Set();
+  const add = (e, kind) => { if (!vis(e) || seen.has(e)) return; seen.add(e);
+    out.push({ kind, label: txt(e), ...box(e) }); };
+  const header = document.querySelector('header, nav, [role=banner]') || document.body;
+  const logo = header.querySelector('a[href="/"] img, a[href="/"] svg, [class*=logo i] img, [class*=logo i] svg, a[href="/"]');
+  if (logo) add(logo.closest('a') && logo.closest('a').getBoundingClientRect().width < 360 ? logo.closest('a') : logo, 'logo');
+  const alpha = (c) => { const m = (c || '').match(/rgba?\\(([^)]+)\\)/); if (!m) return 0; const p = m[1].split(',').map(Number); return p.length > 3 ? p[3] : 1; };
+  const filled = (e) => alpha(getComputedStyle(e).backgroundColor) >= 0.6;
+  const big = (e) => box(e).w >= 64 && box(e).h >= 26;
+  const btns = [...document.querySelectorAll('a, button, [role=button]')].filter((e) => vis(e) && txt(e).length > 1 && txt(e).length < 32);
+  const heroBtns = btns.filter((e) => box(e).y < 900 && filled(e) && big(e)).sort((a, b) => box(b).w * box(b).h - box(a).w * box(a).h);
+  if (heroBtns[0]) add(heroBtns[0], 'cta');
+  for (const e of btns.filter((e) => filled(e) && big(e)).slice(0, 12)) add(e, 'button');
+  for (const e of [...document.querySelectorAll('input, textarea, select')].slice(0, 6)) add(e, 'input');
+  for (const e of [...document.querySelectorAll('h1, h2')].slice(0, 10)) add(e, 'heading');
+  for (const e of btns.filter((e) => !filled(e)).slice(0, 10)) add(e, 'link');
+  const cta = heroBtns[0]; const h1 = document.querySelector('h1');
+  const css = (e, p) => (e ? getComputedStyle(e)[p] : '');
+  return { targets: out.slice(0, 48).map((t, i) => ({ id: 't' + (i + 1), ...t })),
+    brand: { accent: css(cta, 'backgroundColor'), accentText: css(cta, 'color'), background: css(document.body, 'backgroundColor'),
+             text: css(h1 || document.body, 'color'), font: (css(h1 || document.body, 'fontFamily') || '').split(',')[0].replace(/["']/g, '').trim() } };
+}"""
+
+
+def _crop(full: Path, t: dict[str, Any], dest: Path) -> Path | None:
+    """Cut a control out of the full-page screenshot (its own pixels, a few px of air around it)."""
+    try:
+        from PIL import Image
+
+        with Image.open(full) as im:
+            pad = 6
+            box = (
+                max(0, t["x"] - pad),
+                max(0, t["y"] - pad),
+                min(im.width, t["x"] + t["w"] + pad),
+                min(im.height, t["y"] + t["h"] + pad),
+            )
+            if box[2] - box[0] < 12 or box[3] - box[1] < 12:
+                return None
+            im.crop(box).save(dest)
+        return dest
+    except Exception:
+        return None
 
 
 def capture_site(url: str, out: Path, timeout_ms: int = 25000) -> SiteCapture:
@@ -272,6 +463,8 @@ def capture_site(url: str, out: Path, timeout_ms: int = 25000) -> SiteCapture:
                            headings: [...new Set(heads)].slice(0, 40), text: [...new Set(text)].slice(0, 60).join('\\n') };
                 }"""
             )
+            # the real controls, in page coordinates (the full-page screenshot's pixels)
+            found = page.evaluate(TARGETS_JS)
             shots: list[tuple[str, Path]] = []
             hero = out / "site_hero.png"
             page.screenshot(path=str(hero))
@@ -311,6 +504,12 @@ def capture_site(url: str, out: Path, timeout_ms: int = 25000) -> SiteCapture:
             mob = out / "site_phone.png"
             pp.screenshot(path=str(mob))
             shots.append(("Phone view", mob))
+            targets = [t for t in (found.get("targets") or []) if t["y"] + t["h"] <= height]
+            for t in targets:
+                if t["kind"] in ("logo", "cta"):
+                    crop = _crop(full, t, out / f"site_{t['kind']}.png")
+                    if crop:
+                        shots.append(("Logo" if t["kind"] == "logo" else "Main button", crop))
         finally:
             browser.close()
     return SiteCapture(
@@ -321,6 +520,8 @@ def capture_site(url: str, out: Path, timeout_ms: int = 25000) -> SiteCapture:
         headings=list(info.get("headings") or []),
         text=str(info.get("text") or ""),
         shots=shots,
+        targets=targets,
+        brand=found.get("brand") or {},
     )
 
 
@@ -369,6 +570,24 @@ The kind's `data`:
 - journey:
   {"seasons": ["spring","summer","autumn","winter"], "chapters": ["Part One: Spring", ...],  // one per season
    "frame": "arch|rect", "cup": true|false}
+- launch / showreel / app / product / referral / hype (through-line films):
+  {"product": {"name": "...", "tagline": "...", "host": "the site's host"},
+   "object": {"what": "the through-line object, e.g. the Sign up button", "target": "a target id from the site's targets"},
+   "hook": "the problem in 3–5 words",
+   "scenes": [{"line": "≤ 6 words, the one readable idea", "key": "the key word (the accent goes on it)",
+               "shot": "which screenshot label it happens on", "target": "the target id the cursor clicks (or null)",
+               "zoom": "the target id the camera fills the frame with"}],   // 15 s: 2–3, 20 s: 3, 30 s: 3–4, 40 s: 4–5
+   "cta": "one-line call to action from the site (e.g. Start free at linear.app)"}
+  `lines` = the hook, then each scene's line, then the name + cta, on the 0.5 s beat grid (sec multiples of 0.5).
+  Use ONLY targets and screenshots the site gives you; the user's `focus` note (if any) says what to show.
+- flyover:
+  {"brand": "the brand name (the user's, else the site's)", "line": "the user's statement", "tail": "the user's italic tail"}
+  Its `lines` are exactly two: [{"text": "♪", "sec": 9.6}, {"text": <line> + " " + <tail>, "sec": 4.9}].
+- diagram:
+  {"nodes": [{"id": "short-id", "label": "≤ 3 words", "x": 0-1000, "y": 0-1400, "shape": "circle|box|pill"}],   // 4–7, a clear fixed layout
+   "edges": [{"from": "id", "to": "id", "label": "≤ 2 words or null"}],   // the way things actually flow
+   "steps": [{"focus": "node id, or null for the whole", "line": "≤ 7 words", "example": "one concrete example, ≤ 7 words"}]}
+  Steps: the hook (focus null), 3–5 part steps, the payoff (focus null). `lines` = each step's line, in order.
 - explainer:
   {"world": "space|earth|city|ocean|cell|lab",   // the one world the topic lives in
    "beats": [{"line": "on-screen words", "host": "idle|point|tap|wow|think",
@@ -403,6 +622,10 @@ def write(
 
     k = KINDS[kind_id]
     lo, hi = k["seconds"]
+    want = inputs.get("seconds")
+    if want:  # the user picked a length
+        with contextlib.suppress(TypeError, ValueError):
+            lo, hi = float(want) - 1.5, float(want) + 1.5
     hi = min(hi, max_seconds)
     lo = min(lo, hi)
     user: list[dict[str, Any]] = [
@@ -441,6 +664,12 @@ def write(
             secs.append(max(0.6, min(14.0, float(x.get("sec", 2)))))
     if not texts:
         raise ValueError("the writer returned no on-screen lines")
+    if kind_id == "flyover":
+        data = out.get("data") or {}
+        line = str(data.get("line") or inputs.get("line") or texts[-1])[:60]
+        tail = str(data.get("tail") or inputs.get("tail") or "")[:60]
+        texts = ["♪", (line + " " + tail).strip()]
+        secs = [9.6, 4.9]
     if kind_id == "machine":
         # the drop lands at 12 s whatever the writer timed: silence, the 4-second phrase, the closing words
         data = out.get("data") or {}
@@ -455,6 +684,15 @@ def write(
     out["narration"] = (str(out.get("narration") or "").strip() or None) if narrate else None
     out.setdefault("data", {})
     out["music"] = {"mood": k["mood"], "bpm": int((out.get("music") or {}).get("bpm") or 0) or None}
+    if k.get("through"):
+        out["music"]["bpm"] = 120  # a kick on every beat, a hit on each scene change
+    if capture:
+        # the planner places the cursor and the zooms on the page's real controls
+        out["data"]["site"] = {
+            "screenshotWidth": 1440,
+            "targets": capture.targets[:40],
+            "brand": capture.brand,
+        }
     return out, usage
 
 
