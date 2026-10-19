@@ -138,6 +138,12 @@ class Texture(StrEnum):
     grain = "grain"
 
 
+class Framing(StrEnum):
+    any = "any"
+    full = "full"
+    framed = "framed"
+
+
 class Motion(BaseModel):
     family: Family | None = "editorial"
     caseStyle: CaseStyle | None = "auto"
@@ -150,6 +156,7 @@ class Motion(BaseModel):
     texture: Texture | None = "none"
     direction: str | None = Field("", max_length=4000)
     avoidElements: list[str] | None = []
+    framing: Framing | None = "any"
 
 
 class Palette(BaseModel):

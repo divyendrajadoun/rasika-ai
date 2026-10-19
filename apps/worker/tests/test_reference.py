@@ -76,3 +76,59 @@ def test_look_changes_everything_but_keeps_devanagari_and_known_fonts() -> None:
 
 def test_parse_json_strips_fences() -> None:
     assert parse_json('```json\n{"a": 1}\n```') == {"a": 1}
+
+
+def test_look_also_takes_pacing_end_card_and_elements() -> None:
+    """A full match: the reference decides element choice and pacing too, not the template."""
+    proposed = {
+        **PROPOSED,
+        "pace": 0.9,
+        "endCardShape": "square",
+        "preferredElements": ["posterText", "counter"],
+        "motion": {**PROPOSED["motion"], "avoidElements": ["stamp"], "caseStyle": "upper"},
+    }
+    out = merge_by_fidelity(PRESET, proposed, "look")
+    assert out["pace"] == 0.9 and out["endCardShape"] == "square"
+    assert out["preferredElements"] == ["posterText", "counter"]
+    assert out["motion"]["avoidElements"] == ["stamp"] and out["motion"]["caseStyle"] == "upper"
+    # pace / camera fidelity never touch them
+    kept = merge_by_fidelity(PRESET, proposed, "camera")
+    assert kept.get("pace") == PRESET.get("pace") and kept.get("endCardShape") == PRESET.get("endCardShape")
+
+
+def test_reference_base_preset_is_installed() -> None:
+    from pathlib import Path
+
+    from rasika_worker.pipeline import REFERENCE_BASE_PRESET
+
+    root = Path(__file__).resolve().parents[3]
+    assert (root / "packages" / "schema" / "presets" / f"{REFERENCE_BASE_PRESET}.json").exists()
+
+
+def test_parse_json_ignores_a_note_after_the_object() -> None:
+    text = '{"a": {"b": 1}}\n\nNote: I kept {fonts} from the template.'
+    assert parse_json(text) == {"a": {"b": 1}}
+
+
+def test_full_bleed_framing_removes_windows_but_keeps_the_end_card() -> None:
+    from rasika_worker.planner import keep_full_bleed
+
+    modes = [
+        {"t": 0, "mode": "full"},
+        {"t": 3, "mode": "card"},
+        {"t": 5, "mode": "zoom"},
+        {"t": 7, "mode": "pip"},
+        {"t": 8, "mode": "arch"},
+        {"t": 9, "mode": "full"},
+        {"t": 14, "mode": "arch"},
+    ]
+    out = keep_full_bleed(modes)
+    assert [m["mode"] for m in out] == ["full", "zoom", "full", "arch"]
+    assert out[-1]["t"] == 14  # the closing arch (the end card) is kept
+    assert keep_full_bleed([]) == [{"t": 0, "mode": "full"}]
+
+
+def test_camera_fidelity_carries_framing() -> None:
+    proposed = {**PROPOSED, "motion": {**PROPOSED["motion"], "framing": "full"}}
+    assert merge_by_fidelity(PRESET, proposed, "camera")["motion"]["framing"] == "full"
+    assert merge_by_fidelity(PRESET, proposed, "pace")["motion"].get("framing") != "full"

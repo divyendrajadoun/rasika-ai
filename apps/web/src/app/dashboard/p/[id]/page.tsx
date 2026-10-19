@@ -5,7 +5,7 @@ import { deleteProject, duplicateProject } from "@/app/dashboard/actions";
 import { fmtDuration } from "@/components/dashboard/project-card";
 import { ProgressView } from "@/components/dashboard/progress-view";
 import { TranscriptPanel } from "@/components/dashboard/transcript-panel";
-import { presetCards } from "@/config/presets";
+import { projectStyleLabel } from "@/config/presets";
 import { requireUser } from "@/lib/auth";
 import { getProject } from "@/lib/projects";
 
@@ -26,9 +26,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   const share = assets.find((a) => a.kind === "output_720");
   const preview = assets.find((a) => a.kind === "preview_540");
   const proxy = assets.find((a) => a.kind === "proxy");
-  const preset =
-    presetCards.find((c) => c.tokens.id === project.stylePreset)?.tokens.name ??
-    project.stylePreset;
+  const preset = projectStyleLabel(project.stylePreset, project.styleOptions);
   // stock footage credits (Pexels asks for attribution where possible; the plan keeps the source)
   const stockCredits = (() => {
     const els = (plan?.plan as { elements?: Array<Record<string, unknown>> } | undefined)?.elements ?? [];

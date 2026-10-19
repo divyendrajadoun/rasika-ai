@@ -41,6 +41,8 @@ export type FontRole = z.infer<typeof FontRole>;
  *             grid, dots, vignette, gradient, halftone (print dots), scan (CRT lines), lines
  *             (ruled notebook), grain (coarse film)
  * direction   markdown for the planner: beat structure + vocabulary for this style
+ * framing     where the speaker sits: full (edge to edge the whole reel, punch-ins allowed, never a
+ *             card / pip window) · framed (mostly in a window on the stage) · any (the planner decides)
  */
 export const MotionFamily = z.enum([
   "editorial",
@@ -94,6 +96,9 @@ export type TextureKind = z.infer<typeof TextureKind>;
 export const CaseStyle = z.enum(["auto", "upper", "sentence"]);
 export type CaseStyle = z.infer<typeof CaseStyle>;
 
+export const Framing = z.enum(["any", "full", "framed"]);
+export type Framing = z.infer<typeof Framing>;
+
 export const Motion = z.object({
   family: MotionFamily.default("editorial"),
   /** poster-type case: auto = the family's habit (editorial / hype / collage / beat shout) */
@@ -108,6 +113,8 @@ export const Motion = z.object({
   direction: z.string().max(4000).default(""),
   /** element types the planner should not use in this style */
   avoidElements: z.array(z.string()).default([]),
+  /** where the speaker sits; "full" is enforced on the plan (a reference shot edge to edge) */
+  framing: Framing.default("any"),
 });
 export type Motion = z.infer<typeof Motion>;
 export type MotionInput = z.input<typeof Motion>;

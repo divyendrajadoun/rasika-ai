@@ -31,6 +31,8 @@ import { creditCost } from "@/lib/wizard-schema";
 import { cn } from "@/lib/utils";
 
 type StepId = "source" | "upload" | "script" | "presenter" | "photos" | "style" | "brand";
+const stepLabel = (s: StepId, mode: SourceMode) =>
+  s === "style" && mode === "reference" ? "Edit options" : STEP_LABEL[s];
 const STEP_LABEL: Record<StepId, string> = {
   source: "Source",
   upload: "Upload reel",
@@ -56,20 +58,12 @@ export interface BrandState {
   cta: string;
 }
 
+/**
+ * A reference is always matched in full: its pace, camera and look (palette, type, captions,
+ * texture). The worker still accepts "pace" and "camera" for drafts saved before this changed.
+ */
 type Fidelity = "pace" | "camera" | "look";
-const FIDELITY: { id: Fidelity; label: string; blurb: string }[] = [
-  { id: "pace", label: "Pace", blurb: "Shot lengths and cut cadence only; your chosen style's look." },
-  {
-    id: "camera",
-    label: "Pace + camera",
-    blurb: "Also how shots arrive and move: cuts, punch-ins, entrances.",
-  },
-  {
-    id: "look",
-    label: "Pace + camera + look",
-    blurb: "Also its palette, type and texture — the style card becomes a starting point.",
-  },
-];
+const REFERENCE_FIDELITY: Fidelity = "look";
 
 interface Draft {
   step: number;
@@ -129,7 +123,7 @@ export function Wizard({
     mode: (["take", "script", "reference", "presenter"] as SourceMode[]).find((m) => m === initialSource) ?? "take",
     upload: null,
     reference: null,
-    fidelity: "camera",
+    fidelity: REFERENCE_FIDELITY,
     script: defaultScriptState,
     presenter: defaultPresenterState,
     scriptProjectId: null,
@@ -288,7 +282,7 @@ export function Wizard({
       sourceAssetId: draft.upload.assetId,
       referenceAssetId:
         draft.mode === "reference" && draft.reference?.complete ? draft.reference.assetId : undefined,
-      fidelity: draft.fidelity,
+      fidelity: REFERENCE_FIDELITY,
       durationSec: draft.upload.durationSec ?? 0,
       photos: draft.photos.map((p) => ({
         assetId: p.assetId,
@@ -368,7 +362,7 @@ export function Wizard({
       <p className="text-muted text-[14px]">
         New edit · step {draft.step + 1} of {steps.length}
       </p>
-      <h1 className="mt-1 text-[1.75rem] font-semibold leading-tight tracking-[-0.02em]">{STEP_LABEL[stepId]}</h1>
+      <h1 className="mt-1 text-[1.75rem] font-semibold leading-tight tracking-[-0.02em]">{stepLabel(stepId, draft.mode)}</h1>
 
       <ol className="mt-5 flex flex-wrap gap-1.5" aria-label="Steps">
         {steps.map((s, i) => (
@@ -387,7 +381,7 @@ export function Wizard({
               )}
               aria-current={i === draft.step ? "step" : undefined}
             >
-              {STEP_LABEL[s]}
+              {stepLabel(s, draft.mode)}
             </button>
           </li>
         ))}
@@ -439,7 +433,7 @@ export function Wizard({
                   <p className="label mb-1">The reference</p>
                   <p className="text-muted-foreground text-sm">
                     {draft.upload?.complete
-                      ? "Now the reel whose rhythm and look you want. We measure its cuts, camera and palette, write a style from them, and cut your take that way."
+                      ? "Now the reel whose style you want. We measure its cuts, camera moves, colours, type and captions, write a style from them, and edit your take to match it. No preset to pick."
                       : "Upload your own take first; the reference attaches to it."}
                   </p>
                 </div>
@@ -453,28 +447,6 @@ export function Wizard({
                     onChange={(r) => setDraft((d) => ({ ...d, reference: r }))}
                   />
                 )}
-                <div>
-                  <p className="label">How closely</p>
-                  <ul className="grid gap-2 sm:grid-cols-3" role="radiogroup" aria-label="Fidelity">
-                    {FIDELITY.map((f) => (
-                      <li key={f.id}>
-                        <button
-                          type="button"
-                          role="radio"
-                          aria-checked={draft.fidelity === f.id}
-                          onClick={() => setDraft((d) => ({ ...d, fidelity: f.id }))}
-                          className={cn(
-                            "bg-surface h-full w-full rounded-[8px] px-3 py-2 text-left transition-colors",
-                            draft.fidelity === f.id && "ring-2 ring-text",
-                          )}
-                        >
-                          <span className="block font-semibold">{f.label}</span>
-                          <span className="text-muted-foreground block text-[13px]">{f.blurb}</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
               </div>
             )}
           </div>
@@ -490,6 +462,7 @@ export function Wizard({
           <StepStyle
             value={draft.style}
             stockEnabled={stockEnabled}
+            fromReference={draft.mode === "reference"}
             onChange={(style) => setDraft((d) => ({ ...d, style }))}
           />
         )}

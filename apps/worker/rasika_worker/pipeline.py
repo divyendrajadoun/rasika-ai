@@ -38,6 +38,10 @@ _REPO_ROOT = _HERE.parents[2] if len(_HERE.parents) > 2 else None
 MAX_DURATION_DEFAULT = 180.0
 
 
+#: the neutral starting point a reference style is written over (dark ground, plain sans, no
+#: pattern); with a full match every visual field is replaced by what the reference shows
+REFERENCE_BASE_PRESET = "ghost-clean"
+
 class PipelineError(RuntimeError):
     """A user-facing failure (bad input); the message is shown in the dashboard."""
 
@@ -505,7 +509,8 @@ class Pipeline:
         if not dest.exists():
             self.storage.download(ref["storage_key"], dest)
         opts = dict(project.get("style_options") or {})
-        fidelity = str(opts.get("fidelity") or "camera")
+        # a reference is matched in full unless an older draft asked for less
+        fidelity = str(opts.get("fidelity") or "look")
 
         t0 = time.time()
         report = reference.analyse(self.s.ffmpeg_bin, self.s.ffprobe_bin, dest, work / "ref")
@@ -521,7 +526,8 @@ class Pipeline:
             **timings,
         )
         t0 = time.time()
-        preset = self._style_tokens(project, use_override=False)
+        # the reference is the style: start from a neutral base, never the house look or a picked preset
+        preset = self._style_tokens({"style_preset": REFERENCE_BASE_PRESET}, use_override=False)
         try:
             tokens, usage = reference.propose_style(
                 self.anthropic(),

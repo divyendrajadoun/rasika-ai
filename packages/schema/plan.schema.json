@@ -352,6 +352,15 @@
               "items": {
                 "type": "string"
               }
+            },
+            "framing": {
+              "default": "any",
+              "type": "string",
+              "enum": [
+                "any",
+                "full",
+                "framed"
+              ]
             }
           }
         }

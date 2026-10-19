@@ -15,6 +15,9 @@ import {
   estimateSpokenSeconds,
 } from "@/lib/wizard-schema";
 
+/** A reference edit is written over this neutral preset (apps/worker pipeline.REFERENCE_BASE_PRESET). */
+const REFERENCE_BASE_PRESET = "ghost-clean";
+
 export type ActionResult = { ok: true; projectId: string } | { ok: false; error: string };
 
 /** "Create my edit": finalises the project and enqueues the first pipeline job. */
@@ -64,7 +67,7 @@ export async function createEdit(input: unknown): Promise<ActionResult> {
       .set({
         title: w.title,
         status: "uploaded",
-        stylePreset: w.stylePreset,
+        stylePreset: w.referenceAssetId ? REFERENCE_BASE_PRESET : w.stylePreset,
         styleText: w.styleText || null,
         styleOptions: w.referenceAssetId
           ? { ...w.options, source: "reference", fidelity: w.fidelity }

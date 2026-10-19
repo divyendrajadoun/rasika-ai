@@ -193,9 +193,15 @@ changing only what the fidelity allows:
   land, when to cut to `zoom`/`card`/`pip`, where the peaks are, and what to avoid. Keep every
   other field exactly as the preset has it.
 - camera: pace + `motion.enter`, `motion.exit`, `motion.easing`, `motion.speed`, `motion.camera`,
-  `motion.sfxKit` chosen to match how the reference moves (hard cuts → `cut`, punchy → `whip`/`push`).
+  `motion.sfxKit` chosen to match how the reference moves (hard cuts → `cut`, punchy → `whip`/`push`),
+  and `motion.framing` read from the stills: `full` when the speaker fills the frame edge to edge in
+  (nearly) every still, `framed` when the footage mostly sits in a window or card on a coloured
+  stage, `any` when it mixes both. Say the same in `motion.direction`.
 - look: camera + `palette`, `fonts` (ONLY from the allowed list), `grain`, `captionStyle`,
-  `captionSize`, `captionAccent`, `motion.texture`, `motion.family`, `name`, `tagline`.
+  `captionSize`, `captionAccent`, `motion.texture`, `motion.family`, `motion.caseStyle`, `name`,
+  `tagline`, `pace`, `endCardShape`, `preferredElements`, `motion.avoidElements`. At this level the
+  user picked no style: the given preset is only a neutral template, so replace every visual field
+  with what the reference shows; keep nothing from the template that the stills contradict.
 Rules: `palette.stage` is the colour behind framed shots; `mar` the light wall tone; `ter` the
 accent; `gold` the highlight; `goldd` a deeper highlight; `iv` light text; `ink` darkest. Keep
 contrast ≥ 4.5:1 between `iv`/`ink` and the stage. `fonts.devanagari` stays as the preset has it.
@@ -259,10 +265,11 @@ def parse_json(text: str) -> dict[str, Any]:
     text = text.strip()
     if text.startswith("```"):
         text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text)
-    start, end = text.find("{"), text.rfind("}")
-    if start < 0 or end < 0:
+    start = text.find("{")
+    if start < 0:
         raise ValueError("the style director returned no JSON")
-    out = json.loads(text[start : end + 1])
+    # read exactly one object: the model sometimes adds a note (with braces) after it
+    out, _ = json.JSONDecoder().raw_decode(text[start:])
     if not isinstance(out, dict):
         raise ValueError("the style director returned a non-object")
     return out
@@ -276,14 +283,25 @@ def merge_by_fidelity(preset: dict[str, Any], proposed: dict[str, Any], fidelity
     if "direction" in pm:
         motion["direction"] = str(pm["direction"])[:4000]
     if fidelity in ("camera", "look"):
-        for k in ("enter", "exit", "easing", "speed", "camera", "sfxKit"):
+        for k in ("enter", "exit", "easing", "speed", "camera", "sfxKit", "framing"):
             if k in pm:
                 motion[k] = pm[k]
     if fidelity == "look":
-        for k in ("texture", "family"):
+        for k in ("texture", "family", "caseStyle", "avoidElements"):
             if k in pm:
                 motion[k] = pm[k]
-        for k in ("palette", "grain", "captionStyle", "captionSize", "captionAccent", "name", "tagline"):
+        for k in (
+            "palette",
+            "grain",
+            "captionStyle",
+            "captionSize",
+            "captionAccent",
+            "name",
+            "tagline",
+            "pace",
+            "endCardShape",
+            "preferredElements",
+        ):
             if k in proposed:
                 out[k] = proposed[k]
         fonts = dict(out.get("fonts") or {})

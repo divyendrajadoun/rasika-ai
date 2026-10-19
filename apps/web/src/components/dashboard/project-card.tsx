@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { deleteProject, duplicateProject } from "@/app/dashboard/actions";
 import { StatusPill } from "@/components/dashboard/status-pill";
-import { presetCards } from "@/config/presets";
+import { projectStyleLabel } from "@/config/presets";
 import type { listProjects } from "@/lib/projects";
 
 type Project = Awaited<ReturnType<typeof listProjects>>[number];
@@ -15,8 +15,7 @@ export function fmtDuration(sec: number | null | undefined): string {
 
 /** One reel: its frame, its status, and the three things you do with it. */
 export function ProjectCard({ project: p }: { project: Project }) {
-  const preset =
-    presetCards.find((c) => c.tokens.id === p.stylePreset)?.tokens.name ?? p.stylePreset;
+  const preset = projectStyleLabel(p.stylePreset, p.styleOptions);
   const created = new Date(p.createdAt).toLocaleDateString("en-IN", {
     day: "numeric",
     month: "short",

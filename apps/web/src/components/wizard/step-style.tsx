@@ -20,16 +20,29 @@ export function StepStyle({
   value,
   onChange,
   stockEnabled = false,
+  fromReference = false,
 }: {
   value: StyleState;
   onChange: (v: StyleState) => void;
   /** the worker has a Pexels key */
   stockEnabled?: boolean;
+  /** "Match a reference": the look is copied from the uploaded reel, so no preset is offered */
+  fromReference?: boolean;
 }) {
   const set = (patch: Partial<StyleState>) => onChange({ ...value, ...patch });
   const filter = useStyleFilter(presetCards);
   return (
     <div className="space-y-8">
+      {fromReference ? (
+        <div className="bg-surface rounded-[8px] p-5">
+          <p className="font-medium">The look comes from your reference reel</p>
+          <p className="text-muted mt-1 text-[14px]">
+            We measure its cuts, camera moves, colours, type, captions and texture, write a style from
+            them, and edit your take that way. Your words and footage stay yours; the reference is
+            only measured, never reused.
+          </p>
+        </div>
+      ) : (
       <div>
         <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
           <p className="label mb-0">Style</p>
@@ -72,21 +85,28 @@ export function StepStyle({
           ))}
         </ul>
       </div>
+      )}
 
       <div>
         <label htmlFor="style-text" className="label">
-          Describe your style (optional)
+          {fromReference ? "Anything to note about the reference? (optional)" : "Describe your style (optional)"}
         </label>
         <textarea
           id="style-text"
           className="input min-h-24"
           maxLength={300}
-          placeholder="e.g. clean clinic white with navy accents, fewer effects, bigger captions"
+          placeholder={
+            fromReference
+              ? "e.g. copy the yellow captions and the fast cuts; ignore the logo in the corner"
+              : "e.g. clean clinic white with navy accents, fewer effects, bigger captions"
+          }
           value={value.text}
           onChange={(e) => set({ text: e.target.value })}
         />
         <p className="text-muted-foreground mt-1 text-[13px]">
-          We map this to safe design tokens (palette, fonts, pace). It never changes your words.
+          {fromReference
+            ? "The style director reads this alongside the reference. It never changes your words."
+            : "We map this to safe design tokens (palette, fonts, pace). It never changes your words."}
         </p>
       </div>
 

@@ -492,6 +492,8 @@ class Planner:
             # no speaker: the framed modes would only frame an empty plate
             plan["videoModes"] = [{"t": 0, "mode": "full"}]
             plan.setdefault("meta", {})["faceless"] = True
+        elif ((inp.style or {}).get("motion") or {}).get("framing") == "full":
+            plan["videoModes"] = keep_full_bleed(plan["videoModes"])
         plan.setdefault("elements", [])
         seen: set[str] = set()
         for i, el in enumerate(plan["elements"]):
@@ -540,6 +542,22 @@ def sentence_case(text: str) -> str:
     return low[0].upper() + low[1:]
 
 
+def keep_full_bleed(modes: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """A full-bleed style (e.g. matched from a reference shot edge to edge): the speaker never sits
+    in a `card` or `pip` window. Punch-ins (`zoom`) stay; the closing `arch` switch stays, because
+    the end card hangs from it; every other framed switch becomes `full`. Repeats are merged."""
+    out: list[dict[str, Any]] = []
+    last_arch = max((i for i, m in enumerate(modes) if m.get("mode") == "arch"), default=-1)
+    for i, m in enumerate(modes):
+        mode = m.get("mode")
+        if mode in ("card", "pip") or (mode == "arch" and i != last_arch):
+            m = {**m, "mode": "full"}
+        if out and out[-1].get("mode") == m.get("mode") == "full":
+            continue
+        out.append(m)
+    return out or [{"t": 0, "mode": "full"}]
+
+
 def motion_brief(style: dict[str, Any], motion: dict[str, Any]) -> str:
     """The style's choreography, as a section of the user message."""
     family = motion.get("family") or "editorial"
@@ -560,10 +578,21 @@ def motion_brief(style: dict[str, Any], motion: dict[str, Any]) -> str:
         + direction
         + "\n\n"
         + stage_note
-        + f"\n\n**Prefer:** {prefer}\n**Never use:** {never}\n\\n"
+        + f"\n\n**Prefer:** {prefer}\n**Never use:** {never}\n\n"
         + f"Entrance: {motion.get('enter', 'rise')} · exit: {motion.get('exit', 'lift')} · "
         + f"easing: {motion.get('easing', 'spring')} · camera: {motion.get('camera', 'glide')} · "
         + f"sound kit: {motion.get('sfxKit', 'pop')} · texture: {motion.get('texture', 'none')}."
+        + (
+            "\n\nFraming: FULL BLEED. The speaker fills the frame the whole reel; use `full` and "
+            "`zoom` only (no `card` / `pip`), and put every element on top of the footage."
+            if motion.get("framing") == "full"
+            else (
+                "\n\nFraming: mostly FRAMED. Keep the speaker in `card` / `pip` windows on the stage for "
+                "most of the reel, with short `full` beats."
+                if motion.get("framing") == "framed"
+                else ""
+            )
+        )
         + (
             "\n\nThe engine types poster lines letter by letter (`type`): keep them short, 1–4 words."
             if motion.get("enter") == "type"

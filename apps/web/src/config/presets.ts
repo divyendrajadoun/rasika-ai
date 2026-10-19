@@ -357,3 +357,16 @@ export const presetCards: PresetCard[] = schemaPresets.map((tokens) => ({
 }));
 
 export const defaultPresetId = "mikku-royal";
+
+/**
+ * How a project's style is named in the dashboard. A "Match a reference" project has no picked
+ * preset: its look is written from the uploaded reel, so it is named after that.
+ */
+export function projectStyleLabel(stylePreset: string, styleOptions: unknown): string {
+  const o = (styleOptions ?? {}) as { source?: string; referenceStyle?: { name?: string } };
+  if (o.source === "reference") {
+    const name = o.referenceStyle?.name;
+    return name ? `${name} (from your reference)` : "Matched from your reference";
+  }
+  return presetCards.find((c) => c.tokens.id === stylePreset)?.tokens.name ?? stylePreset;
+}

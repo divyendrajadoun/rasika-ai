@@ -26,7 +26,7 @@ from rasika_worker.storage import Storage  # noqa: E402
 
 def main() -> int:
     take, ref = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
-    preset = sys.argv[3] if len(sys.argv) > 3 else "noir-minimal"
+    preset = sys.argv[3] if len(sys.argv) > 3 else "ghost-clean"
     fidelity = sys.argv[4] if len(sys.argv) > 4 else "look"
     env = dict(
         line.strip().split("=", 1)
