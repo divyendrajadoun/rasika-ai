@@ -29,6 +29,16 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   const preset =
     presetCards.find((c) => c.tokens.id === project.stylePreset)?.tokens.name ??
     project.stylePreset;
+  // stock footage credits (Pexels asks for attribution where possible; the plan keeps the source)
+  const stockCredits = (() => {
+    const els = (plan?.plan as { elements?: Array<Record<string, unknown>> } | undefined)?.elements ?? [];
+    const seen = new Map<string, string>();
+    for (const e of els) {
+      const src = e["source"] as { provider?: string; author?: string; url?: string } | undefined;
+      if (e["type"] === "broll" && src?.author && !seen.has(src.author)) seen.set(src.author, src.url ?? "");
+    }
+    return [...seen.entries()];
+  })();
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
@@ -90,6 +100,23 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                 {output.meta.planVersion ?? plan?.version ?? "?"} · rendered in{" "}
                 {output.meta.chunks ?? "?"} parallel chunks
               </p>
+              {stockCredits.length > 0 && (
+                <p className="text-muted-foreground text-xs">
+                  Stock footage via Pexels:{" "}
+                  {stockCredits.map(([author, url], i) => (
+                    <span key={author}>
+                      {i > 0 && ", "}
+                      {url ? (
+                        <a href={url} target="_blank" rel="noreferrer" className="underline">
+                          {author}
+                        </a>
+                      ) : (
+                        author
+                      )}
+                    </span>
+                  ))}
+                </p>
+              )}
             </div>
           ) : preview ? (
             <div className="mt-4 space-y-3">

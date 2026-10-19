@@ -88,6 +88,7 @@ export async function getProject(userId: string, id: string) {
       version: schema.editPlans.version,
       createdBy: schema.editPlans.createdBy,
       createdAt: schema.editPlans.createdAt,
+      plan: schema.editPlans.plan,
     })
     .from(schema.editPlans)
     .where(eq(schema.editPlans.projectId, id))
