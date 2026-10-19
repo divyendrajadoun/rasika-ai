@@ -28,6 +28,8 @@ export const PlanMeta = z.object({
   width: z.literal(1080),
   height: z.literal(1920),
   language: z.string().min(2).describe("'en' | 'hi' | 'hinglish' | BCP-47 tag"),
+  /** script-only reels: no speaker on screen, the footage is a plain stage-coloured plate */
+  faceless: z.boolean().optional(),
 });
 export type PlanMeta = z.infer<typeof PlanMeta>;
 

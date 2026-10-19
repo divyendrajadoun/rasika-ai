@@ -258,6 +258,9 @@ export function familyCss(
 .rk.light .rk-pattern.none.tex-scan{background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.07) 0 2px,transparent 2px 5px)}
 .rk.light .rk-pattern.none.tex-vignette{background-image:radial-gradient(ellipse at 50% 42%,transparent 0,transparent 50%,rgba(0,0,0,.18) 100%)}
 .rk.light .rk-pattern.none.tex-grain{background-image:radial-gradient(circle,rgba(0,0,0,.10) 0 1px,transparent 1.6px),radial-gradient(circle,rgba(255,255,255,.5) 0 1px,transparent 1.6px),radial-gradient(ellipse at 50% 40%,transparent 50%,rgba(0,0,0,.14) 100%)}
+.rk.light.faceless .rk-capi,.rk.light.faceless .rk-capi.grp{color:var(--ink);-webkit-text-stroke:0;text-shadow:none}
+.rk.light.faceless .rk-capi.grp .cw.on{color:var(--ter)}
+.rk.faceless .rk-vw{box-shadow:none}
 .rk.light .rk-pattern.none.tex-board{background-image:radial-gradient(ellipse at 50% 40%,rgba(255,255,255,.5),rgba(0,0,0,.08) 95%),radial-gradient(circle,rgba(0,0,0,.05) 1px,transparent 2px)}`;
   const fam: Record<Motion["family"], string> = {
     editorial: "",

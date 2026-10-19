@@ -201,9 +201,12 @@ class Planner:
                     "script-only film. The footage is a plain stage-coloured plate in every mode, "
                     "so the whole frame (y 150–1500) is yours. Carry every line with typography and "
                     "cards — a poster line, counter, chapter card or image should be on screen for "
-                    "every sentence; never leave the plate empty for more than 1.5 s. Use `card` / "
-                    "`pip` / `arch` modes only when an imageCard or chapterCard fills them; otherwise "
-                    f"stay in `full`. Text colours: {tokens} throughout.",
+                    "every sentence; never leave the plate empty for more than 1.5 s. Stay in `full` "
+                    "mode for the whole reel (the other modes only frame an empty plate). Poster lines "
+                    "are the picture: 2–4 words at 150–260 px, placed around the middle of the frame "
+                    "(y 500–1100), with a kicker or second line under them; one per sentence, replaced "
+                    "on the next sentence. Counters at 220+ px. Captions sit in the lower third as "
+                    f"usual. Text colours: {tokens} throughout.",
                 }
             )
         else:
@@ -481,6 +484,10 @@ class Planner:
         if "sfxIntensity" in inp.options:
             plan["sfx"]["intensity"] = float(inp.options["sfxIntensity"])
         plan.setdefault("videoModes", [{"t": 0, "mode": "full"}])
+        if inp.options.get("faceless"):
+            # no speaker: the framed modes would only frame an empty plate
+            plan["videoModes"] = [{"t": 0, "mode": "full"}]
+            plan.setdefault("meta", {})["faceless"] = True
         plan.setdefault("elements", [])
         seen: set[str] = set()
         for i, el in enumerate(plan["elements"]):

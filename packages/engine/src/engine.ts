@@ -84,7 +84,9 @@ export function createEngine(root: HTMLElement, opts: EngineOptions): Engine {
 
   // ── stage + layers ──
   const stageClass = () =>
-    `rk fam-${motion.family}${hexLuma(plan.style.palette.stage) >= 0.5 ? " light" : ""}`;
+    `rk fam-${motion.family}${hexLuma(plan.style.palette.stage) >= 0.5 ? " light" : ""}${
+      plan.meta.faceless ? " faceless" : ""
+    }`;
   const stage = div(stageClass());
   const style = document.createElement("style");
   const families = fontsForStyle(plan.style.fonts);

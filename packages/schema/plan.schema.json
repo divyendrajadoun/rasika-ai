@@ -110,6 +110,9 @@
           "type": "string",
           "minLength": 2,
           "description": "'en' | 'hi' | 'hinglish' | BCP-47 tag"
+        },
+        "faceless": {
+          "type": "boolean"
         }
       },
       "required": [

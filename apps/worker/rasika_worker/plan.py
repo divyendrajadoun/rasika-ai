@@ -17,6 +17,7 @@ class PlanMeta(BaseModel):
     width: Literal[1080]
     height: Literal[1920]
     language: str = Field(..., description="'en' | 'hi' | 'hinglish' | BCP-47 tag", min_length=2)
+    faceless: bool | None = None
 
 
 class Fonts(BaseModel):
