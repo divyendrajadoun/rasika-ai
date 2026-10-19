@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { FAMILY_LABEL, PRESET_SOURCE, SFX_LABEL, presetCards, type PresetCard } from "@/config/presets";
+import { FAMILY_LABEL, PRESET_HOW_TO, PRESET_SOURCE, SFX_LABEL, presetCards, type PresetCard } from "@/config/presets";
 import { FamilyChips, useStyleFilter } from "@/components/style-filter";
 import { cn } from "@/lib/utils";
 
@@ -89,6 +89,25 @@ export function StepStyle({
             </li>
           ))}
         </ul>
+        {PRESET_HOW_TO[value.preset] && (
+          <div className="bg-surface mt-4 rounded-[8px] p-4" aria-live="polite">
+            <p className="font-semibold">How to get this look</p>
+            <ol className="text-muted-foreground mt-2 list-decimal space-y-1 pl-5 text-[14px]">
+              {PRESET_HOW_TO[value.preset]!.steps.map((s) => (
+                <li key={s}>{s}</li>
+              ))}
+            </ol>
+            {PRESET_HOW_TO[value.preset]!.cleanCut && recorded && !value.cleanCut && (
+              <button
+                type="button"
+                className="mt-3 text-[14px] text-[var(--ter)] font-semibold underline underline-offset-4"
+                onClick={() => set({ cleanCut: true })}
+              >
+                Turn on Clean cut for this look
+              </button>
+            )}
+          </div>
+        )}
       </div>
       )}
 

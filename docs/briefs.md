@@ -12,6 +12,9 @@ scores and designs the whole film. In the wizard: **Source → From a brief → 
 | Versus: a comic fight | two contenders, optionally the winner | 1 min arcade fight: health bars, rounds, special moves, a K.O., the winner's banner | `versus-arcade` | announcer |
 | Music machine | the line that types out, the closing words | 20 s: silence while the line becomes a machine, then every block the ball hits plays a note, then the closing words on a final hit | `music-machine` | the notes |
 | Storybook journey | what the story is about | 30 s Grand Budapest-style vignette: a window onto the passing seasons, chapter cards, a waltz | `grand-budapest` | music only |
+| Animated explainer | a topic or question | 40–60 s Kurzgesagt-style film: one illustrated world in parallax, a flying bee host, numbers as crowds of little figures | `kurz-explainer` | narrator |
+| Editorial explainer | a topic or story | 40–60 s Vox-style film: newspaper clippings and documents, the key phrase struck in red marker, numbers on the word | `vox-paper` | narrator |
+| Tier list | what to rank (optionally the picks) | 25–40 s ranking: an S–D board, each pick flying into its tier on the word, a reason and a punchline each | `tier-list` | narrator |
 
 ## How it is made (apps/worker)
 
@@ -38,6 +41,10 @@ scores and designs the whole film. In the wizard: **Source → From a brief → 
 | `fightHud` | two health bars, hit bursts with a word, shake, K.O., the winner's banner | impact per hit, boom at the K.O. |
 | `seasonWindow` | a framed window with land rolling past through the seasons (blossom, sun, leaves, snow), a steaming cup | — |
 | `noteMachine` | ramps, gears, a row of key blocks and a drum; pieces fly out of the typed line, then the ball plays them | a pitched note per key, kick per drum, gear ticks; nothing before the drop |
+| `tierBoard` | S–D rows; each item appears big, then flies into its row and the row flashes | pop on appear, whoosh on the flight, hit on landing |
+| `explainerWorld` | a world (space, earth, city, ocean, cell, lab) in three parallax layers that dolly, and a bee host flying between perches (idle, point, tap, wow, think); faceless films only | a soft whoosh per flight |
+| `crowd` | quantities as little round figures; the highlighted ones change colour and hop on the spoken number | ticks as they appear, pop on the highlight |
+| `docCard` | a newspaper clipping, typed document or letter with a scissored edge and halftone; one phrase struck by a red marker (underline, circle, box) | whoosh in, marker scratch |
 
 ## Limits
 

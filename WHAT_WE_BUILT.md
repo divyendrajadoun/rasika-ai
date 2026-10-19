@@ -42,15 +42,41 @@ Docker or run `docker compose down`.
 | Versus: comic fight | two contenders (+ winner) | 1 min arcade fight with an announcer; names only, no likenesses |
 | Music machine | one line + closing words | 20 s: the line becomes a machine and the ball plays notes |
 | Storybook journey | what the story is about | 30 s Grand Budapest-style window through the seasons |
+| Animated explainer | a topic or question | 40–60 s Kurzgesagt-style: illustrated world, flying bee host, numbers as little figures, narrated |
+| Editorial explainer | a topic or story | 40–60 s Vox-style: paper clippings with a red marker, narrated |
+| Tier list | what to rank | 25–40 s: S–D board, each pick flies into its tier on the word, narrated |
 
 Website links are captured safely: the worker refuses private, internal and loopback addresses.
 
 ## Styles
 
-There are 100 presets. These cover the house looks, the 14 originals, the community looks measured
+There are 106 presets. These cover the house looks, the 14 originals, the community looks measured
 from the awesome-claude-video-skills repos, and the brief and film looks (saas-launch,
 showreel-kinetic, recipe-explainer, versus-arcade, music-machine, grand-budapest, punchy-fun). Every
 style has its own fonts, motion, caption format and sound kit, plus a real rendered demo on the landing page.
+
+## Looks from the six linked repos (19 Oct)
+
+| Look | From | How to get it |
+| --- | --- | --- |
+| **AI Studio** (extended) | hassancs91/claude-youtube-editor | My video → record yourself explaining; add product screenshots on the photos step (they scroll in browser windows); turn on Clean cut |
+| **Kurz Explainer** | BusyBee3333/animated-explainer-skills | From a brief → Animated explainer → type a topic |
+| **Clean Cut Mono** + the **Clean cut** option | Agentchengfeng/chengfeng-videocut-skills | My video → record yourself talking → Clean cut on (style step) → this style |
+| **Vox Paper** (extended) | jaredcassoutt/vox-editorial (vox-skill) | My video (narrate the story) or From a brief → Editorial explainer |
+| **Cut-Paper Vivid** | jaredcassoutt/vox-editorial (vox-editorial) | My video → add 4–8 photos; they become sticker cut-outs |
+| **Paper-Cut Red** | crawfordxx/paper-cut-video-skill | My video → record a tutorial, add photos of each step; Clean cut on |
+| **Tier List** | hypit-ai/hypit (ranking) | From a brief → Tier list → the topic; or My video ranking things aloud |
+| **Podcast Glow** | hypit-ai/hypit (podcast) | My video → upload a podcast clip; Clean cut on |
+
+The style step shows these steps under the grid when the look is picked ("How to get this look").
+
+**Clean cut** (all four cutting repos do this): the worker takes ums/uhs, words said twice and pauses
+longer than 0.6 s out of a recorded take (each word keeps 80 ms before and 150 ms after; a long pause
+closes to 0.35 s), then measures the cut again so captions land exactly. What it removed is kept in the
+project's audit log.
+
+What these repos do that Rasika does not (honest): Hypit's generated hosts and voices (Seedance, Fish
+Audio), the Kurzgesagt MorphSVG "fuse" morphs, real-photo cut-outs lifted by macOS Vision, and 16:9.
 
 ## Extras
 

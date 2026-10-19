@@ -1,0 +1,293 @@
+{
+ "version": 1,
+ "meta": {
+  "durationSec": 12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "language": "en"
+ },
+ "style": {
+  "id": "paper-cut-red",
+  "name": "Paper-Cut Red",
+  "tagline": "crawfordxx/paper-cut-video-skill: Chinese red paper-cut tutorial — vermilion on warm paper, layered cut-out pieces, a red seal on the outro. (Songti → DM Serif Display, Heiti → Archivo Black.)",
+  "palette": {
+   "stage": "#DBC49D",
+   "mar": "#241D18",
+   "ter": "#A92E22",
+   "gold": "#F1E4C7",
+   "goldd": "#6F1915",
+   "iv": "#F7F1E7",
+   "ink": "#241D18"
+  },
+  "fonts": {
+   "poster": "DM Serif Display",
+   "accent": "Instrument Serif",
+   "ui": "IBM Plex Mono",
+   "devanagari": "Mukta",
+   "caption": "Archivo Black"
+  },
+  "grain": 0.05,
+  "pace": 0.45,
+  "captionStyle": "box",
+  "captionAccent": "ter",
+  "captionSize": 58,
+  "endCardShape": "square",
+  "pattern": "none",
+  "preferredElements": [
+   "imageCard",
+   "posterText",
+   "stamp",
+   "chapterCard",
+   "splitCards",
+   "chips"
+  ],
+  "motion": {
+   "family": "collage",
+   "caseStyle": "sentence",
+   "enter": "pop",
+   "exit": "cut",
+   "easing": "spring",
+   "speed": 1,
+   "camera": "still",
+   "sfxKit": "marker",
+   "texture": "paper",
+   "direction": "paper-cut-video visual system. Warm paper stage, vermilion (`ter`) and dark red (`goldd`) paper pieces with a light keyline, ochre tape. Layers from back to front: background, rear pieces, supports, the hero, foreground, captions; the hero enters first, the rest stagger 0.2–0.4 s with a short spring (1–4° rotation correction, damped scale settle). The background pushes at most ~1 %; idle motion under 6 px. Headlines serif (DM Serif Display) 60–96 px; captions one phrase per cue on a dark rounded plate in the bottom rail. Hold each finished frame ~0.5 s to read. Close with a red seal `stamp` over the last 3–5 s.",
+   "avoidElements": [
+    "feedPhone",
+    "filmStrip",
+    "patternCard",
+    "explainerWorld",
+    "bleedPlate"
+   ],
+   "framing": "framed"
+  }
+ },
+ "subject": {
+  "faceBox": {
+   "x": 162,
+   "y": 619,
+   "w": 639,
+   "h": 774
+  },
+  "freeZone": {
+   "x": 0,
+   "y": 150,
+   "w": 1080,
+   "h": 429
+  },
+  "prop": {
+   "label": "prop",
+   "point": {
+    "x": 449,
+    "y": 1509
+   }
+  }
+ },
+ "videoModes": [
+  {
+   "t": 0,
+   "mode": "card"
+  },
+  {
+   "t": 3.82,
+   "mode": "full"
+  },
+  {
+   "t": 5.98,
+   "mode": "card"
+  },
+  {
+   "t": 8.84,
+   "mode": "pip"
+  },
+  {
+   "t": 10.52,
+   "mode": "card"
+  }
+ ],
+ "captions": {
+  "enabled": true,
+  "y": 1400,
+  "gold": [
+   "taste",
+   "knew",
+   "honestly",
+   "ours",
+   "actually"
+  ],
+  "accent": [
+   "jewellery",
+   "2000",
+   "years",
+   "india",
+   "word",
+   "end"
+  ]
+ },
+ "elements": [
+  {
+   "id": "hook",
+   "t0": 0.22,
+   "t1": 2.8,
+   "anchorWordIndex": 0,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "How do you know",
+     "font": "anton",
+     "size": 72,
+     "color": "mar"
+    },
+    {
+     "text": "your taste",
+     "font": "anton",
+     "size": 96,
+     "color": "ter"
+    },
+    {
+     "text": "in jewellery?",
+     "font": "serif",
+     "size": 88,
+     "color": "goldd"
+    }
+   ],
+   "top": 230,
+   "anim": "pop"
+  },
+  {
+   "id": "hook-cards",
+   "t0": 1.6,
+   "t1": 2.8,
+   "anchorWordIndex": 8,
+   "type": "splitCards",
+   "cards": [
+    {
+     "imageId": "i1",
+     "label": "",
+     "x": 30,
+     "y": 1000,
+     "w": 280,
+     "h": 360,
+     "tilt": -7,
+     "objectPosition": "50% 30%"
+    },
+    {
+     "imageId": "i2",
+     "label": "",
+     "x": 770,
+     "y": 980,
+     "w": 280,
+     "h": 360,
+     "tilt": 6,
+     "objectPosition": "50% 30%"
+    }
+   ],
+   "stagger": 0.3
+  },
+  {
+   "id": "years",
+   "t0": 2.84,
+   "t1": 3.88,
+   "anchorWordIndex": 11,
+   "type": "counter",
+   "from": 0,
+   "to": 2000,
+   "label": "years ago",
+   "top": 215,
+   "size": 220,
+   "duration": 0.9,
+   "color": "ter"
+  },
+  {
+   "id": "india",
+   "t0": 3.9,
+   "t1": 6,
+   "anchorWordIndex": 14,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "India had a word",
+     "font": "anton",
+     "size": 59,
+     "color": "ter"
+    },
+    {
+     "text": "for people who knew",
+     "font": "serif",
+     "size": 68,
+     "color": "goldd"
+    }
+   ],
+   "top": 230,
+   "anim": "pop",
+   "left": 60,
+   "w": 520,
+   "align": "left"
+  },
+  {
+   "id": "card-knew",
+   "t0": 5.14,
+   "t1": 6,
+   "anchorWordIndex": 20,
+   "type": "imageCard",
+   "imageId": "i3",
+   "label": "",
+   "x": 590,
+   "y": 180,
+   "w": 430,
+   "h": 500,
+   "tilt": 6,
+   "objectPosition": "60% 60%"
+  },
+  {
+   "id": "lock",
+   "t0": 6.06,
+   "t1": 8.88,
+   "anchorWordIndex": 23,
+   "type": "lockCard",
+   "word": "??????",
+   "kicker": "THE WORD",
+   "sub": "REVEALED AT THE END",
+   "blurred": true,
+   "dark": false
+  },
+  {
+   "id": "not-ours",
+   "t0": 8.92,
+   "t1": 12,
+   "anchorWordIndex": 34,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "Most of our taste today",
+     "font": "anton",
+     "size": 72,
+     "color": "mar"
+    },
+    {
+     "text": "isn't ours.",
+     "font": "serif",
+     "size": 96,
+     "color": "ter"
+    }
+   ],
+   "top": 220,
+   "anim": "pop",
+   "accent": "glitch"
+  },
+  {
+   "id": "seal",
+   "t0": 10.6,
+   "t1": 12,
+   "anchorWordIndex": 40,
+   "type": "stamp",
+   "text": "NOT OURS"
+  }
+ ],
+ "sfx": {
+  "auto": true,
+  "intensity": 0.8,
+  "extra": []
+ }
+}

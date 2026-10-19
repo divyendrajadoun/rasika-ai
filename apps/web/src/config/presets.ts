@@ -341,6 +341,61 @@ export const PRESET_SOURCE: Record<string, string> = {
   "podcast-glow": "hypit-ai/hypit \u00b7 podcast",
 };
 
+/**
+ * What to do to get a look that depends on what you give it (shown under the style grid when the
+ * style is picked). Styles that work with any talking take have no entry.
+ */
+export const PRESET_HOW_TO: Record<string, { steps: string[]; cleanCut?: boolean }> = {
+  "ai-studio": {
+    steps: [
+      "Record yourself explaining a product or a workflow, to camera.",
+      "On the photos step, add 2–5 screenshots of the product (full pages work best): each one plays in a browser window that scrolls the page, on the word you set.",
+    ],
+    cleanCut: true,
+  },
+  "vox-paper": {
+    steps: [
+      "Record the story as a narrator would: the hook first, then the facts with their dates.",
+      "Say the key phrase of each fact clearly; it is struck with the red marker on a clipping.",
+      "Add archive photos on the photos step if you have them; they are cut out like collage.",
+    ],
+  },
+  "cut-paper-vivid": {
+    steps: [
+      "Record a short story with one idea per sentence (7–10 ideas).",
+      "Add 4–8 photos on the photos step: they become scissored sticker cut-outs with white borders.",
+    ],
+  },
+  "paper-cut-red": {
+    steps: [
+      "Record a tutorial or a step-by-step explanation.",
+      "Add photos or screenshots of each step: they are laid out as red paper-cut layers, and the reel ends on a red seal.",
+    ],
+    cleanCut: true,
+  },
+  "clean-cut-mono": {
+    steps: [
+      "Record yourself talking to camera; don't worry about ums, restarts or pauses.",
+      "Keep Clean cut on (below): it takes them out before the edit. Subtitles go one line per phrase; overlays stay rare on purpose.",
+    ],
+    cleanCut: true,
+  },
+  "tier-list": {
+    steps: [
+      "Record yourself ranking things: name each pick, then say its tier (\"…and that's S tier\").",
+      "Or make it with no camera at all: Source → From a brief → Tier list, and give just the topic.",
+    ],
+    cleanCut: true,
+  },
+  "podcast-glow": {
+    steps: [
+      "Upload a podcast or interview clip (one speaker on screen at a time works best).",
+      "Keep Clean cut on: pauses are trimmed the way podcast clips are.",
+    ],
+    cleanCut: true,
+  },
+};
+
 /** Human labels for a preset's motion family and sound kit (wizard + landing chips). */
 export const FAMILY_LABEL: Record<StyleTokens["motion"]["family"], string> = {
   editorial: "Editorial",

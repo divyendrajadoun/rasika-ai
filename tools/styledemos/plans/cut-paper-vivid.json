@@ -1,0 +1,286 @@
+{
+ "version": 1,
+ "meta": {
+  "durationSec": 12,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "language": "en"
+ },
+ "style": {
+  "id": "cut-paper-vivid",
+  "name": "Cut-Paper Vivid",
+  "tagline": "jaredcassoutt/vox-editorial: vivid cut-paper collage — saturated grounds, thick white sticker borders, per-letter colour, stop-motion overlays at 12 fps. (Figtree → Inter.)",
+  "palette": {
+   "stage": "#F3EAD6",
+   "mar": "#1C1A18",
+   "ter": "#E8604A",
+   "gold": "#F7B02C",
+   "goldd": "#2E54B2",
+   "iv": "#FFFFFF",
+   "ink": "#1C1A18"
+  },
+  "fonts": {
+   "poster": "Anton",
+   "accent": "Instrument Serif",
+   "ui": "Inter",
+   "devanagari": "Mukta",
+   "caption": "Anton"
+  },
+  "grain": 0.06,
+  "pace": 0.6,
+  "captionStyle": "one-word",
+  "captionAccent": "ter",
+  "captionSize": 76,
+  "endCardShape": "rounded",
+  "pattern": "none",
+  "preferredElements": [
+   "imageCard",
+   "splitCards",
+   "posterText",
+   "counter",
+   "stamp",
+   "chips"
+  ],
+  "motion": {
+   "family": "collage",
+   "caseStyle": "upper",
+   "enter": "slide",
+   "exit": "cut",
+   "easing": "steps",
+   "speed": 1.1,
+   "camera": "glide",
+   "sfxKit": "pop",
+   "texture": "paper",
+   "direction": "vox-editorial cut-paper collage. Grounds rotate per beat between cobalt (`goldd`), marigold (`gold`), coral (`ter`) and cream (`stage`); never a dark ground. Every photo is a scissored cut-out with a thick white sticker border (`imageCard`s, tilted 2–6°), layered at different depths so they drift at different speeds (parallax). Headlines in Anton on torn stock; numbers as big `counter`s. Kinetic overlays move on a 12 fps stop-motion grid inside the 30 fps edit (held poses, built by hand). One idea per beat, 7–10 beats.",
+   "avoidElements": [
+    "feedPhone",
+    "filmStrip",
+    "patternCard",
+    "explainerWorld"
+   ],
+   "framing": "framed"
+  }
+ },
+ "subject": {
+  "faceBox": {
+   "x": 162,
+   "y": 619,
+   "w": 639,
+   "h": 774
+  },
+  "freeZone": {
+   "x": 0,
+   "y": 150,
+   "w": 1080,
+   "h": 429
+  },
+  "prop": {
+   "label": "prop",
+   "point": {
+    "x": 449,
+    "y": 1509
+   }
+  }
+ },
+ "videoModes": [
+  {
+   "t": 0,
+   "mode": "card"
+  },
+  {
+   "t": 2.76,
+   "mode": "full"
+  },
+  {
+   "t": 5.98,
+   "mode": "card"
+  },
+  {
+   "t": 8.84,
+   "mode": "pip"
+  }
+ ],
+ "captions": {
+  "enabled": true,
+  "y": 1400,
+  "gold": [
+   "taste",
+   "jewellery",
+   "knew",
+   "honestly",
+   "ours",
+   "truly"
+  ],
+  "accent": [
+   "2000",
+   "years",
+   "india",
+   "word",
+   "end",
+   "people"
+  ]
+ },
+ "elements": [
+  {
+   "id": "hook",
+   "t0": 0.2,
+   "t1": 2.8,
+   "anchorWordIndex": 0,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "HOW DO YOU KNOW",
+     "font": "anton",
+     "size": 96,
+     "color": "mar"
+    },
+    {
+     "text": "YOUR TASTE",
+     "font": "anton",
+     "size": 190,
+     "color": "ter"
+    },
+    {
+     "text": "in jewellery?",
+     "font": "serif",
+     "size": 104,
+     "color": "goldd"
+    }
+   ],
+   "top": 200,
+   "anim": "rise"
+  },
+  {
+   "id": "hook-cards",
+   "t0": 1.6,
+   "t1": 2.8,
+   "anchorWordIndex": 8,
+   "type": "splitCards",
+   "cards": [
+    {
+     "imageId": "i1",
+     "label": "",
+     "x": 30,
+     "y": 1120,
+     "w": 260,
+     "h": 360,
+     "tilt": -5,
+     "objectPosition": "50% 30%"
+    },
+    {
+     "imageId": "i2",
+     "label": "",
+     "x": 790,
+     "y": 1100,
+     "w": 260,
+     "h": 360,
+     "tilt": 5,
+     "objectPosition": "50% 30%"
+    }
+   ],
+   "stagger": 0.15
+  },
+  {
+   "id": "years",
+   "t0": 2.84,
+   "t1": 3.86,
+   "anchorWordIndex": 11,
+   "type": "counter",
+   "from": 0,
+   "to": 2000,
+   "label": "years ago",
+   "top": 215,
+   "size": 250,
+   "duration": 0.9,
+   "color": "ter"
+  },
+  {
+   "id": "india",
+   "t0": 3.9,
+   "t1": 5.98,
+   "anchorWordIndex": 14,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "INDIA HAD A WORD",
+     "font": "anton",
+     "size": 120,
+     "color": "mar"
+    },
+    {
+     "text": "for people who knew",
+     "font": "serif",
+     "size": 104,
+     "color": "goldd"
+    }
+   ],
+   "top": 220,
+   "anim": "rise"
+  },
+  {
+   "id": "lock",
+   "t0": 6.06,
+   "t1": 8.84,
+   "anchorWordIndex": 23,
+   "type": "lockCard",
+   "word": "RASIKA",
+   "kicker": "THE WORD",
+   "sub": "REVEALED AT THE END",
+   "blurred": true,
+   "dark": false
+  },
+  {
+   "id": "not-ours",
+   "t0": 8.92,
+   "t1": 12,
+   "anchorWordIndex": 34,
+   "type": "posterText",
+   "lines": [
+    {
+     "text": "MOST OF OUR TASTE",
+     "font": "anton",
+     "size": 100,
+     "color": "mar"
+    },
+    {
+     "text": "ISN'T OURS",
+     "font": "anton",
+     "size": 200,
+     "color": "ter"
+    }
+   ],
+   "top": 220,
+   "anim": "rise",
+   "accent": "glitch"
+  },
+  {
+   "id": "card-taste",
+   "t0": 9.52,
+   "t1": 12,
+   "anchorWordIndex": 37,
+   "type": "imageCard",
+   "imageId": "i3",
+   "label": "",
+   "x": 60,
+   "y": 720,
+   "w": 440,
+   "h": 520,
+   "tilt": -4,
+   "objectPosition": "60% 55%"
+  },
+  {
+   "id": "stamp",
+   "t0": 11.44,
+   "t1": 12,
+   "anchorWordIndex": 41,
+   "type": "stamp",
+   "text": "NOT OURS"
+  }
+ ],
+ "sfx": {
+  "auto": true,
+  "intensity": 0.8,
+  "extra": []
+ }
+}
