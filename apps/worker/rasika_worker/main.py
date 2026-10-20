@@ -196,7 +196,7 @@ class Worker:
         signal.signal(signal.SIGINT, self.stop)
         while not self._stop:
             try:
-                item = self.redis.blpop([s.job_queue], timeout=5)
+                item = self.redis.blpop([s.job_queue], timeout=s.queue_poll_sec)
             except redis.ConnectionError as exc:
                 log.warning("redis_unavailable", error=str(exc))
                 time.sleep(2)

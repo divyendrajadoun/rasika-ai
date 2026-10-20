@@ -65,6 +65,8 @@ export async function suggestPrompts(
     body: JSON.stringify({
       model: process.env.ANTHROPIC_FAST_MODEL || "claude-haiku-5-5",
       max_tokens: 4000,
+      // a quick draft: thinking would triple the time (14 s vs 6 s) and run past serverless limits
+      thinking: { type: "disabled" },
       system:
         `You choose up to ${n} moments of a short vertical video script that want a picture and write an image prompt for each. ` +
         'Return ONE JSON object: {"moments":[{"say_when":"one exact word from the script it lands on","label":"<= 4 words","prompt":"vivid, specific, vertical 9:16, in the requested picture style"}]}. ' +

@@ -9,7 +9,11 @@ declare global {
 }
 
 /** One connection pool per process (survives Next dev HMR). */
-const sql = globalThis.__rasikaSql ?? postgres(env.databaseUrl, { max: 10, prepare: false });
+const sql = globalThis.__rasikaSql ?? postgres(env.databaseUrl, {
+  // serverless (Netlify) runs many small instances against the Supabase pooler: keep each pool small
+  max: Number(process.env.DB_POOL_MAX ?? 10),
+  prepare: false,
+});
 if (process.env.NODE_ENV !== "production") globalThis.__rasikaSql = sql;
 
 export const db = drizzle(sql, { schema });

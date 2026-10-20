@@ -1,0 +1,9 @@
+# Rasika's website on Netlify (Next.js runtime). The worker, database, queue and storage live
+# elsewhere: see DEPLOY.md. Runtime env is set on the site (netlify env:import .env.netlify).
+[build]
+  command = "pnpm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  RASIKA_CLOUD_BUILD = "1"

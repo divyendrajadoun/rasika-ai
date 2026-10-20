@@ -1,0 +1,37 @@
+# The worker on this PC, working for the website on Netlify: jobs come from Upstash Redis, data
+# lives in Supabase (database + storage). No local Redis / Postgres / RustFS in this mode.
+#   docker compose -f docker-compose.cloud.yml -p rasika-cloud up -d --build
+# Env: .env.worker-cloud, written by tools/cloud/setup.py.
+services:
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    image: rasika-worker:latest
+    env_file:
+      - path: .env.example
+      - path: .env.worker-cloud
+    environment:
+      WORKER_WORK_DIR: /work
+      WHISPER_CACHE_DIR: /models
+      WHISPER_DEVICE: cuda
+      WHISPER_COMPUTE_TYPE: float16
+    volumes: ["worker-work:/work", "whisper-models:/models"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    # a hosted Redis bills per command: check health every 5 min, not every 30 s
+    healthcheck:
+      test: ["CMD-SHELL", "python -m rasika_worker.main --healthcheck || exit 1"]
+      interval: 5m
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  worker-work:
+  whisper-models:

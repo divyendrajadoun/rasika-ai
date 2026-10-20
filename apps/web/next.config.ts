@@ -1,10 +1,13 @@
 import type { NextConfig } from "next";
 
 // One .env at the repo root serves web, worker and drizzle-kit (Next only reads apps/web/.env).
-try {
-  process.loadEnvFile("../../.env");
-} catch {
-  /* CI / Vercel: env comes from the platform */
+// A cloud build (Netlify) takes its env from the platform; the local .env would bake localhost in.
+if (!process.env.NETLIFY && !process.env.RASIKA_CLOUD_BUILD) {
+  try {
+    process.loadEnvFile("../../.env");
+  } catch {
+    /* CI: env comes from the platform */
+  }
 }
 
 const nextConfig: NextConfig = {

@@ -52,6 +52,8 @@ export async function briefIdeas(kindId: BriefKindId, idea: string): Promise<Bri
     body: JSON.stringify({
       model: process.env.ANTHROPIC_FAST_MODEL || "claude-haiku-5-5",
       max_tokens: 4000,
+      // a quick draft: thinking would triple the time (14 s vs 6 s) and run past serverless limits
+      thinking: { type: "disabled" },
       system:
         `You write briefs for short vertical films of one kind: "${kind.title}" — ${kind.blurb} The film: ${kind.youGet}\n` +
         "Write THREE different briefs, each a distinct, specific, scroll-stopping idea (not three versions of one). " +

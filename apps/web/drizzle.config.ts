@@ -1,9 +1,12 @@
 import { defineConfig } from "drizzle-kit";
 
-try {
-  process.loadEnvFile("../../.env");
-} catch {
-  /* CI / prod: env comes from the environment */
+// tools/cloud/setup.py points DATABASE_URL at Supabase; the local .env must not replace it
+if (!process.env.RASIKA_CLOUD_BUILD) {
+  try {
+    process.loadEnvFile("../../.env");
+  } catch {
+    /* CI / prod: env comes from the environment */
+  }
 }
 
 export default defineConfig({

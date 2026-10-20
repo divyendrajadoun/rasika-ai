@@ -35,28 +35,42 @@ export function useJobEvents(
   const [state, setState] = useState(initial);
   useEffect(() => {
     if (!ACTIVE.has(state.status)) return;
-    const es = new EventSource(`/api/projects/${projectId}/events`);
-    es.onmessage = (e) => {
-      try {
-        const d = JSON.parse(e.data) as {
-          status: string;
-          progress: number;
-          message: string;
-          error: string | null;
-          updatedAt: string | null;
-        };
-        setState({
-          status: d.status,
-          progress: d.progress,
-          message: d.error ?? d.message,
-          updatedAt: d.updatedAt,
-        });
-      } catch {
-        /* ignore */
-      }
+    // each stream lasts ~20 s (serverless functions are short-lived); reconnect while the job runs
+    let es: EventSource | null = null;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let stopped = false;
+    const open = () => {
+      es = new EventSource(`/api/projects/${projectId}/events`);
+      es.onmessage = (e) => {
+        try {
+          const d = JSON.parse(e.data) as {
+            status: string;
+            progress: number;
+            message: string;
+            error: string | null;
+            updatedAt: string | null;
+          };
+          setState({
+            status: d.status,
+            progress: d.progress,
+            message: d.error ?? d.message,
+            updatedAt: d.updatedAt,
+          });
+        } catch {
+          /* ignore */
+        }
+      };
+      es.onerror = () => {
+        es?.close();
+        if (!stopped) timer = setTimeout(open, 1500);
+      };
     };
-    es.onerror = () => es.close();
-    return () => es.close();
+    open();
+    return () => {
+      stopped = true;
+      clearTimeout(timer);
+      es?.close();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, ACTIVE.has(state.status)]);
   return state;

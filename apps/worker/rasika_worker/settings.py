@@ -25,6 +25,9 @@ class Settings(BaseSettings):
 
     redis_url: str = Field(default="redis://localhost:6379", alias="REDIS_URL")
     job_queue: str = Field(default="rasika:jobs", alias="JOB_QUEUE")
+    # how long one blocking wait on the queue lasts; a hosted Redis bills per command, so the cloud
+    # setup waits 30 s (an idle worker then costs ~86k commands a month instead of ~518k)
+    queue_poll_sec: int = Field(default=5, alias="WORKER_QUEUE_POLL_SEC")
     database_url: str = Field(
         default="postgresql://rasika:rasika@localhost:5432/rasika", alias="DATABASE_URL"
     )

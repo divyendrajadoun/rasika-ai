@@ -32,7 +32,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       req.signal.addEventListener("abort", () => (closed = true));
       const send = (obj: unknown) =>
         controller.enqueue(enc.encode(`data: ${JSON.stringify(obj)}\n\n`));
-      for (let i = 0; i < 1800 && !closed; i++) {
+      // ~20 s per stream; the client reconnects (serverless functions are cut off after seconds)
+      for (let i = 0; i < 20 && !closed; i++) {
         const [job] = await db
           .select()
           .from(schema.jobs)
