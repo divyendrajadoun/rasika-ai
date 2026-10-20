@@ -1,7 +1,7 @@
 import { DemoVideo } from "@/components/brand/demo-video";
 import { ReelFragment } from "@/components/brand/reel-fragment";
 import { Reveal } from "@/components/motion/reveal";
-import { presetCards } from "@/config/presets";
+import { demoSrc, presetCards } from "@/config/presets";
 import { hero, howItWorks as c } from "@/content/landing";
 
 const TAKE = {
@@ -76,7 +76,7 @@ export function HowItWorks() {
           <div data-ui className="panel mt-4 grid grid-cols-[96px_1fr] gap-4 rounded-[8px] p-5">
             {/* eslint-disable-next-line @next/next/no-img-element -- the style's real demo poster */}
             <img
-              src={`/demo/styles/${preset.tokens.id}.jpg`}
+              src={demoSrc(preset.tokens.id, "jpg")}
               alt={`${preset.tokens.name} style`}
               loading="lazy"
               decoding="async"

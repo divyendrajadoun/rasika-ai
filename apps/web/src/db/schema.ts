@@ -134,6 +134,10 @@ export interface StyleOptions {
   aiImages?: boolean;
   aiImageCount?: number;
   aiImageStyle?: string;
+  /** animated scenes drawn in code cut in over the speaker (worker animate.cutaways) */
+  animated?: boolean;
+  animatedCount?: number;
+  animatedLook?: string;
   /** reference matching: how much of the reference to honour */
   fidelity?: "pace" | "camera" | "look";
   /** reference matching: the style the worker wrote from the reference (StyleTokens) */

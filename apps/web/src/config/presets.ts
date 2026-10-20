@@ -439,25 +439,30 @@ export const allPresetCards: PresetCard[] = schemaPresets.map((tokens) => ({
 }));
 
 /**
- * Looks made for one kind of brief film (config/briefs.ts); they are chosen with the film, not in
- * the style grid of an edit. Mirrors BRIEF_PRESET_IDS there (kept here to avoid an import cycle).
+ * Looks first made for one kind of brief film (config/briefs.ts). They are offered for edits too;
+ * their preview is that film's demo (public/demo/briefs/<kind>.mp4), as no talking-head demo is made.
  */
-const BRIEF_ONLY = new Set([
-  "saas-launch",
-  "showreel-kinetic",
-  "recipe-explainer",
-  "versus-arcade",
-  "music-machine",
-  "grand-budapest",
-  "kurz-explainer",
-  "animate-studio",
-]);
+export const FILM_LOOK_DEMO: Record<string, string> = {
+  "saas-launch": "launch",
+  "showreel-kinetic": "showreel",
+  "recipe-explainer": "recipe",
+  "versus-arcade": "versus",
+  "music-machine": "machine",
+  "grand-budapest": "journey",
+  "kurz-explainer": "explainer",
+  "animate-studio": "animate",
+};
+/** The demo render of a style card. */
+export function demoSrc(id: string, ext: "mp4" | "jpg"): string {
+  const film = FILM_LOOK_DEMO[id];
+  return film ? `/demo/briefs/${film}.${ext}` : `/demo/styles/${id}.${ext}`;
+}
 /** Styles whose demo render (public/demo/styles/<id>.mp4) is not made yet: not offered in a grid until it is. */
 const DEMO_PENDING = new Set<string>([]);
 
 /** The styles offered for an edit (a take, a script, a presenter): every one has a real demo render. */
 export const presetCards: PresetCard[] = allPresetCards.filter(
-  (c) => !BRIEF_ONLY.has(c.tokens.id) && !DEMO_PENDING.has(c.tokens.id),
+  (c) => !DEMO_PENDING.has(c.tokens.id),
 );
 
 export const defaultPresetId = "mikku-royal";

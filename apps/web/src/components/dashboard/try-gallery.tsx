@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import Link from "next/link";
 import { BRIEF_GROUPS, BRIEF_KINDS } from "@/config/briefs";
-import { PRESET_HOW_TO, presetCards } from "@/config/presets";
+import { PRESET_HOW_TO, demoSrc, presetCards } from "@/config/presets";
 
 /** The ways to start, every film kind and the looks that need something from you, one click each. */
 const STARTS = [
@@ -113,7 +113,7 @@ export function TryGallery() {
                 className="bg-surface hover:bg-raised flex h-full flex-col overflow-hidden rounded-[8px] transition-colors"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element -- static demo poster */}
-                <img src={`/demo/styles/${c.tokens.id}.jpg`} alt="" loading="lazy" className="aspect-[9/10] w-full object-cover object-top" />
+                <img src={demoSrc(c.tokens.id, "jpg")} alt="" loading="lazy" className="aspect-[9/10] w-full object-cover object-top" />
                 <span className="flex flex-1 flex-col gap-2 p-5">
                   <span className="font-semibold">{c.tokens.name}</span>
                   <span className="text-muted text-[13px]">{PRESET_HOW_TO[c.tokens.id]!.steps[0]}</span>

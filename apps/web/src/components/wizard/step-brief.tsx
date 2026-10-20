@@ -2,6 +2,7 @@
 
 import { BRIEF_GROUPS, BRIEF_KINDS, briefKind, type BriefKindId } from "@/config/briefs";
 import { allPresetCards } from "@/config/presets";
+import { BriefIdeas } from "@/components/wizard/brief-ideas";
 import { cn } from "@/lib/utils";
 
 export interface BriefState {
@@ -153,6 +154,13 @@ export function StepBrief({ value, onChange }: { value: BriefState; onChange: (v
             </p>
           )}
         </div>
+
+        <BriefIdeas
+          key={kind.id}
+          kind={kind.id}
+          needsLink={kind.fields.some((f) => f.id === "url")}
+          onPick={(fields) => set(fields as Partial<BriefState>)}
+        />
 
         {kind.fields.map((f) => {
           if (f.id === "url")

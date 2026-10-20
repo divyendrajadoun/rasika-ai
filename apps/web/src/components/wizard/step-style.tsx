@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { FAMILY_LABEL, PRESET_HOW_TO, PRESET_SOURCE, SFX_LABEL, presetCards, type PresetCard } from "@/config/presets";
+import { FAMILY_LABEL, PRESET_HOW_TO, PRESET_SOURCE, SFX_LABEL, demoSrc, presetCards, type PresetCard } from "@/config/presets";
 import { FamilyChips, useStyleFilter } from "@/components/style-filter";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +18,11 @@ export interface StyleState {
   cleanCut: boolean;
   /** move the strongest line to the first two seconds (implies the clean cut) */
   hookFirst: boolean;
+  /** animated scenes drawn in code (the Animate studio) cut in over the speaker on key lines */
+  animated?: boolean;
+  animatedCount?: number;
+  /** the look of those scenes, e.g. "paper cut-out, warm" (empty: the style's own colours) */
+  animatedLook?: string;
 }
 
 export function StepStyle({
@@ -241,6 +246,47 @@ export function StepStyle({
             />
           </label>
         )}
+        <div className="bg-surface space-y-3 rounded-[8px] p-4 md:col-span-2">
+          <label className="flex items-center justify-between gap-4">
+            <span>
+              <span className="block font-semibold">Animated scenes</span>
+              <span className="text-muted-foreground text-[13px]">
+                Short animations drawn in code cut in on your key lines while you keep talking, like
+                Animate anything, in this style&apos;s colours or a look you describe. Adds about 5 minutes.
+              </span>
+            </span>
+            <span className="flex items-center gap-3">
+              <select
+                aria-label="How many animated scenes"
+                className="input w-auto"
+                value={value.animatedCount ?? 2}
+                disabled={!value.animated}
+                onChange={(e) => set({ animatedCount: Number(e.target.value) })}
+              >
+                {[1, 2, 3, 4].map((n) => (
+                  <option key={n} value={n}>
+                    {n} scene{n === 1 ? "" : "s"}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="checkbox"
+                className="size-5 accent-[var(--ter)]"
+                checked={Boolean(value.animated)}
+                onChange={(e) => set({ animated: e.target.checked })}
+              />
+            </span>
+          </label>
+          {value.animated && (
+            <input
+              className="input"
+              maxLength={160}
+              placeholder="Look (optional): paper cut-out with tape · soft watercolour · bold flat vector · chalkboard"
+              value={value.animatedLook ?? ""}
+              onChange={(e) => set({ animatedLook: e.target.value })}
+            />
+          )}
+        </div>
         <label className="bg-surface block rounded-[8px] p-4">
           <span className="block font-semibold">Language</span>
           <select
@@ -274,7 +320,7 @@ function PresetButton({
   const play = () => {
     const v = vid.current;
     if (!v) return;
-    if (!v.src) v.src = `/demo/styles/${id}.mp4`;
+    if (!v.src) v.src = demoSrc(id, "mp4");
     void v.play().catch(() => undefined);
   };
   const stop = () => {
@@ -302,7 +348,7 @@ function PresetButton({
       <div className="relative aspect-[9/16] overflow-hidden rounded-[6px] bg-black" aria-hidden>
         {/* eslint-disable-next-line @next/next/no-img-element -- static demo poster */}
         <img
-          src={`/demo/styles/${id}.jpg`}
+          src={demoSrc(id, "jpg")}
           alt=""
           loading="lazy"
           decoding="async"

@@ -160,6 +160,9 @@ export function Wizard({
       broll: false,
       cleanCut: false,
       hookFirst: false,
+      animated: false,
+      animatedCount: 2,
+      animatedLook: "",
     },
     ai: defaultAiImages,
     brand: { name: "", handle: "", endLine: "", cta: "" },
@@ -332,6 +335,9 @@ export function Wizard({
         sfxIntensity: draft.style.sfxIntensity,
         music: draft.style.music,
         broll: draft.style.broll && stockEnabled,
+        animated: Boolean(draft.style.animated),
+        animatedCount: draft.style.animatedCount ?? 2,
+        animatedLook: draft.style.animatedLook ?? "",
         ...(aiImagesEnabled ? { aiImages: (draft.ai ?? defaultAiImages).aiImages, aiImageCount: (draft.ai ?? defaultAiImages).aiImageCount, aiImageStyle: (draft.ai ?? defaultAiImages).aiImageStyle } : {}),
         language: draft.style.language,
       },
@@ -382,6 +388,9 @@ export function Wizard({
         music: draft.style.music,
         language: draft.style.language,
         broll: draft.style.broll && stockEnabled,
+        animated: Boolean(draft.style.animated),
+        animatedCount: draft.style.animatedCount ?? 2,
+        animatedLook: draft.style.animatedLook ?? "",
         ...(aiImagesEnabled ? { aiImages: (draft.ai ?? defaultAiImages).aiImages, aiImageCount: (draft.ai ?? defaultAiImages).aiImageCount, aiImageStyle: (draft.ai ?? defaultAiImages).aiImageStyle } : {}),
         cleanCut: Boolean(draft.style.cleanCut || draft.style.hookFirst),
         hookFirst: Boolean(draft.style.hookFirst),
@@ -425,6 +434,9 @@ export function Wizard({
         sfxIntensity: draft.style.sfxIntensity,
         music: draft.style.music,
         broll: draft.style.broll && stockEnabled,
+        animated: Boolean(draft.style.animated),
+        animatedCount: draft.style.animatedCount ?? 2,
+        animatedLook: draft.style.animatedLook ?? "",
         ...(aiImagesEnabled ? { aiImages: (draft.ai ?? defaultAiImages).aiImages, aiImageCount: (draft.ai ?? defaultAiImages).aiImageCount, aiImageStyle: (draft.ai ?? defaultAiImages).aiImageStyle } : {}),
       },
       brand: draft.brand,
@@ -601,7 +613,7 @@ export function Wizard({
           <button type="button" className="button" disabled={!canNext || pending} onClick={next}>
             {pending
               ? "One moment…"
-              : stepId === "photos" && draft.photos.length === 0
+              : stepId === "photos" && draft.photos.length === 0 && !(aiImagesEnabled && draft.ai?.aiImages)
                 ? "Skip photos"
                 : "Continue"}
           </button>

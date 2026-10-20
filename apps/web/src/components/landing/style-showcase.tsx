@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FamilyChips, useStyleFilter } from "@/components/style-filter";
-import { FAMILY_LABEL, presetCards, type PresetCard } from "@/config/presets";
+import { FAMILY_LABEL, demoSrc, presetCards, type PresetCard } from "@/config/presets";
 import { styles as c } from "@/content/landing";
 import { cn } from "@/lib/utils";
 
 const DEMO = (id: string) => ({
-  video: `/demo/styles/${id}.mp4`,
-  poster: `/demo/styles/${id}.jpg`,
+  video: demoSrc(id, "mp4"),
+  poster: demoSrc(id, "jpg"),
 });
 const RAW = { video: "/demo/styles/raw.mp4", poster: "/demo/styles/raw.jpg" };
 const FIRST = 23;
