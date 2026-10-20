@@ -424,32 +424,16 @@ class Pipeline:
             )
             add(u)
             shots = film["shots"]
-            durs = [float(s["sec"]) for s in shots]
-            pub.update(JobStatus.PROBING, 30, f"Drawing {len(shots)} shots in code…", **timings)
-            codes, u = animate.write_code(client, model, film, refs)
-            add(u)
-            res = animate.check(self.s, codes, durs, work / "check")
-            if any(r["notes"] for r in res):
-                pub.update(JobStatus.PROBING, 34, "Fixing the shots that did not draw…", **timings)
-                codes, u = animate.fix_broken(client, model, film, codes, res)
-                add(u)
-                res = animate.check(self.s, codes, durs, work / "check")
-            pub.update(
-                JobStatus.PROBING, 37, "Checking every shot against your references…", **timings
-            )
-            fixes, notes, u = animate.critique(
-                client, model, film, codes, [r["still"] for r in res], refs
+            codes, res, notes, u = animate.draw_shots(
+                self.s,
+                client,
+                model,
+                film,
+                refs,
+                work,
+                lambda m: pub.update(JobStatus.PROBING, 32, m, **timings),
             )
             add(u)
-            if fixes:
-                trial = list(codes)
-                for i, c in fixes.items():
-                    trial[i] = c
-                res2 = animate.check(self.s, trial, durs, work / "check2")
-                for i in fixes:  # a fix that breaks a shot is dropped, never shipped
-                    if not res2[i]["notes"]:
-                        codes[i] = trial[i]
-                res = animate.check(self.s, codes, durs, work / "check3")
         except Exception as exc:
             raise PipelineError(f"The studio could not draw the film: {exc}") from exc
         broken = [i + 1 for i, r in enumerate(res) if r["notes"]]
@@ -1109,6 +1093,19 @@ class Pipeline:
         timings["plan_input_tokens"] = float(res.usage["input_tokens"])
         timings["plan_output_tokens"] = float(res.usage["output_tokens"])
         timings["plan_cache_read"] = float(res.usage["cache_read"])
+        if res.ok and options.get("animated"):
+            res.plan = self._animated_scenes(
+                job,
+                pub,
+                work,
+                res.plan,
+                words,
+                duration,
+                style,
+                options,
+                [i["id"] for i in images],
+                timings,
+            )
         # stock B-roll: resolve each `broll` query to a Pexels clip now, so the plan records its source
         if (project.get("style_options") or {}).get("broll"):
             t0 = time.time()
@@ -1140,6 +1137,95 @@ class Pipeline:
             pub.update(
                 JobStatus.AWAITING_PLAN_REVIEW, 100, "Your edit is ready to preview", **timings
             )
+
+    def _animated_scenes(
+        self,
+        job: JobMessage,
+        pub: Publisher,
+        work: Path,
+        plan: dict[str, Any],
+        words: list[dict[str, Any]],
+        duration: float,
+        style: dict[str, Any],
+        options: dict[str, Any],
+        image_ids: list[str],
+        timings: dict[str, float],
+    ) -> dict[str, Any]:
+        """Animated scenes drawn in code cut in over the speaker on key lines (the Animate studio
+        working on a talking-head edit). Scenes that would not draw are left out; if none survive,
+        the edit goes ahead without them and the audit says why."""
+        from rasika_worker import animate
+
+        client, model = self.anthropic(), self.s.anthropic_planner_model
+        t0 = time.time()
+        n = max(1, min(4, int(options.get("animatedCount") or 2)))
+        usage = {"input_tokens": 0, "output_tokens": 0}
+
+        def add(u: dict[str, int]) -> None:
+            for k in usage:
+                usage[k] += int(u.get(k, 0))
+
+        try:
+            pub.update(JobStatus.PLANNING, 60, "Choosing the lines to animate…", **timings)
+            film, u = animate.cutaways(
+                client, model, words, duration, n, style, str(options.get("animatedLook") or "")
+            )
+            add(u)
+            codes, res, notes, u = animate.draw_shots(
+                self.s,
+                client,
+                model,
+                film,
+                [],
+                work / "anim",
+                lambda m: pub.update(JobStatus.PLANNING, 70, m, **timings),
+            )
+            add(u)
+            good = [i for i, r in enumerate(res) if not r["notes"]]
+            dropped = [
+                {"line": film["shots"][i].get("line"), "why": r["notes"][0]}
+                for i, r in enumerate(res)
+                if r["notes"]
+            ]
+            if not good:
+                raise ValueError("no scene passed the render checks")
+            merged = animate.insert_cutaways(
+                plan, [film["shots"][i] for i in good], [codes[i] for i in good]
+            )
+            validator = ChromiumValidator(self.s)
+            try:
+                r = validator(merged, words, image_ids)
+            finally:
+                validator.close()
+            errors = [i for i in r.get("issues") or [] if i.get("level") == "error"]
+            if errors:
+                raise ValueError("; ".join(e["message"] for e in errors[:3]))
+            timings["animated_scenes"] = float(len(good))
+            timings["animated_sec"] = round(time.time() - t0, 2)
+            self.repo.audit(
+                job.user_id,
+                "animated_scenes",
+                "project",
+                job.project_id,
+                {
+                    "scenes": [film["shots"][i] for i in good],
+                    "dropped": dropped,
+                    "notes": notes,
+                    **usage,
+                },
+            )
+            return dict(r["plan"])
+        except Exception as exc:
+            log.warning("animated scenes skipped", error=str(exc))
+            timings["animated_scenes"] = 0.0
+            self.repo.audit(
+                job.user_id,
+                "animated_scenes",
+                "project",
+                job.project_id,
+                {"skipped": str(exc)[:500], **usage},
+            )
+            return plan
 
     def _plan_animate(
         self,

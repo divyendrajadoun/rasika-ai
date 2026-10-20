@@ -378,6 +378,163 @@ def critique(
     return fixes, notes[:20], usage
 
 
+def draw_shots(
+    settings: Any,
+    client: Any,
+    model: str,
+    film: dict[str, Any],
+    refs: list[Path],
+    out_dir: Path,
+    say: Any = lambda _m: None,
+) -> tuple[list[str], list[dict[str, Any]], list[str], dict[str, int]]:
+    """Code per shot, the render checks, a fix for what failed, one critique loop (a fix that breaks
+    a shot is dropped). Returns the codes, the last check of each shot, the editor's notes, usage."""
+    total = {"input_tokens": 0, "output_tokens": 0}
+
+    def add(u: dict[str, int]) -> None:
+        for k in total:
+            total[k] += int(u.get(k, 0))
+
+    durs = [float(s["sec"]) for s in film["shots"]]
+    say(f"Drawing {len(durs)} shot{'' if len(durs) == 1 else 's'} in code…")
+    codes, u = write_code(client, model, film, refs)
+    add(u)
+    res = check(settings, codes, durs, out_dir / "check")
+    if any(r["notes"] for r in res):
+        say("Fixing the shots that did not draw…")
+        codes, u = fix_broken(client, model, film, codes, res)
+        add(u)
+        res = check(settings, codes, durs, out_dir / "check")
+    say("Checking every shot against the style…")
+    fixes, notes, u = critique(client, model, film, codes, [r["still"] for r in res], refs)
+    add(u)
+    if fixes:
+        trial = list(codes)
+        for i, c in fixes.items():
+            trial[i] = c
+        res2 = check(settings, trial, durs, out_dir / "check2")
+        for i in fixes:  # a fix that breaks a shot is dropped, never shipped
+            if not res2[i]["notes"]:
+                codes[i] = trial[i]
+        res = check(settings, codes, durs, out_dir / "check3")
+    return codes, res, notes, total
+
+
+CUTAWAY_SYSTEM = """You are the art director of an animation studio. A person talks to camera in a vertical
+reel; on a few key lines we cut away from them to a short animation drawn entirely in code (canvas 2D,
+1080×1920) while their voice carries on. You get the timed transcript, the reel's colours, an optional
+look the user asked for, and how many scenes to make. Return ONE JSON object, nothing else:
+
+{
+  "style": {
+    "palette": [{"hex": "#rrggbb", "role": "background|ink|accent|highlight|shadow|..."}],   // 5–7
+    "line": "…", "texture": "…", "light": "…", "motion": "…",
+    "how": "one paragraph: how we draw this in canvas code"
+  },
+  "shots": [{"at": 4.2, "sec": 3.0, "line": "the words being said", "see": "what we see", "moves": "what moves",
+             "camera": "push-in / track / pull back / pan / glide", "sound": "whoosh|pop|impact|none"}]
+}
+
+Rules:
+- Pick the lines that a picture explains best: a process, a comparison, a number, an image the speaker
+  paints. Never the first sentence (the face hooks the viewer) and never the last two seconds.
+- "at" is the start time in seconds of the word that begins the line (from the transcript); "sec" is
+  2.5–4. Scenes never overlap and are at least 3 s apart.
+- Each scene shows what is being said at that moment, literally and simply, one idea, moving from its
+  first frame. No words, letters or numbers drawn (captions run over the scene in the lower third, so
+  keep y 1450–1750 calm). No UI cards, no logos, no real people's likeness.
+- The palette: the user's look if given; otherwise built from the reel's colours so the cut feels part
+  of the edit. Every scene shares the one style.
+"""
+
+
+def cutaways(
+    client: Any,
+    model: str,
+    words: list[dict[str, Any]],
+    duration: float,
+    n: int,
+    tokens: dict[str, Any],
+    look: str = "",
+) -> tuple[dict[str, Any], dict[str, int]]:
+    """Choose the key lines of a talking-head take and write the style + a shot per line."""
+    timed = " ".join(
+        f"[{float(w.get('t', 0)):.2f}]{w.get('w') or w.get('word') or ''}" for w in words
+    )
+    pal = tokens.get("palette") or {}
+    content = [
+        {
+            "type": "text",
+            "text": f"## Transcript (start times in seconds)\n\n{timed}\n\n"
+            f"## Length\n\n{duration:.1f} s\n\n"
+            f"## The reel's colours\n\n{json.dumps(pal)}\n\n"
+            f"## Look the user asked for\n\n{look or '(none)'}\n\n## Scenes\n\n{n}",
+        }
+    ]
+    text, usage = _call(client, model, CUTAWAY_SYSTEM, content, 6000)
+    film = parse_json(text)
+    starts = sorted(float(w.get("t", 0)) for w in words)
+    shots: list[dict[str, Any]] = []
+    free_from = 1.5
+    asked = sorted(
+        (s for s in film.get("shots") or [] if isinstance(s, dict)),
+        key=lambda s: float(s.get("at", 0)),
+    )
+    for s in asked:
+        at = float(s.get("at", 0))
+        # on a word start, never in the opening, never past the end
+        at = min(starts, key=lambda x: abs(x - at)) if starts else at
+        sec = max(2.5, min(4.0, float(s.get("sec", 3))))
+        if at < free_from or at + sec > duration - 1.0:
+            continue
+        s["at"], s["sec"], s["words"] = round(at, 3), round(sec, 2), ""
+        shots.append(s)
+        free_from = at + sec + 3.0
+        if len(shots) >= n:
+            break
+    if not shots:
+        raise ValueError("no line of the take fits an animated scene")
+    film["shots"] = shots
+    return film, usage
+
+
+def insert_cutaways(
+    plan: dict[str, Any], shots: list[dict[str, Any]], codes: list[str]
+) -> dict[str, Any]:
+    """Each scene covers the speaker for its line. What the planner put there is dropped when it
+    starts inside the scene or mostly lies within it; captions (their own layer) stay on top."""
+    plan = json.loads(json.dumps(plan))
+    wins = [(float(s["at"]), float(s["at"]) + float(s["sec"])) for s in shots]
+
+    def covered(e: dict[str, Any]) -> bool:
+        a, b = float(e.get("t0", 0)), float(e.get("t1", 0))
+        for w0, w1 in wins:
+            inside = max(0.0, min(b, w1) - max(a, w0))
+            if w0 - 0.05 <= a < w1 or (b > a and inside / (b - a) > 0.5):
+                return True
+        return False
+
+    kept = [e for e in plan.get("elements") or [] if not covered(e)]
+    for i, (s, code) in enumerate(zip(shots, codes, strict=True)):
+        kept.append(
+            {
+                "id": f"anim{i + 1}",
+                "type": "codeScene",
+                "t0": round(float(s["at"]), 3),
+                "t1": round(float(s["at"]) + float(s["sec"]), 3),
+                "code": code,
+                "seed": 31 + i,
+            }
+        )
+    plan["elements"] = sorted(kept, key=lambda e: float(e.get("t0", 0)))
+    sfx = plan.setdefault("sfx", {"auto": True, "intensity": 0.6, "extra": []})
+    extra = list(sfx.get("extra") or [])
+    for s in shots:
+        extra.append({"t": round(float(s["at"]), 3), "type": "whoosh", "dur": 0.45, "gain": 0.45})
+    sfx["extra"] = extra
+    return plan
+
+
 def palette_style(tokens: dict[str, Any], film: dict[str, Any]) -> dict[str, Any]:
     """The animate preset in the film's own palette (words and captions read on its background)."""
     style: dict[str, Any] = dict(json.loads(json.dumps(tokens)))

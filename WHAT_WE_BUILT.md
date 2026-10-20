@@ -119,6 +119,13 @@ On the photos step of My video, Script only, AI presenter and Match a reference:
   want a picture and Higgsfield draws them in your picture style; each lands on its word.
 Every image is paid from the Higgsfield account; no real faces, logos or text in the images.
 
+## Talking heads get the film looks and animated scenes (20 Oct)
+
+- **Every film look in every edit.** The 8 looks that were tied to one brief film (SaaS launch, kinetic showreel, recipe, versus arcade, music machine, Grand Budapest, Kurz explainer, Animate studio) are in the style grid for takes, scripts, presenters too: 107 styles. Their preview is the film's demo (`FILM_LOOK_DEMO` in `config/presets.ts`).
+- **Animated scenes** (style step switch, 1–4 scenes, optional look text). After the edit is planned, Claude picks the key lines (never the first sentence, never the last 2 s, 3 s apart), the Animate studio draws each scene in code, test-renders it, fixes and critiques it (`animate.cutaways`, `draw_shots`, `insert_cutaways`). Each scene covers the speaker for 2.5–4 s while the voice and captions carry on; what the planner put underneath is dropped. Scenes that will not draw are left out; if none survive, the edit goes ahead without them (audit `animated_scenes` says why). Tested: a 12 s take, animate-studio look, "paper cut-out with tape" → one scene on "Two thousand years ago India…" (paper arch, figure raising a jhumka); the critique caught and fixed an off-palette black sun. 5.4 min end to end.
+- **Write the brief for me.** On the brief step, "Write ideas for me" sends the kind and an optional rough idea to Claude (fast model) and returns three filled-in briefs; picking one fills the form (`/api/briefs/ideas`, `lib/brief-ideas.ts`). Link films still need the user's link; Claude writes their focus and closing lines. 10–21 s.
+- Photos step: the button says Continue (not "Skip photos") when automatic AI images are on.
+
 ## Extras
 
 - Stock B-roll from Pexels, with photographer credit under the reel.
