@@ -52,9 +52,10 @@ describe("landing content", () => {
     expect(landing.footer.links.length).toBeGreaterThanOrEqual(3);
   });
 
-  it("exposes all twenty-six presets with the original four first", () => {
+  it("exposes every preset once (the landing says 107), the original four first", () => {
     const ids = presetCards.map((p) => p.tokens.id);
-    expect(ids).toHaveLength(94);
+    expect(ids).toHaveLength(107);
+    expect(new Set(ids).size).toBe(ids.length);
     expect(ids.slice(0, 4)).toEqual(["mikku-royal", "katana-pop", "noir-minimal", "bold-creator"]);
     for (const p of presetCards) expect(p.preview.big.length).toBeGreaterThan(0);
     expect(presetCards[0]?.badge).toBe("Default");

@@ -1,6 +1,8 @@
 """Clean cut: fillers, repeats and long pauses come out; nothing kept overlaps a removed word."""
 
-from rasika_worker.cleancut import plan_cuts
+import pytest
+
+from rasika_worker.cleancut import plan_cuts, plan_kept, suggest
 
 
 def w(text: str, t: float, end: float) -> dict[str, object]:
@@ -79,3 +81,44 @@ def test_hook_moves_to_the_front_without_touching_its_neighbours() -> None:
     first = p.keep[0]
     assert first[0] >= 1.2 and first[1] < 3.0  # the hook alone: no "Um", no "Here"
     assert p.keep[1][0] == 0.0  # then the take from the top
+
+
+def said(text: str, start: float = 0.0) -> list[dict[str, object]]:
+    """Words 0.4 s apart; "|" is a 1.2 s pause (a new sentence for the cut)."""
+    out: list[dict[str, object]] = []
+    t = start
+    for tok in text.split():
+        if tok == "|":
+            t += 1.2
+            continue
+        out.append(w(tok, t, t + 0.3))
+        t += 0.4
+    return out
+
+
+def test_false_start_and_retake_keep_the_last_take() -> None:
+    words = said(
+        "So today I want | So today I want to show you my kitchen. "
+        "It has three burners. It has three big burners. That is all."
+    )
+    runs = [(r["i0"], r["i1"], r["why"]) for r in suggest(words)]
+    assert runs == [(0, 3, "retake"), (13, 16, "retake")]
+    kept = " ".join(
+        str(words[i]["w"]) for i in range(len(words)) if not any(a <= i <= b for a, b, _ in runs)
+    )
+    assert kept == "So today I want to show you my kitchen. It has three big burners. That is all."
+
+
+def test_different_lines_are_not_retakes() -> None:
+    words = said("I sell rings. | We ship to Delhi. | Order today.")
+    assert suggest(words) == []
+
+
+def test_plan_kept_cuts_exactly_the_removed_words() -> None:
+    p = plan_kept(WORDS, 7.0, {4, 5})
+    assert [r["w"] for r in p.removed] == ["idea", "is"]
+    for i in (4, 5):
+        mid = (float(WORDS[i]["t"]) + float(WORDS[i]["end"])) / 2  # type: ignore[arg-type]
+        assert not any(a <= mid <= b for a, b in p.keep)
+    with pytest.raises(ValueError):
+        plan_kept(WORDS, 7.0, set(range(len(WORDS))))

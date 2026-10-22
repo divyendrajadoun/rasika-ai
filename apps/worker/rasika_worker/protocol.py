@@ -30,6 +30,10 @@ class JobType(StrEnum):
     PLAN = "plan"
     RENDER_PREVIEW = "render_preview"
     RENDER_FINAL = "render_final"
+    # the editor: cut the original take to the words the user kept, then probe → … → render
+    RECUT = "recut"
+    # the finished reel in another shape or for another platform (1:1, 4:5, 16:9)
+    EXPORT = "export"
     CLEANUP = "cleanup"
 
 

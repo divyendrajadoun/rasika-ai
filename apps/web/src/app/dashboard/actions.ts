@@ -1,12 +1,14 @@
 "use server";
 
-import { and, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
+import { z } from "zod";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { db, schema } from "@/db";
 import { plans } from "@/config/pricing";
 import { requireUser } from "@/lib/auth";
 import { enqueueJob } from "@/lib/jobs/queue";
+import { ACTIVE_STATUSES } from "@/lib/projects";
 import { briefKind } from "@/config/briefs";
 
 /** Photo settings from the wizard merge into what the asset already records (an AI image keeps its
@@ -510,4 +512,114 @@ export async function retryEdit(formData: FormData) {
     },
   });
   revalidatePath(`/dashboard/p/${id}`);
+}
+
+/** The project, when it is the user's and nothing is running on it (one job at a time). */
+async function idleProject(userId: string, projectId: string) {
+  const [project] = await db
+    .select()
+    .from(schema.projects)
+    .where(and(eq(schema.projects.id, projectId), eq(schema.projects.userId, userId)));
+  if (!project || project.deletedAt) return { error: "Project not found" } as const;
+  const [job] = await db
+    .select({ status: schema.jobs.status })
+    .from(schema.jobs)
+    .where(eq(schema.jobs.projectId, projectId))
+    .orderBy(desc(schema.jobs.createdAt))
+    .limit(1);
+  if (job && ACTIVE_STATUSES.has(job.status))
+    return { error: "Wait for the current render to finish" } as const;
+  return { project } as const;
+}
+
+const RecutInput = z.object({
+  projectId: z.string().uuid(),
+  transcriptVersion: z.number().int().positive(),
+  removed: z.array(z.number().int().min(0)).max(20000),
+  studioSound: z.boolean(),
+});
+
+/** The editor's "Render this edit": the original take is cut to the kept words, then the usual
+ *  probe → transcribe → plan → render runs on the cut. Re-edits of a reel are not charged again. */
+export async function recutEdit(input: unknown): Promise<ActionResult> {
+  const user = await requireUser();
+  const parsed = RecutInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Invalid edit" };
+  const r = parsed.data;
+  const got = await idleProject(user.id, r.projectId);
+  if ("error" in got) return { ok: false, error: got.error! };
+  const [t] = await db
+    .select({ words: schema.transcripts.words })
+    .from(schema.transcripts)
+    .where(
+      and(
+        eq(schema.transcripts.projectId, r.projectId),
+        eq(schema.transcripts.version, r.transcriptVersion),
+      ),
+    );
+  if (!t) return { ok: false, error: "That transcript is gone; reload the page" };
+  const removed = [...new Set(r.removed)].filter((i) => i < t.words.length).sort((a, b) => a - b);
+  if (removed.length >= t.words.length) return { ok: false, error: "Keep at least one word" };
+
+  const [job] = await db
+    .insert(schema.jobs)
+    .values({ projectId: r.projectId, userId: user.id, type: "recut", status: "uploaded", message: "Queued" })
+    .returning({ id: schema.jobs.id });
+  await db
+    .update(schema.projects)
+    .set({
+      status: "uploaded",
+      styleOptions: { ...got.project.styleOptions, studioSound: r.studioSound },
+      updatedAt: schema.now,
+    })
+    .where(eq(schema.projects.id, r.projectId));
+  await db.insert(schema.auditLog).values({
+    userId: user.id,
+    action: "project.recut",
+    entity: "project",
+    entityId: r.projectId,
+    meta: { job: job!.id, removed: removed.length, studioSound: r.studioSound },
+  });
+  await enqueueJob({
+    job_id: job!.id,
+    project_id: r.projectId,
+    user_id: user.id,
+    type: "recut",
+    payload: { transcript_version: r.transcriptVersion, removed },
+  });
+  revalidatePath(`/dashboard/p/${r.projectId}`);
+  return { ok: true, projectId: r.projectId };
+}
+
+const ExportInput = z.object({
+  projectId: z.string().uuid(),
+  format: z.enum(["1:1", "4:5", "16:9"]),
+});
+
+/** The finished reel in another shape, fitted on a blurred backdrop (worker media.export_shape). */
+export async function exportReel(input: unknown): Promise<ActionResult> {
+  const user = await requireUser();
+  const parsed = ExportInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Unknown shape" };
+  const r = parsed.data;
+  const got = await idleProject(user.id, r.projectId);
+  if ("error" in got) return { ok: false, error: got.error! };
+  const [out] = await db
+    .select({ id: schema.assets.id })
+    .from(schema.assets)
+    .where(and(eq(schema.assets.projectId, r.projectId), eq(schema.assets.kind, "output_1080")));
+  if (!out) return { ok: false, error: "Render the reel first" };
+  const [job] = await db
+    .insert(schema.jobs)
+    .values({ projectId: r.projectId, userId: user.id, type: "export", status: "uploaded", message: `Exporting ${r.format}…` })
+    .returning({ id: schema.jobs.id });
+  await enqueueJob({
+    job_id: job!.id,
+    project_id: r.projectId,
+    user_id: user.id,
+    type: "export",
+    payload: { format: r.format },
+  });
+  revalidatePath(`/dashboard/p/${r.projectId}`);
+  return { ok: true, projectId: r.projectId };
 }

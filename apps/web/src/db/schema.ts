@@ -49,6 +49,8 @@ export const ASSET_KINDS = [
   "keyframe",
   "thumbnail",
   "logo",
+  /** the finished reel in another shape (meta.format: "1:1" | "4:5" | "16:9") */
+  "export",
 ] as const;
 export type AssetKind = (typeof ASSET_KINDS)[number];
 
@@ -62,6 +64,8 @@ export const JOB_TYPES = [
   "plan",
   "render_preview",
   "render_final",
+  "recut",
+  "export",
   "cleanup",
 ] as const;
 export type JobType = (typeof JOB_TYPES)[number];
@@ -127,6 +131,8 @@ export interface StyleOptions {
   /** stock B-roll from Pexels cut into the reel (needs PEXELS_API_KEY on the worker) */
   broll?: boolean;
   /** recorded takes: cut fillers, repeats and long pauses first (worker cleancut.py) */
+  /** the editor: clean the voice before the mix (highpass, denoise, gentle compressor) */
+  studioSound?: boolean;
   cleanCut?: boolean;
   /** recorded takes: the strongest line moves to the first two seconds (worker cleancut.pick_hook) */
   hookFirst?: boolean;
@@ -196,6 +202,19 @@ export interface AssetMeta {
   /** outputs: which edit plan version was rendered, and how many parallel chunks */
   planVersion?: number;
   chunks?: number;
+  /** a take: the transcript version that is its own, and (an uncut take) the editor's suggestions */
+  transcriptVersion?: number;
+  suggestedCuts?: Array<{ i0: number; i1: number; why: "filler" | "repeat" | "retake" }>;
+  /** a cut of the original take: clean cut, or the user's edit (word indices of `transcriptOf`) */
+  cleanCut?: boolean;
+  userEdit?: boolean;
+  cleanCutOf?: string;
+  removedSec?: number;
+  removedIdx?: number[];
+  removed?: Array<{ i: number; w?: string; why?: string }>;
+  transcriptOf?: number;
+  /** exports */
+  format?: string;
 }
 
 export const assets = pgTable(

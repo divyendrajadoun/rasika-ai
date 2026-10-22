@@ -69,6 +69,8 @@ class Pipeline:
             JobType.PLAN: self.plan,
             JobType.RENDER_PREVIEW: lambda j, p: self.render(j, p, preview=True),
             JobType.RENDER_FINAL: lambda j, p: self.render(j, p, preview=False),
+            JobType.RECUT: self.recut,
+            JobType.EXPORT: self.export,
             JobType.CLEANUP: self.cleanup,
         }
 
@@ -746,6 +748,7 @@ class Pipeline:
             except Exception as exc:  # never block the pipeline on suggestions
                 log.warning("transcript_fix_failed", error=str(exc))
 
+        self._remember_transcript(job, version, words)
         opts = dict(project.get("style_options") or {})
         if (
             (opts.get("cleanCut") or opts.get("hookFirst"))
@@ -859,6 +862,24 @@ class Pipeline:
             {"made": made, "moments": moments, "errors": [e for _, p, e in done if not p]},
         )
 
+    def _remember_transcript(
+        self, job: JobMessage, version: int, words: list[dict[str, Any]]
+    ) -> None:
+        """The take records which transcript is its own; an uncut take also gets the cuts the
+        editor suggests (fillers, repeats, retakes) so the user can keep or restore each."""
+        key = str(job.payload.get("source_key") or "")
+        srcs = self.repo.assets(job.project_id, "source_video")
+        asset = next((a for a in srcs if a["storage_key"] == key), srcs[-1] if srcs else None)
+        if not asset:
+            return
+        patch: dict[str, Any] = {"transcriptVersion": version}
+        if not (asset.get("meta") or {}).get("cleanCut"):
+            patch["suggestedCuts"] = cleancut.suggest(words)
+        try:
+            self.repo.merge_asset_meta(str(asset["id"]), patch)
+        except Exception as exc:  # the editor falls back to dates; never block the pipeline
+            log.warning("remember_transcript_failed", error=str(exc))
+
     def _clean_cut(
         self,
         job: JobMessage,
@@ -924,6 +945,116 @@ class Pipeline:
         pub.update(JobStatus.PROBING, 0, "Looking at the clean cut…")
         self.enqueue(job, JobType.PROBE, {"source_key": key})
         return True
+
+    # ── the editor: the original take cut to the words the user kept ──
+    def recut(self, job: JobMessage, pub: Publisher) -> None:
+        pub.update(JobStatus.PROBING, 2, "Cutting your take…")
+        work = self.work(job.project_id)
+        srcs = self.repo.assets(job.project_id, "source_video")
+        original = next((a for a in srcs if not (a.get("meta") or {}).get("cleanCut")), None)
+        if not original:
+            raise PipelineError("The original take is missing.")
+        version = int(str(job.payload.get("transcript_version") or 0))
+        row = self.repo.one(
+            "SELECT words FROM transcripts WHERE project_id = %s::uuid AND version = %s",
+            (job.project_id, version),
+        )
+        if not row:
+            raise PipelineError("The transcript this edit was made on is missing.")
+        words = list(row["words"])
+        raw = job.payload.get("removed")
+        picked = raw if isinstance(raw, list) else []
+        removed = {int(i) for i in picked if 0 <= int(i) < len(words)}
+        dest_src = work / ("original" + Path(original["storage_key"]).suffix.lower())
+        if not dest_src.exists() or dest_src.stat().st_size != int(original.get("size_bytes") or 0):
+            self.storage.download(original["storage_key"], dest_src)
+        info = media.probe(self.s.ffprobe_bin, dest_src)
+        try:
+            plan = cleancut.plan_kept(words, info.duration_sec, removed)
+        except ValueError as exc:
+            raise PipelineError("Keep at least one word.") from exc
+        dest = work / "source_edit.mp4"
+        cleancut.cut(self.s.ffmpeg_bin, dest_src, dest, plan.keep, has_audio=info.has_audio)
+        ledger = {
+            "cleanCut": True,
+            "userEdit": True,
+            "cleanCutOf": str(original["id"]),
+            "removedSec": plan.removed_sec,
+            "removedIdx": sorted(removed),
+            "transcriptOf": version,
+            "keep": plan.keep,
+        }
+        prefix = project_prefix(job.user_id, job.project_id)
+        key = f"{prefix}/source_edit_{int(time.time())}.mp4"
+        # earlier cuts are replaced; the original stays (every edit starts from it)
+        for old in srcs:
+            if (old.get("meta") or {}).get("cleanCut"):
+                self.repo.exec("DELETE FROM assets WHERE id = %s::uuid", (str(old["id"]),))
+                try:
+                    self.storage.delete(old["storage_key"])
+                except Exception as exc:  # best effort
+                    log.warning("delete_failed", key=old["storage_key"], error=str(exc))
+        self.upload_asset(job, "source_video", dest, key, ledger, replace=False)
+        if not (original.get("meta") or {}).get("transcriptVersion"):
+            # a take from before the editor: from now on it names its own transcript
+            self.repo.merge_asset_meta(str(original["id"]), {"transcriptVersion": version})
+        for stale in ("source.mp4", "source.mov", "voice.wav", "audio16k.wav", "proxy.mp4"):
+            (work / stale).unlink(missing_ok=True)
+        self.repo.audit(
+            job.user_id,
+            "recut",
+            "project",
+            job.project_id,
+            {k: v for k, v in ledger.items() if k != "keep"},
+        )
+        pub.update(
+            JobStatus.PROBING,
+            0,
+            f"Cut {len(removed)} words, {plan.removed_sec:.1f} s. Looking at your edit…",
+        )
+        self.enqueue(job, JobType.PROBE, {"source_key": key})
+
+    # ── the finished reel in another shape (fitted, on a soft blurred backdrop) ──
+    def export(self, job: JobMessage, pub: Publisher) -> None:
+        try:
+            self._export(job, pub)
+        except Exception as exc:  # the reel itself is fine: say so instead of failing the project
+            log.error("export_failed", error=str(exc))
+            pub.update(JobStatus.DONE, 100, f"The export failed ({exc}). Your reel is unchanged.")
+
+    def _export(self, job: JobMessage, pub: Publisher) -> None:
+        fmt = str(job.payload.get("format") or "")
+        if fmt not in media.EXPORT_SIZES:
+            raise PipelineError(f"Unknown export shape: {fmt}")
+        pub.update(JobStatus.RENDERING_FINAL, 5, f"Exporting {fmt}…")
+        work = self.work(job.project_id)
+        outs = self.repo.assets(job.project_id, "output_1080")
+        if not outs:
+            raise PipelineError("Render the reel before exporting it.")
+        src = work / "export_src.mp4"
+        if not src.exists() or src.stat().st_size != int(outs[-1].get("size_bytes") or 0):
+            self.storage.download(outs[-1]["storage_key"], src)
+        dest = work / f"export_{fmt.replace(':', 'x')}.mp4"
+        t0 = time.time()
+        media.export_shape(self.s.ffmpeg_bin, src, dest, fmt)
+        prefix = project_prefix(job.user_id, job.project_id)
+        name = fmt.replace(":", "x")
+        old = [
+            a
+            for a in self.repo.assets(job.project_id, "export")
+            if (a.get("meta") or {}).get("format") == fmt
+        ]
+        for a in old:
+            self.repo.exec("DELETE FROM assets WHERE id = %s::uuid", (str(a["id"]),))
+        self.upload_asset(
+            job,
+            "export",
+            dest,
+            f"{prefix}/export_{name}_{int(time.time())}.mp4",
+            {"format": fmt, "of": str(outs[-1]["id"]), "sec": round(time.time() - t0, 1)},
+            replace=False,
+        )
+        pub.update(JobStatus.DONE, 100, f"{fmt} export ready.")
 
     # ── reference matching (reelmimic-style analyse → style) ──
     def analyse_reference(self, job: JobMessage, pub: Publisher) -> None:
@@ -1496,6 +1627,7 @@ class Pipeline:
             preview=preview,
             music_bed=music,
             broll=broll,
+            studio_sound=bool((project.get("style_options") or {}).get("studioSound")),
         )
 
         def prog(p: float, m: str) -> None:

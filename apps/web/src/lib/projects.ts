@@ -102,3 +102,54 @@ export async function getProject(userId: string, id: string) {
     plan: plan ?? null,
   };
 }
+
+export type ProjectAsset = AssetRow & { url: string };
+
+/**
+ * What the editor works on: the original take (every edit starts from it), the transcript that is
+ * its own, the cuts the worker suggests and the words the current cut leaves out. Null while there
+ * is no transcript of the original yet.
+ */
+export async function getEditor(projectId: string, assets: ProjectAsset[]) {
+  const takes = assets
+    .filter((a) => a.kind === "source_video")
+    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+  const original = takes.find((a) => !a.meta.cleanCut);
+  if (!original) return null;
+  const cut = takes.find((a) => a.meta.cleanCut);
+  let version = original.meta.transcriptVersion ?? (cut?.meta.userEdit ? cut.meta.transcriptOf : undefined);
+  if (!version) {
+    // takes from before the editor: the newest transcript written before the cut existed
+    const rows = await db
+      .select({ version: schema.transcripts.version, createdAt: schema.transcripts.createdAt })
+      .from(schema.transcripts)
+      .where(eq(schema.transcripts.projectId, projectId))
+      .orderBy(desc(schema.transcripts.version));
+    version = (cut ? rows.find((r) => r.createdAt < cut.createdAt) : rows[0])?.version;
+  }
+  if (!version) return null;
+  const [t] = await db
+    .select({ words: schema.transcripts.words, language: schema.transcripts.language })
+    .from(schema.transcripts)
+    .where(and(eq(schema.transcripts.projectId, projectId), eq(schema.transcripts.version, version)));
+  if (!t || t.words.length === 0) return null;
+  const removed = !cut
+    ? []
+    : cut.meta.userEdit
+      ? cut.meta.transcriptOf === version
+        ? (cut.meta.removedIdx ?? [])
+        : []
+      : (cut.meta.removed ?? []).map((r) => r.i);
+  return {
+    originalUrl: original.url,
+    version,
+    language: t.language,
+    words: t.words,
+    suggested: original.meta.suggestedCuts ?? [],
+    removed,
+    edited: Boolean(cut?.meta.userEdit),
+    /** changes whenever a new cut lands (the editor starts again from it) */
+    cutId: cut?.id ?? "none",
+  };
+}
+export type EditorData = NonNullable<Awaited<ReturnType<typeof getEditor>>>;

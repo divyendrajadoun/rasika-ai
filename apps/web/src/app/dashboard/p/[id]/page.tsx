@@ -4,10 +4,12 @@ import { notFound } from "next/navigation";
 import { deleteProject, duplicateProject } from "@/app/dashboard/actions";
 import { fmtDuration } from "@/components/dashboard/project-card";
 import { ProgressView } from "@/components/dashboard/progress-view";
+import { EditRoom } from "@/components/dashboard/edit-room";
+import { ExportShapes } from "@/components/dashboard/export-shapes";
 import { TranscriptPanel } from "@/components/dashboard/transcript-panel";
 import { projectStyleLabel } from "@/config/presets";
 import { requireUser } from "@/lib/auth";
-import { getProject } from "@/lib/projects";
+import { ACTIVE_STATUSES, getEditor, getProject } from "@/lib/projects";
 
 export const metadata: Metadata = { title: "Project", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -18,6 +20,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   const data = await getProject(user.id, id);
   if (!data) notFound();
   const { project, assets, job, transcript, plan } = data;
+  const busy = Boolean(job && ACTIVE_STATUSES.has(job.status));
+  // the editor works on recorded takes (a brief film has no take to cut)
+  const editor = project.styleOptions.source === "brief" ? null : await getEditor(project.id, assets);
+  const exports = Object.fromEntries(
+    assets.filter((a) => a.kind === "export" && a.meta.format).map((a) => [a.meta.format!, a.url]),
+  );
   const source = assets.find((a) => a.kind === "source_video");
   const images = assets
     .filter((a) => a.kind === "image")
@@ -60,6 +68,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
           </div>
         ) : (
           <ProgressView
+            key={job?.id ?? "none"}
             projectId={project.id}
             initial={{
               status: job?.status ?? project.status,
@@ -70,7 +79,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
           />
         )}
 
-        {transcript && <TranscriptPanel transcript={transcript} />}
+        {editor ? (
+          <EditRoom
+            key={`${editor.cutId}:${editor.version}`}
+            projectId={project.id}
+            data={editor}
+            busy={busy}
+            studioSound={Boolean(project.styleOptions.studioSound)}
+          />
+        ) : (
+          transcript && <TranscriptPanel transcript={transcript} />
+        )}
 
         <section id="download" className="mt-10">
           <h2 className="text-xl font-semibold leading-tight tracking-[-0.02em]">Export</h2>
@@ -116,6 +135,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                   ))}
                 </p>
               )}
+              <ExportShapes projectId={project.id} ready={exports} busy={busy} />
             </div>
           ) : preview ? (
             <div className="mt-4 space-y-3">

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { retryEdit } from "@/app/dashboard/actions";
 import { STATUS_LABEL, useJobEvents } from "@/components/dashboard/status-pill";
 import { cn } from "@/lib/utils";
@@ -47,6 +48,14 @@ export function ProgressView({
   initial: { status: string; progress: number; message: string; updatedAt?: string | null };
 }) {
   const s = useJobEvents(projectId, initial);
+  // a job that ends while the page is open: reload it, so the reel, edit and exports appear
+  const router = useRouter();
+  const wasActive = useRef(ACTIVE.has(initial.status));
+  useEffect(() => {
+    const active = ACTIVE.has(s.status);
+    if (wasActive.current && !active) router.refresh();
+    wasActive.current = active;
+  }, [s.status, router]);
   const idx = stageIndex(s.status);
   const failed = s.status === "failed";
   const staleFor = useStaleSeconds(s.updatedAt ?? null, ACTIVE.has(s.status));

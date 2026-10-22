@@ -126,6 +126,27 @@ Every image is paid from the Higgsfield account; no real faces, logos or text in
 - **Write the brief for me.** On the brief step, "Write ideas for me" sends the kind and an optional rough idea to Claude (fast model) and returns three filled-in briefs; picking one fills the form (`/api/briefs/ideas`, `lib/brief-ideas.ts`). Link films still need the user's link; Claude writes their focus and closing lines. 10–21 s.
 - Photos step: the button says Continue (not "Skip photos") when automatic AI images are on.
 
+## Edit and export (22 Oct)
+
+On every reel's page, under the progress:
+
+- **Edit**: the original take as text. Click a word to cut it, click again to keep it; shift-click
+  cuts or restores a run. Words the worker suggests cutting are underlined: fillers and repeats in
+  gold, an **earlier take** of a line said again in coral (the last complete take stays, as in
+  tenfoldmarc's video-edit skill). "Cut N suggested words" applies them all. The small player plays
+  the original and, with "Preview: skip cut words", jumps over the cut words. **Render this edit**
+  cuts the original take for real (`recut` job) and the reel is designed and rendered again on it;
+  every edit starts from the original, so nothing is lost. Re-edits are not charged again.
+- **Studio sound** (switch beside the button): cleans hum, hiss and room noise from the voice.
+- **Loudness**: every reel is now levelled to -14 LUFS, the level Reels, Shorts, TikTok and YouTube
+  play at (a take measured -25 LUFS before, -13.8 after).
+- **Other shapes** (under the downloads): Square 1:1, Portrait 4:5, Wide 16:9, the 9:16 reel fitted
+  whole on a blurred copy of itself (`export` job, about 20 s). Reels, Shorts and TikTok take the
+  9:16 as it is. A native wide layout (the engine drawing for 16:9) is not built yet.
+
+Tested end to end locally: a 44.5 s Hindi take, one 26-word sentence cut in the editor → recut →
+77 words transcribed → planned → 31.3 s reel at -13.8 LUFS → 16:9 export in 20 s.
+
 ## Extras
 
 - Stock B-roll from Pexels, with photographer credit under the reel.
@@ -142,7 +163,7 @@ reference with no preset → films from a brief. See `git log` for every step.
 
 ## Known limits (honest)
 
-- Vertical 9:16 only.
+- Designed for 9:16; 1:1, 4:5 and 16:9 are fitted exports, not native layouts.
 - No generated video, characters or lip-sync in brief films. Everything is drawn by the engine or is
   a real screenshot. (A brief like the "Claude Pop" music video needs generative video plus lip-sync
   services, which Rasika does not use.)

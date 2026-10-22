@@ -339,6 +339,10 @@ def concat(ffmpeg: str, parts: list[Path], dest: Path) -> None:
     )
 
 
+# social platforms play at -14 LUFS; levelling to it keeps a reel from being turned down (or up)
+LEVEL = "loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000,alimiter=limit=0.79"
+
+
 def mix(
     ffmpeg: str,
     voice: Path,
@@ -347,14 +351,24 @@ def mix(
     sfx_gain: float = 0.45,
     music: Path | None = None,
     music_gain: float = 0.18,
+    studio: bool = False,
 ) -> None:
-    """voice 1.0 + sfx (0.45) [+ music bed ducked under the voice], then a limiter."""
+    """voice 1.0 + sfx (0.45) [+ music bed ducked under the voice], levelled to -14 LUFS (the
+    level Reels, Shorts, TikTok and YouTube play at), then a true-peak limiter. `studio` cleans the
+    voice first: rumble cut below 80 Hz, steady background noise taken down, a gentle compressor."""
     inputs = ["-i", str(voice)]
     # with a music bed the voice feeds two places (the mix and the bed's ducking key): split it,
     # a filtergraph label can be read only once
     fmt = "aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo"
+    clean = (
+        "highpass=f=80,afftdn=nf=-25,acompressor=threshold=0.125:ratio=3:attack=10:release=200,"
+        if studio
+        else ""
+    )
     chains = [
-        f"[0:a]volume=1.0,{fmt},asplit=2[v][vk]" if music is not None else "[0:a]volume=1.0[v]"
+        f"[0:a]{clean}volume=1.0,{fmt},asplit=2[v][vk]"
+        if music is not None
+        else f"[0:a]{clean}volume=1.0[v]"
     ]
     mix_in = ["[v]"]
     idx = 1
@@ -373,11 +387,9 @@ def mix(
     graph = ";".join(chains)
     # amix scales every input by 1/n (older builds lack `normalize=0`), so undo it with volume=n
     if n > 1:
-        graph += (
-            f";{''.join(mix_in)}amix=inputs={n}:duration=first,volume={n},alimiter=limit=0.95[a]"
-        )
+        graph += f";{''.join(mix_in)}amix=inputs={n}:duration=first,volume={n},{LEVEL}[a]"
     else:
-        graph += ";[v]alimiter=limit=0.95[a]"
+        graph += f";[v]{LEVEL}[a]"
     out_map = "[a]"
     run(
         [
@@ -394,6 +406,53 @@ def mix(
             "2",
             "-ar",
             "48000",
+            str(dest),
+        ]
+    )
+
+
+# the finished 9:16 reel in another shape: fitted whole (nothing cropped off the poster type), on a
+# blurred, darkened copy of itself (the ffmpeg-skill `fit` + backdrop pattern)
+EXPORT_SIZES: dict[str, tuple[int, int]] = {
+    "1:1": (1080, 1080),
+    "4:5": (1080, 1350),
+    "16:9": (1920, 1080),
+}
+
+
+def export_shape(ffmpeg: str, src: Path, dest: Path, fmt: str) -> None:
+    w, h = EXPORT_SIZES[fmt]
+    graph = (
+        f"[0:v]split=2[bg][fg];"
+        f"[bg]scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},"
+        f"boxblur=luma_radius=40:luma_power=2,eq=brightness=-0.12:saturation=0.85[b];"
+        f"[fg]scale={w}:{h}:force_original_aspect_ratio=decrease[f];"
+        f"[b][f]overlay=(W-w)/2:(H-h)/2,format=yuv420p[v]"
+    )
+    run(
+        [
+            ffmpeg,
+            "-v",
+            "error",
+            "-y",
+            "-i",
+            str(src),
+            "-filter_complex",
+            graph,
+            "-map",
+            "[v]",
+            "-map",
+            "0:a?",
+            "-c:v",
+            "libx264",
+            "-preset",
+            "medium",
+            "-crf",
+            "19",
+            "-c:a",
+            "copy",
+            "-movflags",
+            "+faststart",
             str(dest),
         ]
     )

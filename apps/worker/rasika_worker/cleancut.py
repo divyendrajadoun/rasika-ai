@@ -5,8 +5,14 @@ speech edit and Hypit's pause trims, done from the word-level transcript:
 
 - filler words (um, uh, erm …; 嗯 呃; मतलब is NOT a filler: only sounds that carry no meaning);
 - a word or two-word phrase said twice in a row ("the the", "I think I think"): the first goes;
+- retakes: a line said again within the next few sentences ("So today I want—" … "So today I
+  want to show you…"): the earlier attempt goes, the last complete take stays (tenfoldmarc's
+  video-edit rule);
 - pauses: every word keeps 80 ms before it and 150 ms after; a gap longer than `max_gap` between
   kept words closes to `keep_gap` (a breath, not a jump).
+
+`suggest` lists the same cuts as word ranges for the editor (the user keeps or restores each one);
+`plan_kept` turns the user's choice of words back into keep-ranges.
 
 `plan_cuts` is pure (words in, keep-ranges and a ledger out); `cut` renders the keep-ranges with
 ffmpeg. The pipeline then runs the cut through probe and transcription again, so every word time
@@ -17,6 +23,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
 
@@ -107,14 +114,36 @@ def pick_hook(client: Any, model: str, words: list[dict[str, Any]]) -> tuple[int
     return a, b
 
 
-def plan_cuts(
-    words: list[dict[str, Any]],
-    duration: float,
-    max_gap: float = 0.6,
-    keep_gap: float = 0.35,
-    hook: tuple[int, int] | None = None,
-) -> CutPlan:
-    """Keep-ranges (seconds of the source) and the ledger of what was taken out, and why."""
+def _retakes(words: list[dict[str, Any]], toks: list[str], drop: dict[int, str]) -> None:
+    """Earlier takes of a line said again: every word of the earlier take goes (the last stays)."""
+    sents = sentences(words)
+    body = [
+        [toks[k] for k in range(a, b + 1) if toks[k] and toks[k] not in FILLERS] for a, b in sents
+    ]
+    for n, (a, b) in enumerate(sents):
+        mine = body[n]
+        if len(mine) < 2:
+            continue
+        for m in range(n + 1, min(n + 4, len(sents))):
+            later = body[m]
+            if len(later) < 2:
+                continue
+            prefix = 0
+            for x, y in zip(mine, later, strict=False):
+                if x != y:
+                    break
+                prefix += 1
+            # a false start ("so today I want") or the same line said again, a little differently
+            started_over = prefix >= 2 and prefix / len(mine) >= 0.6
+            said_again = SequenceMatcher(None, mine, later).ratio() >= 0.75
+            if started_over or said_again:
+                for k in range(a, b + 1):
+                    drop.setdefault(k, "retake")
+                break
+
+
+def _drops(words: list[dict[str, Any]], retakes: bool = True) -> dict[int, str]:
+    """Word index → why it goes (filler, repeat, retake)."""
     n = len(words)
     drop: dict[int, str] = {}
     toks = [_norm(str(w.get("w", ""))) for w in words]
@@ -130,6 +159,51 @@ def plan_cuts(
         pair, before = toks[i - 1 : i + 1], toks[i - 3 : i - 1]
         if all(pair) and pair == before and not any(k in drop for k in range(i - 3, i + 1)):
             drop[i - 3] = drop[i - 2] = "repeat"
+    if retakes:
+        _retakes(words, toks, drop)
+    return drop
+
+
+def suggest(words: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The cuts Clean cut would make, as runs of words {i0, i1, why} for the editor to show."""
+    out: list[dict[str, Any]] = []
+    for i, why in sorted(_drops(words).items()):
+        if out and out[-1]["why"] == why and out[-1]["i1"] == i - 1:
+            out[-1]["i1"] = i
+        else:
+            out.append({"i0": i, "i1": i, "why": why})
+    return out
+
+
+def plan_kept(
+    words: list[dict[str, Any]],
+    duration: float,
+    removed: set[int],
+    max_gap: float = 0.6,
+    keep_gap: float = 0.35,
+) -> CutPlan:
+    """The user's edit: every word not in `removed` stays (pauses close as in a clean cut)."""
+    keep_idx = [i for i in range(len(words)) if i not in removed]
+    gone = [
+        {"i": i, "w": words[i].get("w"), "t": round(float(words[i]["t"]), 2), "why": "edit"}
+        for i in sorted(removed)
+        if 0 <= i < len(words)
+    ]
+    if not keep_idx:
+        raise ValueError("every word was cut")
+    return CutPlan(_spans(words, keep_idx, duration, max_gap, keep_gap), gone, duration)
+
+
+def plan_cuts(
+    words: list[dict[str, Any]],
+    duration: float,
+    max_gap: float = 0.6,
+    keep_gap: float = 0.35,
+    hook: tuple[int, int] | None = None,
+) -> CutPlan:
+    """Keep-ranges (seconds of the source) and the ledger of what was taken out, and why."""
+    n = len(words)
+    drop = _drops(words)
 
     keep_idx = [i for i in range(n) if i not in drop]
     if hook:

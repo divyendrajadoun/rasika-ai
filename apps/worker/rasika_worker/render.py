@@ -58,6 +58,8 @@ class RenderSpec:
     extra: dict[str, Any] = field(default_factory=dict)
     # stock B-roll: element id → (frames dir, count), prepared by the pipeline
     broll: dict[str, tuple[Path, int]] = field(default_factory=dict)
+    # the editor's "Studio sound": clean the voice before the mix
+    studio_sound: bool = False
 
     @property
     def duration(self) -> float:
@@ -355,7 +357,14 @@ def render(
             sfx_wav = work / ("sfx_preview.wav" if spec.preview else "sfx.wav")
             sfx.write(str(sfx_wav), sfx.build(cues))  # type: ignore[no-untyped-call]
         mix_wav = work / ("mix_preview.wav" if spec.preview else "mix.wav")
-        media.mix(settings.ffmpeg_bin, spec.voice_wav, sfx_wav, mix_wav, music=spec.music_bed)
+        media.mix(
+            settings.ffmpeg_bin,
+            spec.voice_wav,
+            sfx_wav,
+            mix_wav,
+            music=spec.music_bed,
+            studio=spec.studio_sound,
+        )
         media.mux(settings.ffmpeg_bin, video, mix_wav, final)
     else:
         shutil.copy(video, final)

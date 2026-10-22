@@ -176,6 +176,13 @@ class Repo:
         )
         return aid
 
+    def merge_asset_meta(self, asset_id: str, patch: dict[str, Any]) -> None:
+        """Add keys to an asset's meta (what it already records stays)."""
+        self.exec(
+            "UPDATE assets SET meta = meta || %s::jsonb WHERE id = %s::uuid",
+            (Jsonb(patch), asset_id),
+        )
+
     def replace_assets(self, project_id: str, kind: str) -> list[str]:
         """Delete this kind's rows (idempotent re-runs) and return their storage keys."""
         rows = self.assets(project_id, kind)
