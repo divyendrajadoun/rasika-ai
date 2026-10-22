@@ -67,6 +67,14 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
               </p>
             </div>
           )}
+          {sent === "confirmed" && (
+            <div className="bg-surface mt-6 rounded-[10px] p-4" role="status">
+              <p className="font-medium">Your email is confirmed</p>
+              <p className="text-muted mt-1 text-[14px]">
+                Sign in below to continue{process.env.GOOGLE_SIGNIN === "1" ? ", with Google or your email" : ""}.
+              </p>
+            </div>
+          )}
           {sent === "confirm" && (
             <div className="bg-surface mt-6 rounded-[10px] p-4" role="status">
               <p className="font-medium">Confirm your email</p>

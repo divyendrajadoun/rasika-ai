@@ -24,6 +24,14 @@ export async function GET(req: NextRequest) {
     errorMessage = "Missing auth code";
   }
 
+  if (errorMessage && code && /code verifier/i.test(errorMessage)) {
+    // the link was opened in another browser or app (Gmail's, a phone): Supabase has already
+    // confirmed the email, only this browser has no session yet, so ask for a sign-in
+    const to = new URL("/login", url.origin);
+    to.searchParams.set("sent", "confirmed");
+    to.searchParams.set("next", next);
+    return NextResponse.redirect(to);
+  }
   if (errorMessage) {
     const to = new URL("/login", url.origin);
     to.searchParams.set("error", errorMessage);
