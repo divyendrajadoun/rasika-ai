@@ -27,8 +27,11 @@ export default function TermsPage() {
       </p>
       <h2>Billing</h2>
       <p>
-        Credits are deducted when a final render starts and refunded automatically if the render
-        fails. Subscriptions renew monthly and can be cancelled any time.
+        Your first reel is free (one per person). After that, reels are bought in one-off packs paid
+        by UPI; there is no subscription. A credit is taken when you submit a reel, and credits never
+        expire. Payments are confirmed by hand, usually within a few hours; if one cannot be matched
+        we will write to you. If a render fails, Retry runs it again at no charge; if a reel cannot
+        be made at all, write to us and we refund its credit.
       </p>
       <h2>Contact</h2>
       <p>

@@ -15,6 +15,36 @@ import { briefKind } from "@/config/briefs";
  *  source and prompt, every image its size) instead of replacing it. */
 const mergeMeta = (patch: Record<string, unknown>) =>
   sql`${schema.assets.meta} || ${JSON.stringify(patch)}::jsonb` as unknown as schema.AssetMeta;
+/** Thrown inside a transaction to roll it back with a message for the user. */
+class UserError extends Error {}
+
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/** Take `cost` credits atomically (never below zero) and write the ledger line. */
+async function spendCredits(tx: Tx, userId: string, cost: number, jobId: string) {
+  const [left] = await tx
+    .update(schema.profiles)
+    .set({ credits: sql`${schema.profiles.credits} - ${cost}`, updatedAt: schema.now })
+    .where(and(eq(schema.profiles.userId, userId), sql`${schema.profiles.credits} >= ${cost}`))
+    .returning({ credits: schema.profiles.credits });
+  if (!left)
+    throw new UserError(
+      `This needs ${cost} credit${cost === 1 ? "" : "s"}. Buy more on the Credits page.`,
+    );
+  await tx.insert(schema.creditLedger).values({ userId, delta: -cost, reason: "reel", jobId });
+}
+
+/** Run a charging transaction; a UserError rolls it back and comes back as the message. */
+async function chargedTx(fn: (tx: Tx) => Promise<unknown>): Promise<string | null> {
+  try {
+    await db.transaction(fn);
+    return null;
+  } catch (e) {
+    if (e instanceof UserError) return e.message;
+    throw e;
+  }
+}
+
 import {
   BriefSubmission,
   PresenterSubmission,
@@ -70,7 +100,7 @@ export async function createEdit(input: unknown): Promise<ActionResult> {
   if (user.credits < cost)
     return { ok: false, error: `This edit needs ${cost} credit(s); you have ${user.credits}.` };
 
-  await db.transaction(async (tx) => {
+  const txError = await chargedTx(async (tx) => {
     await tx
       .update(schema.projects)
       .set({
@@ -103,6 +133,7 @@ export async function createEdit(input: unknown): Promise<ActionResult> {
         message: "Queued",
       })
       .returning({ id: schema.jobs.id });
+    await spendCredits(tx, user.id, cost, job!.id);
     await tx.insert(schema.auditLog).values({
       userId: user.id,
       action: "project.create_edit",
@@ -122,6 +153,7 @@ export async function createEdit(input: unknown): Promise<ActionResult> {
       },
     });
   });
+  if (txError) return { ok: false, error: txError };
   revalidatePath("/dashboard");
   return { ok: true, projectId: w.projectId };
 }
@@ -165,7 +197,7 @@ export async function createScriptEdit(input: unknown): Promise<ActionResult> {
   if (user.credits < cost)
     return { ok: false, error: `This edit needs ${cost} credit(s); you have ${user.credits}.` };
 
-  await db.transaction(async (tx) => {
+  const txError = await chargedTx(async (tx) => {
     await tx
       .update(schema.projects)
       .set({
@@ -196,6 +228,7 @@ export async function createScriptEdit(input: unknown): Promise<ActionResult> {
         message: "Queued",
       })
       .returning({ id: schema.jobs.id });
+    await spendCredits(tx, user.id, cost, job!.id);
     await tx.insert(schema.auditLog).values({
       userId: user.id,
       action: "project.create_script_edit",
@@ -216,6 +249,7 @@ export async function createScriptEdit(input: unknown): Promise<ActionResult> {
       },
     });
   });
+  if (txError) return { ok: false, error: txError };
   revalidatePath("/dashboard");
   return { ok: true, projectId: w.projectId };
 }
@@ -257,7 +291,7 @@ export async function createBriefEdit(input: unknown): Promise<ActionResult> {
     ...(w.voice ? { voice: w.voice } : {}),
   };
 
-  await db.transaction(async (tx) => {
+  const txError = await chargedTx(async (tx) => {
     await tx
       .update(schema.projects)
       .set({
@@ -296,6 +330,7 @@ export async function createBriefEdit(input: unknown): Promise<ActionResult> {
         message: "Queued",
       })
       .returning({ id: schema.jobs.id });
+    await spendCredits(tx, user.id, cost, job!.id);
     await tx.insert(schema.auditLog).values({
       userId: user.id,
       action: "project.create_brief_film",
@@ -311,6 +346,7 @@ export async function createBriefEdit(input: unknown): Promise<ActionResult> {
       payload: { max_duration_sec: plan.maxSeconds },
     });
   });
+  if (txError) return { ok: false, error: txError };
   revalidatePath("/dashboard");
   return { ok: true, projectId: w.projectId };
 }
@@ -351,7 +387,7 @@ export async function createPresenterEdit(input: unknown): Promise<ActionResult>
   if (user.credits < cost)
     return { ok: false, error: `This edit needs ${cost} credit(s); you have ${user.credits}.` };
 
-  await db.transaction(async (tx) => {
+  const txError = await chargedTx(async (tx) => {
     await tx
       .update(schema.projects)
       .set({
@@ -387,6 +423,7 @@ export async function createPresenterEdit(input: unknown): Promise<ActionResult>
         message: "Queued",
       })
       .returning({ id: schema.jobs.id });
+    await spendCredits(tx, user.id, cost, job!.id);
     await tx.insert(schema.auditLog).values({
       userId: user.id,
       action: "project.create_presenter_edit",
@@ -408,6 +445,7 @@ export async function createPresenterEdit(input: unknown): Promise<ActionResult>
       },
     });
   });
+  if (txError) return { ok: false, error: txError };
   revalidatePath("/dashboard");
   return { ok: true, projectId: w.projectId };
 }
@@ -532,6 +570,9 @@ async function idleProject(userId: string, projectId: string) {
   return { project } as const;
 }
 
+/** re-edits of one reel that are not charged again (each re-plans and re-renders the reel) */
+const MAX_FREE_RECUTS = 5;
+
 const RecutInput = z.object({
   projectId: z.string().uuid(),
   transcriptVersion: z.number().int().positive(),
@@ -558,6 +599,12 @@ export async function recutEdit(input: unknown): Promise<ActionResult> {
       ),
     );
   if (!t) return { ok: false, error: "That transcript is gone; reload the page" };
+  const [{ n } = { n: 0 }] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(schema.jobs)
+    .where(and(eq(schema.jobs.projectId, r.projectId), eq(schema.jobs.type, "recut")));
+  if (n >= MAX_FREE_RECUTS)
+    return { ok: false, error: `Each reel includes ${MAX_FREE_RECUTS} re-edits; start a new edit for more.` };
   const removed = [...new Set(r.removed)].filter((i) => i < t.words.length).sort((a, b) => a - b);
   if (removed.length >= t.words.length) return { ok: false, error: "Keep at least one word" };
 

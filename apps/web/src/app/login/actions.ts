@@ -58,6 +58,21 @@ export async function signUpWithPassword(fd: FormData) {
   redirect(next);
 }
 
+/** "Continue with Google" (Supabase OAuth): a verified email, no email sent by us. */
+export async function signInWithGoogle(fd: FormData) {
+  const next = safeNext(fd.get("next"));
+  const supabase = await createSupabaseServer();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${env.siteUrl}/auth/callback?next=${encodeURIComponent(next)}`,
+      queryParams: { prompt: "select_account" },
+    },
+  });
+  if (error || !data.url) back(next, { error: error?.message ?? "Google sign-in is unavailable" });
+  redirect(data.url!);
+}
+
 export async function signOut() {
   const supabase = await createSupabaseServer();
   await supabase.auth.signOut();

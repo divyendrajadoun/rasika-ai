@@ -127,19 +127,14 @@ export const styles = {
 };
 
 export const pricing = {
-  title: "Plans",
-  sub: "Start free. Pay when it pays off.",
-  currencyNote: "Prices in INR with UPI and cards. International? Toggle to USD.",
-  creditsTitle: "Or buy credits",
-  creditsSub: "1 credit = 1 reel up to 90 s. Longer reels use more credits.",
-  perMonth: "a month",
-  rows: {
-    reels: "Reels a month",
-    length: "Longest reel",
-    export: "Export",
-    watermark: "End card",
-    extras: "Also",
-  },
+  title: "Pricing",
+  sub: "Your first reel is free. After that, buy reels when you need them: no subscription.",
+  once: "One per account",
+  perReel: "a reel",
+  oneOff: "one-off",
+  startFree: "Make my free reel",
+  buy: "Buy",
+  note: "1 reel = a finished reel up to 90 s (longer ones use 2). Paid reels can run up to 3 minutes, in 1080 × 1920 with no watermark. Pay by UPI from any app; credits are added once we confirm the payment, usually within a few hours, and they never expire.",
 };
 
 export const faq = {

@@ -4,6 +4,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { signOut } from "@/app/login/actions";
 import { LiquidGlass } from "@/components/motion/liquid-glass";
 import { requireUser } from "@/lib/auth";
+import { adminEmails } from "@/lib/notify";
 
 /**
  * The app shell: one ground everywhere and a floating bar of liquid glass at the top (the "no
@@ -12,6 +13,7 @@ import { requireUser } from "@/lib/auth";
  */
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
+  const isAdmin = adminEmails().includes(user.email.toLowerCase());
   return (
     <div data-app className="min-h-dvh">
       <header className="wrap sticky top-3 z-[60] pt-3">
@@ -25,13 +27,21 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <Link href="/dashboard/new" className="link">
                 New edit
               </Link>
+              <Link href="/dashboard/credits" className="link">
+                Credits
+              </Link>
+              {isAdmin && (
+                <Link href="/admin" className="link">
+                  Admin
+                </Link>
+              )}
             </nav>
           </div>
           <div className="flex items-center gap-5 text-[14px]">
-            <span className="hidden opacity-80 md:inline" title="Credits left">
+            <Link href="/dashboard/credits" className="link opacity-80" title="Credits left: buy more">
               <span className="font-medium tabular-nums opacity-100">{user.credits}</span> credit
-              {user.credits === 1 ? "" : "s"} · {user.plan}
-            </span>
+              {user.credits === 1 ? "" : "s"}
+            </Link>
             <span className="hidden max-w-[200px] truncate opacity-80 lg:inline">{user.email}</span>
             <ThemeToggle className="text-[14px]" />
             <form action={signOut}>

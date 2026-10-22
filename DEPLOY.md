@@ -61,6 +61,22 @@ Under Authentication → URL Configuration:
 - Site URL: `https://rasika-ai.netlify.app`
 - Redirect URLs: `https://rasika-ai.netlify.app/**` and `http://localhost:3000/**`
 
+## Accounts, credits and payments
+
+- Every new account gets 1 free credit (a reel up to 60 s); each reel takes its credits when it is
+  submitted (`spendCredits`, never below zero). Five re-edits per reel are free.
+- **Buying**: /dashboard/credits → a pack → its order page shows a UPI QR / app button for the exact
+  amount with the order reference (RSK…) in the note → the buyer enters the 12-digit UTR.
+- **Confirming**: /admin (emails in `ADMIN_EMAILS`) lists payments to confirm. Find the UTR and amount
+  in the bank app, then Approve (adds the credits, upgrades to 3-minute reels, emails the buyer) or
+  Reject with a reason. /admin also lists every sign-up (Google / email, last seen, reels, paid),
+  gives credits by hand, and downloads them as CSV.
+- Netlify env: `UPI_VPA`, `UPI_PAYEE_NAME`, `ADMIN_EMAILS`, `SMTP_HOST/PORT/USER/PASS/FROM`,
+  `GOOGLE_SIGNIN=1`. Set with `npx netlify-cli env:set KEY value --filter web`, then redeploy
+  (`gh workflow run deploy-web.yml`).
+- Supabase Auth: Google provider on (client ID + secret from Google Cloud), and Custom SMTP
+  (Brevo) under Authentication → Emails → SMTP Settings: the built-in mailer sends ~2 emails an hour.
+
 ## Limits to know
 
 - Netlify functions run in the US, so each database round trip to Sydney adds latency.

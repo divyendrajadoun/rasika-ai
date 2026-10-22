@@ -1,20 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { creditsForDuration, formatPrice, plans } from "./pricing";
+import { creditsForDuration, formatPrice, packs, plans } from "./pricing";
 import { presetCards } from "./presets";
 import { brand } from "./brand";
 import * as landing from "@/content/landing";
 
 describe("pricing config", () => {
-  it("matches the spec placeholder plans", () => {
-    const byId = Object.fromEntries(plans.map((p) => [p.id, p]));
-    expect(byId.free?.price.INR).toBe(0);
-    expect(byId.free?.watermark).toBe(true);
-    expect(byId.free?.maxSeconds).toBe(60);
-    expect(byId.creator?.price.INR).toBe(999);
-    expect(byId.creator?.reelsPerMonth).toBe(10);
-    expect(byId.pro?.price.INR).toBe(2999);
-    expect(byId.pro?.reelsPerMonth).toBe(40);
-    expect(byId.agency?.price.INR).toBeNull();
+  it("is the launch pricing: one free reel, then 1 / 10 / 30 reel packs", () => {
+    expect(packs.map((p) => [p.id, p.reels, p.inr])).toEqual([
+      ["free", 1, 0],
+      ["one", 1, 399],
+      ["ten", 10, 2999],
+      ["thirty", 30, 8000],
+    ]);
+    expect(plans.find((p) => p.id === "free")?.maxSeconds).toBe(60);
+    expect(plans.find((p) => p.id === "creator")?.maxSeconds).toBe(180);
   });
 
   it("charges one credit per 90 s", () => {
@@ -24,10 +23,9 @@ describe("pricing config", () => {
     expect(creditsForDuration(180)).toBe(2);
   });
 
-  it("formats prices per currency", () => {
-    expect(formatPrice(2999, "INR")).toBe("₹2,999");
-    expect(formatPrice(36, "USD")).toBe("$36");
-    expect(formatPrice(null, "INR")).toBe("Contact");
+  it("formats rupees", () => {
+    expect(formatPrice(2999)).toBe("₹2,999");
+    expect(formatPrice(8000)).toBe("₹8,000");
   });
 });
 

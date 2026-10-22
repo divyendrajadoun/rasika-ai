@@ -11,7 +11,7 @@ import { Pricing } from "@/components/landing/pricing";
 import { Showcase } from "@/components/landing/showcase";
 import { StyleShowcase } from "@/components/landing/style-showcase";
 import { brand } from "@/config/brand";
-import { plans } from "@/config/pricing";
+import { paidPacks } from "@/config/pricing";
 import { seo } from "@/content/landing";
 import { env } from "@/lib/env";
 import { siteUrl } from "@/lib/site";
@@ -31,15 +31,12 @@ export default function LandingPage() {
     applicationCategory: "MultimediaApplication",
     operatingSystem: "Web",
     inLanguage: ["en", "hi"],
-    offers: plans
-      .filter((p) => p.price.INR !== null)
-      .map((p) => ({
-        "@type": "Offer",
-        name: p.name,
-        price: p.price.INR,
-        priceCurrency: "INR",
-        category: "subscription",
-      })),
+    offers: paidPacks.map((p) => ({
+      "@type": "Offer",
+      name: `Rasika · ${p.name}`,
+      price: p.inr,
+      priceCurrency: "INR",
+    })),
   };
 
   return (
