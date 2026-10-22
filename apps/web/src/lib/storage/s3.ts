@@ -67,7 +67,8 @@ export async function presignParts(key: string, uploadId: string, partNumbers: n
 }
 
 export async function listUploadedParts(key: string, uploadId: string) {
-  const parts: Array<{ partNumber: number; etag: string; size: number }> = [];
+  // Supabase Storage lists parts without their size (null): callers check the finished object
+  const parts: Array<{ partNumber: number; etag: string; size: number | null }> = [];
   let marker: number | undefined;
   do {
     const out = await s3.send(
@@ -80,7 +81,7 @@ export async function listUploadedParts(key: string, uploadId: string) {
     );
     for (const p of out.Parts ?? []) {
       if (p.PartNumber && p.ETag)
-        parts.push({ partNumber: p.PartNumber, etag: p.ETag, size: p.Size ?? 0 });
+        parts.push({ partNumber: p.PartNumber, etag: p.ETag, size: p.Size ?? null });
     }
     marker =
       out.IsTruncated && out.NextPartNumberMarker ? Number(out.NextPartNumberMarker) : undefined;

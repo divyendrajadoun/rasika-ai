@@ -32,6 +32,16 @@ describe("multipart planning", () => {
     expect(left.map((p) => p.partNumber)).toEqual([2, 3]);
   });
 
+  it("a store that lists parts without sizes (Supabase): a listed part counts as done", () => {
+    const plan = planParts(3 * DEFAULT_PART);
+    const left = remainingParts(plan, [
+      { partNumber: 1, size: null },
+      { partNumber: 3, size: null },
+    ]);
+    expect(left.map((p) => p.partNumber)).toEqual([2]);
+    expect(remainingParts(plan, plan.map((p) => ({ partNumber: p.partNumber, size: null })))).toEqual([]);
+  });
+
   it("fingerprints and extensions", () => {
     expect(fileFingerprint({ name: "a.mov", size: 1, lastModified: 2 })).toBe("a.mov|1|2");
     expect(extensionFor("IMG_7571.MP4", "")).toBe("mp4");

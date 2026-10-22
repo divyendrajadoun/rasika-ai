@@ -24,13 +24,18 @@ export function planParts(sizeBytes: number, preferredPart = DEFAULT_PART): Part
   return parts;
 }
 
-/** Parts still to upload, given the ones S3 already holds (by number and size). */
+/** Parts still to upload, given the ones S3 already holds (by number and size; a store that does
+ *  not report sizes, like Supabase, counts a listed part as done). */
 export function remainingParts(
   plan: PartRange[],
-  uploaded: Array<{ partNumber: number; size: number }>,
+  uploaded: Array<{ partNumber: number; size: number | null }>,
 ): PartRange[] {
   const done = new Map(uploaded.map((p) => [p.partNumber, p.size]));
-  return plan.filter((p) => done.get(p.partNumber) !== p.end - p.start);
+  return plan.filter((p) => {
+    if (!done.has(p.partNumber)) return true;
+    const size = done.get(p.partNumber);
+    return size !== null && size !== p.end - p.start;
+  });
 }
 
 /** Stable id for "the same file" across reloads: name + size + mtime. */

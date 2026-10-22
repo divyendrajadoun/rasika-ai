@@ -5,6 +5,7 @@ import { requireApiUser } from "@/lib/auth";
 import {
   abortMultipart,
   completeMultipart,
+  deleteObject,
   headObject,
   listUploadedParts,
   presignParts,
@@ -81,16 +82,25 @@ export async function POST(req: Request, { params }: Ctx) {
     await db.delete(schema.assets).where(eq(schema.assets.id, asset.id));
     return Response.json({ ok: true });
   }
-  // complete: trust S3's own part list (ETags), verify total size
+  // complete: trust S3's own part list (ETags); every planned part must be there, and the
+  // finished object must be exactly the file's size (Supabase lists parts without sizes)
   const uploaded = await listUploadedParts(asset.storageKey, body.uploadId);
-  const total = uploaded.reduce((s, p) => s + p.size, 0);
-  if (total !== asset.sizeBytes) {
+  const missing = remainingParts(planParts(asset.sizeBytes), uploaded);
+  if (missing.length > 0) {
     return Response.json(
-      { error: "Upload incomplete", uploadedBytes: total, expectedBytes: asset.sizeBytes },
+      { error: "Upload incomplete", missingParts: missing.map((p) => p.partNumber) },
       { status: 409 },
     );
   }
   await completeMultipart(asset.storageKey, body.uploadId, uploaded);
+  const head = await headObject(asset.storageKey);
+  if (!head || head.size !== asset.sizeBytes) {
+    await deleteObject(asset.storageKey);
+    return Response.json(
+      { error: "Upload incomplete", uploadedBytes: head?.size ?? 0, expectedBytes: asset.sizeBytes },
+      { status: 409 },
+    );
+  }
   const meta = { ...asset.meta, ...(body.meta ?? {}) };
   await db.update(schema.assets).set({ meta }).where(eq(schema.assets.id, asset.id));
   if (body.meta?.durationSec && asset.kind === "source_video") {
