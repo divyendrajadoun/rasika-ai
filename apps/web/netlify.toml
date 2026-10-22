@@ -1,12 +1,13 @@
 # Rasika's website on Netlify (Next.js runtime). The worker, database, queue and storage live
 # elsewhere: see DEPLOY.md. Runtime env is set on the site (netlify env:import .env.netlify).
 [build]
-  command = "pnpm run build"
+  # loose: turbo otherwise drops the site env (DATABASE_URL etc.) that `next build` reads
+  command = "pnpm turbo run build --filter web --env-mode=loose"
   # paths are from the repo root (deploy from there: `netlify deploy --filter web`, see DEPLOY.md)
   publish = "apps/web/.next"
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "22"
   RASIKA_CLOUD_BUILD = "1"
 
 [[plugins]]
