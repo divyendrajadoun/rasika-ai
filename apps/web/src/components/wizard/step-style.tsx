@@ -160,7 +160,7 @@ export function StepStyle({
           <span>
             <span className="block font-semibold">Music bed</span>
             <span className="text-muted-foreground text-[13px]">
-              Licensed library, ducked under your voice (Phase 9)
+              Music made for your reel, ducked under your voice
             </span>
           </span>
           <input

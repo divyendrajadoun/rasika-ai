@@ -115,7 +115,7 @@ export function ProgressView({
         })}
       </ol>
       <p className="text-muted mt-5 text-[13px]">
-        You can close this page. We&apos;ll email you when the reel is ready (email arrives in Phase 8; the dashboard updates live meanwhile).
+        You can close this page: your reel keeps rendering, and it will be here when you come back.
       </p>
     </section>
   );

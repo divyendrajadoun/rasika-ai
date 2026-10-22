@@ -155,7 +155,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
             <p className="text-muted-foreground mt-2 text-sm">
               {plan
                 ? "A plan exists; the final MP4 appears here once the render finishes."
-                : "Your transcript is ready. The edit plan (Phase 5) and the final MP4 appear here after that step."}
+                : "Your reel appears here as soon as it is rendered."}
             </p>
           )}
           <p className="text-muted-foreground mt-3 text-[13px]">

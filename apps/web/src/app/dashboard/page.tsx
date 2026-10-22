@@ -26,9 +26,14 @@ export default async function DashboardPage() {
           <p className="text-muted mt-1 text-[14px]">
             {user.credits} credit{user.credits === 1 ? "" : "s"} on the {user.plan} plan · 1 credit = 1 reel up to 90 s.
           </p>
-          <Link href="/dashboard/new" className="button mt-5">
-            Create your first edit
-          </Link>
+          <div className="mt-5 flex flex-wrap items-center gap-4">
+            <Link href="/dashboard/new" className="button">
+              Create your first edit
+            </Link>
+            <Link href="/help" className="link text-[14px]">
+              Watch how it works (2 min)
+            </Link>
+          </div>
         </div>
         </div>
         <TryGallery />

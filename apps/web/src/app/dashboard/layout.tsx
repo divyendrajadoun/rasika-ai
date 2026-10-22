@@ -30,6 +30,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <Link href="/dashboard/credits" className="link">
                 Credits
               </Link>
+              <Link href="/help" className="link">
+                Help
+              </Link>
               {isAdmin && (
                 <Link href="/admin" className="link">
                   Admin

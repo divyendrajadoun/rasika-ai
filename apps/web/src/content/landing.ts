@@ -15,6 +15,7 @@ export const nav = {
     { label: "Films", href: "#films" },
     { label: "Pricing", href: "#pricing" },
     { label: "FAQ", href: "#faq" },
+    { label: "Help", href: "/help" },
   ],
   cta: { label: "Edit a reel free", href: "/dashboard" },
 };
