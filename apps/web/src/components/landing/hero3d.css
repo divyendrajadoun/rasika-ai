@@ -1,0 +1,310 @@
+/* The hero: a curved wall of real reels behind a phone (pure CSS 3D; hero.tsx). */
+.hero3d {
+  --R: 560px; /* the wall's radius */
+  --card-w: 190px;
+  --phone-w: 236px;
+  background: var(--stage);
+  color: var(--iv);
+  min-height: 100svh;
+}
+.hero3d-glow {
+  position: absolute;
+  inset: -20% -10% 0;
+  z-index: -2;
+  background:
+    radial-gradient(42% 38% at 50% 78%, rgb(230 180 80 / 0.28), transparent 70%),
+    radial-gradient(30% 34% at 18% 30%, rgb(200 69 47 / 0.22), transparent 70%),
+    radial-gradient(34% 30% at 84% 24%, rgb(230 180 80 / 0.14), transparent 70%),
+    linear-gradient(180deg, #2a060c 0%, var(--stage) 38%, #24060b 100%);
+}
+.hero3d-grain {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.09;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.hero3d-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.95rem;
+  border: 1px solid rgb(230 180 80 / 0.35);
+  border-radius: 999px;
+  background: rgb(26 10 12 / 0.35);
+  backdrop-filter: blur(8px);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: rgb(246 236 216 / 0.86);
+}
+.hero3d-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+.hero3d-word {
+  display: inline-block;
+  transition:
+    color 160ms ease,
+    transform 220ms var(--ease-expo),
+    text-shadow 220ms ease;
+}
+.hero3d-word.is-lit {
+  color: var(--gold);
+  transform: translateY(-0.04em) scale(1.03);
+  text-shadow: 0 0 0.45em rgb(230 180 80 / 0.45);
+}
+.hero3d-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  height: 3.25rem;
+  padding: 0 1.6rem;
+  border-radius: 999px;
+  background: var(--iv);
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow:
+    0 10px 30px -8px rgb(230 180 80 / 0.55),
+    inset 0 -2px 0 rgb(0 0 0 / 0.08);
+  transition:
+    transform var(--t-hover) var(--ease-expo),
+    box-shadow var(--t-hover) ease;
+}
+.hero3d-cta:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 16px 40px -10px rgb(230 180 80 / 0.7),
+    inset 0 -2px 0 rgb(0 0 0 / 0.08);
+}
+.hero3d-cta-arrow {
+  transition: transform var(--t-hover) var(--ease-expo);
+}
+.hero3d-cta:hover .hero3d-cta-arrow {
+  transform: translateX(4px);
+}
+.hero3d-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  height: 3.25rem;
+  padding: 0 1.3rem;
+  border-radius: 999px;
+  border: 1px solid rgb(246 236 216 / 0.24);
+  background: rgb(246 236 216 / 0.04);
+  color: var(--iv);
+  font-weight: 500;
+  backdrop-filter: blur(8px);
+  transition:
+    background var(--t-hover) ease,
+    border-color var(--t-hover) ease;
+}
+.hero3d-ghost:hover {
+  background: rgb(246 236 216 / 0.1);
+  border-color: rgb(246 236 216 / 0.45);
+}
+.hero3d-play {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--ink);
+  font-size: 0.6rem;
+  padding-left: 2px;
+}
+
+/* the stage */
+.hero3d-stage {
+  position: relative;
+  height: calc(var(--phone-w) * 2.17 + 90px);
+  margin-top: clamp(1rem, 2.5vh, 2rem);
+  perspective: 1150px;
+  perspective-origin: 50% 30%;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14%, #000 86%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 14%, #000 86%, transparent 100%);
+  pointer-events: none;
+}
+.hero3d-tilt {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(calc(-5deg + var(--tilt-x, 0deg))) rotateY(var(--tilt-y, 0deg));
+  transition: transform 900ms var(--ease-expo);
+}
+.hero3d-ring {
+  position: absolute;
+  left: 50%;
+  top: 34px;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  transform: translateZ(calc(var(--R) * -0.18)) rotateY(0deg);
+}
+.hero3d-card {
+  position: absolute;
+  left: calc(var(--card-w) / -2);
+  top: 0;
+  width: var(--card-w);
+  aspect-ratio: 9 / 16;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #1a0508;
+  /* placed on the ring and turned to face its centre: only the far half faces the viewer */
+  transform: rotateY(calc(var(--i) * 360deg / var(--n))) translateZ(var(--R)) rotateY(180deg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow:
+    0 0 0 1px rgb(230 180 80 / 0.28),
+    0 30px 60px -20px rgb(0 0 0 / 0.7);
+}
+.hero3d-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.05) brightness(0.92);
+}
+.hero3d-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.1), transparent 30%, transparent 70%, rgb(42 6 12 / 0.55));
+}
+.hero3d-phone {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: var(--phone-w);
+  aspect-ratio: 9 / 19.5;
+  margin-left: calc(var(--phone-w) / -2);
+  border-radius: calc(var(--phone-w) * 0.15);
+  padding: calc(var(--phone-w) * 0.035);
+  background: linear-gradient(145deg, #2b0a10, #0c0204 60%);
+  transform: translateZ(140px);
+  box-shadow:
+    0 0 0 1px rgb(230 180 80 / 0.45),
+    0 0 0 calc(var(--phone-w) * 0.012) #0a0203,
+    0 50px 90px -20px rgb(0 0 0 / 0.85),
+    0 0 120px -10px rgb(230 180 80 / 0.35);
+}
+.hero3d-screen {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: calc(var(--phone-w) * 0.12);
+  background: #111;
+}
+.hero3d-notch {
+  position: absolute;
+  top: calc(var(--phone-w) * 0.06);
+  left: 50%;
+  width: 30%;
+  height: calc(var(--phone-w) * 0.07);
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: #050102;
+}
+.hero3d-badge {
+  position: absolute;
+  bottom: calc(var(--phone-w) * -0.14);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(246 236 216 / 0.7);
+}
+.hero3d-floor {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: min(1100px, 120%);
+  height: 160px;
+  transform: translateX(-50%) translateZ(-40px);
+  background: radial-gradient(50% 50% at 50% 50%, rgb(230 180 80 / 0.22), transparent 70%);
+  filter: blur(8px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero3d-ring {
+    animation: hero3d-orbit 90s linear infinite;
+  }
+  .hero3d-dot {
+    animation: hero3d-pulse 2.4s ease-out infinite;
+  }
+  .hero3d-glow {
+    animation: hero3d-drift 18s ease-in-out infinite alternate;
+  }
+  .js .hero3d-stage {
+    opacity: 0;
+    transform: translateY(40px) scale(0.96);
+    animation: hero3d-in 1400ms var(--ease-expo) 380ms forwards;
+  }
+}
+@keyframes hero3d-orbit {
+  from {
+    transform: translateZ(calc(var(--R) * -0.18)) rotateY(0deg);
+  }
+  to {
+    transform: translateZ(calc(var(--R) * -0.18)) rotateY(-360deg);
+  }
+}
+@keyframes hero3d-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(230 180 80 / 0.7);
+  }
+  80%,
+  100% {
+    box-shadow: 0 0 0 10px rgb(230 180 80 / 0);
+  }
+}
+@keyframes hero3d-drift {
+  to {
+    transform: translate3d(2%, -3%, 0) scale(1.06);
+  }
+}
+@keyframes hero3d-in {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 1023px) {
+  .hero3d {
+    --R: 430px;
+    --card-w: 150px;
+    --phone-w: 200px;
+  }
+}
+@media (max-width: 639px) {
+  .hero3d {
+    --R: 300px;
+    --card-w: 104px;
+    --phone-w: 168px;
+  }
+  .hero3d-stage {
+    perspective: 800px;
+  }
+}
+
+/* the films rail (Examples): a horizontal, snapping row of 9:16 tiles that bleeds to the edges */
+.films-rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: clamp(150px, 19vw, 230px);
+  gap: 0.75rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 0.75rem;
+  margin-inline: calc(var(--margin) * -1);
+  padding-inline: var(--margin);
+  scrollbar-width: thin;
+}
+.films-rail > li {
+  scroll-snap-align: start;
+}

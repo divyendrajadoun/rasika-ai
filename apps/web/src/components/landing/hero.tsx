@@ -1,247 +1,158 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { reelColours } from "@/components/brand/reel-fragment";
-import { refreshGlass } from "@/components/motion/liquid-glass";
-import { presetCards } from "@/config/presets";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { hero as c } from "@/content/landing";
-import { cn } from "@/lib/utils";
+import "./hero3d.css";
 
 /**
- * Hero — "Controls on the sentence". A flat field in the chosen style's stage colour, the headline
- * on two authored lines, and three of the product's own controls beside it, each live:
- *  Style        a range over the 94 edit styles; the field, the ink and the lit word take that preset's tokens
- *  Caption pace words per minute; the words of the sentence light one by one at that pace
- *  Language     English ↔ Hindi; the sentence is set in Devanagari, as the reel would set it
- * The three controls are panes of liquid glass in a row under the sentence, lit faintly from inside
- * so they read against the flat field; the field behind them takes the chosen style's colour.
- * The headline is in the HTML and painted on the first frame; the masked line rise only adds arrival.
+ * Hero — "The curved wall". The maroon stage, the headline set as a reel sets it (one gold word at
+ * a time, at a speaking pace), and under it a cinema-curved wall of real Rasika reels gliding past
+ * behind a phone that plays a finished one. Pure CSS 3D: the wall is a ring of posters seen from
+ * inside (only its far half faces us), so it always sits behind the phone; the pointer tilts the
+ * stage a few degrees. Only the phone plays video. Reduced motion: the wall and the words hold still.
  */
+// the wall: style renders of one take, between films made from a brief (all real Rasika output)
+const WALL = [
+  "styles/launch-spotlight",
+  "briefs/versus",
+  "styles/mikku-royal",
+  "briefs/recipe",
+  "styles/katana-pop",
+  "briefs/explainer",
+  "styles/vox-paper",
+  "briefs/launch",
+  "styles/neon-pop",
+  "briefs/journey",
+  "styles/tabloid-headline",
+  "briefs/tierlist",
+  "styles/cinema-bebas",
+  "briefs/editorial",
+  "styles/comic-pop",
+  "briefs/product",
+];
+
 export function Hero() {
-  const [styleIx, setStyleIx] = useState(0);
-  const [wpm, setWpm] = useState(150);
-  const [hindi, setHindi] = useState(false);
   const [lit, setLit] = useState(-1);
+  const stage = useRef<HTMLDivElement>(null);
+  const words = useMemo(() => c.lines.map((l) => l.split(" ")), []);
+  const total = words.reduce((n, w) => n + w.length, 0);
 
-  const card = presetCards[styleIx] ?? presetCards[0]!;
-  const colours = useMemo(() => reelColours(card.tokens), [card]);
-  const lines = hindi ? c.hindiLines : c.lines;
-  const words = useMemo(() => lines.map((l) => l.split(" ")), [lines]);
-  const total = words[0]!.length + words[1]!.length;
-
-  // the caption clock: one word per beat, a pause after the sentence, then again
+  // the caption clock: one word lights at ~150 words a minute, a breath after the sentence, again
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const beat = 60000 / wpm;
     let i = -1;
     let t = 0;
+    const beat = 400;
     const tick = () => {
-      i = i + 1;
-      if (i >= total + 3) i = -1;
+      i = i + 1 > total + 3 ? -1 : i + 1;
       setLit(i);
-      // between cycles no word is lit: let the glass over the sentence re-take its picture then
-      if (i === -1) window.setTimeout(() => refreshGlass("#hero"), 60);
-      t = window.setTimeout(tick, i === total ? beat * 2 : beat);
+      t = window.setTimeout(tick, i === total ? beat * 3 : beat);
     };
-    t = window.setTimeout(tick, 1400);
+    t = window.setTimeout(tick, 1300);
     return () => window.clearTimeout(t);
-  }, [wpm, total]);
+  }, [total]);
 
-  // the field and the sentence behind the glass changed: re-take the snapshot once the colour settles
+  // the pointer leans the stage (a few degrees, eased by CSS)
   useEffect(() => {
-    const t = window.setTimeout(() => refreshGlass("#hero"), 560);
-    return () => window.clearTimeout(t);
-  }, [styleIx, hindi]);
-
-  // light stages (paper, porcelain, white) take the preset's dark ink, so every style stays readable
-  const ink = contrast(colours.stage, colours.ink) >= 4.5 ? colours.ink : colours.dark;
-  // the dye multiplies what lies behind: a pale one keeps the field's own colour inside the glass
-  const tint = hexA(ink, 0.12);
-  const field = {
-    background: colours.stage,
-    color: ink,
-    "--chip": colours.panel,
-    "--chip-ink": ink,
-    "--lit": colours.accent,
-    "--on": ink,
-    "--on-ink": colours.stage,
-  } as CSSProperties;
+    const el = stage.current;
+    if (!el || window.matchMedia("(pointer: coarse), (prefers-reduced-motion: reduce)").matches) return;
+    let raf = 0;
+    const move = (e: PointerEvent) => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const x = e.clientX / window.innerWidth - 0.5;
+        const y = e.clientY / window.innerHeight - 0.5;
+        el.style.setProperty("--tilt-x", `${(-y * 6).toFixed(2)}deg`);
+        el.style.setProperty("--tilt-y", `${(x * 10).toFixed(2)}deg`);
+      });
+    };
+    window.addEventListener("pointermove", move, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", move);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
 
   let n = 0;
   return (
-    <section
-      id="hero"
-      className="relative flex min-h-[94svh] flex-col pt-[88px] transition-[background-color,color] duration-500"
-      style={field}
-    >
-      <div className="wrap relative flex flex-1 flex-col items-center justify-center pb-[6svh] pt-6 sm:pt-0">
-        {/* the sentence, with its three controls in a row beneath it */}
-        <div className="relative w-full max-w-[1120px]">
+    <section id="hero" className="hero3d relative isolate overflow-clip pt-[104px]">
+      <div className="hero3d-glow" aria-hidden />
+      <div className="hero3d-grain" aria-hidden />
 
-          <h1
-            className={cn(
-              "lines display mx-auto text-center",
-              hindi ? "font-devanagari" : undefined,
-            )}
-            style={{ fontSize: "clamp(2.3rem, 9.4vw, 7.4rem)", lineHeight: 1, letterSpacing: hindi ? 0 : "-0.04em" }}
-            lang={hindi ? "hi" : "en"}
-          >
-            {lines.map((line, li) => (
-              <span key={line} className="line">
-                <span data-line style={{ "--i": li } as CSSProperties}>
-                  {words[li]!.map((w, wi) => {
-                    const k = n++;
-                    return (
-                      <span
-                        key={`${li}-${wi}`}
-                        className="inline-block transition-colors duration-150"
-                        style={{ color: lit === k ? colours.accent : undefined }}
-                      >
-                        {w}
-                        {wi < words[li]!.length - 1 ? " " : ""}
-                      </span>
-                    );
-                  })}
-                </span>
+      <div className="wrap relative z-10 flex flex-col items-center text-center">
+        <p data-load className="hero3d-kicker" style={{ "--d": "60ms" } as CSSProperties}>
+          <span className="hero3d-dot" aria-hidden /> AI reel editor · English &amp; हिन्दी
+        </p>
+        <h1
+          className="lines display mt-5 max-w-[14ch] text-[var(--iv)]"
+          style={{ fontSize: "clamp(2.6rem, 7.4vw, 6.2rem)", lineHeight: 0.96, letterSpacing: "-0.045em" }}
+        >
+          {c.lines.map((line, li) => (
+            <span key={line} className="line">
+              <span data-line style={{ "--i": li } as CSSProperties}>
+                {words[li]!.map((w, wi) => {
+                  const k = n++;
+                  return (
+                    <span key={`${li}-${wi}`}>
+                      <span className={k === lit ? "hero3d-word is-lit" : "hero3d-word"}>{w}</span>
+                      {wi < words[li]!.length - 1 ? " " : ""}
+                    </span>
+                  );
+                })}
               </span>
-            ))}
-          </h1>
-
-          <div className="mt-8 grid gap-3 sm:grid-cols-3 lg:mt-12 lg:flex lg:justify-center lg:gap-5">
-            <Chip
-              label={c.chips.style}
-              readout={`${card.tokens.name} · ${styleIx + 1} of ${presetCards.length}`}
-              tint={tint}
-            >
-              <input
-                type="range"
-                min={0}
-                max={presetCards.length - 1}
-                value={styleIx}
-                onChange={(e) => setStyleIx(Number(e.target.value))}
-                aria-label="Style preset"
-                aria-valuetext={card.tokens.name}
-                className="chip-range"
-              />
-            </Chip>
-            <Chip
-              label={c.chips.captions}
-              readout={`${wpm} words a minute`}
-              tint={tint}
-            >
-              <input
-                type="range"
-                min={90}
-                max={240}
-                step={10}
-                value={wpm}
-                onChange={(e) => setWpm(Number(e.target.value))}
-                aria-label="Caption pace, words a minute"
-                className="chip-range"
-              />
-            </Chip>
-            <Chip
-              label={c.chips.hindi}
-              readout={hindi ? "हिन्दी · Devanagari" : "English"}
-              tint={tint}
-            >
-              <div className="chip-switch" role="group" aria-label="Language">
-                <button type="button" aria-pressed={!hindi} onClick={() => setHindi(false)}>
-                  English
-                </button>
-                <button type="button" aria-pressed={hindi} onClick={() => setHindi(true)} lang="hi">
-                  हिन्दी
-                </button>
-              </div>
-            </Chip>
-          </div>
-        </div>
-
+            </span>
+          ))}
+        </h1>
         <p
           data-load
-          className="mx-auto mt-10 max-w-[40ch] text-center leading-normal"
-          style={{ "--d": "420ms" } as CSSProperties}
+          className="mt-5 max-w-[58ch] text-[1.0625rem] leading-relaxed text-[color:rgb(246_236_216/0.78)] sm:text-[1.1875rem]"
+          style={{ "--d": "380ms" } as CSSProperties}
         >
           {c.sub}
         </p>
-        <div data-load className="mt-7 flex flex-col items-center gap-4" style={{ "--d": "480ms" } as CSSProperties}>
-          <Link
-            href={c.primary.href}
-            className="button"
-            style={{ background: ink, color: colours.stage }}
-          >
+        <div data-load className="mt-8 flex flex-wrap items-center justify-center gap-3" style={{ "--d": "460ms" } as CSSProperties}>
+          <Link href={c.primary.href} className="hero3d-cta">
             {c.primary.label}
+            <span aria-hidden className="hero3d-cta-arrow">→</span>
           </Link>
-          <p className="small text-center opacity-80">
-            {c.trust.join(" · ")} ·{" "}
-            <a href={c.secondary.href} className="link">
-              {c.secondary.label}
-            </a>
-          </p>
+          <Link href="/help" className="hero3d-ghost">
+            <span aria-hidden className="hero3d-play">▶</span> Watch the 2-minute tour
+          </Link>
+        </div>
+        <p data-load className="mt-5 text-[13px] tracking-wide text-[color:rgb(246_236_216/0.6)]" style={{ "--d": "520ms" } as CSSProperties}>
+          {c.trust.join("  ·  ")}
+        </p>
+      </div>
+
+      {/* the stage: a curved wall of real reels behind the phone */}
+      <div ref={stage} className="hero3d-stage" aria-hidden>
+        <div className="hero3d-tilt">
+          <div className="hero3d-ring" style={{ "--n": WALL.length } as CSSProperties}>
+            {WALL.map((id, i) => (
+              <div key={id} className="hero3d-card" style={{ "--i": i } as CSSProperties}>
+                {/* eslint-disable-next-line @next/next/no-img-element -- static demo poster */}
+                <img src={`/demo/${id}.jpg`} alt="" loading={i < 6 ? "eager" : "lazy"} decoding="async" draggable={false} />
+              </div>
+            ))}
+          </div>
+          <div className="hero3d-phone">
+            <video
+              src={c.demo.after}
+              poster={c.demo.afterPoster}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              className="hero3d-screen"
+            />
+            <span className="hero3d-notch" />
+            <span className="hero3d-badge">Rendered by Rasika</span>
+          </div>
+          <div className="hero3d-floor" />
         </div>
       </div>
     </section>
-  );
-}
-
-/** WCAG contrast ratio of two `#rrggbb` colours. */
-function contrast(a: string, b: string) {
-  const lum = (hex: string) => {
-    const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex.trim());
-    if (!m) return 0;
-    const ch = [m[1]!, m[2]!, m[3]!].map((x) => {
-      const v = parseInt(x, 16) / 255;
-      return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
-    });
-    return 0.2126 * ch[0]! + 0.7152 * ch[1]! + 0.0722 * ch[2]!;
-  };
-  const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p) as [number, number];
-  return (x + 0.05) / (y + 0.05);
-}
-
-/** `#rrggbb` → `rgba(r, g, b, a)` for the glass dye. */
-function hexA(hex: string, a: number) {
-  const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex.trim());
-  if (!m) return `rgba(20, 6, 8, ${a})`;
-  return `rgba(${parseInt(m[1]!, 16)}, ${parseInt(m[2]!, 16)}, ${parseInt(m[3]!, 16)}, ${a})`;
-}
-
-/** One of the product's control chips, as a pane of liquid glass: a label, a live readout, the control. */
-function Chip({
-  label,
-  readout,
-  tint,
-  flip = false,
-  className,
-  children,
-}: {
-  label: string;
-  readout: string;
-  tint: string;
-  /** label row at the foot (for the panes whose top lies across the letters) */
-  flip?: boolean;
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      data-ui
-      data-glass="chip"
-      data-glass-snapshot="#hero"
-      data-glass-tint={tint}
-      style={{ "--glass-tint": tint } as CSSProperties}
-      className={cn(
-        "chip flex w-full justify-between gap-2 px-4 py-3 lg:h-[84px] lg:w-[300px]",
-        flip ? "flex-col lg:flex-col-reverse" : "flex-col",
-        className,
-      )}
-    >
-      <div className="flex items-baseline justify-between gap-3 text-[14px] leading-none">
-        <span className="font-medium">{label}</span>
-        <span className="truncate opacity-80">{readout}</span>
-      </div>
-      {children}
-    </div>
   );
 }

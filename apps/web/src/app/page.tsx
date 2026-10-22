@@ -1,4 +1,3 @@
-import { BriefFilms } from "@/components/landing/brief-films";
 import { Faq } from "@/components/landing/faq";
 import { Features } from "@/components/landing/features";
 import { FinalCta } from "@/components/landing/final-cta";
@@ -44,7 +43,6 @@ export default function LandingPage() {
         <Hero />
         <Features />
         <StyleShowcase />
-        <BriefFilms />
         <Pricing />
         <Faq />
         <FinalCta presenterEnabled={env.presenterEnabled} />

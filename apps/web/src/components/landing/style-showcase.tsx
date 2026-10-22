@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FamilyChips, useStyleFilter } from "@/components/style-filter";
+import { FilmTile } from "@/components/landing/brief-films";
+import { BRIEF_KINDS } from "@/config/briefs";
 import { FAMILY_LABEL, demoSrc, presetCards, type PresetCard } from "@/config/presets";
-import { styles as c } from "@/content/landing";
+import { STYLE_COUNT, styles as c } from "@/content/landing";
 import { cn } from "@/lib/utils";
 
 const DEMO = (id: string) => ({
@@ -12,61 +13,75 @@ const DEMO = (id: string) => ({
   poster: demoSrc(id, "jpg"),
 });
 const RAW = { video: "/demo/styles/raw.mp4", poster: "/demo/styles/raw.jpg" };
-const FIRST = 23;
+
+/** The four looks on show (the full grid of every style lives in the wizard). */
+const PICKS = ["launch-spotlight", "mikku-royal", "katana-pop", "vox-paper"];
 
 /**
- * Proof — "Large marks on tiles". The board is the 94 real renders of one 12-second take: each tile
- * a style's demo poster that plays on hover, the first tile the heading. Pick a tile and the compare
- * plate on the left shows that style over the raw clip, split by a handle.
+ * Examples — one section, two answers. "From your video": four real renders of the same 12-second
+ * take, the chosen one over the raw clip on the compare plate (drag the handle). "No video at all":
+ * a rail of films made from a brief, each a real render that plays on hover and opens the wizard
+ * on that kind of film.
  */
 export function StyleShowcase() {
-  // the gallery opens on the launch films (the first one in the compare plate); "All" shows the rest
-  const firstLaunch = presetCards.find((p) => p.tokens.motion.family === "launch") ?? presetCards[0]!;
-  const [activeId, setActiveId] = useState(firstLaunch.tokens.id);
-  const [all, setAll] = useState(false);
-  const card = presetCards.find((p) => p.tokens.id === activeId) ?? presetCards[0]!;
-  const filter = useStyleFilter(presetCards, "launch");
-  const list = all || filter.family !== "all" || filter.query ? filter.filtered : filter.filtered.slice(0, FIRST);
+  const cards = PICKS.map((id) => presetCards.find((p) => p.tokens.id === id)).filter(
+    (p): p is PresetCard => Boolean(p),
+  );
+  const [activeId, setActiveId] = useState(cards[0]!.tokens.id);
+  const card = cards.find((p) => p.tokens.id === activeId) ?? cards[0]!;
   return (
     <section id="styles" className="section wrap scroll-mt-6">
-      <div className="grid12 items-start">
+      <div className="max-w-[46rem]">
+        <p className="label">Examples</p>
+        <h2 className="head mt-2">Same take. Different reel. Or no take at all.</h2>
+        <p className="text-muted mt-4 max-w-[52ch]">
+          Every clip here is real Rasika output. Pick a look to see it over the raw phone video, or
+          scroll the films made from nothing but a brief.
+        </p>
+      </div>
+
+      <div className="grid12 mt-12 items-start">
         <div className="col-span-12 lg:sticky lg:top-6 lg:col-span-4">
           <Compare card={card} />
         </div>
-        <div className="col-span-12 mt-12 min-w-0 lg:col-start-5 lg:col-span-8 lg:mt-0">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <FamilyChips counts={filter.counts} total={presetCards.length} value={filter.family} onChange={filter.setFamily} />
-            <label className="sr-only" htmlFor="style-search">
-              Search styles
-            </label>
-            <input
-              id="style-search"
-              type="search"
-              placeholder="Search a look"
-              value={filter.query}
-              onChange={(e) => filter.setQuery(e.target.value)}
-              className="input h-11 md:max-w-[240px]"
-            />
-          </div>
-          <ul className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
-            <li className="col-span-2 flex flex-col justify-between p-6" style={{ background: "var(--accent)", color: "var(--accent-ink)" }}>
-              <h2 className="text-[clamp(2rem,3vw,3rem)] font-semibold leading-[0.98] tracking-[-0.03em]">{c.title}</h2>
-              <p className="mt-6 max-w-[30ch]">{c.sub}</p>
-            </li>
-            {list.map((p) => (
+        <div className="col-span-12 mt-10 min-w-0 lg:col-start-6 lg:col-span-7 lg:mt-0">
+          <p className="label">From your video · {STYLE_COUNT} styles, here are four</p>
+          <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {cards.map((p) => (
               <li key={p.tokens.id}>
                 <StyleTile card={p} active={p.tokens.id === activeId} onPick={() => setActiveId(p.tokens.id)} />
               </li>
             ))}
           </ul>
-          {!all && filter.family === "all" && !filter.query && filter.filtered.length > FIRST && (
-            <button type="button" onClick={() => setAll(true)} className="button button-ghost mt-6 w-full sm:w-auto">
-              Show all {presetCards.length} styles
-            </button>
-          )}
-          <p className="text-muted mt-8 max-w-[62ch]">{c.note2}</p>
-          <p className="text-muted small mt-4 max-w-[62ch]">{c.note}</p>
+          <Link href="/dashboard/new" className="button button-ghost mt-6">
+            See all {STYLE_COUNT} styles when you make a reel
+          </Link>
         </div>
+      </div>
+
+      <div className="mt-20">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="label">No video at all</p>
+            <h3 className="mt-2 text-[clamp(1.6rem,1.2rem+1.6vw,2.4rem)] font-semibold leading-tight tracking-[-0.02em]">
+              Films from a brief
+            </h3>
+            <p className="text-muted mt-2 max-w-[56ch]">
+              Give a website, a recipe, two contenders or a single line. Rasika writes, scores and
+              designs the whole film.
+            </p>
+          </div>
+          <p className="text-muted small">
+            <span className="hidden md:inline">Hover to play · </span>Scroll for more →
+          </p>
+        </div>
+        <ul className="films-rail mt-6">
+          {BRIEF_KINDS.map((k) => (
+            <li key={k.id}>
+              <FilmTile kind={k} />
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

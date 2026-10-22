@@ -6,13 +6,12 @@ import { brand } from "@/config/brand";
 import { presetCards } from "@/config/presets";
 
 /** How many styles an edit can pick from (the style grid): never typed by hand. */
-const STYLE_COUNT = presetCards.length;
+export const STYLE_COUNT = presetCards.length;
 
 export const nav = {
   links: [
     { label: "How it works", href: "/help" },
-    { label: "Styles", href: "#styles" },
-    { label: "Films", href: "#films" },
+    { label: "Examples", href: "#styles" },
     { label: "Pricing", href: "#pricing" },
     { label: "FAQ", href: "#faq" },
   ],
@@ -28,7 +27,7 @@ export const hero = {
   /** The three live controls on the sentence (the product's own: style, caption timing, language). */
   chips: { style: "Style", captions: "Caption timing", hindi: "Language" },
   sub: "Realtors, doctors, coaches, founders — upload one talking video. Rasika writes the titles, times every caption, lands your photos on the exact word, adds sound, and renders the reel. Minutes, not days.",
-  primary: { label: "Edit my first reel — free", href: "/dashboard" },
+  primary: { label: "Make my free reel", href: "/dashboard/new" },
   secondary: { label: "Watch a real before / after", href: "#before-after" },
   trust: ["Any industry", "English + Hindi", "1080 × 1920", "No timeline, ever"],
   demo: {

@@ -1,5 +1,6 @@
 "use client";
 
+import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -10,7 +11,7 @@ function readTheme(): Theme {
   return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
 }
 
-/** A text control, the same size as the navigation links: "Dark" on the light site, "Light" on the dark one. */
+/** An icon button: a moon on the light site (switch to dark), a sun on the dark one. */
 export function ThemeToggle({ className }: { className?: string }) {
   const [theme, setTheme] = useState<Theme>("light");
   useEffect(() => setTheme(readTheme()), []);
@@ -34,9 +35,13 @@ export function ThemeToggle({ className }: { className?: string }) {
       onClick={toggle}
       aria-label={theme === "dark" ? "Switch to the light theme" : "Switch to the dark theme"}
       aria-pressed={theme === "dark"}
-      className={cn("link inline-flex h-11 items-center text-current", className)}
+      title={theme === "dark" ? "Light theme" : "Dark theme"}
+      className={cn(
+        "inline-flex size-11 items-center justify-center rounded-full text-current opacity-80 transition-opacity hover:opacity-100",
+        className,
+      )}
     >
-      {theme === "dark" ? "Light" : "Dark"}
+      {theme === "dark" ? <Sun className="size-[18px]" aria-hidden /> : <Moon className="size-[18px]" aria-hidden />}
     </button>
   );
 }

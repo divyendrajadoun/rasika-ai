@@ -32,7 +32,7 @@ export function BriefFilms() {
   );
 }
 
-function FilmTile({ kind }: { kind: BriefKind }) {
+export function FilmTile({ kind }: { kind: BriefKind }) {
   const vid = useRef<HTMLVideoElement>(null);
   const src = `/demo/briefs/${kind.id}.mp4`;
   const play = () => {

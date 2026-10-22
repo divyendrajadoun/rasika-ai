@@ -41,11 +41,9 @@ export function Nav({ className }: { className?: string }) {
               </a>
             </li>
           ))}
-          <li>
-            <ThemeToggle />
-          </li>
         </ul>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
+          <ThemeToggle className="hidden md:inline-flex" />
           <Link href={nav.cta.href} className="link inline-flex h-11 items-center font-medium">
             {nav.cta.label}
           </Link>

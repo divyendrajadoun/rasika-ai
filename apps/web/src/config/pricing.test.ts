@@ -33,8 +33,7 @@ describe("landing content", () => {
   it("has every section the spec lists", () => {
     expect(landing.nav.links.map((l) => l.label)).toEqual([
       "How it works",
-      "Styles",
-      "Films",
+      "Examples",
       "Pricing",
       "FAQ",
     ]);
