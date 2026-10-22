@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MobileTabs } from "@/components/dashboard/mobile-tabs";
 import { Wordmark } from "@/components/brand/wordmark";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { signOut } from "@/app/login/actions";
@@ -55,9 +56,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
         </div>
       </header>
-      <main id="main" className="wrap py-8 sm:py-10">
+      <main id="main" className="wrap py-8 pb-28 sm:py-10">
         {children}
       </main>
+      <MobileTabs />
       <LiquidGlass />
     </div>
   );

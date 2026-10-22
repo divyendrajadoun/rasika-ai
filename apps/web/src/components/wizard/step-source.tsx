@@ -118,3 +118,58 @@ export function StepSource({
     </div>
   );
 }
+
+const SHORT: Record<SourceMode, string> = {
+  take: "My video",
+  script: "A script",
+  brief: "From a brief",
+  reference: "Match a reel",
+  presenter: "AI presenter",
+};
+
+/**
+ * The first step's compact switch (the wizard opens straight on "My video"): one row of chips for
+ * where the reel comes from, the chosen one's line of help under it.
+ */
+export function SourceSwitch({
+  value,
+  onChange,
+  presenterEnabled = false,
+}: {
+  value: SourceMode;
+  onChange: (m: SourceMode) => void;
+  presenterEnabled?: boolean;
+}) {
+  const current = OPTIONS.find((o) => o.id === value) ?? OPTIONS[0]!;
+  return (
+    <div>
+      <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Where the reel comes from">
+        {OPTIONS.map((o) => {
+          const off = o.id === "presenter" && !presenterEnabled;
+          const on = value === o.id;
+          const Icon = o.icon;
+          return (
+            <button
+              key={o.id}
+              type="button"
+              role="radio"
+              aria-checked={on}
+              disabled={off}
+              title={off ? o.disabled : o.blurb}
+              onClick={() => onChange(o.id)}
+              className={cn(
+                "inline-flex h-10 items-center gap-2 rounded-full px-4 text-[14px] transition-colors",
+                on ? "bg-text text-bg font-medium" : "bg-surface hover:bg-raised",
+                off && "cursor-not-allowed opacity-50",
+              )}
+            >
+              <Icon className="size-4" aria-hidden />
+              {SHORT[o.id]}
+            </button>
+          );
+        })}
+      </div>
+      <p className="text-muted mt-3 text-[14px]">{current.blurb}</p>
+    </div>
+  );
+}

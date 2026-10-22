@@ -24,7 +24,7 @@ import {
   presenterReady,
   type PresenterState,
 } from "@/components/wizard/step-presenter";
-import { StepSource, type SourceMode } from "@/components/wizard/step-source";
+import { SourceSwitch, StepSource, type SourceMode } from "@/components/wizard/step-source";
 import { StepBrief, briefReady, defaultBriefState, type BriefState } from "@/components/wizard/step-brief";
 import { briefKind } from "@/config/briefs";
 import type { HeyGenLook, HeyGenVoice } from "@/lib/heygen";
@@ -44,23 +44,25 @@ const stepLabel = (s: StepId, mode: SourceMode, kind?: string) =>
       : STEP_LABEL[s];
 const STEP_LABEL: Record<StepId, string> = {
   source: "Source",
-  upload: "Upload reel",
+  upload: "Your video",
   script: "Your script",
   presenter: "Presenter",
   brief: "Your brief",
   photos: "Your photos",
   style: "Style",
-  brand: "Brand & ending",
+  brand: "Review & create",
 };
 /** The path through the wizard depends on where the reel comes from. */
 const PATHS: Record<SourceMode, StepId[]> = {
-  take: ["source", "upload", "photos", "style", "brand"],
-  script: ["source", "script", "photos", "style", "brand"],
+  // three steps: what you have (the source switch sits on top of it), the look, then review;
+  // photos and brand details are optional fold-outs on the review step
+  take: ["upload", "style", "brand"],
+  script: ["script", "style", "brand"],
   // the reference clip is uploaded on the upload step (second drop zone)
-  reference: ["source", "upload", "photos", "style", "brand"],
-  presenter: ["source", "presenter", "photos", "style", "brand"],
+  reference: ["upload", "style", "brand"],
+  presenter: ["presenter", "style", "brand"],
   // each kind of brief film comes with its own look, so there is no style step
-  brief: ["source", "brief", "photos", "brand"],
+  brief: ["brief", "brand"],
 };
 
 export interface BrandState {
@@ -137,7 +139,8 @@ export function Wizard({
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [consent, setConsent] = useState(false);
+  // the owner's confirmation is the line under "Create my edit" (clicking it confirms)
+  const consent = true as const;
   const [draft, setDraft] = useState<Draft>({
     step: 0,
     mode: (["take", "script", "reference", "presenter", "brief"] as SourceMode[]).find((m) => m === initialSource) ?? "take",
@@ -489,6 +492,15 @@ export function Wizard({
       </ol>
 
       <div className="mt-8">
+        {draft.step === 0 && (
+          <div className="mb-8">
+            <SourceSwitch
+              value={draft.mode}
+              presenterEnabled={presenterEnabled}
+              onChange={(mode) => setDraft((d) => ({ ...d, mode, step: 0 }))}
+            />
+          </div>
+        )}
         {stepId === "source" && (
           <StepSource
             value={draft.mode}
@@ -576,14 +588,37 @@ export function Wizard({
             onChange={(style) => setDraft((d) => ({ ...d, style }))}
           />
         )}
+        {stepId === "brand" && projectId && (
+          <details
+            className="bg-surface mb-6 rounded-[8px] p-4 [&_summary]:cursor-pointer"
+            open={draft.photos.length > 0 || (draft.mode === "brief" && draft.brief.kind === "animate")}
+          >
+            <summary className="font-medium">
+              {draft.mode === "brief" && draft.brief.kind === "animate" ? "Style images" : "Add photos"}{" "}
+              <span className="text-muted font-normal">
+                (optional{draft.photos.length ? ` · ${draft.photos.length} added` : ""})
+              </span>
+            </summary>
+            <div className="mt-4">
+              <StepPhotos
+                projectId={projectId}
+                purpose={draft.mode === "brief" && draft.brief.kind === "animate" ? "style" : "photos"}
+                ai={draft.ai ?? defaultAiImages}
+                onAi={(ai) => setDraft((d) => ({ ...d, ai }))}
+                aiEnabled={aiImagesEnabled && draft.mode !== "brief"}
+                script={draft.mode === "script" ? draft.script.text : draft.mode === "presenter" ? draft.presenter.text : undefined}
+                value={draft.photos}
+                onChange={(photos) => setDraft((d) => ({ ...d, photos }))}
+              />
+            </div>
+          </details>
+        )}
         {stepId === "brand" && (
           <StepBrand
             value={draft.brand}
             title={draft.title}
             onTitle={(title) => setDraft((d) => ({ ...d, title }))}
             onChange={(brand) => setDraft((d) => ({ ...d, brand }))}
-            consent={consent}
-            onConsent={setConsent}
           />
         )}
       </div>
@@ -597,7 +632,7 @@ export function Wizard({
         </p>
       )}
 
-      <div className="sticky bottom-4 z-20 mt-8">
+      <div className="sticky bottom-[92px] z-20 mt-8 sm:bottom-4">
       <div
         data-glass="panel"
         className="flex flex-wrap items-center justify-between gap-3 rounded-[18px] px-4 py-3"
@@ -620,6 +655,9 @@ export function Wizard({
           </button>
         ) : (
           <div className="flex items-center gap-4">
+            <span className="text-muted-foreground hidden max-w-[26ch] text-[12px] leading-snug md:inline">
+              By creating, you confirm this footage is yours or you have permission to use it.
+            </span>
             <span className="text-muted-foreground text-sm">
               Cost:{" "}
               <strong className="text-foreground">

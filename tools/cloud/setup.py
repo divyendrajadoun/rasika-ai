@@ -82,6 +82,9 @@ worker = {
     "DATABASE_URL": cloud["FILL_DATABASE_URL_SESSION"],
     "REDIS_URL": cloud["FILL_REDIS_URL"],
     "WORKER_QUEUE_POLL_SEC": "30",
+    # "your reel is ready" emails link to the live site, over the same SMTP as the website
+    **({"SITE_URL": site} if site else {}),
+    **{k: cloud[k] for k in ("SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASS", "SMTP_FROM") if cloud.get(k)},
 }
 write_env(ROOT / ".env.worker-cloud", worker, "the worker on this PC, against Supabase + Upstash")
 

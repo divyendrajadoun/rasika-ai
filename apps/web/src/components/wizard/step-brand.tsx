@@ -7,21 +7,17 @@ export function StepBrand({
   title,
   onTitle,
   onChange,
-  consent,
-  onConsent,
 }: {
   value: BrandState;
   title: string;
   onTitle: (t: string) => void;
   onChange: (v: BrandState) => void;
-  consent: boolean;
-  onConsent: (v: boolean) => void;
 }) {
   const set = (patch: Partial<BrandState>) => onChange({ ...value, ...patch });
   return (
     <div className="space-y-6">
       <p className="text-muted">
-        Optional. Everything here lands on the end card.
+        Name your reel and create it. Brand details are optional; they land on the end card.
       </p>
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block sm:col-span-2">
@@ -75,19 +71,10 @@ export function StepBrand({
           />
         </label>
       </div>
-      <label className="bg-surface flex items-start gap-3 rounded-[8px] p-4">
-        <input
-          type="checkbox"
-          className="mt-0.5 size-5 shrink-0 accent-[var(--ter)]"
-          checked={consent}
-          onChange={(e) => onConsent(e.target.checked)}
-          required
-        />
-        <span className="text-sm">
-          I own this video or have permission, and I have rights to the images I upload. No face
-          swaps, voice clones or generated likenesses are made — Rasika only edits your own footage.
-        </span>
-      </label>
+      <p className="text-muted text-[13px] md:hidden">
+        By creating, you confirm this footage is yours or you have permission to use it. Rasika only
+        edits your own footage: no face swaps, voice clones or generated likenesses.
+      </p>
     </div>
   );
 }

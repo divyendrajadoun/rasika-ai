@@ -36,18 +36,19 @@ export function ProjectCard({ project: p }: { project: Project }) {
           <StatusPill projectId={p.id} status={p.job?.status ?? p.status} progress={p.job?.progress ?? 0} />
         </div>
       </Link>
-      <div className="flex flex-1 flex-col p-4">
+      <div className="flex flex-1 flex-col p-3 sm:p-4">
         <h2 className="truncate text-base font-medium leading-snug">
           <Link href={`/dashboard/p/${p.id}`}>{p.title}</Link>
         </h2>
         <p className="text-muted mt-1 text-[13px]">
           {fmtDuration(p.durationSec)} · {preset} · {created}
         </p>
+        {/* phones: open and download here; duplicate and delete live on the reel's page */}
         <div className="mt-auto flex items-center gap-4 pt-4 text-[14px]">
           <Link href={`/dashboard/p/${p.id}`} className="link font-medium">
             Open
           </Link>
-          <form action={duplicateProject}>
+          <form action={duplicateProject} className="hidden sm:block">
             <input type="hidden" name="id" value={p.id} />
             <button type="submit" className="link text-muted">
               Duplicate
@@ -56,7 +57,7 @@ export function ProjectCard({ project: p }: { project: Project }) {
           <Link href={`/dashboard/p/${p.id}#download`} className="link text-muted">
             Download
           </Link>
-          <form action={deleteProject} className="ml-auto">
+          <form action={deleteProject} className="ml-auto hidden sm:block">
             <input type="hidden" name="id" value={p.id} />
             <button type="submit" className="link text-muted hover:text-destructive">
               Delete

@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any
 import redis
 import structlog
 
-from rasika_worker import cleancut, media
+from rasika_worker import cleancut, media, notify
 from rasika_worker.db import Repo
 from rasika_worker.face import subject_from_keyframes
 from rasika_worker.planner import ChromiumValidator, Planner, PlannerInput
@@ -1709,6 +1709,23 @@ class Pipeline:
         )
         log.info("rendered", job_id=job.job_id, **timings)
         pub.update(JobStatus.DONE, 100, "Your reel is ready", **timings)
+        self._email_ready(job)
+
+    def _email_ready(self, job: JobMessage) -> None:
+        """Tell the owner by email (they may have closed the page while it rendered)."""
+        try:
+            row = self.repo.one(
+                "SELECT p.email, j.title FROM profiles p, projects j "
+                "WHERE p.user_id = %s::uuid AND j.id = %s::uuid",
+                (job.user_id, job.project_id),
+            )
+            if row and row.get("email"):
+                sent = notify.reel_ready(
+                    self.s, str(row["email"]), str(row["title"]), job.project_id
+                )
+                log.info("ready_email", sent=sent)
+        except Exception as exc:  # never fail the render over an email
+            log.warning("ready_email_failed", error=str(exc))
 
     # ── 7.7 cleanup ──
     def cleanup(self, job: JobMessage, pub: Publisher) -> None:

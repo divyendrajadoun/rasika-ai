@@ -55,7 +55,7 @@ export default async function DashboardPage() {
           New edit
         </Link>
       </div>
-      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
         {projects.map((p) => (
           <li key={p.id}>
             <ProjectCard project={p} />

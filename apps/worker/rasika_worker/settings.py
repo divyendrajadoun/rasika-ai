@@ -87,6 +87,14 @@ class Settings(BaseSettings):
     auto_plan: bool = Field(default=True, alias="AUTO_PLAN")
     auto_render: bool = Field(default=True, alias="AUTO_RENDER")
 
+    # "your reel is ready" emails (rasika_worker/notify.py); blank = no emails
+    smtp_host: str = Field(default="", alias="SMTP_HOST")
+    smtp_port: int = Field(default=587, alias="SMTP_PORT")
+    smtp_user: str = Field(default="", alias="SMTP_USER")
+    smtp_pass: str = Field(default="", alias="SMTP_PASS")
+    smtp_from: str = Field(default="", alias="SMTP_FROM")
+    site_url: str = Field(default="http://localhost:3000", alias="SITE_URL")
+
     log_level: str = Field(default="info", alias="LOG_LEVEL")
     sentry_dsn: str = Field(default="", alias="SENTRY_DSN")
 
