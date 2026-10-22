@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { safeAction } from "@/lib/safe-action";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import {
   createBriefEdit,
@@ -224,7 +225,7 @@ export function Wizard({
     if (draft.scriptProjectId) return draft.scriptProjectId;
     const firstLine =
       (draft.mode === "presenter" ? draft.presenter.text : draft.script.text).trim().split(/\n/)[0]?.slice(0, 80) ?? "";
-    const res = await createDraftProject(draft.title || firstLine || "Presenter reel");
+    const res = await safeAction(() => createDraftProject(draft.title || firstLine || "Presenter reel"));
     if (!res.ok) {
       setError(res.error);
       return null;
@@ -238,7 +239,7 @@ export function Wizard({
     if (stepId === "brief" && !draft.scriptProjectId) {
       // the photos step uploads against a project: create the draft now
       startTransition(async () => {
-        const res = await createDraftProject(draft.title || briefKind(draft.brief.kind)?.title || "Brief film");
+        const res = await safeAction(() => createDraftProject(draft.title || briefKind(draft.brief.kind)?.title || "Brief film"));
         if (!res.ok) {
           setError(res.error);
           return;
@@ -258,7 +259,7 @@ export function Wizard({
       // the photos step uploads against a project: create the draft now
       startTransition(async () => {
         const firstLine = draft.script.text.trim().split(/\n/)[0]?.slice(0, 80) ?? "";
-        const res = await createDraftProject(draft.title || firstLine || "Script reel");
+        const res = await safeAction(() => createDraftProject(draft.title || firstLine || "Script reel"));
         if (!res.ok) {
           setError(res.error);
           return;
@@ -303,7 +304,7 @@ export function Wizard({
       consent,
     };
     startTransition(async () => {
-      const res = await createBriefEdit(payload);
+      const res = await safeAction(() => createBriefEdit(payload));
       if (!res.ok) {
         setError(res.error);
         return;
@@ -346,7 +347,7 @@ export function Wizard({
       presenterConsent: draft.presenter.rights && draft.presenter.adult && draft.presenter.upload,
     };
     startTransition(async () => {
-      const res = await createPresenterEdit(payload);
+      const res = await safeAction(() => createPresenterEdit(payload));
       if (!res.ok) {
         setError(res.error);
         return;
@@ -399,7 +400,7 @@ export function Wizard({
       consent,
     };
     startTransition(async () => {
-      const res = await createEdit(payload);
+      const res = await safeAction(() => createEdit(payload));
       if (!res.ok) {
         setError(res.error);
         return;
@@ -443,7 +444,7 @@ export function Wizard({
       consent,
     };
     startTransition(async () => {
-      const res = await createScriptEdit(payload);
+      const res = await safeAction(() => createScriptEdit(payload));
       if (!res.ok) {
         setError(res.error);
         return;

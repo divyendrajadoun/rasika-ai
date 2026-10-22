@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { safeAction } from "@/lib/safe-action";
 import { useRouter } from "next/navigation";
 import { exportReel } from "@/app/dashboard/actions";
 
@@ -33,7 +34,7 @@ export function ExportShapes({
     setError(null);
     setWhich(format);
     start(async () => {
-      const r = await exportReel({ projectId, format });
+      const r = await safeAction(() => exportReel({ projectId, format }));
       if (!r.ok) setError(r.error);
       router.refresh();
     });

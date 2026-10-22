@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { safeAction } from "@/lib/safe-action";
 import { useRouter } from "next/navigation";
 import { recutEdit } from "@/app/dashboard/actions";
 import type { EditorData } from "@/lib/projects";
@@ -129,12 +130,14 @@ export function EditRoom({
   const render = () => {
     setError(null);
     start(async () => {
-      const r = await recutEdit({
-        projectId,
-        transcriptVersion: data.version,
-        removed: [...removed].sort((a, b) => a - b),
-        studioSound: studio,
-      });
+      const r = await safeAction(() =>
+        recutEdit({
+          projectId,
+          transcriptVersion: data.version,
+          removed: [...removed].sort((a, b) => a - b),
+          studioSound: studio,
+        }),
+      );
       if (!r.ok) setError(r.error);
       else {
         router.refresh();
