@@ -2,7 +2,8 @@
 # elsewhere: see DEPLOY.md. Runtime env is set on the site (netlify env:import .env.netlify).
 [build]
   command = "pnpm run build"
-  publish = ".next"
+  # paths are from the repo root (deploy from there: `netlify deploy --filter web`, see DEPLOY.md)
+  publish = "apps/web/.next"
 
 [build.environment]
   NODE_VERSION = "20"
@@ -10,3 +11,4 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+

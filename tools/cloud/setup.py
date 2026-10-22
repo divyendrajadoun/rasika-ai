@@ -49,6 +49,12 @@ need = [
     "FILL_S3_SECRET_ACCESS_KEY",
     "FILL_REDIS_URL",
 ]
+# the database password may come on its own line: it goes into both pooler URIs (URL-encoded)
+if cloud.get("DB_PASSWORD"):
+    from urllib.parse import quote
+
+    for k in ("FILL_DATABASE_URL_POOLER", "FILL_DATABASE_URL_SESSION"):
+        cloud[k] = cloud.get(k, "").replace("[YOUR-PASSWORD]", quote(cloud["DB_PASSWORD"], safe=""))
 missing = [k for k in need if not cloud.get(k)]
 if missing:
     sys.exit("Fill these in .env.cloud first: " + ", ".join(k.removeprefix("FILL_") for k in missing))

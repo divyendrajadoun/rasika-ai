@@ -1,0 +1,31 @@
+name: Deploy website
+
+# Builds on Linux (Netlify's Next.js runtime packs a Linux server function: built on Windows it
+# ships backslash paths and no node_modules) and deploys to the rasika-ai site. The site's own env
+# (netlify env:import .env.netlify) is pulled in by the CLI; only the auth token lives here.
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["apps/worker/**", "docs/**", "**/*.md"]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-web
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build + deploy (from the repo root: see DEPLOY.md)
+        run: npx --yes netlify-cli@27.11.2 deploy --build --prod --filter web --site "$NETLIFY_SITE_ID"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: 44bc9a34-2b80-4436-8d86-03cfbc35da57

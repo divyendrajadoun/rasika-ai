@@ -65,3 +65,6 @@ tools/styledemos/plans/*.report.json
 .taste-skill/**/*.jpg
 .taste-skill/**/*.png
 .taste-skill/**/report.json
+
+# Local Netlify folder
+.netlify
