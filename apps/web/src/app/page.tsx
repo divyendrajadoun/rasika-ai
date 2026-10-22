@@ -4,11 +4,9 @@ import { Features } from "@/components/landing/features";
 import { FinalCta } from "@/components/landing/final-cta";
 import { Footer } from "@/components/landing/footer";
 import { Hero } from "@/components/landing/hero";
-import { HowItWorks } from "@/components/landing/how-it-works";
 import { Nav } from "@/components/landing/nav";
 import { LiquidGlass } from "@/components/motion/liquid-glass";
 import { Pricing } from "@/components/landing/pricing";
-import { Showcase } from "@/components/landing/showcase";
 import { StyleShowcase } from "@/components/landing/style-showcase";
 import { brand } from "@/config/brand";
 import { paidPacks } from "@/config/pricing";
@@ -44,8 +42,6 @@ export default function LandingPage() {
       <Nav />
       <main id="main">
         <Hero />
-        <Showcase />
-        <HowItWorks />
         <Features />
         <StyleShowcase />
         <BriefFilms />

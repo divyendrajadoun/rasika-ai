@@ -8,8 +8,8 @@ type Family = PresetCard["tokens"]["motion"]["family"];
 export type FamilyPick = "all" | Family;
 
 /** Family chips + free-text search over the style cards (wizard and landing share it). */
-export function useStyleFilter(cards: readonly PresetCard[]) {
-  const [family, setFamily] = useState<FamilyPick>("all");
+export function useStyleFilter(cards: readonly PresetCard[], initial: FamilyPick = "all") {
+  const [family, setFamily] = useState<FamilyPick>(initial);
   const [query, setQuery] = useState("");
   const counts = useMemo(() => {
     const m = new Map<Family, number>();

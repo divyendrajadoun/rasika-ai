@@ -20,10 +20,12 @@ const FIRST = 23;
  * plate on the left shows that style over the raw clip, split by a handle.
  */
 export function StyleShowcase() {
-  const [activeId, setActiveId] = useState(presetCards[0]!.tokens.id);
+  // the gallery opens on the launch films (the first one in the compare plate); "All" shows the rest
+  const firstLaunch = presetCards.find((p) => p.tokens.motion.family === "launch") ?? presetCards[0]!;
+  const [activeId, setActiveId] = useState(firstLaunch.tokens.id);
   const [all, setAll] = useState(false);
   const card = presetCards.find((p) => p.tokens.id === activeId) ?? presetCards[0]!;
-  const filter = useStyleFilter(presetCards);
+  const filter = useStyleFilter(presetCards, "launch");
   const list = all || filter.family !== "all" || filter.query ? filter.filtered : filter.filtered.slice(0, FIRST);
   return (
     <section id="styles" className="section wrap scroll-mt-6">

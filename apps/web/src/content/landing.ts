@@ -10,12 +10,11 @@ const STYLE_COUNT = presetCards.length;
 
 export const nav = {
   links: [
-    { label: "How it works", href: "#how-it-works" },
+    { label: "How it works", href: "/help" },
     { label: "Styles", href: "#styles" },
     { label: "Films", href: "#films" },
     { label: "Pricing", href: "#pricing" },
     { label: "FAQ", href: "#faq" },
-    { label: "Help", href: "/help" },
   ],
   cta: { label: "Edit a reel free", href: "/dashboard" },
 };
