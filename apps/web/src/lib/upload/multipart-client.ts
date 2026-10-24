@@ -154,11 +154,9 @@ export async function uploadParts(
 
   const queue = [...remaining];
   const urlCache = new Map<number, string>();
-  const signBatch = async () => {
-    const need = queue
-      .slice(0, 10)
-      .map((p) => p.partNumber)
-      .filter((n) => !urlCache.has(n));
+  /** presign these parts (default: the next ten in the queue) that have no URL yet */
+  const signBatch = async (parts: number[] = queue.slice(0, 10).map((p) => p.partNumber)) => {
+    const need = parts.filter((n) => !urlCache.has(n));
     if (!need.length) return;
     const { urls } = await api<{ urls: Array<{ partNumber: number; url: string }> }>(
       `/api/uploads/${session.assetId}`,
@@ -183,7 +181,8 @@ export async function uploadParts(
           const url =
             urlCache.get(part.partNumber) ??
             (await (async () => {
-              await signBatch();
+              // a retry: this part has left the queue, so it is signed on its own
+              await signBatch([part.partNumber]);
               return urlCache.get(part.partNumber)!;
             })());
           await putPart(
