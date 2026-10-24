@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { deleteProject, duplicateProject } from "@/app/dashboard/actions";
 import { fmtDuration } from "@/components/dashboard/project-card";
 import { ProgressView } from "@/components/dashboard/progress-view";
+import { ClipsPanel } from "@/components/dashboard/clips-panel";
 import { EditRoom } from "@/components/dashboard/edit-room";
 import { ExportShapes } from "@/components/dashboard/export-shapes";
 import { TranscriptPanel } from "@/components/dashboard/transcript-panel";
@@ -27,6 +28,11 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
     assets.filter((a) => a.kind === "export" && a.meta.format).map((a) => [a.meta.format!, a.url]),
   );
   const source = assets.find((a) => a.kind === "source_video");
+  // many clips: the joined take records what became of each clip
+  const joined = assets.find((a) => a.kind === "source_video" && a.meta.assembled);
+  const clipUrls = Object.fromEntries(
+    assets.filter((a) => a.kind === "source_clip").map((a) => [a.id, a.url]),
+  );
   const images = assets
     .filter((a) => a.kind === "image")
     .sort((a, b) => (a.meta.order ?? 0) - (b.meta.order ?? 0));
@@ -76,6 +82,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
               message: job?.message ?? "",
               updatedAt: job?.updatedAt?.toISOString() ?? null,
             }}
+          />
+        )}
+
+        {joined?.meta.arrangement && (
+          <ClipsPanel
+            key={joined.id}
+            projectId={project.id}
+            arrangement={joined.meta.arrangement}
+            arrangedBy={joined.meta.arrangedBy}
+            urls={clipUrls}
+            busy={busy}
           />
         )}
 

@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any
 import redis
 import structlog
 
-from rasika_worker import cleancut, media, notify
+from rasika_worker import assemble, cleancut, media, notify
 from rasika_worker.db import Repo
 from rasika_worker.face import subject_from_keyframes
 from rasika_worker.planner import ChromiumValidator, Planner, PlannerInput
@@ -62,6 +62,7 @@ class Pipeline:
         return {
             JobType.SYNTH: self.synth,
             JobType.PRESENTER: self.presenter,
+            JobType.ASSEMBLE: self.assemble,
             JobType.PROBE: self.probe,
             JobType.ANALYSE_REFERENCE: self.analyse_reference,
             JobType.COMPOSE: self.compose,
@@ -945,6 +946,160 @@ class Pipeline:
         pub.update(JobStatus.PROBING, 0, "Looking at the clean cut…")
         self.enqueue(job, JobType.PROBE, {"source_key": key})
         return True
+
+    # ── many clips → one take, then the normal chain ──
+    def assemble(self, job: JobMessage, pub: Publisher) -> None:
+        pub.update(JobStatus.PROBING, 2, "Gathering your clips…")
+        work = self.work(job.project_id)
+        project = self.repo.project(job.project_id) or {}
+        opts = dict(project.get("style_options") or {})
+        rows = sorted(
+            self.repo.assets(job.project_id, "source_clip"),
+            key=lambda a: (int((a.get("meta") or {}).get("order", 0)), str(a["created_at"])),
+        )
+        if not rows:
+            raise PipelineError("This project has no clips. Upload them again.")
+        hint = str(job.payload.get("language_hint") or opts.get("language") or "auto")
+        clip_dir = work / "clips"
+        clip_dir.mkdir(exist_ok=True)
+        sources: dict[str, Path] = {}
+        clips: list[assemble.Clip] = []
+        t0 = time.time()
+        for n, a in enumerate(rows):
+            cid = str(a["id"])
+            meta = a.get("meta") or {}
+            name = f"Clip {n + 1}"
+            dest = clip_dir / (cid + Path(a["storage_key"]).suffix.lower())
+            if not dest.exists() or dest.stat().st_size != int(a.get("size_bytes") or 0):
+                pub.update(
+                    JobStatus.PROBING,
+                    2 + int(8 * n / len(rows)),
+                    f"Fetching clip {n + 1} of {len(rows)}…",
+                )
+                self.storage.download(a["storage_key"], dest)
+            sources[cid] = dest
+            if isinstance(meta.get("words"), list) and meta.get("clipDuration"):
+                words, duration = list(meta["words"]), float(meta["clipDuration"])
+            else:
+                # each clip is heard once; a re-assembly reuses what was heard
+                info = media.probe(self.s.ffprobe_bin, dest)
+                duration = info.duration_sec
+                words = []
+                if info.has_audio:
+                    pub.update(
+                        JobStatus.PROBING,
+                        10 + int(70 * n / len(rows)),
+                        f"Listening to clip {n + 1} of {len(rows)}…",
+                    )
+                    a16 = clip_dir / f"{cid}.16k.wav"
+                    media.run(
+                        [
+                            self.s.ffmpeg_bin,
+                            "-v",
+                            "error",
+                            "-y",
+                            "-i",
+                            str(dest),
+                            "-vn",
+                            "-ac",
+                            "1",
+                            "-ar",
+                            "16000",
+                            str(a16),
+                        ]
+                    )
+                    words = [w.as_dict() for w in self.transcriber().transcribe(a16, hint).words]
+                    a16.unlink(missing_ok=True)
+                self.repo.merge_asset_meta(
+                    cid, {"words": words, "clipDuration": duration, "order": n}
+                )
+            clips.append(assemble.Clip(cid, name, words, duration))
+
+        picked = job.payload.get("order")
+        script = str(opts.get("clipScript") or "").strip()
+        how = "picked"
+        if isinstance(picked, list) and picked:
+            decisions = assemble.arrange_as_picked(clips, [str(x) for x in picked])
+        elif script:
+            how = "script"
+            decisions = assemble.arrange_by_script(clips, script)
+        else:
+            how = "recorded"
+            decisions = None
+            if self.s.anthropic_api_key and len(clips) > 1:
+                pub.update(JobStatus.PROBING, 82, "Putting your clips in order…")
+                try:
+                    decisions = assemble.arrange_with_model(
+                        self.anthropic(), self.s.anthropic_fast_model, clips
+                    )
+                    how = "model" if decisions else how
+                except Exception as exc:  # never block the edit on the ordering call
+                    log.warning("assemble_order_failed", error=str(exc))
+            if not decisions:
+                decisions = assemble.arrange_recorded(clips)
+        kept = [d for d in decisions if d.keep]
+        if not kept:
+            raise PipelineError("Every clip was left out. Keep at least one.")
+        pub.update(JobStatus.PROBING, 86, f"Joining {len(kept)} of {len(clips)} clips…")
+        dest = work / "assembled.mp4"
+        assemble.render(self.s.ffmpeg_bin, self.s.ffprobe_bin, sources, decisions, dest)
+        info = media.probe(self.s.ffprobe_bin, dest)
+
+        # the joined take replaces every earlier take (and its cuts); the clips stay for re-assembly
+        for old in self.repo.assets(job.project_id, "source_video"):
+            self.repo.exec("DELETE FROM assets WHERE id = %s::uuid", (str(old["id"]),))
+            try:
+                self.storage.delete(old["storage_key"])
+            except Exception as exc:  # best effort
+                log.warning("delete_failed", key=old["storage_key"], error=str(exc))
+        for stale in work.glob("*"):
+            if stale.is_file() and (
+                stale.name.startswith(("source", "original"))
+                or stale.name in ("voice.wav", "audio16k.wav", "proxy.mp4")
+            ):
+                stale.unlink(missing_ok=True)
+        prefix = project_prefix(job.user_id, job.project_id)
+        key = f"{prefix}/source_assembled_{int(time.time())}.mp4"
+        arrangement = [d.as_dict() for d in decisions]
+        self.upload_asset(
+            job,
+            "source_video",
+            dest,
+            key,
+            {
+                "assembled": True,
+                "arrangement": arrangement,
+                "arrangedBy": how,
+                "durationSec": info.duration_sec,
+            },
+            replace=False,
+        )
+        self.repo.update_project(job.project_id, duration_sec=info.duration_sec)
+        self.repo.audit(
+            job.user_id,
+            "assemble",
+            "project",
+            job.project_id,
+            {
+                "clips": len(clips),
+                "kept": len(kept),
+                "by": how,
+                "sec": info.duration_sec,
+                "took_sec": round(time.time() - t0, 2),
+            },
+        )
+        max_dur = float(str(job.payload.get("max_duration_sec") or MAX_DURATION_DEFAULT))
+        if info.duration_sec > max_dur + 0.5:
+            raise PipelineError(
+                f"The kept clips add up to {info.duration_sec:.0f} s; your plan allows {max_dur:.0f} s. "
+                "Leave a clip out below and join them again."
+            )
+        pub.update(JobStatus.PROBING, 0, f"Joined {len(kept)} clips into one take. Looking at it…")
+        self.enqueue(
+            job,
+            JobType.PROBE,
+            {"source_key": key, "language_hint": hint, "max_duration_sec": max_dur},
+        )
 
     # ── the editor: the original take cut to the words the user kept ──
     def recut(self, job: JobMessage, pub: Publisher) -> None:

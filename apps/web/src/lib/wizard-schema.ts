@@ -51,6 +51,19 @@ export const WizardSubmission = z.object({
 });
 export type WizardSubmission = z.infer<typeof WizardSubmission>;
 
+/** "Create my edit" for many clips: the worker orders and joins them into one take, then edits it. */
+export const ClipsSubmission = WizardSubmission.omit({
+  sourceAssetId: true,
+  referenceAssetId: true,
+  fidelity: true,
+  durationSec: true,
+}).extend({
+  /** the clips in the order the user left them (the worker reorders by what is said) */
+  clipAssetIds: z.array(z.string().uuid()).min(1, "Add at least one clip").max(30),
+  script: z.string().trim().max(6000, "Keep the script under 6 000 characters.").default(""),
+});
+export type ClipsSubmission = z.infer<typeof ClipsSubmission>;
+
 /** "Create my edit" for a script-only reel: no source video — the worker narrates and builds one. */
 export const ScriptSubmission = z.object({
   projectId: z.string().uuid(),

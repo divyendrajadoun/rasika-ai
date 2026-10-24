@@ -38,6 +38,8 @@ export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 
 export const ASSET_KINDS = [
   "source_video",
+  /** many clips: each recorded clip, joined by the worker into one source_video (meta.assembled) */
+  "source_clip",
   "reference_video",
   "presenter_image",
   "image",
@@ -58,6 +60,7 @@ export const JOB_TYPES = [
   "synth",
   "compose",
   "presenter",
+  "assemble",
   "probe",
   "analyse_reference",
   "transcribe",
@@ -102,7 +105,9 @@ export interface StyleOptions {
   music: boolean;
   language: "auto" | "en" | "hi" | "hinglish";
   /** where the reel came from (default "take": an uploaded clip) */
-  source?: "take" | "script" | "reference" | "presenter" | "brief";
+  source?: "take" | "clips" | "script" | "reference" | "presenter" | "brief";
+  /** many clips: the script the clips follow (worker assemble.arrange_by_script) */
+  clipScript?: string;
   /** films made from a brief: the kind of film and the user's inputs (config/briefs.ts) */
   brief?: {
     kind: string;
@@ -181,6 +186,19 @@ export const projects = pgTable(
   (t) => [index("projects_user_idx").on(t.userId, t.createdAt)],
 );
 
+/** what the worker did with one clip of a many-clips reel (apps/worker assemble.Decision) */
+export interface ClipDecision {
+  id: string;
+  name: string;
+  keep: boolean;
+  why: string;
+  start: number;
+  end: number;
+  duration: number;
+  text: string;
+  script_line: number | null;
+}
+
 export interface AssetMeta {
   label?: string;
   /** "ai": drawn by the image service (prompt + request kept for the record), "site": a website capture */
@@ -208,6 +226,12 @@ export interface AssetMeta {
   /** a cut of the original take: clean cut, or the user's edit (word indices of `transcriptOf`) */
   cleanCut?: boolean;
   userEdit?: boolean;
+  /** a take joined from clips: what each clip became (kept or left out, and why), and how */
+  assembled?: boolean;
+  arrangement?: ClipDecision[];
+  arrangedBy?: "picked" | "script" | "model" | "recorded";
+  /** a clip: its length (what was heard in it is kept too, for re-assembly) */
+  clipDuration?: number;
   cleanCutOf?: string;
   removedSec?: number;
   removedIdx?: number[];

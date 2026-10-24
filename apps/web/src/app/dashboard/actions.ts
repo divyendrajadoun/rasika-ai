@@ -1,6 +1,6 @@
 "use server";
 
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -8,6 +8,7 @@ import { db, schema } from "@/db";
 import { plans } from "@/config/pricing";
 import { requireUser } from "@/lib/auth";
 import { enqueueJob } from "@/lib/jobs/queue";
+import { deleteObject } from "@/lib/storage/s3";
 import { ACTIVE_STATUSES } from "@/lib/projects";
 import { briefKind } from "@/config/briefs";
 
@@ -47,6 +48,7 @@ async function chargedTx(fn: (tx: Tx) => Promise<unknown>): Promise<string | nul
 
 import {
   BriefSubmission,
+  ClipsSubmission,
   PresenterSubmission,
   ScriptSubmission,
   WizardSubmission,
@@ -159,6 +161,107 @@ export async function createEdit(input: unknown): Promise<ActionResult> {
 }
 
 /** Script-only reels need a project before the photos step (images upload against a project id). */
+/** the clips of a many-clips reel together, before the dead air and the earlier takes come out */
+const MAX_CLIPS_SECONDS = 15 * 60;
+
+/** "Create my edit" for many clips: enqueue the assemble job; it joins the clips and hands off to
+ *  probe, so the rest of the chain is the one a single take runs. */
+export async function createClipsEdit(input: unknown): Promise<ActionResult> {
+  const user = await requireUser("/dashboard/new");
+  const parsed = ClipsSubmission.safeParse(input);
+  if (!parsed.success)
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid form" };
+  const w = parsed.data;
+  const [project] = await db
+    .select()
+    .from(schema.projects)
+    .where(and(eq(schema.projects.id, w.projectId), eq(schema.projects.userId, user.id)));
+  if (!project) return { ok: false, error: "Project not found" };
+  if (project.status !== "draft") return { ok: false, error: "This reel was already created" };
+  const clips = await db
+    .select()
+    .from(schema.assets)
+    .where(and(eq(schema.assets.projectId, w.projectId), eq(schema.assets.kind, "source_clip")));
+  const byId = new Map(clips.map((c) => [c.id, c]));
+  const picked = [...new Set(w.clipAssetIds)];
+  if (picked.some((id) => !byId.has(id)))
+    return { ok: false, error: "A clip is missing; upload it again" };
+  // a clip still uploading has no length yet (the upload's "complete" writes it)
+  if (picked.some((id) => !byId.get(id)!.meta.durationSec))
+    return { ok: false, error: "Wait for every clip to finish uploading" };
+  const rawSec = picked.reduce((s, id) => s + (byId.get(id)!.meta.durationSec ?? 0), 0);
+  if (rawSec > MAX_CLIPS_SECONDS)
+    return { ok: false, error: `Up to ${MAX_CLIPS_SECONDS / 60} minutes of clips in one reel.` };
+
+  const plan = plans.find((p) => p.id === user.plan) ?? plans[0]!;
+  // charged on the joined take, which may be no longer than the plan allows
+  const durationSec = Math.min(rawSec, plan.maxSeconds);
+  const cost = creditCost(Math.max(1, durationSec));
+  if (user.credits < cost)
+    return { ok: false, error: `This edit needs ${cost} credit(s); you have ${user.credits}.` };
+  const dropped = clips.filter((c) => !picked.includes(c.id));
+
+  const txError = await chargedTx(async (tx) => {
+    await tx
+      .update(schema.projects)
+      .set({
+        title: w.title,
+        status: "uploaded",
+        stylePreset: w.stylePreset,
+        styleText: w.styleText || null,
+        styleOptions: { ...w.options, source: "clips", clipScript: w.script || undefined },
+        brand: w.brand,
+        durationSec,
+        creditsCost: cost,
+        updatedAt: schema.now,
+      })
+      .where(eq(schema.projects.id, w.projectId));
+    for (const [i, id] of picked.entries()) {
+      await tx
+        .update(schema.assets)
+        .set({ meta: mergeMeta({ order: i }) })
+        .where(eq(schema.assets.id, id));
+    }
+    // clips removed in the wizard after they had finished uploading
+    for (const c of dropped) await tx.delete(schema.assets).where(eq(schema.assets.id, c.id));
+    for (const [i, ph] of w.photos.entries()) {
+      await tx
+        .update(schema.assets)
+        .set({ meta: mergeMeta({ label: ph.label, sayWhen: ph.sayWhen, crop: ph.crop, order: i }) })
+        .where(and(eq(schema.assets.id, ph.assetId), eq(schema.assets.projectId, w.projectId)));
+    }
+    const [job] = await tx
+      .insert(schema.jobs)
+      .values({
+        projectId: w.projectId,
+        userId: user.id,
+        type: "assemble",
+        status: "uploaded",
+        message: "Queued",
+      })
+      .returning({ id: schema.jobs.id });
+    await spendCredits(tx, user.id, cost, job!.id);
+    await tx.insert(schema.auditLog).values({
+      userId: user.id,
+      action: "project.create_clips_edit",
+      entity: "project",
+      entityId: w.projectId,
+      meta: { cost, preset: w.stylePreset, clips: picked.length, rawSec, script: Boolean(w.script) },
+    });
+    await enqueueJob({
+      job_id: job!.id,
+      project_id: w.projectId,
+      user_id: user.id,
+      type: "assemble",
+      payload: { language_hint: w.options.language, max_duration_sec: plan.maxSeconds },
+    });
+  });
+  if (txError) return { ok: false, error: txError };
+  for (const c of dropped) await deleteObject(c.storageKey).catch(() => {});
+  revalidatePath("/dashboard");
+  return { ok: true, projectId: w.projectId };
+}
+
 export async function createDraftProject(title: string): Promise<ActionResult> {
   const user = await requireUser("/dashboard/new");
   const clean = String(title || "Untitled reel")
@@ -521,8 +624,28 @@ export async function retryEdit(formData: FormData) {
     .select()
     .from(schema.assets)
     .where(and(eq(schema.assets.projectId, id), eq(schema.assets.kind, "source_video")));
-  if (!source) return;
   const plan = plans.find((p) => p.id === user.plan) ?? plans[0]!;
+  if (!source && project.styleOptions.source === "clips") {
+    // the clips were never joined (or the join failed): start again from the clips
+    const [job] = await db
+      .insert(schema.jobs)
+      .values({ projectId: id, userId: user.id, type: "assemble", status: "uploaded" })
+      .returning();
+    await db
+      .update(schema.projects)
+      .set({ status: "uploaded", updatedAt: schema.now })
+      .where(eq(schema.projects.id, id));
+    await enqueueJob({
+      job_id: job!.id,
+      project_id: id,
+      user_id: user.id,
+      type: "assemble",
+      payload: { language_hint: project.styleOptions.language, max_duration_sec: plan.maxSeconds },
+    });
+    revalidatePath(`/dashboard/p/${id}`);
+    return;
+  }
+  if (!source) return;
   const [job] = await db
     .insert(schema.jobs)
     .values({ projectId: id, userId: user.id, type: "probe", status: "uploaded" })
@@ -633,6 +756,74 @@ export async function recutEdit(input: unknown): Promise<ActionResult> {
     user_id: user.id,
     type: "recut",
     payload: { transcript_version: r.transcriptVersion, removed },
+  });
+  revalidatePath(`/dashboard/p/${r.projectId}`);
+  return { ok: true, projectId: r.projectId };
+}
+
+const ReassembleInput = z.object({
+  projectId: z.string().uuid(),
+  /** the clips to keep, in this order */
+  order: z.array(z.string().uuid()).min(1, "Keep at least one clip").max(30),
+});
+
+/** The clips panel's "Join again": the clips in the user's own order, then the usual chain. It
+ *  counts as one of the reel's free re-edits. */
+export async function reassembleClips(input: unknown): Promise<ActionResult> {
+  const user = await requireUser();
+  const parsed = ReassembleInput.safeParse(input);
+  if (!parsed.success)
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid order" };
+  const r = parsed.data;
+  const got = await idleProject(user.id, r.projectId);
+  if ("error" in got) return { ok: false, error: got.error! };
+  if (got.project.styleOptions.source !== "clips")
+    return { ok: false, error: "This reel has no clips" };
+  const clips = await db
+    .select({ id: schema.assets.id })
+    .from(schema.assets)
+    .where(and(eq(schema.assets.projectId, r.projectId), eq(schema.assets.kind, "source_clip")));
+  const have = new Set(clips.map((c) => c.id));
+  const order = [...new Set(r.order)].filter((id) => have.has(id));
+  if (!order.length) return { ok: false, error: "Keep at least one clip" };
+  const [{ n } = { n: 0 }] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(schema.jobs)
+    .where(
+      and(
+        eq(schema.jobs.projectId, r.projectId),
+        inArray(schema.jobs.type, ["recut", "assemble"]),
+      ),
+    );
+  // the first assemble made the reel; it is not a re-edit
+  if (n - 1 >= MAX_FREE_RECUTS)
+    return { ok: false, error: `Each reel includes ${MAX_FREE_RECUTS} re-edits; start a new edit for more.` };
+  const plan = plans.find((p) => p.id === user.plan) ?? plans[0]!;
+  const [job] = await db
+    .insert(schema.jobs)
+    .values({ projectId: r.projectId, userId: user.id, type: "assemble", status: "uploaded", message: "Queued" })
+    .returning({ id: schema.jobs.id });
+  await db
+    .update(schema.projects)
+    .set({ status: "uploaded", updatedAt: schema.now })
+    .where(eq(schema.projects.id, r.projectId));
+  await db.insert(schema.auditLog).values({
+    userId: user.id,
+    action: "project.reassemble",
+    entity: "project",
+    entityId: r.projectId,
+    meta: { job: job!.id, kept: order.length, of: clips.length },
+  });
+  await enqueueJob({
+    job_id: job!.id,
+    project_id: r.projectId,
+    user_id: user.id,
+    type: "assemble",
+    payload: {
+      order,
+      language_hint: got.project.styleOptions.language,
+      max_duration_sec: plan.maxSeconds,
+    },
   });
   revalidatePath(`/dashboard/p/${r.projectId}`);
   return { ok: true, projectId: r.projectId };

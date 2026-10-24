@@ -12,7 +12,7 @@ const Body = z.object({
   size: z.number().int().positive(),
   mime: z.string().max(100),
   /** source_video (default) or the reference reel the edit should match */
-  kind: z.enum(["source_video", "reference_video"]).default("source_video"),
+  kind: z.enum(["source_video", "reference_video", "source_clip"]).default("source_video"),
 });
 
 /** Starts a resumable multipart upload for the source video (creates a draft project if needed). */
@@ -53,7 +53,9 @@ export async function POST(req: Request) {
   const key =
     kind === "reference_video"
       ? storageKey.reference(user.id, projectId, ext)
-      : storageKey.source(user.id, projectId, ext);
+      : kind === "source_clip"
+        ? storageKey.clip(user.id, projectId, crypto.randomUUID(), ext)
+        : storageKey.source(user.id, projectId, ext);
   const uploadId = await createMultipart(key, mime || "application/octet-stream");
   const [asset] = await db
     .insert(schema.assets)

@@ -5,12 +5,14 @@ import { safeAction } from "@/lib/safe-action";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import {
   createBriefEdit,
+  createClipsEdit,
   createDraftProject,
   createEdit,
   createPresenterEdit,
   createScriptEdit,
 } from "@/app/dashboard/actions";
 import { StepBrand } from "@/components/wizard/step-brand";
+import { StepClips, clipsReady, clipsSeconds, type ClipItem } from "@/components/wizard/step-clips";
 import { StepPhotos, type PhotoItem } from "@/components/wizard/step-photos";
 import { defaultAiImages, type AiImageSettings } from "@/components/wizard/ai-images";
 import {
@@ -35,7 +37,7 @@ import { estimateSpokenSeconds } from "@/config/voices";
 import { creditCost } from "@/lib/wizard-schema";
 import { cn } from "@/lib/utils";
 
-type StepId = "source" | "upload" | "script" | "presenter" | "brief" | "photos" | "style" | "brand";
+type StepId = "source" | "upload" | "clips" | "script" | "presenter" | "brief" | "photos" | "style" | "brand";
 const stepLabel = (s: StepId, mode: SourceMode, kind?: string) =>
   s === "style" && mode === "reference"
     ? "Edit options"
@@ -45,6 +47,7 @@ const stepLabel = (s: StepId, mode: SourceMode, kind?: string) =>
 const STEP_LABEL: Record<StepId, string> = {
   source: "Source",
   upload: "Your video",
+  clips: "Your clips",
   script: "Your script",
   presenter: "Presenter",
   brief: "Your brief",
@@ -57,6 +60,8 @@ const PATHS: Record<SourceMode, StepId[]> = {
   // three steps: what you have (the source switch sits on top of it), the look, then review;
   // photos and brand details are optional fold-outs on the review step
   take: ["upload", "style", "brand"],
+  // many clips: uploaded and ordered here, joined by the worker into one take
+  clips: ["clips", "style", "brand"],
   script: ["script", "style", "brand"],
   // the reference clip is uploaded on the upload step (second drop zone)
   reference: ["upload", "style", "brand"],
@@ -84,6 +89,10 @@ interface Draft {
   mode: SourceMode;
   upload: UploadResult | null;
   reference: UploadResult | null;
+  /** many clips: the clips in the order shown, the project they upload into, an optional script */
+  clips: ClipItem[];
+  clipsProjectId: string | null;
+  clipScript: string;
   fidelity: Fidelity;
   script: ScriptState;
   presenter: PresenterState;
@@ -143,9 +152,12 @@ export function Wizard({
   const consent = true as const;
   const [draft, setDraft] = useState<Draft>({
     step: 0,
-    mode: (["take", "script", "reference", "presenter", "brief"] as SourceMode[]).find((m) => m === initialSource) ?? "take",
+    mode: (["take", "clips", "script", "reference", "presenter", "brief"] as SourceMode[]).find((m) => m === initialSource) ?? "take",
     upload: null,
     reference: null,
+    clips: [],
+    clipsProjectId: null,
+    clipScript: "",
     fidelity: REFERENCE_FIDELITY,
     script: defaultScriptState,
     presenter: defaultPresenterState,
@@ -184,7 +196,7 @@ export function Wizard({
     }
   }, [resumeProjectId]);
   useEffect(() => {
-    const pid = draft.upload?.projectId ?? draft.scriptProjectId;
+    const pid = draft.upload?.projectId ?? draft.scriptProjectId ?? draft.clipsProjectId;
     if (!pid) return;
     try {
       localStorage.setItem(draftKey(pid), JSON.stringify(draft));
@@ -198,7 +210,9 @@ export function Wizard({
   const projectId =
     draft.mode === "script" || draft.mode === "presenter" || draft.mode === "brief"
       ? draft.scriptProjectId
-      : (draft.upload?.projectId ?? null);
+      : draft.mode === "clips"
+        ? draft.clipsProjectId
+        : (draft.upload?.projectId ?? null);
   const scriptSeconds = estimateSpokenSeconds(
     draft.mode === "presenter" ? draft.presenter.text : draft.script.text,
   );
@@ -207,7 +221,10 @@ export function Wizard({
       ? Math.min(briefKind(draft.brief.kind)?.maxSeconds ?? 30, maxSeconds)
       : draft.mode === "script" || draft.mode === "presenter"
         ? scriptSeconds || null
-        : (draft.upload?.durationSec ?? null);
+        : draft.mode === "clips"
+          ? // the joined take is what is charged; it can be no longer than the plan allows
+            Math.min(clipsSeconds(draft.clips), maxSeconds) || null
+          : (draft.upload?.durationSec ?? null);
   const cost = duration ? creditCost(Math.max(1, duration)) : 1;
   const tooLong = duration !== null && duration > maxSeconds;
   const canNext = useMemo(() => {
@@ -219,10 +236,11 @@ export function Wizard({
         !tooLong &&
         (draft.mode !== "reference" || Boolean(draft.reference?.complete))
       );
+    if (stepId === "clips") return clipsReady(draft.clips);
     if (stepId === "script") return draft.script.text.trim().length >= 20 && !tooLong;
     if (stepId === "brief") return briefReady(draft.brief);
     return true;
-  }, [stepId, draft.mode, draft.upload, draft.reference, draft.script.text, draft.presenter, draft.brief, tooLong, presenterEnabled]);
+  }, [stepId, draft.mode, draft.upload, draft.reference, draft.clips, draft.script.text, draft.presenter, draft.brief, tooLong, presenterEnabled]);
 
   const ensureDraftProject = async (): Promise<string | null> => {
     if (draft.scriptProjectId) return draft.scriptProjectId;
@@ -364,7 +382,50 @@ export function Wizard({
     });
   };
 
+  const submitClips = () => {
+    if (!draft.clipsProjectId) return;
+    setError(null);
+    const payload = {
+      projectId: draft.clipsProjectId,
+      title: draft.title || draft.clips[0]?.filename.replace(/\.[^.]+$/, "") || "Clips reel",
+      clipAssetIds: draft.clips.map((c) => c.assetId!).filter(Boolean),
+      script: draft.clipScript,
+      photos: draft.photos.map((p) => ({ assetId: p.assetId, label: p.label, sayWhen: p.sayWhen, crop: p.crop })),
+      stylePreset: draft.style.preset,
+      styleText: draft.style.text,
+      options: {
+        captions: draft.style.captions,
+        sfxIntensity: draft.style.sfxIntensity,
+        music: draft.style.music,
+        language: draft.style.language,
+        broll: draft.style.broll && stockEnabled,
+        animated: Boolean(draft.style.animated),
+        animatedCount: draft.style.animatedCount ?? 2,
+        animatedLook: draft.style.animatedLook ?? "",
+        ...(aiImagesEnabled ? { aiImages: (draft.ai ?? defaultAiImages).aiImages, aiImageCount: (draft.ai ?? defaultAiImages).aiImageCount, aiImageStyle: (draft.ai ?? defaultAiImages).aiImageStyle } : {}),
+        cleanCut: Boolean(draft.style.cleanCut || draft.style.hookFirst),
+        hookFirst: Boolean(draft.style.hookFirst),
+      },
+      brand: draft.brand,
+      consent,
+    };
+    startTransition(async () => {
+      const res = await safeAction(() => createClipsEdit(payload));
+      if (!res.ok) {
+        setError(res.error);
+        return;
+      }
+      try {
+        localStorage.removeItem(draftKey(res.projectId));
+      } catch {
+        /* ignore */
+      }
+      router.push(`/dashboard/p/${res.projectId}`);
+    });
+  };
+
   const submit = () => {
+    if (draft.mode === "clips") return submitClips();
     if (draft.mode === "brief") return submitBrief();
     if (draft.mode === "presenter") return submitPresenter();
     if (draft.mode === "script") return submitScript();
@@ -497,9 +558,29 @@ export function Wizard({
             <SourceSwitch
               value={draft.mode}
               presenterEnabled={presenterEnabled}
-              onChange={(mode) => setDraft((d) => ({ ...d, mode, step: 0 }))}
+              onChange={(mode) =>
+                setDraft((d) => ({
+                  ...d,
+                  mode,
+                  step: 0,
+                  // clips are full of retakes and pauses: the clean cut starts on for them
+                  style: mode === "clips" && d.mode !== "clips" ? { ...d.style, cleanCut: true } : d.style,
+                }))
+              }
             />
           </div>
+        )}
+        {stepId === "clips" && (
+          <StepClips
+            value={draft.clips}
+            projectId={draft.clipsProjectId}
+            script={draft.clipScript}
+            cleanCut={Boolean(draft.style.cleanCut)}
+            onChange={(fn) => setDraft((d) => ({ ...d, clips: fn(d.clips) }))}
+            onProject={(pid) => setDraft((d) => ({ ...d, clipsProjectId: pid }))}
+            onScript={(clipScript) => setDraft((d) => ({ ...d, clipScript }))}
+            onCleanCut={(cleanCut) => setDraft((d) => ({ ...d, style: { ...d.style, cleanCut } }))}
+          />
         )}
         {stepId === "source" && (
           <StepSource
@@ -584,7 +665,7 @@ export function Wizard({
             value={draft.style}
             stockEnabled={stockEnabled}
             fromReference={draft.mode === "reference"}
-            recorded={draft.mode === "take" || draft.mode === "reference"}
+            recorded={draft.mode === "take" || draft.mode === "clips" || draft.mode === "reference"}
             onChange={(style) => setDraft((d) => ({ ...d, style }))}
           />
         )}

@@ -23,6 +23,8 @@ class JobType(StrEnum):
     COMPOSE = "compose"
     # AI presenter: HeyGen renders script + photo / stock look into the source clip, then probe
     PRESENTER = "presenter"
+    # many clips: hear each, order them by what is said, join them into one take, then probe
+    ASSEMBLE = "assemble"
     PROBE = "probe"
     # reference matching: measure the reference reel, write a matched style, then PLAN
     ANALYSE_REFERENCE = "analyse_reference"

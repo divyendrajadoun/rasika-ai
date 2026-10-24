@@ -1,16 +1,17 @@
 "use client";
 
-import { Clapperboard, FileText, ScanSearch, Sparkles, UserRound } from "lucide-react";
+import { Clapperboard, FileText, Layers, ScanSearch, Sparkles, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
  * Where the reel comes from.
  *  take       the owner's talking-head clip (the original flow)
+ *  clips      many clips of one talk, ordered by what is said and joined into one take
  *  script     no footage: a script narrated by a voice, the film drawn by the engine
  *  reference  a talking-head clip cut in the rhythm and look of a reference reel
  *  presenter  script + photo → avatar video — needs an avatar provider, not enabled yet
  */
-export type SourceMode = "take" | "script" | "reference" | "presenter" | "brief";
+export type SourceMode = "take" | "clips" | "script" | "reference" | "presenter" | "brief";
 
 interface Option {
   id: SourceMode;
@@ -28,6 +29,13 @@ const OPTIONS: Option[] = [
     blurb: "Upload a talking-head clip. We time every word and design the edit around you.",
     detail: "Captions, poster type, counters, your photos on the word.",
     icon: Clapperboard,
+  },
+  {
+    id: "clips",
+    title: "Many clips",
+    blurb: "Drop every clip you shot. We put them in the order of what you say, keep the best take of each line and join them.",
+    detail: "Paste your script to follow its order. The ums, retakes and dead air come out.",
+    icon: Layers,
   },
   {
     id: "script",
@@ -79,7 +87,7 @@ export function StepSource({
   return (
     <div className="space-y-4">
       <p className="text-muted">
-        Five ways in. Footage, a script, a presenter and a reference all end in the same editor and the same styles; a brief makes a whole film.
+        Six ways in. Footage, clips, a script, a presenter and a reference all end in the same editor and the same styles; a brief makes a whole film.
       </p>
       <ul className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Source">
         {options.map((o) => {
@@ -121,6 +129,7 @@ export function StepSource({
 
 const SHORT: Record<SourceMode, string> = {
   take: "My video",
+  clips: "Many clips",
   script: "A script",
   brief: "From a brief",
   reference: "Match a reel",
