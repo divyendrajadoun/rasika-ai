@@ -188,22 +188,22 @@ export function StepClips({
     onChange((cur) => {
       const next = [
         ...cur,
-        ...take.map(
-          ({ f, key }): ClipItem => ({
-            key,
-            assetId: null,
-            filename: f.name,
-            sizeBytes: f.size,
-            durationSec: null,
-            lastModified: f.lastModified,
-            thumbnailUrl: null,
-            status: "queued",
-            pct: 0,
-          }),
-        ),
+        ...take.map(({ f, key }): ClipItem => ({
+          key,
+          assetId: null,
+          filename: f.name,
+          sizeBytes: f.size,
+          durationSec: null,
+          lastModified: f.lastModified,
+          thumbnailUrl: null,
+          status: "queued",
+          pct: 0,
+        })),
       ];
       // a clip added later can still belong in the middle: keep the recording order
-      return next.sort((a, b) => a.lastModified - b.lastModified || a.filename.localeCompare(b.filename));
+      return next.sort(
+        (a, b) => a.lastModified - b.lastModified || a.filename.localeCompare(b.filename),
+      );
     });
   };
 
@@ -248,7 +248,7 @@ export function StepClips({
           add(e.dataTransfer.files);
         }}
         className={cn(
-          "bg-surface hover:bg-raised flex cursor-pointer flex-col items-center justify-center rounded-[8px] border-2 border-dashed border-border p-8 text-center transition-colors",
+          "bg-surface hover:bg-raised border-border flex cursor-pointer flex-col items-center justify-center rounded-[8px] border-2 border-dashed p-8 text-center transition-colors",
           value.length ? "min-h-36" : "min-h-64",
           dragOver && "bg-raised border-text",
         )}
@@ -258,7 +258,8 @@ export function StepClips({
           {value.length ? "Add more clips" : "Drop all your clips here"}
         </p>
         <p className="text-muted mt-1 text-[14px]">
-          or tap to choose several · any order · up to {MAX_CLIPS} clips, {MAX_CLIPS_SECONDS / 60} min in all
+          or tap to choose several · any order · up to {MAX_CLIPS} clips, {MAX_CLIPS_SECONDS / 60}{" "}
+          min in all
         </p>
         <p className="text-muted-foreground mt-3 max-w-[52ch] text-[13px]">
           We listen to every clip, put them in the order of what you say, keep the best take of each
@@ -278,7 +279,7 @@ export function StepClips({
       </label>
 
       {notice && (
-        <p className="rounded-[6px] bg-surface px-3 py-2 text-sm text-[#ff8a66]" role="alert">
+        <p className="bg-surface rounded-[6px] px-3 py-2 text-sm text-[#ff8a66]" role="alert">
           {notice}
         </p>
       )}
@@ -300,15 +301,17 @@ export function StepClips({
           )}
           {stuck.length > 0 && (
             <p className="mb-2 text-sm text-[#ff8a66]">
-              {stuck.length} clip{stuck.length === 1 ? " was" : "s were"} still uploading when the page
-              closed. Remove {stuck.length === 1 ? "it" : "them"} and add the file again.
+              {stuck.length} clip{stuck.length === 1 ? " was" : "s were"} still uploading when the
+              page closed. Remove {stuck.length === 1 ? "it" : "them"} and add the file again.
             </p>
           )}
           <ol className="space-y-2">
             {value.map((c, i) => (
               <li key={c.key} className="bg-surface flex items-center gap-3 rounded-[8px] p-2 pr-3">
-                <span className="text-muted w-6 shrink-0 text-center text-[13px] tabular-nums">{i + 1}</span>
-                <div className="bg-[#111] h-16 w-9 shrink-0 overflow-hidden rounded-[4px]">
+                <span className="text-muted w-6 shrink-0 text-center text-[13px] tabular-nums">
+                  {i + 1}
+                </span>
+                <div className="h-16 w-9 shrink-0 overflow-hidden rounded-[4px] bg-[#111]">
                   {c.thumbnailUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element -- local object URL
                     <img src={c.thumbnailUrl} alt="" className="h-full w-full object-cover" />
@@ -336,23 +339,48 @@ export function StepClips({
                   </p>
                   {c.status === "uploading" && (
                     <div className="bg-raised mt-1 h-1 overflow-hidden rounded-full">
-                      <div className="bg-accent h-full transition-[width]" style={{ width: `${c.pct}%` }} />
+                      <div
+                        className="bg-accent h-full transition-[width]"
+                        style={{ width: `${c.pct}%` }}
+                      />
                     </div>
                   )}
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
                   {c.status === "error" && files.current.has(c.key) && (
-                    <button type="button" className="button button-ghost h-8 px-2" onClick={() => retry(c)} aria-label={`Retry ${c.filename}`}>
+                    <button
+                      type="button"
+                      className="button button-ghost h-8 px-2"
+                      onClick={() => retry(c)}
+                      aria-label={`Retry ${c.filename}`}
+                    >
                       <RotateCcw className="size-4" aria-hidden />
                     </button>
                   )}
-                  <button type="button" className="button button-ghost h-8 px-2" disabled={i === 0} onClick={() => move(i, -1)} aria-label={`Move ${c.filename} up`}>
+                  <button
+                    type="button"
+                    className="button button-ghost h-8 px-2"
+                    disabled={i === 0}
+                    onClick={() => move(i, -1)}
+                    aria-label={`Move ${c.filename} up`}
+                  >
                     <ArrowUp className="size-4" aria-hidden />
                   </button>
-                  <button type="button" className="button button-ghost h-8 px-2" disabled={i === value.length - 1} onClick={() => move(i, 1)} aria-label={`Move ${c.filename} down`}>
+                  <button
+                    type="button"
+                    className="button button-ghost h-8 px-2"
+                    disabled={i === value.length - 1}
+                    onClick={() => move(i, 1)}
+                    aria-label={`Move ${c.filename} down`}
+                  >
                     <ArrowDown className="size-4" aria-hidden />
                   </button>
-                  <button type="button" className="button button-ghost h-8 px-2 hover:text-[#ff8a66]" onClick={() => remove(c)} aria-label={`Remove ${c.filename}`}>
+                  <button
+                    type="button"
+                    className="button button-ghost h-8 px-2 hover:text-[#ff8a66]"
+                    onClick={() => remove(c)}
+                    aria-label={`Remove ${c.filename}`}
+                  >
                     <X className="size-4" aria-hidden />
                   </button>
                 </div>
@@ -383,8 +411,8 @@ export function StepClips({
         <span>
           <span className="block font-semibold">Clean cut inside the clips</span>
           <span className="text-muted-foreground text-[13px]">
-            Also take out ums and uhs, words said twice and long pauses. Earlier takes and the dead air
-            at the start and end of each clip always come out.
+            Also take out ums and uhs, words said twice and long pauses. Earlier takes and the dead
+            air at the start and end of each clip always come out.
           </span>
         </span>
         <input

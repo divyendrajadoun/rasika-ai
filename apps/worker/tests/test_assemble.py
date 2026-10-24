@@ -56,7 +56,11 @@ def test_script_keeps_the_closer_take_of_a_line() -> None:
 
 def test_script_drops_off_script_and_silent_clips() -> None:
     script = "Three mistakes people make with money."
-    clips = [clip("1", "three mistakes people make with money"), clip("2", "is this thing recording okay"), Clip("3", "Clip 3", [], 3.0)]
+    clips = [
+        clip("1", "three mistakes people make with money"),
+        clip("2", "is this thing recording okay"),
+        Clip("3", "Clip 3", [], 3.0),
+    ]
     out = {d.id: d for d in arrange_by_script(clips, script)}
     assert out["1"].keep
     assert out["2"].why == "not in the script"
@@ -86,7 +90,9 @@ def test_picked_order_is_exact() -> None:
 
 def test_model_answer_is_validated() -> None:
     clips = [clip("1", "a b c"), clip("2", "d e f"), clip("3", "g h i")]
-    good = parse_model_order('Sure: {"order": [3, 1], "dropped": [{"clip": 2, "why": "retake"}]}', clips)
+    good = parse_model_order(
+        'Sure: {"order": [3, 1], "dropped": [{"clip": 2, "why": "retake"}]}', clips
+    )
     assert good is not None
     assert [d.id for d in good if d.keep] == ["3", "1"]
     assert [d.why for d in good if not d.keep] == ["retake"]

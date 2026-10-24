@@ -46,7 +46,12 @@ export function ClipsPanel({
   const router = useRouter();
 
   const keptIds = rows.filter((r) => r.keep).map((r) => r.id);
-  const dirty = keptIds.join() !== initial.filter((r) => r.keep).map((r) => r.id).join();
+  const dirty =
+    keptIds.join() !==
+    initial
+      .filter((r) => r.keep)
+      .map((r) => r.id)
+      .join();
   const keptSec = rows.filter((r) => r.keep).reduce((s, r) => s + (r.end - r.start), 0);
 
   const move = (i: number, by: number) =>
@@ -92,7 +97,10 @@ export function ClipsPanel({
         {rows.map((r, i) => (
           <li
             key={r.id}
-            className={cn("bg-surface flex items-start gap-3 rounded-[8px] p-2 pr-3", !r.keep && "opacity-60")}
+            className={cn(
+              "bg-surface flex items-start gap-3 rounded-[8px] p-2 pr-3",
+              !r.keep && "opacity-60",
+            )}
           >
             <span className="text-muted w-6 shrink-0 pt-1 text-center text-[13px] tabular-nums">
               {r.keep ? keptIds.indexOf(r.id) + 1 : "–"}
@@ -104,7 +112,7 @@ export function ClipsPanel({
               muted
               playsInline
               controls
-              className="bg-[#111] aspect-[9/16] w-16 shrink-0 rounded-[4px] object-cover"
+              className="aspect-[9/16] w-16 shrink-0 rounded-[4px] bg-[#111] object-cover"
             />
             <div className="min-w-0 flex-1">
               <p className="text-[13px] font-medium">
@@ -145,14 +153,18 @@ export function ClipsPanel({
                 aria-label={r.keep ? `Leave ${r.name} out` : `Put ${r.name} back`}
                 title={r.keep ? "Leave out" : "Put back"}
               >
-                {r.keep ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
+                {r.keep ? (
+                  <EyeOff className="size-4" aria-hidden />
+                ) : (
+                  <Eye className="size-4" aria-hidden />
+                )}
               </button>
             </div>
           </li>
         ))}
       </ol>
       {error && (
-        <p className="mt-3 rounded-[6px] bg-surface px-3 py-2 text-sm text-[#ff8a66]" role="alert">
+        <p className="bg-surface mt-3 rounded-[6px] px-3 py-2 text-sm text-[#ff8a66]" role="alert">
           {error}
         </p>
       )}
@@ -170,7 +182,11 @@ export function ClipsPanel({
             Undo changes
           </button>
         )}
-        {busy && <span className="text-muted-foreground text-[13px]">Wait for the current render to finish.</span>}
+        {busy && (
+          <span className="text-muted-foreground text-[13px]">
+            Wait for the current render to finish.
+          </span>
+        )}
       </div>
     </section>
   );
