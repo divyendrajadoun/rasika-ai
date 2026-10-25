@@ -1,20 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { DemoVideo } from "@/components/brand/demo-video";
-import { Reveal } from "@/components/motion/reveal";
 import { beforeAfter, features as c } from "@/content/landing";
 import { cn } from "@/lib/utils";
 
 /**
- * Features — "Panel with margin notes". The plate is the real before/after: the raw phone clip under
- * the Rasika edit, split by a handle you drag, both playing in sync. Eight notes in the margins name
- * what the edit does; hovering a note pulls the handle across so the finished edit shows whole.
+ * Features: the real before/after between two columns of notes. The plate is the raw phone clip
+ * under the Rasika edit, split by a handle you drag, both playing in sync. Hovering or focusing a
+ * note slides the handle across so the finished edit shows whole. On a phone the plate comes first.
  */
 export function Features() {
   const [pos, setPos] = useState(50);
-  const [held, setHeld] = useState<number | null>(null);
-  const [active, setActive] = useState<string | null>(null);
+  const [active, setActive] = useState<number | null>(null);
+  const [eased, setEased] = useState(false);
   const beforeRef = useRef<HTMLVideoElement>(null);
   const afterRef = useRef<HTMLVideoElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
@@ -34,119 +33,137 @@ export function Features() {
     const el = frameRef.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
+    setEased(false);
     setPos(Math.min(100, Math.max(0, ((clientX - r.left) / r.width) * 100)));
   }, []);
 
-  const shown = held ?? pos;
-  const left = c.items.slice(0, 4);
-  const right = c.items.slice(4);
-  const note = (f: (typeof c.items)[number], i: number, side: "l" | "r") => (
-    <li
-      key={f.id}
+  // the handle sits at `shown`% from the left; the edit fills everything right of it
+  const shown = active !== null ? 0 : pos;
+  const hold = (i: number | null) => {
+    setEased(true);
+    setActive(i);
+  };
+
+  const notes = (from: number, items: typeof c.items, side: "l" | "r") => (
+    <ul
       className={cn(
-        "max-w-[26ch] transition-opacity duration-200 lg:absolute",
-        side === "l" ? "lg:right-0 lg:text-right" : "lg:left-0",
-        active && active !== f.id && "lg:opacity-40",
+        "lp-notes",
+        side === "l" ? "lp-notes-l" : "lp-notes-r",
+        active !== null && "has-active",
       )}
-      style={{ top: `${i * 168}px` } as CSSProperties}
-      onMouseEnter={() => {
-        setActive(f.id);
-        setHeld(100);
-      }}
-      onMouseLeave={() => {
-        setActive(null);
-        setHeld(null);
-      }}
-      onFocus={() => {
-        setActive(f.id);
-        setHeld(100);
-      }}
-      onBlur={() => {
-        setActive(null);
-        setHeld(null);
-      }}
-      tabIndex={0}
     >
-      <h3 className="font-medium leading-snug">{f.title}</h3>
-      <p className="text-muted small mt-1">{f.body}</p>
-    </li>
+      {items.map((f, k) => {
+        const i = from + k;
+        return (
+          <li
+            key={f.id}
+            tabIndex={0}
+            className={cn("lp-note", active === i && "is-on")}
+            onMouseEnter={() => hold(i)}
+            onMouseLeave={() => hold(null)}
+            onFocus={() => hold(i)}
+            onBlur={() => hold(null)}
+          >
+            <div className="lp-note-num">{String(i + 1).padStart(2, "0")}</div>
+            <h3>{f.title}</h3>
+            <p>{f.body}</p>
+          </li>
+        );
+      })}
+    </ul>
   );
 
   return (
-    <section id="features" className="section wrap scroll-mt-6">
-      <div className="grid12">
-        <div className="col-span-12 lg:col-span-4 lg:text-right">
-          <h2 className="head">{c.title}</h2>
-          <p className="text-muted mt-3 lg:ml-auto lg:max-w-[28ch]">{c.sub}</p>
-        </div>
-        <p className="text-muted col-span-12 mt-3 lg:col-start-5 lg:col-span-5 lg:mt-0 lg:pt-2">
-          {beforeAfter.sub}
-        </p>
-      </div>
-
-      <div className="grid12 mt-12 lg:mt-16">
-        <ul className="relative col-span-12 order-2 mt-10 grid gap-8 sm:grid-cols-2 lg:order-1 lg:col-span-4 lg:mt-0 lg:block lg:min-h-[676px]">
-          {left.map((f, i) => note(f, i, "l"))}
-        </ul>
-
-        <Reveal
-          as="figure"
-          kind="shutter"
-          className="col-span-12 order-1 mx-auto w-full max-w-[380px] lg:col-start-5 lg:col-span-4 lg:order-2"
-        >
-          <div
-            data-ui
-            id="ba-frame"
-            ref={frameRef}
-            className="relative aspect-[9/16] w-full touch-none select-none overflow-clip bg-[#111]"
-            onPointerDown={(e) => {
-              dragging.current = true;
-              (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-              setFromClientX(e.clientX);
-            }}
-            onPointerMove={(e) => dragging.current && setFromClientX(e.clientX)}
-            onPointerUp={() => (dragging.current = false)}
-            onPointerCancel={() => (dragging.current = false)}
-            onDragStart={(e) => e.preventDefault()}
-          >
-            <DemoVideo ref={beforeRef} className="absolute inset-0" src={beforeAfter.before.src} poster="/demo/styles/raw.jpg" alt={beforeAfter.before.label} />
-            <div className="absolute inset-0" style={{ clipPath: `inset(0 0 0 ${shown}%)` }}>
-              <DemoVideo ref={afterRef} className="absolute inset-0" src={beforeAfter.after.src} poster="/demo/after-poster.webp" alt={beforeAfter.after.label} />
-            </div>
-            <div aria-hidden className="compare-handle" style={{ left: `${shown}%` }} />
-            <div
-              aria-hidden
-              data-glass="knob"
-              data-glass-snapshot="#ba-frame"
-              className="compare-knob"
-              style={{ left: `${shown}%` }}
-            />
-            <span data-glass="tag" data-glass-snapshot="#ba-frame" className="compare-tag left-3">
-              {beforeAfter.before.label}
-            </span>
-            <span data-glass="tag" data-glass-snapshot="#ba-frame" className="compare-tag right-3">
-              {beforeAfter.after.label}
-            </span>
-            <label className="sr-only" htmlFor="ba-slider">
-              Comparison position
-            </label>
-            <input
-              id="ba-slider"
-              type="range"
-              min={0}
-              max={100}
-              value={Math.round(pos)}
-              onChange={(e) => setPos(Number(e.target.value))}
-              className="absolute inset-x-6 bottom-6 h-1 cursor-ew-resize appearance-none bg-transparent opacity-0 focus-visible:opacity-100"
-              aria-valuetext={`${Math.round(pos)} percent edited`}
-            />
+    <section id="features" className="lp-sec">
+      <div className="lp-in">
+        <div className="lp-feat-head">
+          <div>
+            <h2 className="lp-h2">{c.title}</h2>
+            <p
+              className="lp-muted"
+              style={{ margin: "12px 0 0", fontSize: "clamp(1.15rem, 1rem + 0.5vw, 1.5rem)" }}
+            >
+              {c.sub}
+            </p>
           </div>
-          <figcaption className="text-muted small mt-3">{beforeAfter.note}</figcaption>
-        </Reveal>
+          <p className="lp-muted" style={{ margin: 0, maxWidth: "44ch" }}>
+            {beforeAfter.sub}
+          </p>
+        </div>
 
-        <ul className="relative col-span-12 order-3 mt-8 grid gap-8 sm:grid-cols-2 lg:col-start-9 lg:col-span-4 lg:mt-0 lg:block lg:min-h-[676px]">
-          {right.map((f, i) => note(f, i, "r"))}
-        </ul>
+        <div className="lp-feat-grid">
+          {notes(0, c.items.slice(0, 4), "l")}
+
+          <figure className="lp-feat-plate" style={{ margin: "0 auto" }}>
+            <div className="lp-tilt-plate" data-tilt="6">
+              <div
+                data-ui
+                id="ba-frame"
+                ref={frameRef}
+                className={cn("lp-cmp", eased && "is-anim")}
+                onPointerDown={(e) => {
+                  dragging.current = true;
+                  (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+                  setFromClientX(e.clientX);
+                }}
+                onPointerMove={(e) => dragging.current && setFromClientX(e.clientX)}
+                onPointerUp={() => (dragging.current = false)}
+                onPointerCancel={() => (dragging.current = false)}
+                onDragStart={(e) => e.preventDefault()}
+              >
+                <DemoVideo
+                  ref={beforeRef}
+                  className="absolute inset-0"
+                  src={beforeAfter.before.src}
+                  poster="/demo/styles/raw.jpg"
+                  alt={beforeAfter.before.label}
+                />
+                <div className="lp-cmp-top" style={{ clipPath: `inset(0 0 0 ${shown}%)` }}>
+                  <DemoVideo
+                    ref={afterRef}
+                    className="absolute inset-0"
+                    src={beforeAfter.after.src}
+                    poster="/demo/after-poster.webp"
+                    alt={beforeAfter.after.label}
+                  />
+                </div>
+                <div className="lp-cmp-line" style={{ left: `${shown}%` }} aria-hidden>
+                  <div className="lp-cmp-knob">⟷</div>
+                </div>
+                <span className="lp-cmp-tag" style={{ left: 14 }}>
+                  {beforeAfter.before.label}
+                </span>
+                <span className="lp-cmp-tag is-gold" style={{ right: 14 }}>
+                  {beforeAfter.after.label}
+                </span>
+              </div>
+              <div className="lp-cmp-shadow" aria-hidden />
+            </div>
+            <label className="lp-range" style={{ marginTop: 22 }}>
+              <span>Comparison position</span>
+              <input
+                id="ba-slider"
+                type="range"
+                min={0}
+                max={100}
+                value={Math.round(100 - pos)}
+                onChange={(e) => {
+                  setEased(false);
+                  setPos(100 - Number(e.target.value));
+                }}
+                aria-valuetext={`${Math.round(100 - shown)} percent edited`}
+              />
+            </label>
+            <figcaption
+              className="lp-muted"
+              style={{ margin: "14px 0 0", fontSize: 13, lineHeight: 1.5, textAlign: "center" }}
+            >
+              {beforeAfter.note}
+            </figcaption>
+          </figure>
+
+          {notes(4, c.items.slice(4), "r")}
+        </div>
       </div>
     </section>
   );

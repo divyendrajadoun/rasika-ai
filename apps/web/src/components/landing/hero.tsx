@@ -2,18 +2,31 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { hero as c } from "@/content/landing";
-import "./hero3d.css";
+import { DemoVideo } from "@/components/brand/demo-video";
+import { FAMILY_LABEL, SFX_LABEL, presetCards, type PresetCard } from "@/config/presets";
+import { STYLE_COUNT, hero as c } from "@/content/landing";
+import { cn } from "@/lib/utils";
+import { useAdvance, useReducedMotion } from "./use-advance";
 
-/**
- * Hero — "The curved wall". The maroon stage, the headline set as a reel sets it (one gold word at
- * a time, at a speaking pace), and under it a cinema-curved wall of real Rasika reels gliding past
- * behind a phone that plays a finished one. Pure CSS 3D: the wall is a ring of posters seen from
- * inside (only its far half faces us), so it always sits behind the phone; the pointer tilts the
- * stage a few degrees. Only the phone plays video. Reduced motion: the wall and the words hold still.
- */
-// the wall: style renders of one take, between films made from a brief (all real Rasika output)
-const WALL = [
+type Variant = "styles" | "orbit";
+/** The A/B flag: NEXT_PUBLIC_HERO_VARIANT sets the default, `?hero=orbit|styles` overrides it for QA. */
+const DEFAULT_VARIANT: Variant =
+  process.env.NEXT_PUBLIC_HERO_VARIANT === "orbit" ? "orbit" : "styles";
+
+/** Variant A: the looks that wipe over the same raw take, in order. */
+const LOOKS = [
+  "mikku-royal",
+  "katana-pop",
+  "launch-spotlight",
+  "vox-paper",
+  "neon-pop",
+  "tabloid-headline",
+  "comic-pop",
+  "festive-bandhani",
+  "glass-keynote",
+];
+/** Variant B: the ring, style renders of one take between films made from a brief. */
+const RING = [
   "styles/launch-spotlight",
   "briefs/versus",
   "styles/mikku-royal",
@@ -32,15 +45,37 @@ const WALL = [
   "briefs/product",
 ];
 
+/**
+ * Hero: the maroon stage and the headline set the way a reel sets it (one gold word at a time, at
+ * a speaking pace). Under the shared copy, one of two stages: A "styles", a 3D coverflow of style
+ * posters where the centre card wipes from the raw clip to the styled render; B "orbit", a ring of
+ * real renders turning behind a phone that plays a finished reel.
+ */
 export function Hero() {
+  const [variant, setVariant] = useState<Variant>(DEFAULT_VARIANT);
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("hero");
+    if (q === "orbit" || q === "styles") setVariant(q);
+  }, []);
+
+  return (
+    <section id="hero" className="lp-hero" data-hero-variant={variant}>
+      <div className="lp-hero-bg" aria-hidden />
+      <HeroCopy />
+      {variant === "orbit" ? <OrbitStage /> : <StylesStage />}
+    </section>
+  );
+}
+
+function HeroCopy() {
   const [lit, setLit] = useState(-1);
-  const stage = useRef<HTMLDivElement>(null);
   const words = useMemo(() => c.lines.map((l) => l.split(" ")), []);
   const total = words.reduce((n, w) => n + w.length, 0);
+  const reduced = useReducedMotion();
 
-  // the caption clock: one word lights at ~150 words a minute, a breath after the sentence, again
+  // the caption clock: one word lights every 400 ms, a rest after the sentence, then again
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (reduced) return;
     let i = -1;
     let t = 0;
     const beat = 400;
@@ -51,108 +86,201 @@ export function Hero() {
     };
     t = window.setTimeout(tick, 1300);
     return () => window.clearTimeout(t);
-  }, [total]);
-
-  // the pointer leans the stage (a few degrees, eased by CSS)
-  useEffect(() => {
-    const el = stage.current;
-    if (!el || window.matchMedia("(pointer: coarse), (prefers-reduced-motion: reduce)").matches) return;
-    let raf = 0;
-    const move = (e: PointerEvent) => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const x = e.clientX / window.innerWidth - 0.5;
-        const y = e.clientY / window.innerHeight - 0.5;
-        el.style.setProperty("--tilt-x", `${(-y * 6).toFixed(2)}deg`);
-        el.style.setProperty("--tilt-y", `${(x * 10).toFixed(2)}deg`);
-      });
-    };
-    window.addEventListener("pointermove", move, { passive: true });
-    return () => {
-      window.removeEventListener("pointermove", move);
-      cancelAnimationFrame(raf);
-    };
-  }, []);
+  }, [total, reduced]);
 
   let n = 0;
   return (
-    <section id="hero" className="hero3d relative isolate overflow-clip pt-[104px]">
-      <div className="hero3d-glow" aria-hidden />
-      <div className="hero3d-grain" aria-hidden />
-
-      <div className="wrap relative z-10 flex flex-col items-center text-center">
-        <p data-load className="hero3d-kicker" style={{ "--d": "60ms" } as CSSProperties}>
-          <span className="hero3d-dot" aria-hidden /> AI reel editor · English &amp; हिन्दी
-        </p>
-        <h1
-          className="lines display mt-5 max-w-[14ch] text-[var(--iv)]"
-          style={{ fontSize: "clamp(2.6rem, 7.4vw, 6.2rem)", lineHeight: 0.96, letterSpacing: "-0.045em" }}
-        >
-          {c.lines.map((line, li) => (
-            <span key={line} className="line">
-              <span data-line style={{ "--i": li } as CSSProperties}>
-                {words[li]!.map((w, wi) => {
-                  const k = n++;
-                  return (
-                    <span key={`${li}-${wi}`}>
-                      <span className={k === lit ? "hero3d-word is-lit" : "hero3d-word"}>{w}</span>
-                      {wi < words[li]!.length - 1 ? " " : ""}
-                    </span>
-                  );
-                })}
-              </span>
-            </span>
-          ))}
-        </h1>
-        <p
-          data-load
-          className="mt-5 max-w-[58ch] text-[1.0625rem] leading-relaxed text-[color:rgb(246_236_216/0.78)] sm:text-[1.1875rem]"
-          style={{ "--d": "380ms" } as CSSProperties}
-        >
-          {c.sub}
-        </p>
-        <div data-load className="mt-8 flex flex-wrap items-center justify-center gap-3" style={{ "--d": "460ms" } as CSSProperties}>
-          <Link href={c.primary.href} className="hero3d-cta">
-            {c.primary.label}
-            <span aria-hidden className="hero3d-cta-arrow">→</span>
-          </Link>
-          <Link href="/help" className="hero3d-ghost">
-            <span aria-hidden className="hero3d-play">▶</span> Watch the 2-minute tour
-          </Link>
-        </div>
-        <p data-load className="mt-5 text-[13px] tracking-wide text-[color:rgb(246_236_216/0.6)]" style={{ "--d": "520ms" } as CSSProperties}>
-          {c.trust.join("  ·  ")}
-        </p>
+    <div className="lp-hero-copy">
+      <span className="lp-badge lp-rise" style={{ "--d": "60ms" } as CSSProperties}>
+        <span className="lp-badge-dot" aria-hidden />
+        AI reel editor · English &amp; हिन्दी
+      </span>
+      <h1 className="lp-h1 lp-rise" style={{ "--d": "140ms" } as CSSProperties}>
+        {c.lines.map((line, li) => (
+          <span key={line}>
+            {words[li]!.map((w, wi) => {
+              const k = n++;
+              return (
+                <span key={`${li}-${wi}`}>
+                  <span className={k === lit ? "lp-w is-lit" : "lp-w"}>{w}</span>
+                  {wi < words[li]!.length - 1 ? " " : ""}
+                </span>
+              );
+            })}
+          </span>
+        ))}
+      </h1>
+      <p className="lp-sub lp-rise" style={{ "--d": "260ms" } as CSSProperties}>
+        {c.sub}
+      </p>
+      <div className="lp-ctas lp-rise" style={{ "--d": "340ms" } as CSSProperties}>
+        <Link href={c.primary.href} className="lp-btn lp-cta-main">
+          {c.primary.label} <span aria-hidden>→</span>
+        </Link>
+        <Link href="/help" className="lp-btn lp-cta-ghost">
+          <span aria-hidden>▶</span> Watch the 2-minute tour
+        </Link>
       </div>
+      <p className="lp-foot lp-rise" style={{ "--d": "400ms" } as CSSProperties}>
+        {c.trust.join(" · ")}
+      </p>
+    </div>
+  );
+}
 
-      {/* the stage: a curved wall of real reels behind the phone */}
-      <div ref={stage} className="hero3d-stage" aria-hidden>
-        <div className="hero3d-tilt">
-          <div className="hero3d-ring" style={{ "--n": WALL.length } as CSSProperties}>
-            {WALL.map((id, i) => (
-              <div key={id} className="hero3d-card" style={{ "--i": i } as CSSProperties}>
+function StylesStage() {
+  const looks = useMemo(
+    () =>
+      LOOKS.map((id) => presetCards.find((p) => p.tokens.id === id)).filter((p): p is PresetCard =>
+        Boolean(p),
+      ),
+    [],
+  );
+  const N = looks.length;
+  // two-phase wipe: the new centre card shows the raw clip at once, then the style sweeps over it
+  const [wiping, setWiping] = useState(true);
+  const wipeT = useRef(0);
+  const { index, pick } = useAdvance(N, 2900, 6000, () => {
+    window.clearTimeout(wipeT.current);
+    setWiping(false);
+    wipeT.current = window.setTimeout(() => setWiping(true), 60);
+  });
+  useEffect(() => () => window.clearTimeout(wipeT.current), []);
+  const active = looks[index]!;
+
+  return (
+    <div className="lp-cf" data-tilt="4">
+      <div className="lp-floor" style={{ bottom: 70, width: "60%" }} aria-hidden />
+      <div className="lp-cf-group">
+        {looks.map((p, i) => {
+          let off = (((i - index) % N) + N) % N;
+          if (off > N / 2) off -= N;
+          const ab = Math.abs(off);
+          const on = off === 0;
+          const style = {
+            transform: `translateX(calc(${off} * var(--cw) * 0.82)) translateZ(${on ? 80 : -ab * 150}px) rotateY(${off * -28}deg) scale(${on ? 1.18 : 1})`,
+            opacity: ab >= 4 ? 0 : Math.max(0.4, 1 - ab * 0.18),
+            zIndex: 20 - ab,
+            "--cut": on && !wiping ? "100%" : "0%",
+          } as CSSProperties;
+          return (
+            <button
+              key={p.tokens.id}
+              type="button"
+              aria-label={p.tokens.name}
+              aria-pressed={on}
+              tabIndex={ab >= 4 ? -1 : 0}
+              onClick={() => pick(i)}
+              className={cn("lp-cf-card", on && "is-on", on && wiping && "is-wiping")}
+              style={style}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element -- static demo poster */}
+              <img src="/demo/styles/raw.jpg" alt="" draggable={false} decoding="async" />
+              {/* eslint-disable-next-line @next/next/no-img-element -- static demo poster */}
+              <img
+                src={`/demo/styles/${p.tokens.id}.jpg`}
+                alt=""
+                draggable={false}
+                decoding="async"
+                loading={i < 4 || i > N - 4 ? "eager" : "lazy"}
+                className="lp-cf-styled"
+              />
+              {on && <span className="lp-cf-edge" aria-hidden />}
+              <span className="lp-sheen" aria-hidden />
+            </button>
+          );
+        })}
+      </div>
+      <div className="lp-cf-label" aria-live="polite">
+        <div className="lp-cf-count">
+          SAME TAKE · {index + 1} OF {STYLE_COUNT} LOOKS
+        </div>
+        <div className="lp-cf-name">{active.tokens.name}</div>
+        <div className="lp-cf-fam">
+          {FAMILY_LABEL[active.tokens.motion.family]} · {SFX_LABEL[active.tokens.motion.sfxKit]}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OrbitStage() {
+  const stage = useRef<HTMLDivElement>(null);
+  const ring = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+
+  // the ring turns once every 90 s; the pointer leans the stage a few degrees
+  useEffect(() => {
+    const el = stage.current;
+    const r = ring.current;
+    if (!el || !r || reduced) return;
+    let raf = 0;
+    let angle = 0;
+    let last = performance.now();
+    const spin = (now: number) => {
+      const dt = Math.min(64, now - last);
+      last = now;
+      if (!document.hidden) {
+        angle = (angle + (dt / 90000) * 360) % 360;
+        r.style.transform = `rotateY(${angle.toFixed(3)}deg)`;
+      }
+      raf = requestAnimationFrame(spin);
+    };
+    raf = requestAnimationFrame(spin);
+    const fine = window.matchMedia("(pointer: fine)").matches;
+    const move = (e: PointerEvent) => {
+      const x = e.clientX / window.innerWidth - 0.5;
+      const y = e.clientY / window.innerHeight - 0.5;
+      el.style.setProperty("--tx", `${(-y * 6).toFixed(2)}deg`);
+      el.style.setProperty("--ty", `${(x * 10).toFixed(2)}deg`);
+    };
+    if (fine) window.addEventListener("pointermove", move, { passive: true });
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("pointermove", move);
+    };
+  }, [reduced]);
+
+  return (
+    <div ref={stage} className="lp-orbit" aria-hidden>
+      <div className="lp-floor" style={{ bottom: 6, width: "70%" }} />
+      <div className="lp-orbit-tilt">
+        <div className="lp-orbit-push">
+          <div ref={ring} className="lp-orbit-ring">
+            {RING.map((id, i) => (
+              <div key={id} className="lp-orbit-card" style={{ "--i": i } as CSSProperties}>
                 {/* eslint-disable-next-line @next/next/no-img-element -- static demo poster */}
-                <img src={`/demo/${id}.jpg`} alt="" loading={i < 6 ? "eager" : "lazy"} decoding="async" draggable={false} />
+                <img
+                  src={`/demo/${id}.jpg`}
+                  alt=""
+                  loading={i < 6 ? "eager" : "lazy"}
+                  decoding="async"
+                  draggable={false}
+                />
               </div>
             ))}
           </div>
-          <div className="hero3d-phone">
-            <video
+        </div>
+        <div className="lp-phone lp-orbit-phone">
+          <div className="lp-phone-screen">
+            <DemoVideo
+              className="absolute inset-0"
               src={c.demo.after}
               poster={c.demo.afterPoster}
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              className="hero3d-screen"
+              alt={c.demo.alt}
+              start="load"
             />
-            <span className="hero3d-notch" />
-            <span className="hero3d-badge">Rendered by Rasika</span>
+            <span className="lp-notch" />
+            <span
+              className="lp-sheen"
+              style={{
+                background: "linear-gradient(125deg, rgba(255,255,255,0.18), transparent 35%)",
+              }}
+            />
           </div>
-          <div className="hero3d-floor" />
         </div>
       </div>
-    </section>
+      <div className="lp-orbit-cap">RENDERED BY RASIKA</div>
+    </div>
   );
 }

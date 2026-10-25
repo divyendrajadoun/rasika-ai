@@ -40,7 +40,7 @@ describe("landing content", () => {
     expect(landing.hero.headline).toBe("Talk to your phone. Post like a studio.");
     expect(landing.hero.lines).toHaveLength(2);
     expect(landing.hero.hindiLines).toHaveLength(2);
-    expect(landing.howItWorks.steps).toHaveLength(3);
+    expect(landing.howItWorks.steps).toHaveLength(6);
     expect(landing.features.items).toHaveLength(8);
     expect(landing.showcase.styleIds).toHaveLength(4);
     expect(landing.faq.items.length).toBeGreaterThanOrEqual(6);

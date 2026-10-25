@@ -2,18 +2,16 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Wordmark } from "@/components/brand/wordmark";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { brand } from "@/config/brand";
 import { nav } from "@/content/landing";
-import { cn } from "@/lib/utils";
 
 /**
- * A floating bar of liquid glass that stays at the top of the page and refracts whatever scrolls
- * under it: the hero's headline, the reels, the tiles. The name at one end, four text links, one
- * action. It takes no room in the flow (the negative margin lets the hero start under it). On a
- * phone: the name, the action and a "Menu" text button that opens a full-screen sheet.
+ * A floating glass bar that stays at the top of the page: the arch and the name, four links, the
+ * theme toggle and one gold action. It takes no room in the flow (the negative margin lets the hero
+ * start under it). Under 760px: the name, the action and "Menu", which opens a full-screen sheet.
  */
-export function Nav({ className }: { className?: string }) {
+export function Nav() {
   const [open, setOpen] = useState(false);
   useEffect(() => {
     if (!open) return;
@@ -26,76 +24,61 @@ export function Nav({ className }: { className?: string }) {
     };
   }, [open]);
   return (
-    <header className={cn("wrap sticky top-3 z-[60] -mb-[76px] pt-3", className)}>
-      <nav
-        data-glass="bar"
-        className="flex h-[52px] items-center justify-between gap-6 px-5"
-        aria-label="Primary"
-      >
-        <Wordmark />
-        <ul className="hidden items-center gap-7 md:flex">
+    <header className="lp-nav-wrap">
+      <nav className="lp-nav" aria-label="Primary">
+        <Logo />
+        <div className="lp-nav-links">
           {nav.links.map((l) => (
-            <li key={l.href}>
-              <a href={l.href} className="link inline-flex h-11 items-center">
-                {l.label}
-              </a>
-            </li>
+            <a key={l.href} href={l.href}>
+              {l.label}
+            </a>
           ))}
-        </ul>
-        <div className="flex items-center gap-4">
-          <ThemeToggle className="hidden md:inline-flex" />
-          <Link href={nav.cta.href} className="link inline-flex h-11 items-center font-medium">
-            {nav.cta.label}
-          </Link>
-          <button
-            type="button"
-            className="link inline-flex h-11 items-center md:hidden"
-            aria-expanded={open}
-            aria-controls="menu-sheet"
-            onClick={() => setOpen(true)}
-          >
-            Menu
-          </button>
         </div>
+        <ThemeToggle className="lp-theme" />
+        <div className="lp-nav-spacer" />
+        <Link href={nav.cta.href} className="lp-btn lp-nav-cta">
+          {nav.cta.label}
+        </Link>
+        <button
+          type="button"
+          className="lp-menu-btn"
+          aria-expanded={open}
+          aria-controls="menu-sheet"
+          onClick={() => setOpen(true)}
+        >
+          Menu
+        </button>
       </nav>
       {open && (
-        <div
-          id="menu-sheet"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Menu"
-          className="bg-bg text-text fixed inset-0 z-[70] flex flex-col px-4 py-4"
-          data-liquid-ignore
-        >
-          <div className="flex h-16 items-center justify-between">
-            <Wordmark />
-            <button
-              type="button"
-              className="link inline-flex h-11 items-center"
-              onClick={() => setOpen(false)}
-            >
+        <div id="menu-sheet" role="dialog" aria-modal="true" aria-label="Menu" className="lp-sheet">
+          <div className="flex h-[52px] items-center justify-between">
+            <Logo />
+            <button type="button" className="h-11 px-3.5" onClick={() => setOpen(false)}>
               Close
             </button>
           </div>
-          <ul className="mt-10 flex flex-col gap-2">
+          <nav className="flex flex-col gap-1.5" aria-label="Menu">
             {nav.links.map((l) => (
-              <li key={l.href}>
-                <a href={l.href} onClick={() => setOpen(false)} className="head block py-2">
-                  {l.label}
-                </a>
-              </li>
+              <a key={l.href} href={l.href} onClick={() => setOpen(false)}>
+                {l.label}
+              </a>
             ))}
-            <li className="pt-6">
-              <Link href={nav.cta.href} className="button w-full">
-                {nav.cta.label}
-              </Link>
-            </li>
-            <li className="pt-2">
-              <ThemeToggle />
-            </li>
-          </ul>
+          </nav>
+          <Link href={nav.cta.href} className="lp-btn lp-sheet-cta">
+            {nav.cta.label}
+          </Link>
+          <ThemeToggle className="lp-sheet-theme" />
         </div>
       )}
     </header>
+  );
+}
+
+function Logo() {
+  return (
+    <Link href="/" className="lp-logo" aria-label={`${brand.name} home`}>
+      <span className="lp-logo-glyph" aria-hidden />
+      {brand.name}
+    </Link>
   );
 }

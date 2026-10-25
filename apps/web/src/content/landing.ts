@@ -10,7 +10,7 @@ export const STYLE_COUNT = presetCards.length;
 
 export const nav = {
   links: [
-    { label: "How it works", href: "/help" },
+    { label: "How it works", href: "#how" },
     { label: "Examples", href: "#styles" },
     { label: "Pricing", href: "#pricing" },
     { label: "FAQ", href: "#faq" },
@@ -45,27 +45,35 @@ export const beforeAfter = {
   note: "Real footage from a small jewellery brand. Yours might be a listing, a clinic, a classroom or a kitchen — the craft is the same.",
 };
 
+/** How it works: six steps, each with its own phone screen on the landing. */
 export const howItWorks = {
-  title: "How it works",
-  sub: "Three steps. No timeline.",
+  kicker: "How it works",
+  title: "One take in. A finished reel out.",
+  sub: "Six steps, about four minutes. You only do the first one.",
   steps: [
     {
-      lead: "First, upload your take.",
-      line: "Upload your video",
-      italic: "a phone selfie clip, 15 s to 3 min",
-      body: "Phone footage is fine. HEVC, MOV, MP4 — up to 600 MB, resumable if your network drops.",
+      title: "Upload your take",
+      body: "One talking video from your phone, up to 3 minutes. Uploads resume if the connection drops.",
     },
     {
-      lead: "Then add photos and pick a style.",
-      line: "Add photos & pick a style",
-      italic: "“show this when I say balcony”",
-      body: "Drop in listing photos, before/afters, product shots or slides. Tell us which word they belong to. Pick a preset or describe your look.",
+      title: "We time every word",
+      body: "Transcribed and verified in English, Hindi or Hinglish. Each word gets its exact moment on screen.",
     },
     {
-      lead: "Then preview, tweak, download.",
-      line: "Preview, tweak, download",
-      italic: "change a title, retime a photo",
-      body: "A quick preview lands in a minute, the full 1080 × 1920 render a couple of minutes later. Edit in the browser, render again, post.",
+      title: "Pick a look",
+      body: `${STYLE_COUNT} styles, each with its own motion and sound. Or upload a reel you love and we match it.`,
+    },
+    {
+      title: "Photos land on the word",
+      body: "Say “balcony” and the balcony appears. Tell us the word; we do the timing.",
+    },
+    {
+      title: "Preview in about a minute",
+      body: "A quick preview first. Change a title or move a photo by tapping the word.",
+    },
+    {
+      title: "Download and post",
+      body: "1080 × 1920 MP4, no watermark on paid reels. Straight to Instagram.",
     },
   ],
 };
@@ -120,7 +128,8 @@ export const features = {
 export const styles = {
   title: `${STYLE_COUNT} styles, one take`,
   sub: "Pick a look. Drag to compare it with the raw clip.",
-  note2: "Every style here was planned and rendered by Rasika from the same real 12-second phone clip — not a mock-up. Each one is a full design system: palette, type, caption format, and its own motion — how lines enter, how the camera cuts, which sounds land.",
+  note2:
+    "Every style here was planned and rendered by Rasika from the same real 12-second phone clip — not a mock-up. Each one is a full design system: palette, type, caption format, and its own motion — how lines enter, how the camera cuts, which sounds land.",
   note: "Nine motion families — editorial, kinetic type, whiteboard, chalkboard, hype cut, launch film, paper collage, colour blocks, beat type — each with its own sound kit. Most of the styles were built from the measured rules of the open video-skills community's looks — Apple-style recaps, whiteboard and chalkboard explainers, TikTok retention cuts, launch films, heditor's cinema and podcast sets, ravyn's window and tabloid, ghost-editor's seven looks, Vox paper collages, halftone zines, retro terminals, pixel RPG boxes, Swiss posters, glass keynotes and more — every one planned and rendered inside Rasika, nothing redirected elsewhere. Describe a look in the wizard (“clinic white, navy, fewer effects”) and we map it to the nearest preset.",
   ctaLabel: "Use this style",
 };
@@ -198,7 +207,11 @@ export const footer = {
 export const showcase = {
   title: "Type a line. It is set like the reel.",
   initial: "Read clause eleven first",
-  examples: ["Three bedrooms, east facing", "Forty minutes, not cream", "Zero to ten thousand orders"],
+  examples: [
+    "Three bedrooms, east facing",
+    "Forty minutes, not cream",
+    "Zero to ten thousand orders",
+  ],
   /** The presets offered under the line; all four set their poster in Anton, the face this page has. */
   styleIds: ["mikku-royal", "boardroom-navy", "tabloid-headline", "festive-bandhani"],
   note: `The poster line, the caption and the lit word use the style's own tokens. The ${STYLE_COUNT} reels below are the full renders.`,

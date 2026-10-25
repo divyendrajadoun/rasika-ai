@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FilmTile } from "@/components/landing/brief-films";
-import { BRIEF_KINDS } from "@/config/briefs";
-import { FAMILY_LABEL, demoSrc, presetCards, type PresetCard } from "@/config/presets";
+import { BRIEF_KINDS, type BriefKind } from "@/config/briefs";
+import { FAMILY_LABEL, SFX_LABEL, demoSrc, presetCards, type PresetCard } from "@/config/presets";
 import { STYLE_COUNT, styles as c } from "@/content/landing";
 import { cn } from "@/lib/utils";
+import { useReducedMotion } from "./use-advance";
 
 const DEMO = (id: string) => ({
   video: demoSrc(id, "mp4"),
@@ -18,77 +18,193 @@ const RAW = { video: "/demo/styles/raw.mp4", poster: "/demo/styles/raw.jpg" };
 const PICKS = ["launch-spotlight", "mikku-royal", "katana-pop", "vox-paper"];
 
 /**
- * Examples — one section, two answers. "From your video": four real renders of the same 12-second
- * take, the chosen one over the raw clip on the compare plate (drag the handle). "No video at all":
- * a rail of films made from a brief, each a real render that plays on hover and opens the wizard
- * on that kind of film.
+ * Examples: one section, two answers. "From your video": four real renders of the same 12-second
+ * take, the chosen one over the raw clip on the sticky compare plate (drag the handle). "No video at
+ * all": a rail of films made from a brief whose cards angle away from the centre as it scrolls; each
+ * plays on hover and opens the wizard on that kind of film.
  */
 export function StyleShowcase() {
   const cards = PICKS.map((id) => presetCards.find((p) => p.tokens.id === id)).filter(
     (p): p is PresetCard => Boolean(p),
   );
-  const [activeId, setActiveId] = useState(cards[0]!.tokens.id);
+  const [activeId, setActiveId] = useState(cards[1]?.tokens.id ?? cards[0]!.tokens.id);
   const card = cards.find((p) => p.tokens.id === activeId) ?? cards[0]!;
   return (
-    <section id="styles" className="section wrap scroll-mt-6">
-      <div className="max-w-[46rem]">
-        <p className="label">Examples</p>
-        <h2 className="head mt-2">Same take. Different reel. Or no take at all.</h2>
-        <p className="text-muted mt-4 max-w-[52ch]">
+    <section id="styles" className="lp-sec lp-styles">
+      <div className="lp-in">
+        <div className="lp-kicker">Examples</div>
+        <h2 className="lp-h2" style={{ marginTop: 12, maxWidth: "18ch" }}>
+          Same take. Different reel. Or no take at all.
+        </h2>
+        <p className="lp-muted" style={{ margin: "16px 0 0", maxWidth: "58ch" }}>
           Every clip here is real Rasika output. Pick a look to see it over the raw phone video, or
           scroll the films made from nothing but a brief.
         </p>
-      </div>
 
-      <div className="grid12 mt-12 items-start">
-        <div className="col-span-12 lg:sticky lg:top-6 lg:col-span-4">
-          <Compare card={card} />
-        </div>
-        <div className="col-span-12 mt-10 min-w-0 lg:col-start-6 lg:col-span-7 lg:mt-0">
-          <p className="label">From your video · {STYLE_COUNT} styles, here are four</p>
-          <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {cards.map((p) => (
-              <li key={p.tokens.id}>
-                <StyleTile card={p} active={p.tokens.id === activeId} onPick={() => setActiveId(p.tokens.id)} />
-              </li>
-            ))}
-          </ul>
-          <Link href="/dashboard/new" className="button button-ghost mt-6">
-            See all {STYLE_COUNT} styles when you make a reel
-          </Link>
-        </div>
-      </div>
-
-      <div className="mt-20">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="label">No video at all</p>
-            <h3 className="mt-2 text-[clamp(1.6rem,1.2rem+1.6vw,2.4rem)] font-semibold leading-tight tracking-[-0.02em]">
-              Films from a brief
-            </h3>
-            <p className="text-muted mt-2 max-w-[56ch]">
-              Give a website, a recipe, two contenders or a single line. Rasika writes, scores and
-              designs the whole film.
-            </p>
+        <div className="lp-ex-grid">
+          <div className="lp-ex-plate">
+            <Compare card={card} />
           </div>
-          <p className="text-muted small">
-            <span className="hidden md:inline">Hover to play · </span>Scroll for more →
-          </p>
+          <div style={{ minWidth: 0 }}>
+            <div className="lp-muted" style={{ fontSize: 14, fontWeight: 500, marginBottom: 14 }}>
+              From your video · {STYLE_COUNT} styles, here are four
+            </div>
+            <ul className="lp-tiles">
+              {cards.map((p) => (
+                <li key={p.tokens.id}>
+                  <StyleTile
+                    card={p}
+                    active={p.tokens.id === activeId}
+                    onPick={() => setActiveId(p.tokens.id)}
+                  />
+                </li>
+              ))}
+            </ul>
+            <Link href="/dashboard/new" className="lp-btn lp-btn-quiet" style={{ marginTop: 22 }}>
+              See all {STYLE_COUNT} styles when you make a reel →
+            </Link>
+          </div>
         </div>
-        <ul className="films-rail mt-6">
-          {BRIEF_KINDS.map((k) => (
-            <li key={k.id}>
-              <FilmTile kind={k} />
-            </li>
-          ))}
-        </ul>
+
+        <Films />
       </div>
     </section>
   );
 }
 
+function Films() {
+  const rail = useRef<HTMLUListElement>(null);
+  const reduced = useReducedMotion();
+  // each card turns away from the rail's centre: rotateY(k * -26deg) translateZ(-|k| * 90px)
+  const angle = useCallback(() => {
+    const r = rail.current;
+    if (!r) return;
+    const cx = r.scrollLeft + r.clientWidth / 2;
+    for (const li of Array.from(r.children) as HTMLElement[]) {
+      const a = li.firstElementChild as HTMLElement | null;
+      if (!a) continue;
+      if (reduced) {
+        a.style.setProperty("--cf", "0deg");
+        a.style.setProperty("--cz", "0px");
+        continue;
+      }
+      const k = Math.max(
+        -1,
+        Math.min(1, ((li.offsetLeft + li.offsetWidth / 2 - cx) / r.clientWidth) * 1.8),
+      );
+      a.style.setProperty("--cf", `${(k * -26).toFixed(2)}deg`);
+      a.style.setProperty("--cz", `${(-Math.abs(k) * 90).toFixed(1)}px`);
+    }
+  }, [reduced]);
+  useEffect(() => {
+    angle();
+    window.addEventListener("resize", angle);
+    return () => window.removeEventListener("resize", angle);
+  }, [angle]);
+
+  return (
+    <div style={{ marginTop: 96 }}>
+      <div className="lp-kicker">No video at all</div>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h3
+            style={{
+              margin: "10px 0 0",
+              fontWeight: 600,
+              fontSize: "clamp(1.6rem, 1.1rem + 2vw, 2.6rem)",
+              letterSpacing: "-0.03em",
+              lineHeight: 1,
+            }}
+          >
+            Films from a brief
+          </h3>
+          <p className="lp-muted" style={{ margin: "12px 0 0", maxWidth: "56ch" }}>
+            Give a website, a recipe, two contenders or a single line. Rasika writes, scores and
+            designs the whole film.
+          </p>
+        </div>
+        <span className="lp-muted" style={{ fontSize: 13 }}>
+          <span className="hidden md:inline">Hover to play · </span>Scroll for more →
+        </span>
+      </div>
+      <ul ref={rail} className="lp-rail" onScroll={angle}>
+        {BRIEF_KINDS.map((k) => (
+          <li key={k.id}>
+            <FilmCard kind={k} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** Hover or focus attaches and plays the clip, so each card costs a lazy poster until then. */
+function useHoverClip(src: string) {
+  const vid = useRef<HTMLVideoElement>(null);
+  const play = () => {
+    const v = vid.current;
+    if (!v) return;
+    if (!v.src) v.src = src;
+    void v.play().catch(() => undefined);
+  };
+  const stop = () => {
+    const v = vid.current;
+    if (!v) return;
+    v.pause();
+    v.currentTime = 0;
+  };
+  return { vid, play, stop };
+}
+
+function FilmCard({ kind }: { kind: BriefKind }) {
+  const { vid, play, stop } = useHoverClip(`/demo/briefs/${kind.id}.mp4`);
+  return (
+    <Link
+      href={`/dashboard/new?source=brief&kind=${kind.id}`}
+      onMouseEnter={play}
+      onMouseLeave={stop}
+      onFocus={play}
+      onBlur={stop}
+      className="lp-film"
+    >
+      <span className="lp-tile-media" style={{ display: "block" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- static demo poster */}
+        <img
+          src={`/demo/briefs/${kind.id}.jpg`}
+          alt=""
+          draggable={false}
+          loading="lazy"
+          decoding="async"
+        />
+        <video
+          ref={vid}
+          poster={`/demo/briefs/${kind.id}.jpg`}
+          muted
+          loop
+          playsInline
+          preload="none"
+          aria-hidden
+          tabIndex={-1}
+        />
+        <span className="lp-film-sheen" aria-hidden />
+      </span>
+      <span
+        style={{ display: "block", marginTop: 12, fontWeight: 600, fontSize: 15, lineHeight: 1.25 }}
+      >
+        {kind.title}
+      </span>
+      <span
+        className="lp-muted"
+        style={{ display: "block", marginTop: 4, fontSize: 13, lineHeight: 1.4 }}
+      >
+        You give: {kind.youGive}
+      </span>
+    </Link>
+  );
+}
+
 function Compare({ card }: { card: PresetCard }) {
-  const [pos, setPos] = useState(58);
+  const [pos, setPos] = useState(42);
   const [playing, setPlaying] = useState(true);
   const rawRef = useRef<HTMLVideoElement>(null);
   const styleRef = useRef<HTMLVideoElement>(null);
@@ -129,6 +245,7 @@ function Compare({ card }: { card: PresetCard }) {
     if (!a || !b) return;
     a.load();
     b.currentTime = 0;
+    setPos(42);
     if (playing) {
       void a.play().catch(() => undefined);
       void b.play().catch(() => undefined);
@@ -158,90 +275,131 @@ function Compare({ card }: { card: PresetCard }) {
   }, []);
 
   return (
-    <div className="mx-auto w-full max-w-[380px]">
-      <div
-        data-ui
-        id="style-frame"
-        ref={frameRef}
-        className="relative aspect-[9/16] cursor-ew-resize select-none overflow-clip bg-[#111]"
-        onPointerDown={(e) => {
-          dragging.current = true;
-          (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-          setFromClientX(e.clientX);
-        }}
-        onPointerMove={(e) => dragging.current && setFromClientX(e.clientX)}
-        onPointerUp={() => (dragging.current = false)}
-        onPointerCancel={() => (dragging.current = false)}
-        onDragStart={(e) => e.preventDefault()}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element -- lazy poster under the clips */}
-        <img src={RAW.poster} alt="" draggable={false} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
-        <video ref={rawRef} src={RAW.video} poster={RAW.poster} muted loop playsInline preload="none" className="absolute inset-0 h-full w-full object-cover" aria-label="Raw phone clip" />
-        <div className="absolute inset-0" style={{ clipPath: `inset(0 0 0 ${pos}%)` }}>
-          {/* eslint-disable-next-line @next/next/no-img-element -- lazy poster under the clip */}
-          <img src={demo.poster} alt="" draggable={false} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
-          <video ref={styleRef} src={demo.video} poster={demo.poster} muted loop playsInline preload="none" className="absolute inset-0 h-full w-full object-cover" aria-label={`${card.tokens.name} edit`} />
-        </div>
-        <div aria-hidden className="compare-handle" style={{ left: `${pos}%` }} />
+    <>
+      <div className="lp-tilt-plate" data-tilt="6">
         <div
-          aria-hidden
-          data-glass="knob"
-          data-glass-snapshot="#style-frame"
-          className="compare-knob"
-          style={{ left: `${pos}%` }}
-        />
-        <span data-glass="tag" data-glass-snapshot="#style-frame" className="compare-tag left-3">
-          Raw
-        </span>
-        <span data-glass="tag" data-glass-snapshot="#style-frame" className="compare-tag right-3">
-          {card.tokens.name}
-        </span>
+          data-ui
+          id="style-frame"
+          ref={frameRef}
+          className="lp-cmp"
+          onPointerDown={(e) => {
+            dragging.current = true;
+            (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+            setFromClientX(e.clientX);
+          }}
+          onPointerMove={(e) => dragging.current && setFromClientX(e.clientX)}
+          onPointerUp={() => (dragging.current = false)}
+          onPointerCancel={() => (dragging.current = false)}
+          onDragStart={(e) => e.preventDefault()}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- lazy poster under the clips */}
+          <img
+            src={RAW.poster}
+            alt=""
+            draggable={false}
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <video
+            ref={rawRef}
+            src={RAW.video}
+            poster={RAW.poster}
+            muted
+            loop
+            playsInline
+            preload="none"
+            className="absolute inset-0 h-full w-full object-cover"
+            aria-label="Raw phone clip"
+          />
+          <div className="lp-cmp-top" style={{ clipPath: `inset(0 0 0 ${pos}%)` }}>
+            {/* eslint-disable-next-line @next/next/no-img-element -- lazy poster under the clip */}
+            <img
+              src={demo.poster}
+              alt=""
+              draggable={false}
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            <video
+              ref={styleRef}
+              src={demo.video}
+              poster={demo.poster}
+              muted
+              loop
+              playsInline
+              preload="none"
+              className="absolute inset-0 h-full w-full object-cover"
+              aria-label={`${card.tokens.name} edit`}
+            />
+          </div>
+          <div className="lp-cmp-line" style={{ left: `${pos}%` }} aria-hidden>
+            <div className="lp-cmp-knob">⟷</div>
+          </div>
+          <span className="lp-cmp-tag" style={{ left: 14 }}>
+            Raw
+          </span>
+          <span className="lp-cmp-tag" style={{ right: 14 }}>
+            {card.tokens.name}
+          </span>
+        </div>
       </div>
-      <div className="mt-4 flex items-center gap-4">
-        <button type="button" onClick={toggle} className="link h-11 font-medium" aria-pressed={playing}>
+      <div className="lp-range" style={{ marginTop: 20 }}>
+        <button type="button" onClick={toggle} className="lp-play" aria-pressed={playing}>
           {playing ? "Pause" : "Play"}
         </button>
-        <input type="range" min={0} max={100} value={pos} onChange={(e) => setPos(Number(e.target.value))} className="chip-range flex-1" aria-label="Reveal the styled version" />
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={Math.round(100 - pos)}
+          onChange={(e) => setPos(100 - Number(e.target.value))}
+          aria-label="Reveal the styled version"
+          aria-valuetext={`${Math.round(100 - pos)} percent styled`}
+        />
       </div>
-      <p className="mt-4 font-medium leading-snug">{card.tokens.name}</p>
-      <p className="text-muted mt-1">{card.tokens.tagline}</p>
-      <Link href={`/dashboard/new?style=${card.tokens.id}`} className="button button-accent mt-5 w-full">
-        {c.ctaLabel}
-      </Link>
-    </div>
+      <div className="flex flex-wrap items-center justify-between gap-3" style={{ marginTop: 16 }}>
+        <div>
+          <div style={{ fontWeight: 600, fontSize: 18 }}>{card.tokens.name}</div>
+          <div className="lp-muted" style={{ fontSize: 13 }}>
+            {FAMILY_LABEL[card.tokens.motion.family]} · {SFX_LABEL[card.tokens.motion.sfxKit]}
+          </div>
+        </div>
+        <Link href={`/dashboard/new?style=${card.tokens.id}`} className="lp-btn lp-btn-gold">
+          {c.ctaLabel}
+        </Link>
+      </div>
+    </>
   );
 }
 
-function StyleTile({ card, active, onPick }: { card: PresetCard; active: boolean; onPick: () => void }) {
-  const vid = useRef<HTMLVideoElement>(null);
+function StyleTile({
+  card,
+  active,
+  onPick,
+}: {
+  card: PresetCard;
+  active: boolean;
+  onPick: () => void;
+}) {
   const demo = DEMO(card.tokens.id);
-  // the clip is attached on first hover/focus so every tile costs a lazy poster, not a video
-  const play = () => {
-    const v = vid.current;
-    if (!v) return;
-    if (!v.src) v.src = demo.video;
-    void v.play().catch(() => undefined);
-  };
-  const stop = () => {
-    const v = vid.current;
-    if (!v) return;
-    v.pause();
-    v.currentTime = 0;
-  };
+  const { vid, play, stop } = useHoverClip(demo.video);
   return (
     <button
       type="button"
+      data-tilt="10"
       onClick={onPick}
       onMouseEnter={play}
       onMouseLeave={stop}
       onFocus={play}
       onBlur={stop}
       aria-pressed={active}
-      className={cn("tile group flex h-full w-full flex-col text-left", active && "is-active")}
+      className={cn("lp-tile")}
     >
-      <div className="relative aspect-[9/16] w-full overflow-clip bg-[#111]">
+      <span className="lp-tile-media">
         {/* eslint-disable-next-line @next/next/no-img-element -- static demo poster */}
-        <img src={demo.poster} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
+        <img src={demo.poster} alt="" loading="lazy" decoding="async" />
         <video
           ref={vid}
           poster={demo.poster}
@@ -249,18 +407,16 @@ function StyleTile({ card, active, onPick }: { card: PresetCard; active: boolean
           loop
           playsInline
           preload="none"
-          className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100"
           aria-hidden
           tabIndex={-1}
         />
-      </div>
-      <div className="flex flex-1 flex-col px-3 pb-3 pt-2">
-        <span className="font-medium leading-snug">{card.tokens.name}</span>
-        <span className="text-muted small mt-0.5">
-          {FAMILY_LABEL[card.tokens.motion.family]}
-          {card.badge ? ` · ${card.badge}` : ""}
-        </span>
-      </div>
+      </span>
+      <span className="lp-tile-name">{card.tokens.name}</span>
+      <span className="lp-tile-meta">
+        {FAMILY_LABEL[card.tokens.motion.family]}
+        {card.badge ? ` · ${card.badge}` : ""}
+      </span>
+      <span className="lp-gloss" aria-hidden />
     </button>
   );
 }
