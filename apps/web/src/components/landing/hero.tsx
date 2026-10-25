@@ -6,7 +6,7 @@ import { DemoVideo } from "@/components/brand/demo-video";
 import { FAMILY_LABEL, SFX_LABEL, presetCards, type PresetCard } from "@/config/presets";
 import { STYLE_COUNT, hero as c } from "@/content/landing";
 import { cn } from "@/lib/utils";
-import { useAdvance, useReducedMotion } from "./use-advance";
+import { useAdvance, useHoverClip, useReducedMotion } from "./use-advance";
 
 type Variant = "styles" | "orbit";
 /** The A/B flag: NEXT_PUBLIC_HERO_VARIANT sets the default, `?hero=orbit|styles` overrides it for QA. */
@@ -48,7 +48,8 @@ const RING = [
 /**
  * Hero: the maroon stage and the headline set the way a reel sets it (one gold word at a time, at
  * a speaking pace). Under the shared copy, one of two stages: A "styles", a 3D coverflow of style
- * posters where the centre card wipes from the raw clip to the styled render; B "orbit", a ring of
+ * posters where the centre card wipes from the raw clip to the styled render (hover any card and its
+ * render plays, the row holds still meanwhile); B "orbit", a ring of
  * real renders turning behind a phone that plays a finished reel.
  */
 export function Hero() {
@@ -140,18 +141,31 @@ function StylesStage() {
   // two-phase wipe: the new centre card shows the raw clip at once, then the style sweeps over it
   const [wiping, setWiping] = useState(true);
   const wipeT = useRef(0);
-  const { index, pick } = useAdvance(N, 2900, 6000, () => {
-    window.clearTimeout(wipeT.current);
-    setWiping(false);
-    wipeT.current = window.setTimeout(() => setWiping(true), 60);
-  });
+  const [hovered, setHovered] = useState(false);
+  const { index, pick } = useAdvance(
+    N,
+    2900,
+    6000,
+    () => {
+      window.clearTimeout(wipeT.current);
+      setWiping(false);
+      wipeT.current = window.setTimeout(() => setWiping(true), 60);
+    },
+    hovered,
+  );
   useEffect(() => () => window.clearTimeout(wipeT.current), []);
   const active = looks[index]!;
 
   return (
     <div className="lp-cf" data-tilt="4">
       <div className="lp-floor" style={{ bottom: 70, width: "60%" }} aria-hidden />
-      <div className="lp-cf-group">
+      <div
+        className="lp-cf-group"
+        onPointerEnter={() => setHovered(true)}
+        onPointerLeave={() => setHovered(false)}
+        onFocus={() => setHovered(true)}
+        onBlur={() => setHovered(false)}
+      >
         {looks.map((p, i) => {
           let off = (((i - index) % N) + N) % N;
           if (off > N / 2) off -= N;
@@ -164,30 +178,16 @@ function StylesStage() {
             "--cut": on && !wiping ? "100%" : "0%",
           } as CSSProperties;
           return (
-            <button
+            <LookCard
               key={p.tokens.id}
-              type="button"
-              aria-label={p.tokens.name}
-              aria-pressed={on}
-              tabIndex={ab >= 4 ? -1 : 0}
-              onClick={() => pick(i)}
-              className={cn("lp-cf-card", on && "is-on", on && wiping && "is-wiping")}
+              card={p}
+              on={on}
+              wiping={wiping}
+              hidden={ab >= 4}
+              eager={i < 4 || i > N - 4}
               style={style}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element -- static demo poster */}
-              <img src="/demo/styles/raw.jpg" alt="" draggable={false} decoding="async" />
-              {/* eslint-disable-next-line @next/next/no-img-element -- static demo poster */}
-              <img
-                src={`/demo/styles/${p.tokens.id}.jpg`}
-                alt=""
-                draggable={false}
-                decoding="async"
-                loading={i < 4 || i > N - 4 ? "eager" : "lazy"}
-                className="lp-cf-styled"
-              />
-              {on && <span className="lp-cf-edge" aria-hidden />}
-              <span className="lp-sheen" aria-hidden />
-            </button>
+              onPick={() => pick(i)}
+            />
           );
         })}
       </div>
@@ -201,6 +201,67 @@ function StylesStage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function LookCard({
+  card,
+  on,
+  wiping,
+  hidden,
+  eager,
+  style,
+  onPick,
+}: {
+  card: PresetCard;
+  on: boolean;
+  wiping: boolean;
+  hidden: boolean;
+  eager: boolean;
+  style: CSSProperties;
+  onPick: () => void;
+}) {
+  const id = card.tokens.id;
+  const { vid, play, stop } = useHoverClip(`/demo/styles/${id}.mp4`);
+  return (
+    <button
+      type="button"
+      aria-label={card.tokens.name}
+      aria-pressed={on}
+      tabIndex={hidden ? -1 : 0}
+      onClick={onPick}
+      onMouseEnter={play}
+      onMouseLeave={stop}
+      onFocus={play}
+      onBlur={stop}
+      className={cn("lp-cf-card", on && "is-on", on && wiping && "is-wiping")}
+      style={style}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element -- static demo poster */}
+      <img src="/demo/styles/raw.jpg" alt="" draggable={false} decoding="async" />
+      {/* eslint-disable-next-line @next/next/no-img-element -- static demo poster */}
+      <img
+        src={`/demo/styles/${id}.jpg`}
+        alt=""
+        draggable={false}
+        decoding="async"
+        loading={eager ? "eager" : "lazy"}
+        className="lp-cf-styled"
+      />
+      <video
+        ref={vid}
+        poster={`/demo/styles/${id}.jpg`}
+        muted
+        loop
+        playsInline
+        preload="none"
+        aria-hidden
+        tabIndex={-1}
+        className="lp-cf-styled"
+      />
+      {on && <span className="lp-cf-edge" aria-hidden />}
+      <span className="lp-sheen" aria-hidden />
+    </button>
   );
 }
 

@@ -6,7 +6,7 @@ import { BRIEF_KINDS, type BriefKind } from "@/config/briefs";
 import { FAMILY_LABEL, SFX_LABEL, demoSrc, presetCards, type PresetCard } from "@/config/presets";
 import { STYLE_COUNT, styles as c } from "@/content/landing";
 import { cn } from "@/lib/utils";
-import { useReducedMotion } from "./use-advance";
+import { useHoverClip, useReducedMotion } from "./use-advance";
 
 const DEMO = (id: string) => ({
   video: demoSrc(id, "mp4"),
@@ -136,24 +136,6 @@ function Films() {
       </ul>
     </div>
   );
-}
-
-/** Hover or focus attaches and plays the clip, so each card costs a lazy poster until then. */
-function useHoverClip(src: string) {
-  const vid = useRef<HTMLVideoElement>(null);
-  const play = () => {
-    const v = vid.current;
-    if (!v) return;
-    if (!v.src) v.src = src;
-    void v.play().catch(() => undefined);
-  };
-  const stop = () => {
-    const v = vid.current;
-    if (!v) return;
-    v.pause();
-    v.currentTime = 0;
-  };
-  return { vid, play, stop };
 }
 
 function FilmCard({ kind }: { kind: BriefKind }) {

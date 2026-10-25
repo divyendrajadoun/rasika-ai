@@ -17,19 +17,23 @@ export function useReducedMotion() {
 
 /**
  * An index that steps through `count` items every `every` ms. A pick by hand jumps there and holds
- * the auto-advance for `hold` ms. Nothing advances while the tab is hidden or with reduced motion.
+ * the auto-advance for `hold` ms. Nothing advances while `paused`, the tab is hidden or with reduced
+ * motion.
  */
 export function useAdvance(
   count: number,
   every: number,
   hold: number,
   onStep?: (i: number) => void,
+  paused = false,
 ) {
   const [index, setIndex] = useState(0);
   const at = useRef(0);
   const lastPick = useRef(0);
   const step = useRef(onStep);
   step.current = onStep;
+  const hold_ = useRef(paused);
+  hold_.current = paused;
   const reduced = useReducedMotion();
 
   const go = useCallback((i: number) => {
@@ -41,7 +45,7 @@ export function useAdvance(
   useEffect(() => {
     if (reduced || count < 2) return;
     const id = window.setInterval(() => {
-      if (document.hidden || Date.now() - lastPick.current < hold) return;
+      if (hold_.current || document.hidden || Date.now() - lastPick.current < hold) return;
       go((at.current + 1) % count);
     }, every);
     return () => window.clearInterval(id);
@@ -56,4 +60,22 @@ export function useAdvance(
   );
 
   return { index, pick, reduced };
+}
+
+/** Hover or focus attaches and plays the clip, so each card costs a lazy poster until then. */
+export function useHoverClip(src: string) {
+  const vid = useRef<HTMLVideoElement>(null);
+  const play = () => {
+    const v = vid.current;
+    if (!v) return;
+    if (!v.src) v.src = src;
+    void v.play().catch(() => undefined);
+  };
+  const stop = () => {
+    const v = vid.current;
+    if (!v) return;
+    v.pause();
+    v.currentTime = 0;
+  };
+  return { vid, play, stop };
 }

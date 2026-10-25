@@ -421,7 +421,8 @@
     0 50px 80px -20px rgba(0, 0, 0, 0.85),
     0 0 80px rgba(230, 180, 80, 0.3);
 }
-.lp-cf-card img {
+.lp-cf-card img,
+.lp-cf-card video {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -443,6 +444,19 @@
 }
 .lp-cf-card.is-wiping .lp-cf-styled {
   transition: clip-path 1100ms cubic-bezier(0.65, 0, 0.35, 1) 350ms;
+}
+.lp-cf-card video {
+  opacity: 0;
+  transition: opacity 300ms;
+}
+.lp-cf-card:hover video,
+.lp-cf-card:focus-visible video {
+  opacity: 1;
+}
+.lp-cf-card.is-wiping video.lp-cf-styled {
+  transition:
+    clip-path 1100ms cubic-bezier(0.65, 0, 0.35, 1) 350ms,
+    opacity 300ms;
 }
 .lp-cf-card.is-wiping .lp-cf-edge {
   transition: left 1100ms cubic-bezier(0.65, 0, 0.35, 1) 350ms;
