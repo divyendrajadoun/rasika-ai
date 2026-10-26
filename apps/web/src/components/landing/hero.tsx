@@ -94,7 +94,7 @@ function HeroCopy() {
     <div className="lp-hero-copy">
       <span className="lp-badge lp-rise" style={{ "--d": "60ms" } as CSSProperties}>
         <span className="lp-badge-dot" aria-hidden />
-        AI reel editor · English &amp; हिन्दी
+        AI Reel editor for Instagram · English &amp; हिन्दी
       </span>
       <h1 className="lp-h1 lp-rise" style={{ "--d": "140ms" } as CSSProperties}>
         {c.lines.map((line, li) => (
@@ -119,7 +119,7 @@ function HeroCopy() {
           {c.primary.label} <span aria-hidden>→</span>
         </Link>
         <Link href="/help" className="lp-btn lp-cta-ghost">
-          <span aria-hidden>▶</span> Watch the 2-minute tour
+          <span aria-hidden>▶</span> See how it works (2 min)
         </Link>
       </div>
       <p className="lp-foot lp-rise" style={{ "--d": "400ms" } as CSSProperties}>
@@ -193,7 +193,7 @@ function StylesStage() {
       </div>
       <div className="lp-cf-label" aria-live="polite">
         <div className="lp-cf-count">
-          SAME TAKE · {index + 1} OF {STYLE_COUNT} LOOKS
+          SAME VIDEO · {index + 1} OF {STYLE_COUNT} LOOKS
         </div>
         <div className="lp-cf-name">{active.tokens.name}</div>
         <div className="lp-cf-fam">

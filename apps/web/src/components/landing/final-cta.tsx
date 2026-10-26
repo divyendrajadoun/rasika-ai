@@ -7,9 +7,9 @@ import { finalCta as c, hero } from "@/content/landing";
 
 type Source = "take" | "script" | "reference" | "presenter";
 const SOURCES: Array<[Source, string]> = [
-  ["take", "My take"],
-  ["script", "Script only"],
-  ["reference", "Match a reference"],
+  ["take", "My video"],
+  ["script", "Just a script"],
+  ["reference", "Copy a Reel"],
   ["presenter", "AI presenter"],
 ];
 
@@ -68,7 +68,7 @@ export function FinalCta({ presenterEnabled = false }: { presenterEnabled?: bool
               maxLength={80}
               autoComplete="off"
             />
-            <div style={{ fontSize: 13, color: "#d3c6bc" }}>Where the reel comes from</div>
+            <div style={{ fontSize: 13, color: "#d3c6bc" }}>What are you starting with?</div>
             <div
               className="lp-seg"
               role="group"

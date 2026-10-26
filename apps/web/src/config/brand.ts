@@ -6,9 +6,9 @@ export const brand = {
   name: "Rasika",
   /** Short meaning shown in a few places (footer, about copy). */
   meaning: "Sanskrit: one who truly feels beauty, not just sees it.",
-  tagline: "Feel your reel. Don't just post it.",
+  tagline: "Your next Reel is one video away.",
   description:
-    "Upload one talking video. Get poster titles, word-timed captions, your photos on the exact word, and sound — a studio-grade reel in minutes, for any industry.",
+    "Upload a video of yourself talking. Rasika adds captions, big titles, your photos and sound effects, and gives you a finished Instagram Reel in minutes. English and Hindi. First Reel free.",
   domain: "rasika.app",
   handle: "@rasika.app",
   email: "hello@rasika.app",

@@ -34,11 +34,11 @@ export function StyleShowcase() {
       <div className="lp-in">
         <div className="lp-kicker">Examples</div>
         <h2 className="lp-h2" style={{ marginTop: 12, maxWidth: "18ch" }}>
-          Same take. Different reel. Or no take at all.
+          One video. Many looks. Or no video at all.
         </h2>
         <p className="lp-muted" style={{ margin: "16px 0 0", maxWidth: "58ch" }}>
-          Every clip here is real Rasika output. Pick a look to see it over the raw phone video, or
-          scroll the films made from nothing but a brief.
+          Every clip here was made by Rasika from the same 12-second phone video. Tap a style to
+          compare it with the original, or scroll down for films made from just a typed idea.
         </p>
 
         <div className="lp-ex-grid">
@@ -47,7 +47,7 @@ export function StyleShowcase() {
           </div>
           <div style={{ minWidth: 0 }}>
             <div className="lp-muted" style={{ fontSize: 14, fontWeight: 500, marginBottom: 14 }}>
-              From your video · {STYLE_COUNT} styles, here are four
+              From your video · 4 of {STYLE_COUNT} styles
             </div>
             <ul className="lp-tiles">
               {cards.map((p) => (
@@ -61,7 +61,7 @@ export function StyleShowcase() {
               ))}
             </ul>
             <Link href="/dashboard/new" className="lp-btn lp-btn-quiet" style={{ marginTop: 22 }}>
-              See all {STYLE_COUNT} styles when you make a reel →
+              See all {STYLE_COUNT} styles when you make a Reel →
             </Link>
           </div>
         </div>
@@ -116,11 +116,11 @@ function Films() {
               lineHeight: 1,
             }}
           >
-            Films from a brief
+            No video? Type an idea.
           </h3>
           <p className="lp-muted" style={{ margin: "12px 0 0", maxWidth: "56ch" }}>
-            Give a website, a recipe, two contenders or a single line. Rasika writes, scores and
-            designs the whole film.
+            Paste a website, a recipe, two products to compare or a one-line idea. Rasika writes it,
+            designs every frame and adds the sound.
           </p>
         </div>
         <span className="lp-muted" style={{ fontSize: 13 }}>

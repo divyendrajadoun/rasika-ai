@@ -15,21 +15,21 @@ export const nav = {
     { label: "Pricing", href: "#pricing" },
     { label: "FAQ", href: "#faq" },
   ],
-  cta: { label: "Edit a reel free", href: "/dashboard" },
+  cta: { label: "Try it free", href: "/dashboard" },
 };
 
 export const hero = {
-  headline: "Talk to your phone. Post like a studio.",
+  headline: "Record one video. Get a pro Reel.",
   /** The two authored lines of the headline (two lines at most, on every width). */
-  lines: ["Talk to your phone.", "Post like a studio."],
+  lines: ["Record one video.", "Get a pro Reel."],
   /** The same sentence as Rasika sets it for a Hindi take: Devanagari, never romanised. */
-  hindiLines: ["फ़ोन से बोलो।", "स्टूडियो जैसा पोस्ट करो।"],
+  hindiLines: ["एक वीडियो रिकॉर्ड करो।", "प्रो रील पाओ।"],
   /** The three live controls on the sentence (the product's own: style, caption timing, language). */
   chips: { style: "Style", captions: "Caption timing", hindi: "Language" },
-  sub: "Realtors, doctors, coaches, founders — upload one talking video. Rasika writes the titles, times every caption, lands your photos on the exact word, adds sound, and renders the reel. Minutes, not days.",
-  primary: { label: "Make my free reel", href: "/dashboard/new" },
+  sub: "Film yourself talking on your phone and upload it. Rasika adds the captions, big titles, your photos and sound effects, and hands you a finished Instagram Reel in minutes. No editing skills needed.",
+  primary: { label: "Make my free Reel", href: "/dashboard/new" },
   secondary: { label: "Watch a real before / after", href: "#before-after" },
-  trust: ["Any industry", "English + Hindi", "1080 × 1920", "No timeline, ever"],
+  trust: ["First Reel free", "No editing skills", "English & Hindi", "Ready in minutes"],
   demo: {
     after: "/demo/after.mp4",
     afterPoster: "/demo/after-poster.webp",
@@ -38,89 +38,89 @@ export const hero = {
 };
 
 export const beforeAfter = {
-  title: "Same take. Different reel.",
-  sub: "Drag the handle. The raw phone clip is on the left, the Rasika edit on the right — playing in sync.",
-  before: { src: "/demo/before.mp4", label: "Raw clip" },
-  after: { src: "/demo/after.mp4", label: "Rasika edit" },
-  note: "Real footage from a small jewellery brand. Yours might be a listing, a clinic, a classroom or a kitchen — the craft is the same.",
+  title: "Same video. Before and after.",
+  sub: "Drag the slider. Left: the plain phone video. Right: the Reel Rasika made from it. Both play together.",
+  before: { src: "/demo/before.mp4", label: "Your video" },
+  after: { src: "/demo/after.mp4", label: "Rasika Reel" },
+  note: "A real video from a small jewellery brand. Yours could be a property tour, a doctor's tip, a class or a recipe. Rasika edits them all the same way.",
 };
 
 /** How it works: six steps, each with its own phone screen on the landing. */
 export const howItWorks = {
   kicker: "How it works",
-  title: "One take in. A finished reel out.",
-  sub: "Six steps, about four minutes. You only do the first one.",
+  title: "You talk. Rasika does the rest.",
+  sub: "Six steps, about four minutes. You only do step one.",
   steps: [
     {
-      title: "Upload your take",
-      body: "One talking video from your phone, up to 3 minutes. Uploads resume if the connection drops.",
+      title: "Upload your video",
+      body: "Any video of you talking, straight from your phone, up to 3 minutes. If the internet drops, the upload carries on.",
     },
     {
-      title: "We time every word",
-      body: "Transcribed and verified in English, Hindi or Hinglish. Each word gets its exact moment on screen.",
+      title: "Rasika listens",
+      body: "It writes down every word you say, in English, Hindi or Hinglish, and notes the exact moment you say it.",
     },
     {
       title: "Pick a look",
-      body: `${STYLE_COUNT} styles, each with its own motion and sound. Or upload a reel you love and we match it.`,
+      body: `Choose from ${STYLE_COUNT} styles, each with its own fonts, motion and sounds. Or show us a Reel you love and we match it.`,
     },
     {
-      title: "Photos land on the word",
-      body: "Say “balcony” and the balcony appears. Tell us the word; we do the timing.",
+      title: "Your photos appear on cue",
+      body: "Say “balcony” and your balcony photo pops up at that exact second. Just tell us which word goes with which photo.",
     },
     {
-      title: "Preview in about a minute",
-      body: "A quick preview first. Change a title or move a photo by tapping the word.",
+      title: "Check the preview",
+      body: "A quick preview arrives in about a minute. Want to change a title or move a photo? Tap the word and fix it.",
     },
     {
       title: "Download and post",
-      body: "1080 × 1920 MP4, no watermark on paid reels. Straight to Instagram.",
+      body: "A full-HD vertical video, ready for Instagram. No watermark on paid Reels.",
     },
   ],
 };
 
 export const features = {
-  title: "What the edit does",
-  sub: "Everything a motion designer would do by hand.",
+  title: "What Rasika does for you",
+  sub: "Everything a video editor would charge you for, done automatically.",
   items: [
     {
       id: "poster",
-      title: "Poster typography",
-      body: "Your key line as big poster type on the wall above your head — never over your face. Always a complete thought, never a fragment.",
+      title: "Big bold titles",
+      body: "Your main point appears as a big headline above your head, never covering your face. Always a full sentence, never a cut-off fragment.",
     },
     {
       id: "captions",
-      title: "One-word captions",
-      body: "Every word pops in on time. Feelings turn gold; names, numbers and places turn terracotta.",
+      title: "Word-by-word captions",
+      body: "Every word pops up the moment you say it, so people follow along even with the sound off. Key words get their own colour.",
     },
     {
       id: "image-on-word",
-      title: "Photos on the exact word",
-      body: "Say “balcony”, the balcony lands. Your photos fly in as tilted cards on the word that names them.",
+      title: "Your photos, right on time",
+      body: "Say “balcony” and the balcony photo lands. Your photos fly in as cards on the exact word that names them.",
     },
     {
       id: "punch-in",
-      title: "Punch-in on the thing",
-      body: "A zoom on what you are holding or pointing at, with a ring drawing around it.",
+      title: "Automatic zoom-ins",
+      body: "When you hold up or point at something, the video zooms in on it and circles it for you.",
     },
     {
       id: "pip",
-      title: "Picture-in-picture plates",
-      body: "Full-bleed photos behind you for “look at this” moments, with labels that read.",
+      title: "Full-screen photo moments",
+      body: "For “look at this” moments, your photo fills the screen behind you with a clear label on it.",
     },
     {
       id: "reveal",
-      title: "Numbers, chapters, reveals",
-      body: "Prices roll in as counters. “First, second, third” become chapter cards. A teased word gets revealed at the payoff with a riser and an impact.",
+      title: "Numbers, steps and reveals",
+      body: "Prices count up on screen. “First, second, third” become chapter cards. A word you tease gets a big reveal at the end.",
     },
     {
       id: "sfx",
-      title: "Sound design",
-      body: "Whooshes, pops, ticks and subs placed on the beat sheet, mixed under your voice. Nothing to license.",
+      title: "Sound effects, already mixed",
+      body: "Whooshes, pops and hits land on the right beats, mixed under your voice. Nothing to buy or license.",
     },
     {
       id: "hindi",
-      title: "English, Hindi, Hinglish",
-      body: "We detect the language and verify it. Hindi words appear on screen in Devanagari — never romanised.",
+      title: "Hindi, English or Hinglish",
+      body: "Rasika recognises your language and checks it. Hindi words appear in Hindi script on screen, never in English letters.",
     },
   ],
 };
@@ -135,46 +135,50 @@ export const styles = {
 };
 
 export const pricing = {
-  title: "Pricing",
-  sub: "Your first reel is free. After that, buy reels when you need them: no subscription.",
+  title: "Simple pricing. No subscription.",
+  sub: "Your first Reel is free. After that, buy Reels only when you need them. Credits never expire.",
   once: "One per account",
   perReel: "a reel",
   oneOff: "one-off",
-  startFree: "Make my free reel",
+  startFree: "Make my free Reel",
   buy: "Buy",
-  note: "1 reel = a finished reel up to 90 s (longer ones use 2). Paid reels can run up to 3 minutes, in 1080 × 1920 with no watermark. Pay by UPI from any app; credits are added once we confirm the payment, usually within a few hours, and they never expire.",
+  note: "1 Reel = a finished Reel up to 90 seconds (longer ones count as 2). Paid Reels can run up to 3 minutes, in full HD (1080 × 1920) with no watermark. Pay by UPI from any app. Credits are added once we confirm the payment, usually within a few hours, and they never expire.",
 };
 
 export const faq = {
   title: "Questions, answered",
   items: [
     {
-      q: "Does it work for my industry?",
-      a: "If you talk to camera, yes. Rasika designs the edit from your own words — a listing, a diagnosis explainer, a recipe, a legal tip, a product story. It never imports another industry's vocabulary, and it only uses your photos for what they actually show.",
+      q: "Do I need to know video editing?",
+      a: "No. There is no timeline and nothing to learn. You upload your video, add photos if you want, pick a style, and get a finished Reel. To change a title or move a photo, you tap the word.",
+    },
+    {
+      q: "Is the first Reel really free?",
+      a: "Yes. Sign up and make your first Reel, up to 60 seconds, free. No card needed. After that you buy Reels only when you need them.",
+    },
+    {
+      q: "Will it work for my kind of business?",
+      a: "If you talk to camera, yes: a property tour, a health tip, a recipe, a legal tip, a product story. Rasika builds the edit from your own words and only uses your photos for what they actually show.",
     },
     {
       q: "Which languages work?",
-      a: "English, Hindi and Hinglish today. We detect the language and verify it on a short probe, so Hindi speech never gets mangled into English (or the other way round). Hindi words appear in Devanagari on screen.",
+      a: "English, Hindi and Hinglish. Rasika detects your language and double-checks it, so Hindi never gets mangled into English (or the other way round). Hindi words appear in Hindi script on screen.",
     },
     {
       q: "How long does it take?",
-      a: "Transcription and design take a few minutes. A quick preview arrives first; a 90-second final render is usually under four minutes. You can edit in the browser before you render again.",
-    },
-    {
-      q: "Do I need any editing skill?",
-      a: "No. There is no timeline. You upload, add photos, pick a style and get a reel. If you want to change a title or move a photo to a different word, you click the word.",
+      a: "A quick preview arrives in about a minute. A finished 90-second Reel is usually ready in under four minutes. You can make changes in the browser and render again.",
     },
     {
       q: "Do you keep my videos?",
-      a: "Source videos and outputs are kept for 30 days by default so you can re-edit, then deleted. Frames extracted for rendering are deleted right after the render. You can delete a project instantly at any time.",
+      a: "Your videos and Reels are kept for 30 days so you can re-edit them, then deleted. You can delete a project yourself at any time.",
     },
     {
-      q: "Can I use the reels commercially?",
-      a: "Yes. You own what you render. Fonts are open-licensed (OFL) and sound effects are generated, so there is nothing to clear.",
+      q: "Can I use the Reels for my business?",
+      a: "Yes. You own what you make. The fonts are free to use and the sound effects are generated, so there is nothing to clear.",
     },
     {
-      q: "What about image rights?",
-      a: "You upload your own photos and confirm you have the rights. Rasika never pulls photos from the web into your reel. The optional image finder uses openly licensed sources only, with attribution stored.",
+      q: "What about the photos I use?",
+      a: "You upload your own photos and confirm you have the rights to them. Rasika never pulls random photos from the internet into your Reel. The optional image finder only uses openly licensed sources and keeps the credits.",
     },
   ],
 };
@@ -182,17 +186,17 @@ export const faq = {
 export const finalCta = {
   title: brand.tagline,
   /** The closing line as two authored lines. */
-  lines: ["Feel your reel.", "Don't just post it."],
-  sub: "Your first reel is free. No card needed.",
-  after: "You sign in, the take uploads, and the first preview is back in about a minute.",
-  dialogTitle: "Name your reel",
+  lines: ["Your next Reel is", "one video away."],
+  sub: "Your first Reel is free. No card needed.",
+  after: "Sign in, upload your video, and see the first preview in about a minute.",
+  dialogTitle: "Name your Reel",
   dialogExample: "Balcony walkthrough, Tuesday",
-  cta: { label: "Edit my first reel", href: "/dashboard/new" },
+  cta: { label: "Make my first Reel", href: "/dashboard/new" },
 };
 
 /** One quiet line: what this is · links · year and privacy. */
 export const footer = {
-  what: "Reels from one phone take",
+  what: "Pro Reels from one phone video",
   links: [
     { label: "Contact", href: `mailto:${brand.email}` },
     { label: "Instagram", href: brand.social.instagram },
@@ -218,7 +222,7 @@ export const showcase = {
 };
 
 export const seo = {
-  title: `${brand.name} — Talk to your phone. Post like a studio.`,
+  title: `${brand.name} — Record one video. Get a pro Reel.`,
   description: brand.description,
   keywords: [
     "AI reel editor",

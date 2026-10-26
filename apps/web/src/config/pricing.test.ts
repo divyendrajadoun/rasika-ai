@@ -37,7 +37,7 @@ describe("landing content", () => {
       "Pricing",
       "FAQ",
     ]);
-    expect(landing.hero.headline).toBe("Talk to your phone. Post like a studio.");
+    expect(landing.hero.headline).toBe("Record one video. Get a pro Reel.");
     expect(landing.hero.lines).toHaveLength(2);
     expect(landing.hero.hindiLines).toHaveLength(2);
     expect(landing.howItWorks.steps).toHaveLength(6);
