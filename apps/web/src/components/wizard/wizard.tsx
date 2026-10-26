@@ -248,7 +248,15 @@ export function Wizard({
       );
     if (stepId === "clips") return clipsReady(draft.clips);
     if (stepId === "script") return draft.script.text.trim().length >= 20 && !tooLong;
-    if (stepId === "brief") return briefReady(draft.brief);
+    if (stepId === "brief")
+      return (
+        briefReady(draft.brief) &&
+        !(
+          draft.brief.kind === "roundup" &&
+          draft.brief.roundupLook === "reference" &&
+          !draft.reference?.complete
+        )
+      );
     return true;
   }, [
     stepId,
@@ -355,6 +363,11 @@ export function Wizard({
       lookId: b.kind === "roundup" && b.speaker === "presenter" ? b.lookId : undefined,
       presenterVoice:
         b.kind === "roundup" && b.speaker === "presenter" ? b.presenterVoice : undefined,
+      roundupLook: b.kind === "roundup" ? b.roundupLook : undefined,
+      referenceAssetId:
+        b.kind === "roundup" && b.roundupLook === "reference" && draft.reference?.complete
+          ? draft.reference.assetId
+          : undefined,
       photos: draft.photos.map((p) => ({
         assetId: p.assetId,
         label: p.label,
@@ -683,13 +696,38 @@ export function Wizard({
           />
         )}
         {stepId === "brief" && (
-          <StepBrief
-            value={draft.brief}
-            onChange={(brief) => setDraft((d) => ({ ...d, brief }))}
-            looks={looks}
-            voices={voices}
-            presenterEnabled={presenterEnabled}
-          />
+          <div className="space-y-6">
+            <StepBrief
+              value={draft.brief}
+              onChange={(brief) => setDraft((d) => ({ ...d, brief }))}
+              looks={looks}
+              voices={voices}
+              presenterEnabled={presenterEnabled}
+            />
+            {draft.brief.kind === "roundup" && draft.brief.roundupLook === "reference" && (
+              <div className="bg-surface space-y-3 rounded-[8px] p-5">
+                <p className="font-medium">The reel to match</p>
+                {draft.scriptProjectId ? (
+                  <StepUpload
+                    kind="reference_video"
+                    projectId={draft.scriptProjectId}
+                    value={draft.reference}
+                    maxSeconds={180}
+                    planName={planName}
+                    onChange={(r) => setDraft((d) => ({ ...d, reference: r }))}
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    className="button"
+                    onClick={() => void ensureDraftProject()}
+                  >
+                    Upload a reel
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         )}
         {stepId === "script" && (
           <StepScript

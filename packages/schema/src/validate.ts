@@ -472,6 +472,10 @@ export function validatePlan(
       if ("imageId" in el) check(el.imageId, el);
       if (el.type === "splitCards") el.cards.forEach((c) => check(c.imageId, el));
       if (el.type === "filmStrip") el.imageIds.forEach((id) => check(id, el));
+      if (el.type === "roundupScene") {
+        el.shots.forEach((sh) => check(sh.imageId, el));
+        el.thumbs.forEach((id) => check(id, el));
+      }
       if (el.type === "pageFlyover") [el.heroImageId, el.logoImageId].forEach((id) => id && check(id, el));
       if (el.type === "throughLine") el.keys.forEach((k) => k.imageId && check(k.imageId, el));
     }

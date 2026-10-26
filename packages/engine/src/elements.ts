@@ -27,6 +27,7 @@ import {
   tierBoard,
   type BriefCtx,
 } from "./brief";
+import { roundupScene } from "./roundup";
 import { diagramZoom, pageFlyover, screenFocus, throughLine } from "./product";
 import { codeScene } from "./animate";
 import { patternSvg, type Colors } from "./patterns";
@@ -611,6 +612,8 @@ export function buildElement(el: PlanElement, ctx: BuildCtx): Item[] {
       return diagramZoom(el, briefCtx(ctx, dark));
     case "codeScene":
       return codeScene(el, briefCtx(ctx, dark));
+    case "roundupScene":
+      return roundupScene(el, briefCtx(ctx, dark));
   }
 }
 

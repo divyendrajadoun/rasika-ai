@@ -399,6 +399,19 @@ export async function createBriefEdit(input: unknown): Promise<ActionResult> {
   const kind = briefKind(w.kind);
   if (!kind) return { ok: false, error: "Unknown kind of film" };
   const presenter = w.kind === "roundup" && w.speaker === "presenter";
+  if (w.kind === "roundup" && w.roundupLook === "reference") {
+    const [ref] = await db
+      .select({ kind: schema.assets.kind })
+      .from(schema.assets)
+      .where(
+        and(
+          eq(schema.assets.id, w.referenceAssetId ?? ""),
+          eq(schema.assets.projectId, w.projectId),
+        ),
+      );
+    if (!ref || ref.kind !== "reference_video")
+      return { ok: false, error: "Upload the reel whose style you want first" };
+  }
   if (presenter && !env.presenterEnabled)
     return { ok: false, error: "The AI presenter is not available yet; choose the voice." };
 
@@ -430,6 +443,9 @@ export async function createBriefEdit(input: unknown): Promise<ActionResult> {
       ? {
           post: w.post ?? "",
           mode: w.speaker,
+          ...(w.roundupLook === "reference"
+            ? { reference_asset: w.referenceAssetId }
+            : { look: w.roundupLook }),
           ...(presenter ? { look_id: w.lookId, presenter_voice: w.presenterVoice } : {}),
         }
       : {}),

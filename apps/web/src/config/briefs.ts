@@ -63,7 +63,38 @@ export type BriefField =
   | { id: "presets"; items: { label: string; text: string; seconds?: number }[] }
   | { id: "narrate" }
   | { id: "post"; label: string; placeholder: string; help: string }
-  | { id: "speaker" };
+  | { id: "speaker" }
+  | { id: "look" };
+
+/** The designed looks of a roundup film (packages/engine/src/roundup.ts), or a reel to match. */
+export type RoundupLookId = "signal" | "frontpage" | "loud" | "keynote" | "terminal";
+export const ROUNDUP_LOOKS: { id: RoundupLookId; name: string; blurb: string }[] = [
+  {
+    id: "signal",
+    name: "Signal",
+    blurb: "Dark tech: glowing 3D screens, outlined numerals, a moving grid.",
+  },
+  {
+    id: "frontpage",
+    name: "Front page",
+    blurb: "Newspaper: paper, serif headlines, taped clippings, a red marker.",
+  },
+  {
+    id: "loud",
+    name: "Loud",
+    blurb: "Bold pop: a colour block per item, giant numbers, stickers, bounce.",
+  },
+  {
+    id: "keynote",
+    name: "Keynote",
+    blurb: "Polished: drifting colour light, glass panels, big rounded screens.",
+  },
+  {
+    id: "terminal",
+    name: "Terminal",
+    blurb: "Hacker: scanlines, typed commands, a green preview turning to colour.",
+  },
+];
 
 export interface BriefKind {
   id: BriefKindId;
@@ -121,6 +152,7 @@ export const BRIEF_KINDS: BriefKind[] = [
         placeholder: "1. owner/repo — what it does\nhttps://github.com/owner/repo\n\n2. …",
         help: "Up to 8 items, each with its link. We open every link: the page, its README, its demo clips and today's numbers.",
       },
+      { id: "look" },
       { id: "speaker" },
     ],
     preset: "dark-ios",

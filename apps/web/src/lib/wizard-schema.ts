@@ -132,6 +132,11 @@ export const BriefSubmission = z
     speaker: z.enum(["voice", "presenter"]).default("voice"),
     lookId: z.string().max(120).optional(),
     presenterVoice: z.string().max(120).optional(),
+    /** roundup: the designed look, or "reference" to match an uploaded reel */
+    roundupLook: z
+      .enum(["signal", "frontpage", "loud", "keynote", "terminal", "reference"])
+      .default("signal"),
+    referenceAssetId: z.string().uuid().optional(),
     url: z.string().trim().max(300).optional(),
     recipe: z.string().trim().max(1500).optional(),
     subject: z.string().trim().max(600).optional(),
@@ -196,6 +201,12 @@ export const BriefSubmission = z
         "post",
         "Paste a post with a link for each thing it lists.",
       );
+      if (v.roundupLook === "reference")
+        need(
+          Boolean(v.referenceAssetId),
+          "referenceAssetId",
+          "Upload the reel whose style you want.",
+        );
       if (v.speaker === "presenter") {
         need(Boolean(v.lookId), "lookId", "Choose a presenter.");
         need(Boolean(v.presenterVoice), "presenterVoice", "Choose the presenter's voice.");

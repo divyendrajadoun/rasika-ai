@@ -218,6 +218,7 @@ class Pipeline:
         opts = dict(project.get("style_options") or {})
         b = dict(opts.get("brief") or {})
         kind_id = str(b.get("kind") or "")
+        opts["brief"] = b  # the same dict: what the steps below add to the brief is saved with it
         if kind_id not in film_brief.KINDS:
             raise PipelineError("This brief is missing its kind of film.")
         kind = film_brief.KINDS[kind_id]
@@ -466,6 +467,22 @@ class Pipeline:
                     "h": m.height,
                     "sec": m.duration,
                 }
+        ref_id = str(b.get("reference_asset") or "")
+        if ref_id:  # the user's reference reel: its look, colours and type for the scenes
+            pub.update(JobStatus.PROBING, 21, "Studying your reference reel…", **timings)
+            try:
+                from rasika_worker import reference as ref_mod
+
+                src = self._asset_file(ref_id, work / "ref_reel")
+                if src:
+                    report = ref_mod.analyse(
+                        self.s.ffmpeg_bin, self.s.ffprobe_bin, src, work / "ref_reel" / "stills"
+                    )
+                    b["reference"] = roundup.match_reference(
+                        client, self.s.anthropic_planner_model, report, list(ref_mod.FONTS)
+                    )
+            except Exception as exc:  # a reference that cannot be read leaves the chosen look
+                log.warning("roundup_reference_failed", error=str(exc))
         pub.update(JobStatus.PROBING, 22, "Writing the script…", **timings)
         lo, hi = roundup.seconds_for(len(items), max_dur)
         try:
@@ -1706,9 +1723,21 @@ class Pipeline:
         """The roundup's edit is fixed by its script (roundup.build_plan): validate, save, render."""
         from rasika_worker import roundup
 
-        plan = roundup.build_plan(
-            style, dict(options.get("film") or {}), words, duration, presenter
-        )
+        film = dict(options.get("film") or {})
+        if presenter:
+            plan = roundup.build_plan(style, film, words, duration, presenter)
+        else:  # the designed scenes, in the chosen look (or the reference reel's colours and type)
+            b = dict(options.get("brief") or {})
+            ref = (b.get("reference") or {}) if isinstance(b.get("reference"), dict) else {}
+            plan = roundup.build_scenes(
+                style,
+                film,
+                words,
+                duration,
+                str(ref.get("look") or b.get("look") or roundup.DEFAULT_LOOK),
+                ref.get("colors") or None,
+                ref.get("fonts") or None,
+            )
         validator = ChromiumValidator(self.s)
         try:
             r = validator(plan, words, image_ids)

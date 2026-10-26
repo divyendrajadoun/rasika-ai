@@ -16,6 +16,10 @@ side copy, when a run shows a problem.
 - **Mode**: `voice` (narration over the visuals) is the default. `presenter` (an AI avatar speaking,
   visuals behind) costs money per video through HeyGen: ask before using it, and say it is not wired
   into roundups yet if `roundup_reel.py` refuses it.
+- **Look**: one of the five designed looks (`signal` dark tech, `frontpage` newspaper, `loud` bold
+  pop, `keynote` polished glass, `terminal` hacker green), or a reel to match (`--reference file.mp4`:
+  its colours, type and pace dress the closest layout). Default `signal`. If the user is unsure,
+  render two looks and show both.
 - **CTA** (optional): the user's own closing call to action, else the writer's default.
 - **Language**: English narration (the narration voices are English-only).
 
@@ -34,7 +38,7 @@ Never run this against the production stack (`rasika-cloud`).
 ## 3. Run it
 
 ```bash
-apps/worker/.venv/Scripts/python.exe tools/e2e/roundup_reel.py <post.txt> [--cta "..."] [--voice aura-2-thalia-en] [--preset dark-ios]
+apps/worker/.venv/Scripts/python.exe tools/e2e/roundup_reel.py <post.txt> [--style signal|frontpage|loud|keynote|terminal] [--reference reel.mp4] [--cta "..."] [--voice aura-2-thalia-en]
 ```
 
 It prints each stage (reading the post, researching each link, writing, narration, transcription,
@@ -50,15 +54,17 @@ type `plan` and push the message to `rasika:jobs`).
 1. Contact sheet: `ffmpeg -i reel_1080.mp4 -vf "fps=1/3,scale=270:-2,tile=6x4" -frames:v 1 contact.jpg`,
    then open it and look. Grab full frames at the hook, at each item's counter and at the end card.
 2. Check against this list:
-   - The first 3 s show the hook line big and every item's page flashing under it.
-   - Each item: `#n` + name + takeaway on top, its visuals in the window under it (no blank white
-     area), the number counting up under the window on the spoken number, captions at the bottom.
+   - The first seconds show the hook line big and every item's page landing on a fanned stack.
+   - Each item is one designed scene (engine `roundupScene`): progress, rank, the name arriving,
+     the takeaway, its pages on a moving camera, the number counting up on the spoken number,
+     captions at the bottom. No black frame between scenes; text never runs off the frame.
    - Demo clips play whole across the frame over a blur (never stretched or cropped to a sliver).
    - The end card shows the closing line and the recap of every name.
    - Every fact on screen is in `research.json` (page facts) or the post; nothing invented.
 3. Read `script.json`: the hook must name the count and the most surprising item; each item must
    say what it is in plain words; numbers rounded as spoken.
-4. Fix the weakest thing in `roundup.py` (writer prompt or `build_plan`), add or adjust a test in
+4. Fix the weakest thing — the look itself in `packages/engine/src/roundup.ts`, the layout in
+   `roundup.py` (`build_scenes`), or the writer prompt — add or adjust a test in
    `apps/worker/tests/test_roundup.py`, rebuild the worker, re-plan, look again.
 
 ## 5. Deliver

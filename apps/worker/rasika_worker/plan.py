@@ -631,6 +631,96 @@ class PlanElement15(BaseModel):
     seed: int | None = Field(7, ge=0, le=1000000000)
 
 
+class Look(StrEnum):
+    signal = "signal"
+    frontpage = "frontpage"
+    loud = "loud"
+    keynote = "keynote"
+    terminal = "terminal"
+
+
+class Phase(StrEnum):
+    intro = "intro"
+    item = "item"
+    outro = "outro"
+
+
+class Stat(BaseModel):
+    value: float
+    label: str = Field(..., max_length=40)
+    at: float = Field(..., ge=0.0)
+
+
+class Kind2(StrEnum):
+    page = "page"
+    picture = "picture"
+
+
+class Shot(BaseModel):
+    imageId: str = Field(..., max_length=64, min_length=1)
+    at: float = Field(..., ge=0.0)
+    kind: Kind2 | None = "page"
+
+
+class Name(RootModel[str]):
+    root: str = Field(..., max_length=40)
+
+
+class Thumb(RootModel[str]):
+    root: str = Field(..., max_length=64, min_length=1)
+
+
+class Colors(BaseModel):
+    bg: str = Field(
+        ...,
+        description="a real colour (#rrggbb), for things that have one: a liquid, a fighter's corner",
+        pattern="^#[0-9a-fA-F]{6}$",
+    )
+    ink: str = Field(
+        ...,
+        description="a real colour (#rrggbb), for things that have one: a liquid, a fighter's corner",
+        pattern="^#[0-9a-fA-F]{6}$",
+    )
+    accent: str = Field(
+        ...,
+        description="a real colour (#rrggbb), for things that have one: a liquid, a fighter's corner",
+        pattern="^#[0-9a-fA-F]{6}$",
+    )
+    muted: str | None = Field(
+        None,
+        description="a real colour (#rrggbb), for things that have one: a liquid, a fighter's corner",
+        pattern="^#[0-9a-fA-F]{6}$",
+    )
+
+
+class Fonts1(BaseModel):
+    display: str = Field(..., max_length=40)
+    ui: str = Field(..., max_length=40)
+
+
+class PlanElement16(BaseModel):
+    id: str = Field(..., max_length=64, min_length=1)
+    t0: float = Field(..., ge=0.0, le=600.0)
+    t1: float = Field(..., ge=0.0, le=600.0)
+    anchorWordIndex: int | None = Field(None, ge=0, le=9007199254740991)
+    type: Literal["roundupScene"]
+    look: Look | None = "signal"
+    phase: Phase | None = "item"
+    offset: float | None = Field(0, ge=0.0, le=120.0)
+    rank: int | None = Field(0, ge=0, le=12)
+    total: int | None = Field(5, ge=1, le=12)
+    name: str | None = Field("", max_length=40)
+    line: str | None = Field("", max_length=80)
+    url: str | None = Field("", max_length=80)
+    stat: Stat | None = None
+    shots: list[Shot] | None = Field([], max_length=6, validate_default=True)
+    names: list[Name] | None = Field([], max_length=12, validate_default=True)
+    thumbs: list[Thumb] | None = Field([], max_length=12, validate_default=True)
+    hook: str | None = Field("", max_length=90)
+    colors: Colors | None = None
+    fonts: Fonts1 | None = None
+
+
 class Anim(StrEnum):
     rise = "rise"
     pop = "pop"
@@ -1123,6 +1213,7 @@ class Plan(BaseModel):
         | PlanElement13
         | PlanElement14
         | PlanElement15
+        | PlanElement16
     ]
     sfx: Sfx
     endCard: EndCard | None = None

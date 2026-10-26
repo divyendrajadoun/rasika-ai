@@ -359,3 +359,104 @@ def test_build_plan_with_a_presenter_uses_the_bubble() -> None:
     assert not any(
         e["id"].startswith("hook") and e["type"] == "browserCard" for e in plan["elements"]
     )
+
+
+class _Report:
+    stills: list[str] = []
+
+    def as_dict(self) -> dict[str, object]:
+        return {"duration_sec": 20.0, "cuts_per_min": 40.0, "dominant": ["#111111", "#ffcc00"]}
+
+
+def test_match_reference_validates_what_the_model_says() -> None:
+    from rasika_worker.roundup import LOOKS, match_reference
+
+    bad = (
+        '{"look": "neon", "colors": {"bg": "#000000", "ink": "#111111", "accent": "red"},'
+        ' "fonts": {"display": "Comic Sans", "ui": "JetBrains Mono"}}'
+    )
+    out = match_reference(_Client(bad), "m", _Report(), ["JetBrains Mono", "Inter"])
+    assert out["look"] == "signal"  # unknown look → the default
+    assert (out["colors"]["bg"], out["colors"]["ink"]) == (
+        LOOKS["signal"]["bg"],
+        LOOKS["signal"]["ink"],
+    )  # unreadable pair
+    assert out["colors"]["accent"] == LOOKS["signal"]["accent"]  # not a hex
+    assert out["fonts"] == {"display": LOOKS["signal"]["display"], "ui": "JetBrains Mono"}
+
+    good = (
+        '{"look": "loud", "colors": {"bg": "#ff3366", "ink": "#000000", "accent": "#ffffff", "muted": "#222222"},'
+        ' "fonts": {"display": "Inter", "ui": "Inter"}, "why": "fast cuts"}'
+    )
+    out = match_reference(_Client(good), "m", _Report(), ["JetBrains Mono", "Inter"])
+    assert (
+        out["look"] == "loud"
+        and out["colors"]["bg"] == "#ff3366"
+        and out["fonts"]["display"] == "Inter"
+    )
+
+
+def test_build_scenes_intro_items_cutaway_and_recap() -> None:
+    from rasika_worker.roundup import build_scenes
+
+    words = _words(
+        "Two repos today . First up Alpha with twelve thousand stars . Next Duck a robot that walks and walks "
+        "and stands back up again every time . Bye now"
+    )
+    film = {
+        "data": {
+            "media": {
+                "m1": {
+                    "asset": "a1",
+                    "kind": "image",
+                    "item": 1,
+                    "shows": "the page, first screen",
+                    "w": 1440,
+                    "h": 900,
+                },
+                "m2": {
+                    "asset": "a2",
+                    "kind": "image",
+                    "item": 2,
+                    "shows": "the page, first screen",
+                    "w": 1440,
+                    "h": 900,
+                },
+                "m3": {"asset": "a3", "kind": "clip", "item": 2, "shows": "demo", "sec": 8.0},
+            },
+            "roundup": {
+                "hook": {"line": "Two repos", "say": "two repos today"},
+                "outro": {"line": "Bye", "say": "bye now"},
+                "items": [
+                    {
+                        "rank": 1,
+                        "name": "Alpha",
+                        "say": "first up alpha",
+                        "stat": {
+                            "value": 12000,
+                            "label": "GitHub stars",
+                            "say": "twelve thousand stars",
+                        },
+                        "shots": [{"media": "m1", "say": "first up alpha"}],
+                    },
+                    {
+                        "rank": 2,
+                        "name": "Duck",
+                        "say": "next duck",
+                        "shots": [
+                            {"media": "m2", "say": "next duck"},
+                            {"media": "m3", "say": "a robot"},
+                        ],
+                    },
+                ],
+            },
+        }
+    }
+    plan = build_scenes({"palette": {}, "fonts": {}}, film, words, 30.0, "frontpage")
+    els = {e["id"]: e for e in plan["elements"]}
+    assert els["intro"]["phase"] == "intro" and els["intro"]["thumbs"] == ["a1", "a2"]
+    assert els["item1"]["look"] == "frontpage" and els["item1"]["stat"]["value"] == 12
+    assert els["clip2"]["type"] == "broll" and els["clip2"]["source"]["provider"] == "asset"
+    assert els["item2b"]["offset"] > 0 and els["item2b"]["t0"] == els["clip2"]["t1"]
+    assert els["outro"]["names"] == ["Alpha", "Duck"]
+    assert plan["style"]["palette"]["stage"] == "#f2ede3"

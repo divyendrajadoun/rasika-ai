@@ -1084,3 +1084,387 @@ def _visual(
         "tilt": 0,
         "objectPosition": "50% 50%",
     }
+
+
+# ───────────────────────────── the designed looks ─────────────────────────────
+
+#: the looks a roundup can wear (engine/src/roundup.ts LOOKS); colours mirror the engine's so the
+#: captions match the scenes
+LOOKS: dict[str, dict[str, str]] = {
+    "signal": {
+        "bg": "#06070b",
+        "ink": "#f3f5f9",
+        "accent": "#7cf5c4",
+        "muted": "#7f8896",
+        "display": "Space Grotesk",
+        "ui": "JetBrains Mono",
+    },
+    "frontpage": {
+        "bg": "#f2ede3",
+        "ink": "#141311",
+        "accent": "#cf2a1f",
+        "muted": "#6b645a",
+        "display": "Playfair Display Roman",
+        "ui": "IBM Plex Mono",
+    },
+    "loud": {
+        "bg": "#ffd60a",
+        "ink": "#0d0d0d",
+        "accent": "#ffffff",
+        "muted": "#1d1d1d",
+        "display": "Archivo Black",
+        "ui": "Space Grotesk",
+    },
+    "keynote": {
+        "bg": "#09080d",
+        "ink": "#ffffff",
+        "accent": "#ffb36b",
+        "muted": "#a7a3b2",
+        "display": "Inter",
+        "ui": "Inter",
+    },
+    "terminal": {
+        "bg": "#040704",
+        "ink": "#c9ffcf",
+        "accent": "#3dff6e",
+        "muted": "#5c8a62",
+        "display": "IBM Plex Mono",
+        "ui": "IBM Plex Mono",
+    },
+}
+DEFAULT_LOOK = "signal"
+SCENE_CAPTION_Y = 1640
+OVERLAP = 0.7  # seconds a scene stays under the next one's entrance
+
+
+def look_style(
+    base: dict[str, Any],
+    look: str,
+    colors: dict[str, str] | None = None,
+    fonts: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    """The plan's style tokens in the look's colours and type, so the captions belong to the scenes."""
+    lk = {**LOOKS.get(look, LOOKS[DEFAULT_LOOK]), **(colors or {}), **(fonts or {})}
+    style: dict[str, Any] = json.loads(json.dumps(base))
+    pal = dict(style.get("palette") or {})
+    light = _luma(lk["bg"]) > 0.55
+    pal.update(
+        {
+            "stage": lk["bg"],
+            "iv": lk["ink"] if not light else "#ffffff",
+            "ink": lk["ink"] if light else "#050505",
+            "gold": lk["accent"] if look != "loud" else "#0d0d0d",
+            "ter": lk["accent"] if look != "loud" else "#0d0d0d",
+            "goldd": lk["muted"],
+            "mar": lk["bg"],
+        }
+    )
+    style["palette"] = pal
+    fs = dict(style.get("fonts") or {})
+    fs.update({"poster": lk["display"], "ui": lk["ui"], "caption": lk["display"]})
+    style["fonts"] = fs
+    return style
+
+
+def _luma(hex_: str) -> float:
+    h = hex_.lstrip("#")
+    r, g, b = (int(h[i : i + 2], 16) / 255 for i in (0, 2, 4))
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def build_scenes(
+    style: dict[str, Any],
+    film: dict[str, Any],
+    words: list[dict[str, Any]],
+    duration: float,
+    look: str = DEFAULT_LOOK,
+    colors: dict[str, str] | None = None,
+    fonts: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    """The roundup as designed scenes (engine `roundupScene`): an intro where the hook lands over
+    every item's page, one scene per item from the moment its name is spoken (its pages on a
+    moving camera, its number counting up on the spoken number), a full-frame cutaway for a demo
+    clip after which the scene resumes, and the recap. Captions run under it all."""
+    look = look if look in LOOKS else DEFAULT_LOOK
+    data = film.get("data") or {}
+    script = data.get("roundup") or {}
+    media = data.get("media") or {}
+    items = [x for x in script.get("items") or [] if isinstance(x, dict)]
+    total = max(1, len(items))
+    extra: dict[str, Any] = {"look": look}
+    if colors:
+        extra["colors"] = colors
+    if fonts:
+        extra["fonts"] = fonts
+    els: list[dict[str, Any]] = []
+    sfx: list[dict[str, Any]] = []
+
+    starts: list[float] = []
+    for it in items:
+        t = when(words, str(it.get("say") or ""), starts[-1] if starts else 0.0)
+        if t is None:
+            t = (starts[-1] + 6.0) if starts else 3.0
+        starts.append(min(t, duration - 1.0))
+    outro = script.get("outro") or {}
+    t_out = when(words, str(outro.get("say") or ""), starts[-1] if starts else 0.0)
+    end_last = (
+        t_out if t_out is not None and t_out > (starts[-1] if starts else 0) + 1 else duration
+    )
+
+    def first_page(rank: int) -> str | None:
+        mine = [k for k, v in media.items() if v.get("item") == rank and v.get("kind") == "image"]
+        site = [k for k in mine if str(media[k].get("shows") or "").startswith("the project's")]
+        pick = (site or mine or [None])[0]
+        return str(media[pick]["asset"]) if pick else None
+
+    names = [str(it.get("name") or "")[:40] for it in items]
+    thumbs = [
+        x for x in (first_page(int(it.get("rank") or i + 1)) for i, it in enumerate(items)) if x
+    ]
+    hook = script.get("hook") or {}
+    first = starts[0] if starts else duration
+    if first > 0.8:
+        els.append(
+            {
+                "id": "intro",
+                "type": "roundupScene",
+                "phase": "intro",
+                "t0": 0.0,
+                "t1": round(first, 3),
+                "total": total,
+                "hook": str(hook.get("line") or "")[:90],
+                "names": names,
+                "thumbs": thumbs[:12],
+                **extra,
+            }
+        )
+        for k in range(len(thumbs)):
+            sfx.append(
+                {
+                    "t": round(0.6 + k * max(0.5, first - 0.9) / max(1, len(thumbs)), 3),
+                    "type": "tick",
+                    "gain": 0.4,
+                }
+            )
+
+    last_clip_end = -10.0
+    for i, it in enumerate(items):
+        t0 = starts[i]
+        t1 = starts[i + 1] if i + 1 < len(items) else end_last
+        if t1 - t0 < 1.0:
+            continue
+        rank = int(it.get("rank") or i + 1)
+        sfx.append({"t": round(max(0.0, t0 - 0.1), 3), "type": "whoosh", "dur": 0.45, "gain": 0.55})
+        # the item's pictures in order; its first clip becomes a cutaway
+        shots: list[dict[str, Any]] = []
+        clip: tuple[float, float, dict[str, Any]] | None = None
+        for s in it.get("shots") or []:
+            m = media.get(str(s.get("media")))
+            if not m:
+                continue
+            at = when(words, str(s.get("say") or ""), t0)
+            at = t0 if at is None or not shots else max(at, t0)
+            if m.get("kind") == "clip":
+                a = max(at, t0 + 2.2, 1.5)  # the scene lands first
+                b = min(t1 - 0.8, a + CLIP_MAX)
+                if clip is None and b - a >= 1.5 and a - last_clip_end >= 1.5:
+                    clip = (a, b, m)
+                continue
+            label = str(m.get("shows") or "")
+            shots.append(
+                {
+                    "imageId": str(m["asset"]),
+                    "at": round(max(0.0, (at if shots else t0) - t0), 3),
+                    "kind": "page" if label.startswith(PAGE_LABELS) else "picture",
+                }
+            )
+        if not shots:
+            p = first_page(rank)
+            if p:
+                shots = [{"imageId": p, "at": 0.0, "kind": "page"}]
+        # each shot holds at least 1.6 s
+        for k in range(1, len(shots)):
+            shots[k]["at"] = max(shots[k]["at"], shots[k - 1]["at"] + 1.6)
+        scene: dict[str, Any] = {
+            "type": "roundupScene",
+            "phase": "item",
+            "rank": rank,
+            "total": total,
+            "name": str(it.get("name") or "")[:40],
+            "line": str(it.get("line") or "")[:80],
+            "url": _host(str(it.get("url") or ""))[:80],
+            "shots": shots[:6],
+            **extra,
+        }
+        st = it.get("stat")
+        if isinstance(st, dict):
+            ts = when(words, str(st.get("say") or ""), t0)
+            if ts is not None and ts < t1 - 1.0:
+                value, label = float(st["value"]), str(st.get("label") or "")[:30] or "stars"
+                if value >= 10_000:
+                    value, label = round(value / 1000), f"thousand {label}"[:40]
+                scene["stat"] = {"value": value, "label": label, "at": round(ts - t0, 3)}
+                sfx.append({"t": round(ts + 0.3, 3), "type": "pop", "gain": 0.5})
+        if clip:
+            a, b, m = clip
+            els.append(
+                {**scene, "id": f"item{rank}", "t0": round(t0, 3), "t1": round(a, 3), "offset": 0}
+            )
+            page = _host(str(m.get("page") or it.get("url") or ""))
+            els.append(
+                {
+                    "id": f"clip{rank}",
+                    "type": "broll",
+                    "t0": round(a, 3),
+                    "t1": round(b, 3),
+                    "query": "demo clip from the project",
+                    "label": page[:40],
+                    "source": {
+                        "provider": "asset",
+                        "assetId": str(m["asset"]),
+                        "url": str(m.get("url") or ""),
+                        "author": page[:60],
+                        "duration": float(m.get("sec") or 0) or None,
+                    },
+                }
+            )
+            last_clip_end = b
+            if t1 - b >= 0.6:
+                els.append(
+                    {
+                        **scene,
+                        "id": f"item{rank}b",
+                        "t0": round(b, 3),
+                        "t1": round(t1, 3),
+                        "offset": round(b - t0, 3),
+                    }
+                )
+        else:
+            els.append(
+                {**scene, "id": f"item{rank}", "t0": round(t0, 3), "t1": round(t1, 3), "offset": 0}
+            )
+        # the scene holds under the next one while it arrives (no gap to black between scenes)
+        if els[-1].get("type") == "roundupScene":
+            els[-1]["t1"] = round(min(duration, float(els[-1]["t1"]) + OVERLAP), 3)
+
+    if t_out is not None and duration - t_out > 1.0:
+        els.append(
+            {
+                "id": "outro",
+                "type": "roundupScene",
+                "phase": "outro",
+                "t0": round(t_out, 3),
+                "t1": round(duration, 3),
+                "total": total,
+                "hook": str(outro.get("line") or "")[:90],
+                "names": names,
+                "thumbs": thumbs[:12],
+                **extra,
+            }
+        )
+    return {
+        "version": 1,
+        "meta": {
+            "durationSec": round(duration, 2),
+            "fps": 30,
+            "width": W,
+            "height": H,
+            "language": "en",
+            "faceless": True,
+        },
+        "style": look_style(style, look, colors, fonts),
+        "subject": {
+            "faceBox": {"x": 0, "y": 0, "w": 1, "h": 1},
+            "freeZone": {"x": 0, "y": 150, "w": W, "h": 1400},
+        },
+        "videoModes": [{"t": 0, "mode": "full"}],
+        "captions": {"enabled": True, "y": SCENE_CAPTION_Y, "gold": [], "accent": []},
+        "sfx": {"auto": False, "intensity": 0.7, "extra": sfx},
+        "elements": els,
+    }
+
+
+# ───────────────────────────── matching a reference reel ─────────────────────────────
+
+MATCH_SYSTEM = """You are the art director of Rasika's roundup reels. The user uploaded a reel whose style they
+want their roundup to have. You get measurements of it (cut pace, brightness, colourfulness, its dominant
+colours) and eight stills. Choose the closest of our five layouts and dress it in the reference's colours and
+type. Return ONE JSON object, nothing else:
+
+{"look": "signal|frontpage|loud|keynote|terminal",
+ "colors": {"bg": "#rrggbb", "ink": "#rrggbb", "accent": "#rrggbb", "muted": "#rrggbb"},
+ "fonts": {"display": "one of the allowed fonts", "ui": "one of the allowed fonts"},
+ "why": "one sentence: what in the reference led to this"}
+
+The layouts:
+- signal: dark tech; glowing 3D screenshot cards, outlined mono rank numerals, a moving grid.
+- frontpage: editorial print; paper, serif headlines, taped clippings, a marker underline.
+- loud: bold pop; a solid colour block per item, giant numerals, stickers, hard shadows, bouncy.
+- keynote: polished keynote; drifting colour light, glass panels, big rounded screens, soft motion.
+- terminal: hacker; scanlines, typed monospace commands, a green preview turning to colour.
+
+Rules: colours come from the reference's own dominant colours (bg is its main background, ink reads on bg at
+4.5:1 or more, accent is its most striking highlight, muted is a quieter tone of ink). Fonts must be in the
+allowed list; pick the closest in feel (condensed, serif, mono, geometric…). Fast cutting and saturated colour
+lean to loud; dark and techy to signal or terminal; light and print-like to frontpage; soft gradients and big
+clean type to keynote. Never copy the reference's footage or words: only its look."""
+
+HEX_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
+
+
+def match_reference(
+    client: Any, model: str, report: Any, fonts_allowed: list[str]
+) -> dict[str, Any]:
+    """The closest look in the reference reel's colours and type (validated; falls back to the look's
+    own colours and fonts for anything that does not hold)."""
+    from rasika_worker.planner import _b64_image
+
+    measured = {
+        k: v for k, v in report.as_dict().items() if k not in ("stills", "cuts", "shot_lengths")
+    }
+    user: list[dict[str, Any]] = [
+        {
+            "type": "text",
+            "text": "## Measured\n\n"
+            + json.dumps(measured)
+            + "\n\n## Allowed fonts\n\n"
+            + ", ".join(fonts_allowed),
+        },
+        {"type": "text", "text": "## Stills"},
+    ]
+    for p in list(report.stills)[:8]:
+        user.append(_b64_image(Path(p)))
+    resp = client.messages.create(
+        model=model,
+        max_tokens=800,
+        system=MATCH_SYSTEM,
+        messages=[{"role": "user", "content": user}],
+    )
+    out = parse_json("".join(getattr(b, "text", "") for b in resp.content))
+    look = str(out.get("look") or "")
+    look = look if look in LOOKS else DEFAULT_LOOK
+    base = LOOKS[look]
+    colors = {
+        k: str((out.get("colors") or {}).get(k) or base[k])
+        for k in ("bg", "ink", "accent", "muted")
+    }
+    colors = {k: (v if HEX_RE.match(v) else base[k]) for k, v in colors.items()}
+    if _contrast(colors["bg"], colors["ink"]) < 4.5:  # unreadable: keep the look's own pair
+        colors["bg"], colors["ink"] = base["bg"], base["ink"]
+    fonts = {k: str((out.get("fonts") or {}).get(k) or base[k]) for k in ("display", "ui")}
+    fonts = {k: (v if v in fonts_allowed else base[k]) for k, v in fonts.items()}
+    return {"look": look, "colors": colors, "fonts": fonts, "why": str(out.get("why") or "")[:200]}
+
+
+def _contrast(a: str, b: str) -> float:
+    def lum(h: str) -> float:
+        h = h.lstrip("#")
+        out = []
+        for i in (0, 2, 4):
+            c = int(h[i : i + 2], 16) / 255
+            out.append(c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4)
+        return 0.2126 * out[0] + 0.7152 * out[1] + 0.0722 * out[2]
+
+    la, lb = lum(a), lum(b)
+    hi, lo = max(la, lb), min(la, lb)
+    return (hi + 0.05) / (lo + 0.05)

@@ -612,6 +612,50 @@ export const DiagramZoom = z.object({
 });
 
 /**
+ * A roundup film's scene ("From a post"): one designed full-frame scene per item, plus the intro
+ * (the hook over a cascade of every item) and the outro (the recap grid). `look` is the art
+ * direction (layout, type, motion, background); `colors` and `fonts` override the look's own when
+ * the film matches a reference reel. Shots are the item's screenshots, shown one after another at
+ * their `at` (seconds after t0) with a camera drift; the stat counts up at its `at`.
+ */
+export const RoundupLook = z.enum(["signal", "frontpage", "loud", "keynote", "terminal"]);
+export type RoundupLook = z.infer<typeof RoundupLook>;
+export const RoundupScene = z.object({
+  ...Timed,
+  type: z.literal("roundupScene"),
+  look: RoundupLook.default("signal"),
+  phase: z.enum(["intro", "item", "outro"]).default("item"),
+  /** seconds of this scene already shown (it resumes after a cutaway without arriving again) */
+  offset: z.number().min(0).max(120).default(0),
+  rank: z.number().int().min(0).max(12).default(0),
+  total: z.number().int().min(1).max(12).default(5),
+  name: z.string().max(40).default(""),
+  line: z.string().max(80).default(""),
+  url: z.string().max(80).default(""),
+  stat: z
+    .object({ value: z.number(), label: z.string().max(40), at: z.number().min(0) })
+    .optional(),
+  shots: z
+    .array(
+      z.object({
+        imageId: Id,
+        at: z.number().min(0),
+        kind: z.enum(["page", "picture"]).default("page"),
+      }),
+    )
+    .max(6)
+    .default([]),
+  /** intro / outro: every item's name and its first screenshot, in order */
+  names: z.array(z.string().max(40)).max(12).default([]),
+  thumbs: z.array(Id).max(12).default([]),
+  hook: z.string().max(90).default(""),
+  colors: z
+    .object({ bg: Hex, ink: Hex, accent: Hex, muted: Hex.optional() })
+    .optional(),
+  fonts: z.object({ display: z.string().max(40), ui: z.string().max(40) }).optional(),
+});
+
+/**
  * One shot drawn by code (the /animate studio): the body of a function
  * `draw(g, t, W, H, rnd, S)` that paints a 1080×1920 canvas for time `t` (seconds since t0).
  * `g` is a CanvasRenderingContext2D, `rnd` a seeded random (same numbers every frame), `S` the
@@ -656,6 +700,7 @@ export const PlanElement = z.discriminatedUnion("type", [
   PageFlyover,
   DiagramZoom,
   CodeScene,
+  RoundupScene,
 ]);
 export type PlanElement = z.infer<typeof PlanElement>;
 export type PlanElementInput = z.input<typeof PlanElement>;

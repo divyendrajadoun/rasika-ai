@@ -1,6 +1,13 @@
 "use client";
 
-import { BRIEF_GROUPS, BRIEF_KINDS, briefKind, type BriefKindId } from "@/config/briefs";
+import {
+  BRIEF_GROUPS,
+  BRIEF_KINDS,
+  ROUNDUP_LOOKS,
+  briefKind,
+  type BriefKindId,
+  type RoundupLookId,
+} from "@/config/briefs";
 import type { HeyGenLook, HeyGenVoice } from "@/lib/heygen";
 import { allPresetCards } from "@/config/presets";
 import { BriefIdeas } from "@/components/wizard/brief-ideas";
@@ -29,6 +36,8 @@ export interface BriefState {
   presenterVoice: string;
   /** the script is sent to the avatar provider (presenter only) */
   presenterOk: boolean;
+  /** the designed look, or "reference" to match an uploaded reel */
+  roundupLook: RoundupLookId | "reference";
 }
 
 export const defaultBriefState: BriefState = {
@@ -52,6 +61,7 @@ export const defaultBriefState: BriefState = {
   lookId: "",
   presenterVoice: "",
   presenterOk: false,
+  roundupLook: "signal",
 };
 
 const BRIEF_EXAMPLE_TOPICS = Object.fromEntries(
@@ -299,6 +309,64 @@ export function StepBrief({
                   onChange={(e) => set({ post: e.target.value })}
                 />
                 <p className="text-muted mt-1 text-[13px]">{f.help}</p>
+              </div>
+            );
+          if (f.id === "look")
+            return (
+              <div key="look" className="space-y-3">
+                <p className="label">The look</p>
+                <ul
+                  className="grid grid-cols-2 gap-3 sm:grid-cols-3"
+                  role="radiogroup"
+                  aria-label="The look"
+                >
+                  {ROUNDUP_LOOKS.map((l) => (
+                    <li key={l.id}>
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked={value.roundupLook === l.id}
+                        onClick={() => set({ roundupLook: l.id })}
+                        className={cn(
+                          "bg-raised w-full overflow-hidden rounded-[8px] text-left",
+                          value.roundupLook === l.id && "ring-text ring-2",
+                        )}
+                      >
+                        <span className="relative block aspect-[9/16] bg-black/20">
+                          {/* eslint-disable-next-line @next/next/no-img-element -- a still of a real render in this look */}
+                          <img
+                            src={`/demo/looks/${l.id}.jpg`}
+                            alt=""
+                            loading="lazy"
+                            className="absolute inset-0 h-full w-full object-cover"
+                          />
+                        </span>
+                        <span className="block px-3 pt-2 font-semibold">{l.name}</span>
+                        <span className="text-muted block px-3 pb-3 text-[12px] leading-snug">
+                          {l.blurb}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                  <li>
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={value.roundupLook === "reference"}
+                      onClick={() => set({ roundupLook: "reference" })}
+                      className={cn(
+                        "bg-raised flex h-full w-full flex-col justify-center rounded-[8px] p-4 text-left",
+                        value.roundupLook === "reference" && "ring-text ring-2",
+                      )}
+                    >
+                      <span className="block font-semibold">Match a reel</span>
+                      <span className="text-muted mt-1 block text-[12px] leading-snug">
+                        Upload a reel whose style you love: we take its colours, type and pace and
+                        make your roundup in it.
+                      </span>
+                    </button>
+                  </li>
+                </ul>
               </div>
             );
           if (f.id === "speaker")

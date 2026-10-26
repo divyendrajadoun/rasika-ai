@@ -5,6 +5,7 @@
   apps/worker/.venv/Scripts/python.exe tools/e2e/roundup_reel.py <post.txt> [--mode voice|presenter]
       [--voice aura-2-thalia-en] [--preset dark-ios] [--cta "Follow for tomorrow's list."] [--out DIR]
       presenter mode (paid, HeyGen): --look <look id> --presenter-voice <voice id>
+      the look: --style signal|frontpage|loud|keynote|terminal, or --reference <reel.mp4> to match a reel
 
 Creates a project for tester@rasika.local, enqueues a `compose` job (research → script → narration →
 transcribe → plan → render) and follows it to `done`, then saves the 720p and 1080p outputs, the
@@ -36,6 +37,8 @@ def main() -> int:
     ap.add_argument("--cta", default="")
     ap.add_argument("--out", type=pathlib.Path, default=None)
     ap.add_argument("--look", default="")
+    ap.add_argument("--style", default="signal", choices=["signal", "frontpage", "loud", "keynote", "terminal"])
+    ap.add_argument("--reference", type=pathlib.Path, default=None)
     ap.add_argument("--presenter-voice", default="")
     ap.add_argument("--timeout", type=float, default=2400)
     a = ap.parse_args()
@@ -51,6 +54,7 @@ def main() -> int:
     brief = {"kind": "roundup", "post": post, "voice": a.voice, "mode": a.mode}
     if a.cta:
         brief["cta"] = a.cta
+    brief["look"] = a.style
     if a.mode == "presenter":
         brief["look_id"] = a.look
         brief["presenter_voice"] = a.presenter_voice
@@ -77,6 +81,21 @@ def main() -> int:
             " values (%s::uuid,%s::uuid,%s,%s,%s,%s::jsonb,%s::jsonb,%s,%s)",
             (pid, uid, "", "uploaded", a.preset, json.dumps(opts), json.dumps({}), 60, 1),
         )
+        if a.reference:  # the reel to match: stored as the project's reference_video
+            from rasika_worker.settings import Settings
+            from rasika_worker.storage import Storage, project_prefix
+
+            rid = str(uuid.uuid4())
+            key = f"{project_prefix(uid, pid)}/reference{a.reference.suffix.lower()}"
+            size = Storage(Settings(_env_file=str(ROOT / ".env"))).upload(a.reference, key, "video/mp4")  # type: ignore[call-arg]
+            c.execute(
+                "insert into assets (id,project_id,user_id,kind,storage_key,filename,mime,size_bytes,meta)"
+                " values (%s::uuid,%s::uuid,%s::uuid,'reference_video',%s,%s,'video/mp4',%s,'{}'::jsonb)",
+                (rid, pid, uid, key, a.reference.name, size),
+            )
+            brief["reference_asset"] = rid
+            opts["brief"] = brief
+            c.execute("update projects set style_options=%s::jsonb where id=%s::uuid", (json.dumps(opts), pid))
         c.execute(
             "insert into jobs (id,project_id,user_id,type,status,message) values (%s::uuid,%s::uuid,%s::uuid,%s,%s,%s)",
             (jid, pid, uid, "compose", "uploaded", "Queued"),
