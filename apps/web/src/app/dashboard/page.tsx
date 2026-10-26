@@ -17,24 +17,27 @@ export default async function DashboardPage() {
     return (
       <div className="py-10">
         <div className="max-w-xl">
-        <h1 className="text-2xl font-semibold leading-tight tracking-[-0.02em]">No edits yet</h1>
-        <p className="text-muted mt-2">
-          Upload a talking reel, or paste a script, and the first preview is back in about a minute.
-        </p>
-        <div className="bg-surface mt-8 rounded-[8px] p-6">
-          <p className="font-medium">Your first reel is free.</p>
-          <p className="text-muted mt-1 text-[14px]">
-            {user.credits} credit{user.credits === 1 ? "" : "s"} on the {user.plan} plan · 1 credit = 1 reel up to 90 s.
+          <h1 className="text-2xl font-semibold leading-tight tracking-[-0.02em]">No edits yet</h1>
+          <p className="text-muted mt-2">
+            Upload a talking reel, or paste a script, and the first preview is back in about a
+            minute.
           </p>
-          <div className="mt-5 flex flex-wrap items-center gap-4">
-            <Link href="/dashboard/new" className="button">
-              Create your first edit
-            </Link>
-            <Link href="/help" className="link text-[14px]">
-              Watch how it works (2 min)
-            </Link>
+          <div className="bg-surface mt-8 rounded-[8px] p-6">
+            <p className="font-medium">Your first reel is free.</p>
+            <p className="text-muted mt-1 text-[14px]">
+              {user.unlimited
+                ? "Unlimited reels on this account, up to 3 minutes each."
+                : `${user.credits} credit${user.credits === 1 ? "" : "s"} on the ${user.plan} plan · 1 credit = 1 reel up to 90 s.`}
+            </p>
+            <div className="mt-5 flex flex-wrap items-center gap-4">
+              <Link href="/dashboard/new" className="button">
+                Create your first edit
+              </Link>
+              <Link href="/help" className="link text-[14px]">
+                Watch how it works (2 min)
+              </Link>
+            </div>
           </div>
-        </div>
         </div>
         <TryGallery />
       </div>

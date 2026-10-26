@@ -125,7 +125,13 @@ export const BriefSubmission = z
       "flyover",
       "diagram",
       "animate",
+      "roundup",
     ]),
+    /** roundup: the pasted post, who speaks it, and (presenter) the stock look and its voice */
+    post: z.string().trim().max(12000).optional(),
+    speaker: z.enum(["voice", "presenter"]).default("voice"),
+    lookId: z.string().max(120).optional(),
+    presenterVoice: z.string().max(120).optional(),
     url: z.string().trim().max(300).optional(),
     recipe: z.string().trim().max(1500).optional(),
     subject: z.string().trim().max(600).optional(),
@@ -140,7 +146,10 @@ export const BriefSubmission = z
     winner: z.enum(["", "a", "b"]).default(""),
     line: z.string().trim().max(60).optional(),
     end: z.string().trim().max(30).optional(),
-    voice: z.string().refine((id) => voiceIds.includes(id), { message: "Unknown voice" }).optional(),
+    voice: z
+      .string()
+      .refine((id) => voiceIds.includes(id), { message: "Unknown voice" })
+      .optional(),
     photos: z.array(WizardPhoto).max(15).default([]),
     options: z.object({
       sfxIntensity: z.number().min(0).max(1).default(0.6),
@@ -160,16 +169,38 @@ export const BriefSubmission = z
       if (!ok) ctx.addIssue({ code: "custom", path: [path], message });
     };
     if (["launch", "showreel", "app", "product", "referral", "hype", "flyover"].includes(v.kind))
-      need(/^https?:\/\/[^\s/]+\.[^\s]+/i.test(v.url ?? ""), "url", "Add the website link, starting with https://");
-    if (v.kind === "recipe") need((v.recipe ?? "").length >= 15, "recipe", "Write the recipe: ingredients with measures.");
-    if (v.kind === "journey") need((v.subject ?? "").length >= 10, "subject", "Say what the story is about.");
-    if (v.kind === "flyover") need(Boolean(v.closeLine), "closeLine", "Write the closing statement.");
+      need(
+        /^https?:\/\/[^\s/]+\.[^\s]+/i.test(v.url ?? ""),
+        "url",
+        "Add the website link, starting with https://",
+      );
+    if (v.kind === "recipe")
+      need((v.recipe ?? "").length >= 15, "recipe", "Write the recipe: ingredients with measures.");
+    if (v.kind === "journey")
+      need((v.subject ?? "").length >= 10, "subject", "Say what the story is about.");
+    if (v.kind === "flyover")
+      need(Boolean(v.closeLine), "closeLine", "Write the closing statement.");
     if (v.kind === "diagram" && v.url)
-      need(/^https?:\/\/[^\s/]+\.[^\s]+/i.test(v.url), "url", "The link should start with https://");
+      need(
+        /^https?:\/\/[^\s/]+\.[^\s]+/i.test(v.url),
+        "url",
+        "The link should start with https://",
+      );
     if (["explainer", "editorial", "tierlist", "diagram", "animate"].includes(v.kind))
       need((v.topic ?? "").length >= 6, "topic", "Say what the film is about.");
     if (v.kind === "versus") need(Boolean(v.a && v.b), "a", "Name both contenders.");
     if (v.kind === "machine") need(Boolean(v.line), "line", "Write the line that types out.");
+    if (v.kind === "roundup") {
+      need(
+        /https?:\/\/\S+/i.test(v.post ?? ""),
+        "post",
+        "Paste a post with a link for each thing it lists.",
+      );
+      if (v.speaker === "presenter") {
+        need(Boolean(v.lookId), "lookId", "Choose a presenter.");
+        need(Boolean(v.presenterVoice), "presenterVoice", "Choose the presenter's voice.");
+      }
+    }
   });
 export type BriefSubmission = z.infer<typeof BriefSubmission>;
 
@@ -213,7 +244,8 @@ export const PresenterSubmission = z.object({
     error: "Please confirm you have the rights to this video and these images.",
   }),
   presenterConsent: z.literal(true, {
-    error: "Please confirm the rights to the photo, that the person is an adult, and the upload to our avatar provider.",
+    error:
+      "Please confirm the rights to the photo, that the person is an adult, and the upload to our avatar provider.",
   }),
 });
 export type PresenterSubmission = z.infer<typeof PresenterSubmission>;

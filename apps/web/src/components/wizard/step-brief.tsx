@@ -1,6 +1,7 @@
 "use client";
 
 import { BRIEF_GROUPS, BRIEF_KINDS, briefKind, type BriefKindId } from "@/config/briefs";
+import type { HeyGenLook, HeyGenVoice } from "@/lib/heygen";
 import { allPresetCards } from "@/config/presets";
 import { BriefIdeas } from "@/components/wizard/brief-ideas";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,13 @@ export interface BriefState {
   closeLine: string;
   closeTail: string;
   narrate: boolean;
+  /** roundup: the pasted post and who speaks it */
+  post: string;
+  speaker: "voice" | "presenter";
+  lookId: string;
+  presenterVoice: string;
+  /** the script is sent to the avatar provider (presenter only) */
+  presenterOk: boolean;
 }
 
 export const defaultBriefState: BriefState = {
@@ -39,6 +47,11 @@ export const defaultBriefState: BriefState = {
   closeLine: "",
   closeTail: "",
   narrate: false,
+  post: "",
+  speaker: "voice",
+  lookId: "",
+  presenterVoice: "",
+  presenterOk: false,
 };
 
 const BRIEF_EXAMPLE_TOPICS = Object.fromEntries(
@@ -72,6 +85,11 @@ export function briefReady(b: BriefState): boolean {
       return Boolean(b.a.trim() && b.b.trim());
     case "machine":
       return Boolean(b.line.trim());
+    case "roundup":
+      return (
+        /https?:\/\/\S+/i.test(b.post) &&
+        (b.speaker === "voice" || Boolean(b.lookId && b.presenterVoice && b.presenterOk))
+      );
   }
 }
 
@@ -79,7 +97,20 @@ export function briefReady(b: BriefState): boolean {
  * Films made from a brief: pick the kind, then give exactly what that kind needs. Each card says
  * what you give and what you get, so the choice is the explanation.
  */
-export function StepBrief({ value, onChange }: { value: BriefState; onChange: (v: BriefState) => void }) {
+export function StepBrief({
+  value,
+  onChange,
+  looks = [],
+  voices = [],
+  presenterEnabled = false,
+}: {
+  value: BriefState;
+  onChange: (v: BriefState) => void;
+  /** the AI presenter's stock looks and voices (roundups spoken by a presenter) */
+  looks?: HeyGenLook[];
+  voices?: HeyGenVoice[];
+  presenterEnabled?: boolean;
+}) {
   const set = (patch: Partial<BriefState>) => onChange({ ...value, ...patch });
   const kind = briefKind(value.kind)!;
   const look = allPresetCards.find((c) => c.tokens.id === kind.preset)?.tokens;
@@ -94,7 +125,10 @@ export function StepBrief({ value, onChange }: { value: BriefState; onChange: (v
       recipe: value.recipe || ex.recipe || "",
       subject: value.subject || ex.subject || "",
       // each topic kind starts from its own example unless the user typed one for another topic kind
-      topic: value.topic && !Object.values(BRIEF_EXAMPLE_TOPICS).includes(value.topic) ? value.topic : ex.topic || "",
+      topic:
+        value.topic && !Object.values(BRIEF_EXAMPLE_TOPICS).includes(value.topic)
+          ? value.topic
+          : ex.topic || "",
       a: value.a || ex.a || "",
       b: value.b || ex.b || "",
       line: value.line || ex.line || "",
@@ -103,43 +137,47 @@ export function StepBrief({ value, onChange }: { value: BriefState; onChange: (v
       seconds: ex.seconds || "",
       closeLine: value.closeLine || ex.closeLine || "",
       closeTail: value.closeTail || ex.closeTail || "",
+      post: value.post || ex.post || "",
     });
   };
   return (
     <div className="space-y-8">
       <p className="text-muted">
-        No footage needed. Pick the kind of film; we write it, score it and design it, using only what you give us.
+        No footage needed. Pick the kind of film; we write it, score it and design it, using only
+        what you give us.
       </p>
       {BRIEF_GROUPS.map((g) => (
-      <section key={g.id} aria-label={g.title}>
-      <h3 className="text-lg font-semibold tracking-[-0.02em]">{g.title}</h3>
-      <p className="text-muted mb-3 text-[14px]">{g.blurb}</p>
-      <ul className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label={g.title}>
-        {BRIEF_KINDS.filter((k) => k.group === g.id).map((k) => {
-          const on = k.id === value.kind;
-          return (
-            <li key={k.id}>
-              <button
-                type="button"
-                role="radio"
-                aria-checked={on}
-                onClick={() => pick(k.id)}
-                className={cn(
-                  "bg-surface flex h-full w-full flex-col gap-2 rounded-[8px] p-5 text-left transition-colors hover:bg-raised",
-                  on && "ring-2 ring-text",
-                )}
-              >
-                <span className="text-lg font-semibold leading-tight tracking-[-0.02em]">{k.title}</span>
-                <span className="text-[14px]">{k.blurb}</span>
-                <span className="text-muted text-[13px]">
-                  <span className="text-text font-medium">You give:</span> {k.youGive}
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-      </section>
+        <section key={g.id} aria-label={g.title}>
+          <h3 className="text-lg font-semibold tracking-[-0.02em]">{g.title}</h3>
+          <p className="text-muted mb-3 text-[14px]">{g.blurb}</p>
+          <ul className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label={g.title}>
+            {BRIEF_KINDS.filter((k) => k.group === g.id).map((k) => {
+              const on = k.id === value.kind;
+              return (
+                <li key={k.id}>
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={on}
+                    onClick={() => pick(k.id)}
+                    className={cn(
+                      "bg-surface hover:bg-raised flex h-full w-full flex-col gap-2 rounded-[8px] p-5 text-left transition-colors",
+                      on && "ring-text ring-2",
+                    )}
+                  >
+                    <span className="text-lg font-semibold leading-tight tracking-[-0.02em]">
+                      {k.title}
+                    </span>
+                    <span className="text-[14px]">{k.blurb}</span>
+                    <span className="text-muted text-[13px]">
+                      <span className="text-text font-medium">You give:</span> {k.youGive}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
       ))}
 
       <div className="bg-surface space-y-5 rounded-[8px] p-5">
@@ -205,13 +243,25 @@ export function StepBrief({ value, onChange }: { value: BriefState; onChange: (v
                   <label htmlFor="brief-a" className="label">
                     Red corner
                   </label>
-                  <input id="brief-a" className="input" maxLength={40} value={value.a} onChange={(e) => set({ a: e.target.value })} />
+                  <input
+                    id="brief-a"
+                    className="input"
+                    maxLength={40}
+                    value={value.a}
+                    onChange={(e) => set({ a: e.target.value })}
+                  />
                 </div>
                 <div>
                   <label htmlFor="brief-b" className="label">
                     Blue corner
                   </label>
-                  <input id="brief-b" className="input" maxLength={40} value={value.b} onChange={(e) => set({ b: e.target.value })} />
+                  <input
+                    id="brief-b"
+                    className="input"
+                    maxLength={40}
+                    value={value.b}
+                    onChange={(e) => set({ b: e.target.value })}
+                  />
                 </div>
                 <div className="sm:col-span-2">
                   <label htmlFor="brief-winner" className="label">
@@ -228,9 +278,138 @@ export function StepBrief({ value, onChange }: { value: BriefState; onChange: (v
                     <option value="b">{value.b || "Blue corner"}</option>
                   </select>
                   <p className="text-muted mt-1 text-[13px]">
-                    People, brands or ideas all work. It roasts what they do, never their looks or identity.
+                    People, brands or ideas all work. It roasts what they do, never their looks or
+                    identity.
                   </p>
                 </div>
+              </div>
+            );
+          if (f.id === "post")
+            return (
+              <div key="post">
+                <label htmlFor="brief-post" className="label">
+                  {f.label}
+                </label>
+                <textarea
+                  id="brief-post"
+                  className="input min-h-56 font-mono text-[13px]"
+                  maxLength={12000}
+                  placeholder={f.placeholder}
+                  value={value.post}
+                  onChange={(e) => set({ post: e.target.value })}
+                />
+                <p className="text-muted mt-1 text-[13px]">{f.help}</p>
+              </div>
+            );
+          if (f.id === "speaker")
+            return (
+              <div key="speaker" className="space-y-3">
+                <p className="label">Who speaks it?</p>
+                <div
+                  className="grid gap-3 sm:grid-cols-2"
+                  role="radiogroup"
+                  aria-label="Who speaks it"
+                >
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={value.speaker === "voice"}
+                    onClick={() => set({ speaker: "voice" })}
+                    className={cn(
+                      "bg-raised rounded-[8px] p-4 text-left",
+                      value.speaker === "voice" && "ring-text ring-2",
+                    )}
+                  >
+                    <span className="block font-semibold">A voice</span>
+                    <span className="text-muted text-[13px]">
+                      A narrator over the pages and clips, with captions.
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={value.speaker === "presenter"}
+                    aria-disabled={!presenterEnabled}
+                    disabled={!presenterEnabled}
+                    onClick={() => set({ speaker: "presenter" })}
+                    className={cn(
+                      "bg-raised rounded-[8px] p-4 text-left disabled:opacity-50",
+                      value.speaker === "presenter" && "ring-text ring-2",
+                    )}
+                  >
+                    <span className="block font-semibold">An AI presenter</span>
+                    <span className="text-muted text-[13px]">
+                      {presenterEnabled
+                        ? "A presenter opens and closes on camera; the pages and clips fill the frame while they talk."
+                        : "Not available on this workspace yet."}
+                    </span>
+                  </button>
+                </div>
+                {value.speaker === "presenter" && presenterEnabled && (
+                  <div className="space-y-3">
+                    <ul
+                      className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6"
+                      role="radiogroup"
+                      aria-label="Presenter"
+                    >
+                      {looks.map((l) => (
+                        <li key={l.id}>
+                          <button
+                            type="button"
+                            role="radio"
+                            aria-checked={value.lookId === l.id}
+                            onClick={() => set({ lookId: l.id })}
+                            className={cn(
+                              "bg-surface w-full overflow-hidden rounded-[8px] border text-left transition",
+                              value.lookId === l.id && "ring-text ring-2",
+                            )}
+                          >
+                            <span className="relative block aspect-[3/4] bg-black/10">
+                              {l.preview && (
+                                // eslint-disable-next-line @next/next/no-img-element -- the avatar provider's preview
+                                <img
+                                  src={l.preview}
+                                  alt=""
+                                  className="absolute inset-0 h-full w-full object-cover"
+                                />
+                              )}
+                            </span>
+                            <span className="block truncate px-2 py-1 text-[12px]">{l.name}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                    <div>
+                      <label htmlFor="brief-pvoice" className="label">
+                        Presenter voice
+                      </label>
+                      <select
+                        id="brief-pvoice"
+                        className="input"
+                        value={value.presenterVoice}
+                        onChange={(e) => set({ presenterVoice: e.target.value })}
+                      >
+                        <option value="">Choose a voice…</option>
+                        {voices.map((v) => (
+                          <option key={v.id} value={v.id}>
+                            {v.name} · {v.language} · {v.gender}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <label className="flex items-start gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        className="mt-1 size-4 accent-[var(--ter)]"
+                        checked={value.presenterOk}
+                        onChange={(e) => set({ presenterOk: e.target.checked })}
+                      />
+                      <span>
+                        The script is sent to our avatar provider to render the presenter.
+                      </span>
+                    </label>
+                  </div>
+                )}
               </div>
             );
           if (f.id === "presets")
@@ -242,8 +421,13 @@ export function StepBrief({ value, onChange }: { value: BriefState; onChange: (v
                     <button
                       key={it.label}
                       type="button"
-                      className="bg-raised hover:bg-surface rounded-full border border-border px-4 py-2 text-[14px] transition-colors"
-                      onClick={() => set({ topic: it.text, ...(it.seconds ? { seconds: String(it.seconds) } : {}) })}
+                      className="bg-raised hover:bg-surface border-border rounded-full border px-4 py-2 text-[14px] transition-colors"
+                      onClick={() =>
+                        set({
+                          topic: it.text,
+                          ...(it.seconds ? { seconds: String(it.seconds) } : {}),
+                        })
+                      }
                     >
                       {it.label}
                     </button>
@@ -253,10 +437,15 @@ export function StepBrief({ value, onChange }: { value: BriefState; onChange: (v
             );
           if (f.id === "narrate")
             return (
-              <label key="narrate" className="bg-raised flex items-center justify-between rounded-[8px] p-4">
+              <label
+                key="narrate"
+                className="bg-raised flex items-center justify-between rounded-[8px] p-4"
+              >
                 <span>
                   <span className="block font-semibold">Narration</span>
-                  <span className="text-muted text-[13px]">A voice tells it over the music, with captions. Off: music only.</span>
+                  <span className="text-muted text-[13px]">
+                    A voice tells it over the music, with captions. Off: music only.
+                  </span>
                 </span>
                 <input
                   type="checkbox"
@@ -295,7 +484,10 @@ export function StepBrief({ value, onChange }: { value: BriefState; onChange: (v
                   value={value.seconds}
                   onChange={(e) => set({ seconds: e.target.value })}
                 >
-                  <option value="">The usual ({kind.maxSeconds <= 16 ? 15 : Math.round((kind.maxSeconds - 2) / 10) * 10} s)</option>
+                  <option value="">
+                    The usual (
+                    {kind.maxSeconds <= 16 ? 15 : Math.round((kind.maxSeconds - 2) / 10) * 10} s)
+                  </option>
                   {f.options.map((o) => (
                     <option key={o} value={String(o)}>
                       {o} seconds
@@ -311,16 +503,29 @@ export function StepBrief({ value, onChange }: { value: BriefState; onChange: (v
                   <label htmlFor="brief-close" className="label">
                     Closing statement
                   </label>
-                  <input id="brief-close" className="input" maxLength={60} value={value.closeLine} onChange={(e) => set({ closeLine: e.target.value })} />
+                  <input
+                    id="brief-close"
+                    className="input"
+                    maxLength={60}
+                    value={value.closeLine}
+                    onChange={(e) => set({ closeLine: e.target.value })}
+                  />
                 </div>
                 <div>
                   <label htmlFor="brief-tail" className="label">
                     Italic tail (short)
                   </label>
-                  <input id="brief-tail" className="input" maxLength={40} value={value.closeTail} onChange={(e) => set({ closeTail: e.target.value })} />
+                  <input
+                    id="brief-tail"
+                    className="input"
+                    maxLength={40}
+                    value={value.closeTail}
+                    onChange={(e) => set({ closeTail: e.target.value })}
+                  />
                 </div>
                 <p className="text-muted text-[13px] sm:col-span-2">
-                  The two lines appear word by word on the end card, the tail in an italic serif. Your logo is taken from the page; your brand name comes from the Brand step.
+                  The two lines appear word by word on the end card, the tail in an italic serif.
+                  Your logo is taken from the page; your brand name comes from the Brand step.
                 </p>
               </div>
             );
@@ -330,13 +535,25 @@ export function StepBrief({ value, onChange }: { value: BriefState; onChange: (v
                 <label htmlFor="brief-line" className="label">
                   The line that types out
                 </label>
-                <input id="brief-line" className="input" maxLength={60} value={value.line} onChange={(e) => set({ line: e.target.value })} />
+                <input
+                  id="brief-line"
+                  className="input"
+                  maxLength={60}
+                  value={value.line}
+                  onChange={(e) => set({ line: e.target.value })}
+                />
               </div>
               <div>
                 <label htmlFor="brief-end" className="label">
                   Closing words
                 </label>
-                <input id="brief-end" className="input" maxLength={30} value={value.end} onChange={(e) => set({ end: e.target.value })} />
+                <input
+                  id="brief-end"
+                  className="input"
+                  maxLength={30}
+                  value={value.end}
+                  onChange={(e) => set({ end: e.target.value })}
+                />
               </div>
             </div>
           );

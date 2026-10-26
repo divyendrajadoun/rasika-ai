@@ -38,8 +38,15 @@ export default async function CreditsPage({
     <div className="max-w-4xl">
       <h1 className="text-2xl font-semibold leading-tight tracking-[-0.02em]">Credits</h1>
       <p className="text-muted mt-1 text-[14px]">
-        You have <span className="text-text font-medium tabular-nums">{user.credits}</span> credit
-        {user.credits === 1 ? "" : "s"}. 1 credit = 1 reel up to 90 s. Credits never expire.
+        {user.unlimited ? (
+          <>This account has unlimited reels: nothing to buy.</>
+        ) : (
+          <>
+            You have <span className="text-text font-medium tabular-nums">{user.credits}</span>{" "}
+            credit
+            {user.credits === 1 ? "" : "s"}. 1 credit = 1 reel up to 90 s. Credits never expire.
+          </>
+        )}
       </p>
 
       {upi ? (

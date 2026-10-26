@@ -119,8 +119,8 @@ function Films() {
             No video? Type an idea.
           </h3>
           <p className="lp-muted" style={{ margin: "12px 0 0", maxWidth: "56ch" }}>
-            Paste a website, a recipe, two products to compare or a one-line idea. Rasika writes it,
-            designs every frame and adds the sound.
+            Paste a post with links, a website, a recipe, two products to compare or a one-line
+            idea. Rasika writes it, designs every frame and adds the sound.
           </p>
         </div>
         <span className="lp-muted" style={{ fontSize: 13 }}>

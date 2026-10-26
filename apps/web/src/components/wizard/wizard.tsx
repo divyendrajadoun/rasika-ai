@@ -15,11 +15,7 @@ import { StepBrand } from "@/components/wizard/step-brand";
 import { StepClips, clipsReady, clipsSeconds, type ClipItem } from "@/components/wizard/step-clips";
 import { StepPhotos, type PhotoItem } from "@/components/wizard/step-photos";
 import { defaultAiImages, type AiImageSettings } from "@/components/wizard/ai-images";
-import {
-  StepScript,
-  defaultScriptState,
-  type ScriptState,
-} from "@/components/wizard/step-script";
+import { StepScript, defaultScriptState, type ScriptState } from "@/components/wizard/step-script";
 import {
   StepPresenter,
   defaultPresenterState,
@@ -27,17 +23,24 @@ import {
   type PresenterState,
 } from "@/components/wizard/step-presenter";
 import { SourceSwitch, StepSource, type SourceMode } from "@/components/wizard/step-source";
-import { StepBrief, briefReady, defaultBriefState, type BriefState } from "@/components/wizard/step-brief";
+import {
+  StepBrief,
+  briefReady,
+  defaultBriefState,
+  type BriefState,
+} from "@/components/wizard/step-brief";
 import { briefKind } from "@/config/briefs";
 import type { HeyGenLook, HeyGenVoice } from "@/lib/heygen";
 import { StepStyle, type StyleState } from "@/components/wizard/step-style";
 import { StepUpload, type UploadResult } from "@/components/wizard/step-upload";
 import { defaultPresetId } from "@/config/presets";
 import { estimateSpokenSeconds } from "@/config/voices";
+import { UNLIMITED_CREDITS } from "@/config/pricing";
 import { creditCost } from "@/lib/wizard-schema";
 import { cn } from "@/lib/utils";
 
-type StepId = "source" | "upload" | "clips" | "script" | "presenter" | "brief" | "photos" | "style" | "brand";
+type StepId =
+  "source" | "upload" | "clips" | "script" | "presenter" | "brief" | "photos" | "style" | "brand";
 const stepLabel = (s: StepId, mode: SourceMode, kind?: string) =>
   s === "style" && mode === "reference"
     ? "Edit options"
@@ -152,7 +155,10 @@ export function Wizard({
   const consent = true as const;
   const [draft, setDraft] = useState<Draft>({
     step: 0,
-    mode: (["take", "clips", "script", "reference", "presenter", "brief"] as SourceMode[]).find((m) => m === initialSource) ?? "take",
+    mode:
+      (["take", "clips", "script", "reference", "presenter", "brief"] as SourceMode[]).find(
+        (m) => m === initialSource,
+      ) ?? "take",
     upload: null,
     reference: null,
     clips: [],
@@ -163,7 +169,11 @@ export function Wizard({
     presenter: defaultPresenterState,
     scriptProjectId: null,
     brief: briefKind(initialKind ?? "")
-      ? { ...defaultBriefState, kind: initialKind as BriefState["kind"], ...briefKind(initialKind ?? "")!.example }
+      ? {
+          ...defaultBriefState,
+          kind: initialKind as BriefState["kind"],
+          ...briefKind(initialKind ?? "")!.example,
+        }
       : defaultBriefState,
     photos: [],
     style: {
@@ -240,13 +250,29 @@ export function Wizard({
     if (stepId === "script") return draft.script.text.trim().length >= 20 && !tooLong;
     if (stepId === "brief") return briefReady(draft.brief);
     return true;
-  }, [stepId, draft.mode, draft.upload, draft.reference, draft.clips, draft.script.text, draft.presenter, draft.brief, tooLong, presenterEnabled]);
+  }, [
+    stepId,
+    draft.mode,
+    draft.upload,
+    draft.reference,
+    draft.clips,
+    draft.script.text,
+    draft.presenter,
+    draft.brief,
+    tooLong,
+    presenterEnabled,
+  ]);
 
   const ensureDraftProject = async (): Promise<string | null> => {
     if (draft.scriptProjectId) return draft.scriptProjectId;
     const firstLine =
-      (draft.mode === "presenter" ? draft.presenter.text : draft.script.text).trim().split(/\n/)[0]?.slice(0, 80) ?? "";
-    const res = await safeAction(() => createDraftProject(draft.title || firstLine || "Presenter reel"));
+      (draft.mode === "presenter" ? draft.presenter.text : draft.script.text)
+        .trim()
+        .split(/\n/)[0]
+        ?.slice(0, 80) ?? "";
+    const res = await safeAction(() =>
+      createDraftProject(draft.title || firstLine || "Presenter reel"),
+    );
     if (!res.ok) {
       setError(res.error);
       return null;
@@ -260,7 +286,9 @@ export function Wizard({
     if (stepId === "brief" && !draft.scriptProjectId) {
       // the photos step uploads against a project: create the draft now
       startTransition(async () => {
-        const res = await safeAction(() => createDraftProject(draft.title || briefKind(draft.brief.kind)?.title || "Brief film"));
+        const res = await safeAction(() =>
+          createDraftProject(draft.title || briefKind(draft.brief.kind)?.title || "Brief film"),
+        );
         if (!res.ok) {
           setError(res.error);
           return;
@@ -280,7 +308,9 @@ export function Wizard({
       // the photos step uploads against a project: create the draft now
       startTransition(async () => {
         const firstLine = draft.script.text.trim().split(/\n/)[0]?.slice(0, 80) ?? "";
-        const res = await safeAction(() => createDraftProject(draft.title || firstLine || "Script reel"));
+        const res = await safeAction(() =>
+          createDraftProject(draft.title || firstLine || "Script reel"),
+        );
         if (!res.ok) {
           setError(res.error);
           return;
@@ -311,7 +341,8 @@ export function Wizard({
       topic: b.topic || undefined,
       narrate: b.kind === "animate" ? b.narrate : undefined,
       focus: b.focus || undefined,
-      seconds: (b.seconds || undefined) as "8" | "10" | "15" | "20" | "30" | "40" | "60" | undefined,
+      seconds: (b.seconds || undefined) as
+        "8" | "10" | "15" | "20" | "30" | "40" | "60" | undefined,
       closeLine: b.closeLine || undefined,
       closeTail: b.closeTail || undefined,
       a: b.a || undefined,
@@ -319,7 +350,17 @@ export function Wizard({
       winner: b.winner,
       line: b.line || undefined,
       end: b.end || undefined,
-      photos: draft.photos.map((p) => ({ assetId: p.assetId, label: p.label, sayWhen: p.sayWhen, crop: p.crop })),
+      post: b.kind === "roundup" ? b.post : undefined,
+      speaker: b.kind === "roundup" ? b.speaker : undefined,
+      lookId: b.kind === "roundup" && b.speaker === "presenter" ? b.lookId : undefined,
+      presenterVoice:
+        b.kind === "roundup" && b.speaker === "presenter" ? b.presenterVoice : undefined,
+      photos: draft.photos.map((p) => ({
+        assetId: p.assetId,
+        label: p.label,
+        sayWhen: p.sayWhen,
+        crop: p.crop,
+      })),
       options: { sfxIntensity: draft.style.sfxIntensity },
       brand: draft.brand,
       consent,
@@ -344,12 +385,18 @@ export function Wizard({
     setError(null);
     const payload = {
       projectId: draft.scriptProjectId,
-      title: draft.title || draft.presenter.text.trim().split(/\n/)[0]?.slice(0, 80) || "Presenter reel",
+      title:
+        draft.title || draft.presenter.text.trim().split(/\n/)[0]?.slice(0, 80) || "Presenter reel",
       script: draft.presenter.text,
       voiceId: draft.presenter.voiceId ?? "",
       lookId: draft.presenter.kind === "look" ? draft.presenter.lookId : null,
       photoAssetId: draft.presenter.kind === "photo" ? draft.presenter.photoAssetId : null,
-      photos: draft.photos.map((p) => ({ assetId: p.assetId, label: p.label, sayWhen: p.sayWhen, crop: p.crop })),
+      photos: draft.photos.map((p) => ({
+        assetId: p.assetId,
+        label: p.label,
+        sayWhen: p.sayWhen,
+        crop: p.crop,
+      })),
       stylePreset: draft.style.preset,
       styleText: draft.style.text,
       options: {
@@ -360,7 +407,13 @@ export function Wizard({
         animated: Boolean(draft.style.animated),
         animatedCount: draft.style.animatedCount ?? 2,
         animatedLook: draft.style.animatedLook ?? "",
-        ...(aiImagesEnabled ? { aiImages: (draft.ai ?? defaultAiImages).aiImages, aiImageCount: (draft.ai ?? defaultAiImages).aiImageCount, aiImageStyle: (draft.ai ?? defaultAiImages).aiImageStyle } : {}),
+        ...(aiImagesEnabled
+          ? {
+              aiImages: (draft.ai ?? defaultAiImages).aiImages,
+              aiImageCount: (draft.ai ?? defaultAiImages).aiImageCount,
+              aiImageStyle: (draft.ai ?? defaultAiImages).aiImageStyle,
+            }
+          : {}),
         language: draft.style.language,
       },
       brand: draft.brand,
@@ -390,7 +443,12 @@ export function Wizard({
       title: draft.title || draft.clips[0]?.filename.replace(/\.[^.]+$/, "") || "Clips reel",
       clipAssetIds: draft.clips.map((c) => c.assetId!).filter(Boolean),
       script: draft.clipScript,
-      photos: draft.photos.map((p) => ({ assetId: p.assetId, label: p.label, sayWhen: p.sayWhen, crop: p.crop })),
+      photos: draft.photos.map((p) => ({
+        assetId: p.assetId,
+        label: p.label,
+        sayWhen: p.sayWhen,
+        crop: p.crop,
+      })),
       stylePreset: draft.style.preset,
       styleText: draft.style.text,
       options: {
@@ -402,7 +460,13 @@ export function Wizard({
         animated: Boolean(draft.style.animated),
         animatedCount: draft.style.animatedCount ?? 2,
         animatedLook: draft.style.animatedLook ?? "",
-        ...(aiImagesEnabled ? { aiImages: (draft.ai ?? defaultAiImages).aiImages, aiImageCount: (draft.ai ?? defaultAiImages).aiImageCount, aiImageStyle: (draft.ai ?? defaultAiImages).aiImageStyle } : {}),
+        ...(aiImagesEnabled
+          ? {
+              aiImages: (draft.ai ?? defaultAiImages).aiImages,
+              aiImageCount: (draft.ai ?? defaultAiImages).aiImageCount,
+              aiImageStyle: (draft.ai ?? defaultAiImages).aiImageStyle,
+            }
+          : {}),
         cleanCut: Boolean(draft.style.cleanCut || draft.style.hookFirst),
         hookFirst: Boolean(draft.style.hookFirst),
       },
@@ -436,7 +500,9 @@ export function Wizard({
       title: draft.title || draft.upload.filename.replace(/\.[^.]+$/, ""),
       sourceAssetId: draft.upload.assetId,
       referenceAssetId:
-        draft.mode === "reference" && draft.reference?.complete ? draft.reference.assetId : undefined,
+        draft.mode === "reference" && draft.reference?.complete
+          ? draft.reference.assetId
+          : undefined,
       fidelity: REFERENCE_FIDELITY,
       durationSec: draft.upload.durationSec ?? 0,
       photos: draft.photos.map((p) => ({
@@ -456,7 +522,13 @@ export function Wizard({
         animated: Boolean(draft.style.animated),
         animatedCount: draft.style.animatedCount ?? 2,
         animatedLook: draft.style.animatedLook ?? "",
-        ...(aiImagesEnabled ? { aiImages: (draft.ai ?? defaultAiImages).aiImages, aiImageCount: (draft.ai ?? defaultAiImages).aiImageCount, aiImageStyle: (draft.ai ?? defaultAiImages).aiImageStyle } : {}),
+        ...(aiImagesEnabled
+          ? {
+              aiImages: (draft.ai ?? defaultAiImages).aiImages,
+              aiImageCount: (draft.ai ?? defaultAiImages).aiImageCount,
+              aiImageStyle: (draft.ai ?? defaultAiImages).aiImageStyle,
+            }
+          : {}),
         cleanCut: Boolean(draft.style.cleanCut || draft.style.hookFirst),
         hookFirst: Boolean(draft.style.hookFirst),
       },
@@ -502,7 +574,13 @@ export function Wizard({
         animated: Boolean(draft.style.animated),
         animatedCount: draft.style.animatedCount ?? 2,
         animatedLook: draft.style.animatedLook ?? "",
-        ...(aiImagesEnabled ? { aiImages: (draft.ai ?? defaultAiImages).aiImages, aiImageCount: (draft.ai ?? defaultAiImages).aiImageCount, aiImageStyle: (draft.ai ?? defaultAiImages).aiImageStyle } : {}),
+        ...(aiImagesEnabled
+          ? {
+              aiImages: (draft.ai ?? defaultAiImages).aiImages,
+              aiImageCount: (draft.ai ?? defaultAiImages).aiImageCount,
+              aiImageStyle: (draft.ai ?? defaultAiImages).aiImageStyle,
+            }
+          : {}),
       },
       brand: draft.brand,
       consent,
@@ -527,7 +605,9 @@ export function Wizard({
       <p className="text-muted text-[14px]">
         New edit · step {draft.step + 1} of {steps.length}
       </p>
-      <h1 className="mt-1 text-[1.75rem] font-semibold leading-tight tracking-[-0.02em]">{stepLabel(stepId, draft.mode, draft.brief.kind)}</h1>
+      <h1 className="mt-1 text-[1.75rem] font-semibold leading-tight tracking-[-0.02em]">
+        {stepLabel(stepId, draft.mode, draft.brief.kind)}
+      </h1>
 
       <ol className="mt-5 flex flex-wrap gap-1.5" aria-label="Steps">
         {steps.map((s, i) => (
@@ -564,7 +644,10 @@ export function Wizard({
                   mode,
                   step: 0,
                   // clips are full of retakes and pauses: the clean cut starts on for them
-                  style: mode === "clips" && d.mode !== "clips" ? { ...d.style, cleanCut: true } : d.style,
+                  style:
+                    mode === "clips" && d.mode !== "clips"
+                      ? { ...d.style, cleanCut: true }
+                      : d.style,
                 }))
               }
             />
@@ -600,7 +683,13 @@ export function Wizard({
           />
         )}
         {stepId === "brief" && (
-          <StepBrief value={draft.brief} onChange={(brief) => setDraft((d) => ({ ...d, brief }))} />
+          <StepBrief
+            value={draft.brief}
+            onChange={(brief) => setDraft((d) => ({ ...d, brief }))}
+            looks={looks}
+            voices={voices}
+            presenterEnabled={presenterEnabled}
+          />
         )}
         {stepId === "script" && (
           <StepScript
@@ -655,7 +744,13 @@ export function Wizard({
             ai={draft.ai ?? defaultAiImages}
             onAi={(ai) => setDraft((d) => ({ ...d, ai }))}
             aiEnabled={aiImagesEnabled && draft.mode !== "brief"}
-            script={draft.mode === "script" ? draft.script.text : draft.mode === "presenter" ? draft.presenter.text : undefined}
+            script={
+              draft.mode === "script"
+                ? draft.script.text
+                : draft.mode === "presenter"
+                  ? draft.presenter.text
+                  : undefined
+            }
             value={draft.photos}
             onChange={(photos) => setDraft((d) => ({ ...d, photos }))}
           />
@@ -672,10 +767,14 @@ export function Wizard({
         {stepId === "brand" && projectId && (
           <details
             className="bg-surface mb-6 rounded-[8px] p-4 [&_summary]:cursor-pointer"
-            open={draft.photos.length > 0 || (draft.mode === "brief" && draft.brief.kind === "animate")}
+            open={
+              draft.photos.length > 0 || (draft.mode === "brief" && draft.brief.kind === "animate")
+            }
           >
             <summary className="font-medium">
-              {draft.mode === "brief" && draft.brief.kind === "animate" ? "Style images" : "Add photos"}{" "}
+              {draft.mode === "brief" && draft.brief.kind === "animate"
+                ? "Style images"
+                : "Add photos"}{" "}
               <span className="text-muted font-normal">
                 (optional{draft.photos.length ? ` · ${draft.photos.length} added` : ""})
               </span>
@@ -683,11 +782,19 @@ export function Wizard({
             <div className="mt-4">
               <StepPhotos
                 projectId={projectId}
-                purpose={draft.mode === "brief" && draft.brief.kind === "animate" ? "style" : "photos"}
+                purpose={
+                  draft.mode === "brief" && draft.brief.kind === "animate" ? "style" : "photos"
+                }
                 ai={draft.ai ?? defaultAiImages}
                 onAi={(ai) => setDraft((d) => ({ ...d, ai }))}
                 aiEnabled={aiImagesEnabled && draft.mode !== "brief"}
-                script={draft.mode === "script" ? draft.script.text : draft.mode === "presenter" ? draft.presenter.text : undefined}
+                script={
+                  draft.mode === "script"
+                    ? draft.script.text
+                    : draft.mode === "presenter"
+                      ? draft.presenter.text
+                      : undefined
+                }
                 value={draft.photos}
                 onChange={(photos) => setDraft((d) => ({ ...d, photos }))}
               />
@@ -705,58 +812,57 @@ export function Wizard({
       </div>
 
       {error && (
-        <p
-          className="mt-6 rounded-[6px] bg-surface px-3 py-2 text-sm text-[#ff8a66]"
-          role="alert"
-        >
+        <p className="bg-surface mt-6 rounded-[6px] px-3 py-2 text-sm text-[#ff8a66]" role="alert">
           {error}
         </p>
       )}
 
       <div className="sticky bottom-[92px] z-20 mt-8 sm:bottom-4">
-      <div
-        data-glass="panel"
-        className="flex flex-wrap items-center justify-between gap-3 rounded-[18px] px-4 py-3"
-      >
-        <button
-          type="button"
-          className="button button-ghost"
-          disabled={draft.step === 0}
-          onClick={() => setDraft((d) => ({ ...d, step: Math.max(0, d.step - 1) }))}
+        <div
+          data-glass="panel"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-[18px] px-4 py-3"
         >
-          Back
-        </button>
-        {draft.step < steps.length - 1 ? (
-          <button type="button" className="button" disabled={!canNext || pending} onClick={next}>
-            {pending
-              ? "One moment…"
-              : stepId === "photos" && draft.photos.length === 0 && !(aiImagesEnabled && draft.ai?.aiImages)
-                ? "Skip photos"
-                : "Continue"}
+          <button
+            type="button"
+            className="button button-ghost"
+            disabled={draft.step === 0}
+            onClick={() => setDraft((d) => ({ ...d, step: Math.max(0, d.step - 1) }))}
+          >
+            Back
           </button>
-        ) : (
-          <div className="flex items-center gap-4">
-            <span className="text-muted-foreground hidden max-w-[26ch] text-[12px] leading-snug md:inline">
-              By creating, you confirm this footage is yours or you have permission to use it.
-            </span>
-            <span className="text-muted-foreground text-sm">
-              Cost:{" "}
-              <strong className="text-foreground">
-                {cost} credit{cost === 1 ? "" : "s"}
-              </strong>{" "}
-              · you have {credits}
-            </span>
-            <button
-              type="button"
-              className="button"
-              disabled={pending || !consent || credits < cost}
-              onClick={submit}
-            >
-              {pending ? "Creating…" : "Create my edit"}
+          {draft.step < steps.length - 1 ? (
+            <button type="button" className="button" disabled={!canNext || pending} onClick={next}>
+              {pending
+                ? "One moment…"
+                : stepId === "photos" &&
+                    draft.photos.length === 0 &&
+                    !(aiImagesEnabled && draft.ai?.aiImages)
+                  ? "Skip photos"
+                  : "Continue"}
             </button>
-          </div>
-        )}
-      </div>
+          ) : (
+            <div className="flex items-center gap-4">
+              <span className="text-muted-foreground hidden max-w-[26ch] text-[12px] leading-snug md:inline">
+                By creating, you confirm this footage is yours or you have permission to use it.
+              </span>
+              <span className="text-muted-foreground text-sm">
+                Cost:{" "}
+                <strong className="text-foreground">
+                  {cost} credit{cost === 1 ? "" : "s"}
+                </strong>{" "}
+                · you have {credits >= UNLIMITED_CREDITS ? "unlimited" : credits}
+              </span>
+              <button
+                type="button"
+                className="button"
+                disabled={pending || !consent || credits < cost}
+                onClick={submit}
+              >
+                {pending ? "Creating…" : "Create my edit"}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

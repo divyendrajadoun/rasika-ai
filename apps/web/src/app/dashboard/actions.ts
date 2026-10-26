@@ -11,6 +11,7 @@ import { enqueueJob } from "@/lib/jobs/queue";
 import { deleteObject } from "@/lib/storage/s3";
 import { ACTIVE_STATUSES } from "@/lib/projects";
 import { briefKind } from "@/config/briefs";
+import { env } from "@/lib/env";
 
 /** Photo settings from the wizard merge into what the asset already records (an AI image keeps its
  *  source and prompt, every image its size) instead of replacing it. */
@@ -21,8 +22,21 @@ class UserError extends Error {}
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
-/** Take `cost` credits atomically (never below zero) and write the ledger line. */
-async function spendCredits(tx: Tx, userId: string, cost: number, jobId: string) {
+/** Take `cost` credits atomically (never below zero) and write the ledger line. An unlimited
+ * account (lib/auth.ts) spends nothing; its ledger line records the reel at zero. */
+async function spendCredits(
+  tx: Tx,
+  userId: string,
+  cost: number,
+  jobId: string,
+  unlimited = false,
+) {
+  if (unlimited) {
+    await tx
+      .insert(schema.creditLedger)
+      .values({ userId, delta: 0, reason: "reel (unlimited)", jobId });
+    return;
+  }
   const [left] = await tx
     .update(schema.profiles)
     .set({ credits: sql`${schema.profiles.credits} - ${cost}`, updatedAt: schema.now })
@@ -135,7 +149,7 @@ export async function createEdit(input: unknown): Promise<ActionResult> {
         message: "Queued",
       })
       .returning({ id: schema.jobs.id });
-    await spendCredits(tx, user.id, cost, job!.id);
+    await spendCredits(tx, user.id, cost, job!.id, user.unlimited);
     await tx.insert(schema.auditLog).values({
       userId: user.id,
       action: "project.create_edit",
@@ -240,13 +254,19 @@ export async function createClipsEdit(input: unknown): Promise<ActionResult> {
         message: "Queued",
       })
       .returning({ id: schema.jobs.id });
-    await spendCredits(tx, user.id, cost, job!.id);
+    await spendCredits(tx, user.id, cost, job!.id, user.unlimited);
     await tx.insert(schema.auditLog).values({
       userId: user.id,
       action: "project.create_clips_edit",
       entity: "project",
       entityId: w.projectId,
-      meta: { cost, preset: w.stylePreset, clips: picked.length, rawSec, script: Boolean(w.script) },
+      meta: {
+        cost,
+        preset: w.stylePreset,
+        clips: picked.length,
+        rawSec,
+        script: Boolean(w.script),
+      },
     });
     await enqueueJob({
       job_id: job!.id,
@@ -308,7 +328,13 @@ export async function createScriptEdit(input: unknown): Promise<ActionResult> {
         status: "uploaded",
         stylePreset: w.stylePreset,
         styleText: w.styleText || null,
-        styleOptions: { ...w.options, language: "en", source: "script", faceless: true, voice: w.voice },
+        styleOptions: {
+          ...w.options,
+          language: "en",
+          source: "script",
+          faceless: true,
+          voice: w.voice,
+        },
         brand: w.brand,
         durationSec: Math.round(est),
         creditsCost: cost,
@@ -331,13 +357,19 @@ export async function createScriptEdit(input: unknown): Promise<ActionResult> {
         message: "Queued",
       })
       .returning({ id: schema.jobs.id });
-    await spendCredits(tx, user.id, cost, job!.id);
+    await spendCredits(tx, user.id, cost, job!.id, user.unlimited);
     await tx.insert(schema.auditLog).values({
       userId: user.id,
       action: "project.create_script_edit",
       entity: "project",
       entityId: w.projectId,
-      meta: { cost, preset: w.stylePreset, photos: w.photos.length, voice: w.voice, words: w.script.split(/\s+/).length },
+      meta: {
+        cost,
+        preset: w.stylePreset,
+        photos: w.photos.length,
+        voice: w.voice,
+        words: w.script.split(/\s+/).length,
+      },
     });
     await enqueueJob({
       job_id: job!.id,
@@ -366,6 +398,9 @@ export async function createBriefEdit(input: unknown): Promise<ActionResult> {
   const w = parsed.data;
   const kind = briefKind(w.kind);
   if (!kind) return { ok: false, error: "Unknown kind of film" };
+  const presenter = w.kind === "roundup" && w.speaker === "presenter";
+  if (presenter && !env.presenterEnabled)
+    return { ok: false, error: "The AI presenter is not available yet; choose the voice." };
 
   const [project] = await db
     .select()
@@ -387,8 +422,17 @@ export async function createBriefEdit(input: unknown): Promise<ActionResult> {
     ...(w.topic ? { topic: w.topic } : {}),
     ...(w.focus ? { focus: w.focus } : {}),
     ...(w.seconds ? { seconds: Number(w.seconds) } : {}),
-    ...(w.kind === "flyover" ? { brand: w.brand.name, line: w.closeLine ?? "", tail: w.closeTail ?? "" } : {}),
+    ...(w.kind === "flyover"
+      ? { brand: w.brand.name, line: w.closeLine ?? "", tail: w.closeTail ?? "" }
+      : {}),
     ...(w.a ? { a: w.a, b: w.b, winner: w.winner } : {}),
+    ...(w.kind === "roundup"
+      ? {
+          post: w.post ?? "",
+          mode: w.speaker,
+          ...(presenter ? { look_id: w.lookId, presenter_voice: w.presenterVoice } : {}),
+        }
+      : {}),
     ...(w.kind === "machine" && w.line ? { line: w.line, end: w.end || "ONE PROMPT" } : {}),
     narrate: w.narrate ?? kind.narrate,
     ...(w.voice ? { voice: w.voice } : {}),
@@ -408,7 +452,7 @@ export async function createBriefEdit(input: unknown): Promise<ActionResult> {
           music: true,
           language: "en",
           source: "brief",
-          faceless: true,
+          faceless: !presenter,
           brief,
         },
         brand: w.brand,
@@ -433,7 +477,7 @@ export async function createBriefEdit(input: unknown): Promise<ActionResult> {
         message: "Queued",
       })
       .returning({ id: schema.jobs.id });
-    await spendCredits(tx, user.id, cost, job!.id);
+    await spendCredits(tx, user.id, cost, job!.id, user.unlimited);
     await tx.insert(schema.auditLog).values({
       userId: user.id,
       action: "project.create_brief_film",
@@ -526,13 +570,19 @@ export async function createPresenterEdit(input: unknown): Promise<ActionResult>
         message: "Queued",
       })
       .returning({ id: schema.jobs.id });
-    await spendCredits(tx, user.id, cost, job!.id);
+    await spendCredits(tx, user.id, cost, job!.id, user.unlimited);
     await tx.insert(schema.auditLog).values({
       userId: user.id,
       action: "project.create_presenter_edit",
       entity: "project",
       entityId: w.projectId,
-      meta: { cost, preset: w.stylePreset, voice: w.voiceId, look: w.lookId, photo: Boolean(w.photoAssetId) },
+      meta: {
+        cost,
+        preset: w.stylePreset,
+        voice: w.voiceId,
+        look: w.lookId,
+        photo: Boolean(w.photoAssetId),
+      },
     });
     await enqueueJob({
       job_id: job!.id,
@@ -727,13 +777,22 @@ export async function recutEdit(input: unknown): Promise<ActionResult> {
     .from(schema.jobs)
     .where(and(eq(schema.jobs.projectId, r.projectId), eq(schema.jobs.type, "recut")));
   if (n >= MAX_FREE_RECUTS)
-    return { ok: false, error: `Each reel includes ${MAX_FREE_RECUTS} re-edits; start a new edit for more.` };
+    return {
+      ok: false,
+      error: `Each reel includes ${MAX_FREE_RECUTS} re-edits; start a new edit for more.`,
+    };
   const removed = [...new Set(r.removed)].filter((i) => i < t.words.length).sort((a, b) => a - b);
   if (removed.length >= t.words.length) return { ok: false, error: "Keep at least one word" };
 
   const [job] = await db
     .insert(schema.jobs)
-    .values({ projectId: r.projectId, userId: user.id, type: "recut", status: "uploaded", message: "Queued" })
+    .values({
+      projectId: r.projectId,
+      userId: user.id,
+      type: "recut",
+      status: "uploaded",
+      message: "Queued",
+    })
     .returning({ id: schema.jobs.id });
   await db
     .update(schema.projects)
@@ -790,18 +849,24 @@ export async function reassembleClips(input: unknown): Promise<ActionResult> {
     .select({ n: sql<number>`count(*)::int` })
     .from(schema.jobs)
     .where(
-      and(
-        eq(schema.jobs.projectId, r.projectId),
-        inArray(schema.jobs.type, ["recut", "assemble"]),
-      ),
+      and(eq(schema.jobs.projectId, r.projectId), inArray(schema.jobs.type, ["recut", "assemble"])),
     );
   // the first assemble made the reel; it is not a re-edit
   if (n - 1 >= MAX_FREE_RECUTS)
-    return { ok: false, error: `Each reel includes ${MAX_FREE_RECUTS} re-edits; start a new edit for more.` };
+    return {
+      ok: false,
+      error: `Each reel includes ${MAX_FREE_RECUTS} re-edits; start a new edit for more.`,
+    };
   const plan = plans.find((p) => p.id === user.plan) ?? plans[0]!;
   const [job] = await db
     .insert(schema.jobs)
-    .values({ projectId: r.projectId, userId: user.id, type: "assemble", status: "uploaded", message: "Queued" })
+    .values({
+      projectId: r.projectId,
+      userId: user.id,
+      type: "assemble",
+      status: "uploaded",
+      message: "Queued",
+    })
     .returning({ id: schema.jobs.id });
   await db
     .update(schema.projects)
@@ -849,7 +914,13 @@ export async function exportReel(input: unknown): Promise<ActionResult> {
   if (!out) return { ok: false, error: "Render the reel first" };
   const [job] = await db
     .insert(schema.jobs)
-    .values({ projectId: r.projectId, userId: user.id, type: "export", status: "uploaded", message: `Exporting ${r.format}…` })
+    .values({
+      projectId: r.projectId,
+      userId: user.id,
+      type: "export",
+      status: "uploaded",
+      message: `Exporting ${r.format}…`,
+    })
     .returning({ id: schema.jobs.id });
   await enqueueJob({
     job_id: job!.id,

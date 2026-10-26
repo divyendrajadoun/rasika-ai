@@ -12,6 +12,9 @@ export interface Plan {
   maxSeconds: number;
 }
 
+/** What an unlimited account (lib/auth.ts UNLIMITED_EMAILS) is treated as having. */
+export const UNLIMITED_CREDITS = 1_000_000;
+
 export const plans: Plan[] = [
   { id: "free", name: "Free", blurb: "Your first reel, on us.", maxSeconds: 60 },
   { id: "creator", name: "Paid", blurb: "Reels up to 3 minutes.", maxSeconds: 180 },

@@ -42,9 +42,20 @@ export default async function DashboardLayout({ children }: { children: React.Re
             </nav>
           </div>
           <div className="flex items-center gap-5 text-[14px]">
-            <Link href="/dashboard/credits" className="link opacity-80" title="Credits left: buy more">
-              <span className="font-medium tabular-nums opacity-100">{user.credits}</span> credit
-              {user.credits === 1 ? "" : "s"}
+            <Link
+              href="/dashboard/credits"
+              className="link opacity-80"
+              title="Credits left: buy more"
+            >
+              {user.unlimited ? (
+                <span className="font-medium opacity-100">Unlimited reels</span>
+              ) : (
+                <>
+                  <span className="font-medium tabular-nums opacity-100">{user.credits}</span>{" "}
+                  credit
+                  {user.credits === 1 ? "" : "s"}
+                </>
+              )}
             </Link>
             <span className="hidden max-w-[200px] truncate opacity-80 lg:inline">{user.email}</span>
             <ThemeToggle className="text-[14px]" />

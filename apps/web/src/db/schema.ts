@@ -53,6 +53,8 @@ export const ASSET_KINDS = [
   "logo",
   /** the finished reel in another shape (meta.format: "1:1" | "4:5" | "16:9") */
   "export",
+  /** roundups: a demo clip found on an item's page or README (meta.url: where it came from) */
+  "research_clip",
 ] as const;
 export type AssetKind = (typeof ASSET_KINDS)[number];
 

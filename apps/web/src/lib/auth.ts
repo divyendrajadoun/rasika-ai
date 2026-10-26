@@ -5,6 +5,14 @@ import { db, schema } from "@/db";
 import { createSupabaseServer } from "@/lib/supabase/server";
 import { adminEmails, notifyAdmins } from "@/lib/notify";
 import { siteUrl } from "@/lib/site";
+import { UNLIMITED_CREDITS } from "@/config/pricing";
+
+/** The owner's account: every reel free, the longest plan, never asked to buy reels. */
+const UNLIMITED_EMAILS = ["divy2009@gmail.com"];
+
+export function isUnlimited(email: string): boolean {
+  return UNLIMITED_EMAILS.includes(email.trim().toLowerCase());
+}
 
 export interface SessionUser {
   id: string;
@@ -24,7 +32,7 @@ export async function getUser(): Promise<SessionUser | null> {
 /** Redirects to /login when signed out; ensures a `profiles` row exists (free plan, 1 credit). */
 export async function requireUser(
   next = "/dashboard",
-): Promise<SessionUser & { credits: number; plan: string }> {
+): Promise<SessionUser & { credits: number; plan: string; unlimited: boolean }> {
   const user = await getUser();
   if (!user) redirect(`/login?next=${encodeURIComponent(next)}`);
   await ensureProfile(user);
@@ -33,7 +41,14 @@ export async function requireUser(
     .set({ email: user.email })
     .where(eq(schema.profiles.userId, user.id))
     .returning({ credits: schema.profiles.credits, plan: schema.profiles.plan });
-  return { ...user, credits: profile?.credits ?? 0, plan: profile?.plan ?? "free" };
+  if (isUnlimited(user.email))
+    return { ...user, credits: UNLIMITED_CREDITS, plan: "creator", unlimited: true };
+  return {
+    ...user,
+    credits: profile?.credits ?? 0,
+    plan: profile?.plan ?? "free",
+    unlimited: false,
+  };
 }
 
 /** The first visit after signing up makes the profile (free plan, 1 credit) and tells the admins. */
