@@ -762,12 +762,20 @@ def build_plan(
     film: dict[str, Any],
     words: list[dict[str, Any]],
     duration: float,
+    presenter: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """The roundup's edit, fixed by its script: no planner call. Per item, from the moment its name
     is spoken: a header (#n, the name, the takeaway), its visuals one after another on the words the
     writer chose (page screenshots in a browser window, README pictures as cards, demo clips full
     frame), its number counting up on the spoken number; the hook and the closing line as big type;
-    captions under everything."""
+    captions under everything.
+
+    With an AI presenter (`presenter` = the source's subject from the keyframes): the presenter
+    fills the frame for the hook and the closing line; for each item it shrinks to the corner
+    bubble (pip) under the item's visuals, and a demo clip cuts away to full frame. The number goes
+    into the header instead of a counter, and the captions sit above the bubble."""
+    lay = PRESENTER_LAYOUT if presenter else VOICE_LAYOUT
+    modes: list[dict[str, Any]] = [{"t": 0, "mode": "full"}]
     data = film.get("data") or {}
     script = data.get("roundup") or {}
     media = data.get("media") or {}
@@ -791,6 +799,7 @@ def build_plan(
 
     if hook.get("line") and first > 1.2:
         els.append(_poster("hook", 0.15, first - 0.1, 230, [hook["line"]], 112))
+    if hook.get("line") and first > 1.2 and lay["montage"]:
         # a flash of every item's own page under the hook line: the whole list in the first seconds
         pages: list[str] = []
         for it in items:
@@ -827,6 +836,11 @@ def build_plan(
             head.append(
                 {"text": str(it["line"])[:60], "font": "kicker", "size": 36, "color": "goldd"}
             )
+        st = it.get("stat")
+        if not lay["counter"] and isinstance(st, dict) and len(head) < 4:
+            head.append({"text": _spoken(st)[:60], "font": "kicker", "size": 36, "color": "gold"})
+        if presenter:  # the item's visuals take the frame; the presenter goes to the bubble
+            modes.append({"t": round(t0 + 0.2, 3), "mode": "pip"})
         els.append(
             {
                 "id": f"head{rank}",
@@ -873,17 +887,23 @@ def build_plan(
                 a = max(a, 1.5)
                 if a - last_clip_end < 1.5 or b - a < 1.2:
                     if page:
-                        els.append(_visual(f"v{rank}_{k + 1}", a, b, media[page], url))
+                        els.append(
+                            _visual(f"v{rank}_{k + 1}", a, b, media[page], url, lay["media_y"])
+                        )
                     continue
                 cut = min(b, a + CLIP_MAX)
-                els.append(_visual(f"v{rank}_{k + 1}", a, cut, m, url))
+                els.append(_visual(f"v{rank}_{k + 1}", a, cut, m, url, lay["media_y"]))
                 last_clip_end = cut
+                if presenter:  # the clip cuts away to full frame, then back to the bubble
+                    modes.append({"t": round(a, 3), "mode": "full"})
+                    modes.append({"t": round(cut, 3), "mode": "pip"})
                 if b - cut >= 0.6 and page:
-                    els.append(_visual(f"v{rank}_{k + 1}p", cut, b, media[page], url))
+                    els.append(
+                        _visual(f"v{rank}_{k + 1}p", cut, b, media[page], url, lay["media_y"])
+                    )
                 continue
-            els.append(_visual(f"v{rank}_{k + 1}", a, b, m, url))
-        st = it.get("stat")
-        if isinstance(st, dict):
+            els.append(_visual(f"v{rank}_{k + 1}", a, b, m, url, lay["media_y"]))
+        if isinstance(st, dict) and lay["counter"]:
             ts = when(words, str(st.get("say") or ""), t0)
             if ts is not None and ts < t1 - 1.0:
                 # as it is said: 89,058 stars counts up to "89" over "THOUSAND GITHUB STARS"
@@ -906,8 +926,10 @@ def build_plan(
                     }
                 )
                 sfx.append({"t": round(ts + 1.2, 3), "type": "pop", "gain": 0.55})
+    if presenter and t_out is not None:
+        modes.append({"t": round(t_out, 3), "mode": "full"})
     if outro.get("line") and t_out is not None and duration - t_out > 1.0:
-        els.append(_poster("outro", t_out, duration - 0.05, 420, [outro["line"]], 104))
+        els.append(_poster("outro", t_out, duration - 0.05, lay["outro_top"], [outro["line"]], 104))
         # the recap: every name, so the last frame is worth a screenshot
         names = [str(it.get("name") or "") for it in items if it.get("name")]
         if names and duration - t_out > 2.2:
@@ -919,7 +941,7 @@ def build_plan(
                     "type": "posterText",
                     "t0": round(t_out + 0.8, 3),
                     "t1": round(duration - 0.05, 3),
-                    "top": 900,
+                    "top": lay["recap_top"],
                     "left": 60,
                     "w": 960,
                     "align": "center",
@@ -939,18 +961,57 @@ def build_plan(
             "width": W,
             "height": H,
             "language": "en",
-            "faceless": True,
+            "faceless": not presenter,
         },
         "style": style,
-        "subject": {
+        "subject": presenter
+        or {
             "faceBox": {"x": 0, "y": 0, "w": 1, "h": 1},
             "freeZone": {"x": 0, "y": 150, "w": W, "h": 1400},
         },
-        "videoModes": [{"t": 0, "mode": "full"}],
-        "captions": {"enabled": True, "y": CAPTION_Y, "gold": [], "accent": []},
+        "videoModes": _tidy_modes(modes),
+        "captions": {"enabled": True, "y": lay["caption_y"], "gold": [], "accent": []},
         "sfx": {"auto": False, "intensity": 0.7, "extra": sfx},
         "elements": els,
     }
+
+
+VOICE_LAYOUT: dict[str, Any] = {
+    "media_y": MEDIA_Y,
+    "caption_y": CAPTION_Y,
+    "counter": True,
+    "montage": True,
+    "outro_top": 420,
+    "recap_top": 900,
+}
+# the presenter's bubble (pip) covers x 674–1041, y 1193–1846: visuals above it, captions between
+PRESENTER_LAYOUT: dict[str, Any] = {
+    "media_y": 360,
+    "caption_y": 1110,
+    "counter": False,
+    "montage": False,
+    "outro_top": 230,
+    "recap_top": 1380,
+}
+
+
+def _spoken(st: dict[str, Any]) -> str:
+    """A stat as it is said: 89,058 GitHub stars → "89K GITHUB STARS"."""
+    v = float(st.get("value") or 0)
+    label = str(st.get("label") or "")
+    num = f"{round(v / 1000)}K" if v >= 10_000 else f"{v:,.0f}"
+    return f"{num} {label}".strip()
+
+
+def _tidy_modes(modes: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """In time order, one per moment, without repeats of the mode already on."""
+    out: list[dict[str, Any]] = []
+    for m in sorted(modes, key=lambda x: float(x["t"])):
+        if out and abs(float(out[-1]["t"]) - float(m["t"])) < 0.05:
+            out[-1] = m
+        elif not out or out[-1]["mode"] != m["mode"]:
+            out.append(m)
+    return out
 
 
 def _poster(

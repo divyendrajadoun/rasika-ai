@@ -286,3 +286,76 @@ def test_build_plan_places_each_item_on_its_words() -> None:
 
 def when_t(words: list[dict[str, object]], first_word: str) -> float:
     return next(float(str(w["t"])) for w in words if str(w["w"]).lower() == first_word)
+
+
+def test_build_plan_with_a_presenter_uses_the_bubble() -> None:
+    from rasika_worker.roundup import build_plan
+
+    words = _words(
+        "Two repos today . First up Alpha with twelve thousand stars . Next Duck a robot that walks . Bye now"
+    )
+    film = {
+        "data": {
+            "media": {
+                "m1": {
+                    "asset": "a1",
+                    "kind": "image",
+                    "item": 1,
+                    "shows": "the page, first screen",
+                    "w": 1440,
+                    "h": 900,
+                },
+                "m2": {
+                    "asset": "a2",
+                    "kind": "image",
+                    "item": 2,
+                    "shows": "the page, first screen",
+                    "w": 1440,
+                    "h": 900,
+                },
+                "m3": {"asset": "a3", "kind": "clip", "item": 2, "shows": "demo", "sec": 8.0},
+            },
+            "roundup": {
+                "hook": {"line": "Two repos", "say": "two repos today"},
+                "outro": {"line": "Bye", "say": "bye now"},
+                "items": [
+                    {
+                        "rank": 1,
+                        "name": "Alpha",
+                        "say": "first up alpha",
+                        "stat": {
+                            "value": 12000,
+                            "label": "GitHub stars",
+                            "say": "twelve thousand stars",
+                        },
+                        "shots": [{"media": "m1", "say": "first up alpha"}],
+                    },
+                    {
+                        "rank": 2,
+                        "name": "Duck",
+                        "say": "next duck",
+                        "shots": [
+                            {"media": "m2", "say": "next duck"},
+                            {"media": "m3", "say": "a robot"},
+                        ],
+                    },
+                ],
+            },
+        }
+    }
+    subject = {
+        "faceBox": {"x": 300, "y": 400, "w": 480, "h": 560},
+        "freeZone": {"x": 0, "y": 150, "w": 1080, "h": 300},
+    }
+    plan = build_plan({"palette": {}}, film, words, 20.0, presenter=subject)
+    modes = [m["mode"] for m in plan["videoModes"]]
+    assert modes[0] == "full" and "pip" in modes and modes[-1] == "full"
+    assert "full" in modes[1:-1]  # the clip cuts away to full frame
+    assert not any(e["type"] == "counter" for e in plan["elements"])
+    head = next(e for e in plan["elements"] if e["id"] == "head1")
+    assert head["lines"][-1]["text"] == "12K GitHub stars"
+    assert plan["captions"]["y"] == 1110 and plan["meta"]["faceless"] is False
+    assert plan["subject"] == subject
+    assert not any(
+        e["id"].startswith("hook") and e["type"] == "browserCard" for e in plan["elements"]
+    )

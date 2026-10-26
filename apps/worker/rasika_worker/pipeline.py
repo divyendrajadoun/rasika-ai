@@ -279,6 +279,10 @@ class Pipeline:
             {"kind": kind_id, "usage": usage, "film": film},
         )
 
+        if kind_id == "roundup" and str(b.get("mode") or "voice") == "presenter":
+            self._roundup_presenter(job, pub, project, opts, film, b, max_dur, timings)
+            return
+
         mood = str(film["music"]["mood"])
         bpm = film["music"].get("bpm")
         voice = work / "narration.wav"
@@ -1464,8 +1468,21 @@ class Pipeline:
             self._plan_animate(job, pub, words, duration, style, options, timings)
             return
         if (options.get("brief") or {}).get("kind") == "roundup":
+            presenter = (
+                subject.as_plan_subject()
+                if str((options.get("brief") or {}).get("mode") or "") == "presenter"
+                else None
+            )
             self._plan_roundup(
-                job, pub, words, duration, style, options, timings, [i["id"] for i in images]
+                job,
+                pub,
+                words,
+                duration,
+                style,
+                options,
+                timings,
+                [i["id"] for i in images],
+                presenter,
             )
             return
         inp = PlannerInput(
@@ -1628,6 +1645,52 @@ class Pipeline:
             )
             return plan
 
+    def _roundup_presenter(
+        self,
+        job: JobMessage,
+        pub: Publisher,
+        project: dict[str, Any],
+        opts: dict[str, Any],
+        film: dict[str, Any],
+        b: dict[str, Any],
+        max_dur: float,
+        timings: dict[str, float],
+    ) -> None:
+        """A roundup spoken by the AI presenter: the script goes to the presenter step, whose video
+        becomes the source; probe → transcribe (timed to the script) → the roundup plan follow."""
+        voice_id = str(b.get("presenter_voice") or "")
+        look_id = str(b.get("look_id") or "") or None
+        if not voice_id:
+            raise PipelineError("Choose the presenter's voice.")
+        if not look_id and not self.repo.assets(job.project_id, "presenter_image"):
+            raise PipelineError("Choose a presenter look or upload a photo.")
+        opts.update(
+            {
+                "faceless": False,
+                "film": {k: film.get(k) for k in ("title", "lines", "data", "narration")},
+                "unspokenWords": None,
+                "musicBed": None,
+            }
+        )
+        fields: dict[str, Any] = {"style_options": opts}
+        if film.get("title") and not str(project.get("title") or "").strip():
+            fields["title"] = str(film["title"])[:120]
+        self.repo.update_project(job.project_id, **fields)
+        pub.update(
+            JobStatus.PROBING, 30, "The script is written. Rendering the presenter…", **timings
+        )
+        self.enqueue(
+            job,
+            JobType.PRESENTER,
+            {
+                "script": str(film["narration"]),
+                "voice_id": voice_id,
+                "look_id": look_id,
+                "max_duration_sec": max_dur,
+                "language_hint": "en",
+            },
+        )
+
     def _plan_roundup(
         self,
         job: JobMessage,
@@ -1638,11 +1701,14 @@ class Pipeline:
         options: dict[str, Any],
         timings: dict[str, float],
         image_ids: list[str],
+        presenter: dict[str, Any] | None = None,
     ) -> None:
         """The roundup's edit is fixed by its script (roundup.build_plan): validate, save, render."""
         from rasika_worker import roundup
 
-        plan = roundup.build_plan(style, dict(options.get("film") or {}), words, duration)
+        plan = roundup.build_plan(
+            style, dict(options.get("film") or {}), words, duration, presenter
+        )
         validator = ChromiumValidator(self.s)
         try:
             r = validator(plan, words, image_ids)

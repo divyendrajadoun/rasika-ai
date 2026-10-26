@@ -4,6 +4,7 @@
 
   apps/worker/.venv/Scripts/python.exe tools/e2e/roundup_reel.py <post.txt> [--mode voice|presenter]
       [--voice aura-2-thalia-en] [--preset dark-ios] [--cta "Follow for tomorrow's list."] [--out DIR]
+      presenter mode (paid, HeyGen): --look <look id> --presenter-voice <voice id>
 
 Creates a project for tester@rasika.local, enqueues a `compose` job (research → script → narration →
 transcribe → plan → render) and follows it to `done`, then saves the 720p and 1080p outputs, the
@@ -34,10 +35,12 @@ def main() -> int:
     ap.add_argument("--preset", default="dark-ios")
     ap.add_argument("--cta", default="")
     ap.add_argument("--out", type=pathlib.Path, default=None)
-    ap.add_argument("--timeout", type=float, default=1500)
+    ap.add_argument("--look", default="")
+    ap.add_argument("--presenter-voice", default="")
+    ap.add_argument("--timeout", type=float, default=2400)
     a = ap.parse_args()
-    if a.mode == "presenter":
-        print("presenter mode is not wired into roundups yet; use --mode voice")
+    if a.mode == "presenter" and not (a.look and a.presenter_voice):
+        print("presenter mode needs --look and --presenter-voice (HeyGen ids; each run is paid)")
         return 2
     post = a.post.read_text(encoding="utf-8")
     env = dict(
@@ -48,6 +51,9 @@ def main() -> int:
     brief = {"kind": "roundup", "post": post, "voice": a.voice, "mode": a.mode}
     if a.cta:
         brief["cta"] = a.cta
+    if a.mode == "presenter":
+        brief["look_id"] = a.look
+        brief["presenter_voice"] = a.presenter_voice
     with psycopg.connect(env["DATABASE_URL"], autocommit=True) as c:
         row = c.execute(
             "select user_id from profiles where email=%s", ("tester@rasika.local",)
