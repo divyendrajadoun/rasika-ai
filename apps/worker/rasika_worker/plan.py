@@ -205,6 +205,14 @@ class Source(BaseModel):
     duration: float | None = None
 
 
+class Source1(BaseModel):
+    provider: Literal["asset"]
+    assetId: str = Field(..., max_length=64, min_length=1)
+    url: str
+    author: str
+    duration: float | None = None
+
+
 class PlanElement1(BaseModel):
     id: str = Field(..., max_length=64, min_length=1)
     t0: float = Field(..., ge=0.0, le=600.0)
@@ -213,7 +221,7 @@ class PlanElement1(BaseModel):
     type: Literal["broll"]
     query: str = Field(..., max_length=80, min_length=3)
     label: str | None = Field(None, max_length=40)
-    source: Source | None = None
+    source: Source | Source1 | None = None
 
 
 class PlanElement2(BaseModel):

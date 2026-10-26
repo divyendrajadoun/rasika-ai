@@ -121,6 +121,9 @@ class Repo:
             "SELECT * FROM assets WHERE project_id = %s::uuid ORDER BY created_at", (project_id,)
         )
 
+    def asset(self, asset_id: str) -> dict[str, Any] | None:
+        return self.one("SELECT * FROM assets WHERE id = %s::uuid", (asset_id,))
+
     def latest_transcript(self, project_id: str) -> dict[str, Any] | None:
         return self.one(
             "SELECT * FROM transcripts WHERE project_id = %s::uuid ORDER BY version DESC LIMIT 1",

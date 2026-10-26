@@ -81,7 +81,9 @@ class _Client:
 
 
 def test_split_post_rejects_links_the_post_does_not_have() -> None:
-    made_up = '{"topic": "x", "items": [{"rank": 1, "name": "Fake", "url": "https://github.com/x/y"}]}'
+    made_up = (
+        '{"topic": "x", "items": [{"rank": 1, "name": "Fake", "url": "https://github.com/x/y"}]}'
+    )
     topic, items, _ = split_post(POST, _Client(made_up), "m")
     assert topic == ""  # fell back
     assert [i.name for i in items] == ["impeccable", "cindy"]
@@ -183,3 +185,104 @@ def test_seconds_for() -> None:
     lo, hi = seconds_for(5, 180)
     assert 50 <= lo < hi <= 70
     assert seconds_for(8, 60)[1] == 60
+
+
+def _words(text: str, step: float = 0.4) -> list[dict[str, object]]:
+    return [{"w": w, "t": round(i * step, 3)} for i, w in enumerate(text.split())]
+
+
+def test_when_lines_up_hyphenated_numbers() -> None:
+    from rasika_worker.roundup import when
+
+    words = _words("It is at eighty-nine thousand stars today")
+    assert when(words, "eighty-nine thousand stars") == 1.2
+    assert when(words, "eighty nine thousand") == 1.2
+    assert when(words, "stars", after=2.5) is None
+
+
+def test_build_plan_places_each_item_on_its_words() -> None:
+    from rasika_worker.roundup import build_plan
+
+    narration = (
+        "Five repos blew up today and one is a robot duck . First up Impeccable which teaches AI design "
+        "with eighty-nine thousand stars . Next Microduck a tiny robot that walks and stands up . "
+        "Taste is next . Follow for more"
+    )
+    words = _words(narration)
+    page = {
+        "asset": "a1",
+        "kind": "image",
+        "item": 1,
+        "shows": "the page, first screen",
+        "w": 1440,
+        "h": 900,
+    }
+    site = {
+        "asset": "a2",
+        "kind": "image",
+        "item": 2,
+        "shows": "the project's own website, first screen",
+        "w": 1440,
+        "h": 900,
+    }
+    clip = {
+        "asset": "a3",
+        "kind": "clip",
+        "item": 2,
+        "shows": "demo",
+        "sec": 20.0,
+        "page": "https://github.com/x/duck",
+    }
+    film = {
+        "data": {
+            "media": {"m1": page, "m2": site, "m3": clip},
+            "roundup": {
+                "hook": {"line": "5 repos, one robot duck", "say": "five repos blew up"},
+                "outro": {"line": "Taste is next", "say": "taste is next"},
+                "items": [
+                    {
+                        "rank": 1,
+                        "name": "Impeccable",
+                        "say": "first up impeccable",
+                        "line": "Design taste for AI",
+                        "url": "github.com/x/impeccable",
+                        "stat": {
+                            "value": 89000,
+                            "label": "GitHub stars",
+                            "say": "eighty-nine thousand stars",
+                        },
+                        "shots": [{"media": "m1", "say": "first up impeccable"}],
+                    },
+                    {
+                        "rank": 2,
+                        "name": "Microduck",
+                        "say": "next microduck",
+                        "line": "A robot duck",
+                        "url": "github.com/x/duck",
+                        "shots": [
+                            {"media": "m2", "say": "next microduck"},
+                            {"media": "m3", "say": "a tiny robot"},
+                        ],
+                    },
+                ],
+            },
+        }
+    }
+    plan = build_plan({"palette": {}}, film, words, 40.0)
+    els = {e["id"]: e for e in plan["elements"]}
+    assert els["head1"]["t0"] == when_t(words, "first")
+    assert els["stat1"]["type"] == "counter" and els["stat1"]["t0"] == when_t(words, "eighty-nine")
+    assert els["stat1"]["to"] == 89 and els["stat1"]["label"] == "thousand GitHub stars"
+    card = els["v1_1"]
+    assert card["type"] == "browserCard" and card["h"] == round(1000 * 900 / 1440 + 54)
+    duck = els["v2_2"]
+    assert duck["type"] == "broll" and duck["source"]["provider"] == "asset"
+    assert duck["t1"] - duck["t0"] <= 6.0
+    assert els["recap"]["lines"][1]["text"] == "Impeccable"
+    assert els["recap"]["lines"][2]["text"] == "Microduck"
+    assert els["hook1"]["type"] == "browserCard"  # the opening flash of every item's page
+    assert plan["captions"]["enabled"]
+
+
+def when_t(words: list[dict[str, object]], first_word: str) -> float:
+    return next(float(str(w["t"])) for w in words if str(w["w"]).lower() == first_word)

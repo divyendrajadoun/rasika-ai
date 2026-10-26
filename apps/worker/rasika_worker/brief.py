@@ -214,6 +214,17 @@ KINDS: dict[str, dict[str, Any]] = {
         "numbers that land on the spoken word, a clear 'so what'. Journalism, not advertising; only facts that "
         "are well established, dated where it matters.",
     },
+    "roundup": {
+        "title": "From a post",
+        "needs": ["post"],
+        "preset": "dark-ios",
+        "mood": "showreel",
+        "narrate": True,
+        "seconds": (40, 90),
+        # roundup.py writes this kind (research + its own writer); the brief is for the record
+        "brief": "A news-style roundup of the things a pasted post lists: a hook, each item with its real "
+        "page, demo and numbers on screen while the narrator explains it, a closing line.",
+    },
     "tierlist": {
         "title": "Tier list",
         "needs": ["topic"],

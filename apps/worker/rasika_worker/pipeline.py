@@ -264,6 +264,8 @@ class Pipeline:
         inputs = {k: v for k, v in b.items() if k not in ("kind", "narrate", "voice")}
         if kind_id == "animate":
             film, usage = self._animate_film(job, pub, work, b, narrate, max_dur, timings)
+        elif kind_id == "roundup":
+            film, usage = self._roundup_film(job, pub, work, b, max_dur, timings)
         else:
             film, usage = self._write_brief(kind_id, inputs, capture, narrate, max_dur)
         timings["write_sec"] = round(time.time() - t0, 2)
@@ -384,6 +386,114 @@ class Pipeline:
             )
         except Exception as exc:
             raise PipelineError(f"Could not write the film: {exc}") from exc
+
+    def _roundup_film(
+        self,
+        job: JobMessage,
+        pub: Publisher,
+        work: Path,
+        b: dict[str, Any],
+        max_dur: float,
+        timings: dict[str, float],
+    ) -> tuple[dict[str, Any], dict[str, int]]:
+        """A pasted post: its items, a visit to every link (numbers, screenshots, the README's own
+        pictures and clips, saved as the project's assets), then the narration and its visuals."""
+        import shutil
+
+        from rasika_worker import roundup
+
+        post = str(b.get("post") or "").strip()
+        if len(post) < 20 or not roundup.links_in(post):
+            raise PipelineError("Paste a post that lists things with their links.")
+        client = self.anthropic()
+        pub.update(JobStatus.PROBING, 4, "Reading the post…", **timings)
+        t0 = time.time()
+        topic, items, closing = roundup.split_post(post, client, self.s.anthropic_fast_model)
+        if not items:
+            raise PipelineError("The post has no links to research.")
+        rdir = work / "research"
+        shutil.rmtree(rdir, ignore_errors=True)
+        found: list[roundup.Research] = []
+        for i, it in enumerate(items):
+            pub.update(
+                JobStatus.PROBING,
+                6 + int(14 * i / len(items)),
+                f"Researching {it.name} ({i + 1} of {len(items)})…",
+                **timings,
+            )
+            found.append(
+                roundup.research_item(
+                    it, rdir / f"item{it.rank}", self.s.ffmpeg_bin, self.s.ffprobe_bin
+                )
+            )
+        timings["research_sec"] = round(time.time() - t0, 2)
+        timings["research_media"] = float(sum(len(r.media) for r in found))
+        prefix = project_prefix(job.user_id, job.project_id)
+        media_map: dict[str, dict[str, Any]] = {}
+        first = {"image": True, "research_clip": True}
+        for r in found:
+            for m in r.media:
+                kind = "image" if m.kind == "image" else "research_clip"
+                aid = self.upload_asset(
+                    job,
+                    kind,
+                    m.path,
+                    f"{prefix}/research/item{r.item.rank}_{m.path.name}",
+                    {
+                        "label": f"{r.item.name}: {m.label}"[:80],
+                        "sayWhen": "",
+                        "order": 100 + len(media_map),
+                        "source": "research",
+                        "url": m.source,
+                        "page": r.url,
+                        "media": m.id,
+                    },
+                    replace=first[kind],
+                )
+                first[kind] = False
+                media_map[m.id] = {
+                    "asset": aid,
+                    "kind": m.kind,
+                    "item": r.item.rank,
+                    "shows": m.label,
+                    "url": m.source,
+                    "page": r.url,
+                    "w": m.width,
+                    "h": m.height,
+                    "sec": m.duration,
+                }
+        pub.update(JobStatus.PROBING, 22, "Writing the script…", **timings)
+        lo, hi = roundup.seconds_for(len(items), max_dur)
+        try:
+            script, usage = roundup.write(
+                client,
+                self.s.anthropic_planner_model,
+                topic,
+                found,
+                closing,
+                (lo, hi),
+                str(b.get("cta") or "") or None,
+            )
+        except Exception as exc:
+            raise PipelineError(f"Could not write the script: {exc}") from exc
+        lines = [
+            {"text": str(x.get("line") or x.get("name") or ""), "sec": 8.0} for x in script["items"]
+        ]
+        return (
+            {
+                "title": script.get("title") or topic or "Roundup",
+                "narration": script["narration"],
+                "lines": [x for x in lines if x["text"]],
+                "music": {"mood": "showreel", "bpm": None},
+                "data": {
+                    "roundup": script,
+                    "media": media_map,
+                    "facts": {str(r.item.rank): r.facts for r in found},
+                    "problems": {str(r.item.rank): r.problems for r in found if r.problems},
+                },
+            },
+            usage,
+        )
 
     def _animate_film(
         self,
@@ -1353,6 +1463,11 @@ class Pipeline:
         if (options.get("brief") or {}).get("kind") == "animate":
             self._plan_animate(job, pub, words, duration, style, options, timings)
             return
+        if (options.get("brief") or {}).get("kind") == "roundup":
+            self._plan_roundup(
+                job, pub, words, duration, style, options, timings, [i["id"] for i in images]
+            )
+            return
         inp = PlannerInput(
             duration_sec=round(duration, 2),
             language=str(tr["language"]),
@@ -1513,6 +1628,50 @@ class Pipeline:
             )
             return plan
 
+    def _plan_roundup(
+        self,
+        job: JobMessage,
+        pub: Publisher,
+        words: list[dict[str, Any]],
+        duration: float,
+        style: dict[str, Any],
+        options: dict[str, Any],
+        timings: dict[str, float],
+        image_ids: list[str],
+    ) -> None:
+        """The roundup's edit is fixed by its script (roundup.build_plan): validate, save, render."""
+        from rasika_worker import roundup
+
+        plan = roundup.build_plan(style, dict(options.get("film") or {}), words, duration)
+        validator = ChromiumValidator(self.s)
+        try:
+            r = validator(plan, words, image_ids)
+        finally:
+            validator.close()
+        errors = [i for i in r.get("issues") or [] if i.get("level") == "error"]
+        if errors:
+            raise PipelineError(
+                "The roundup did not validate: " + "; ".join(e["message"] for e in errors[:3])
+            )
+        report = {
+            "elements": len(r["plan"]["elements"]),
+            "errors": [],
+            "fixed": [i for i in r.get("issues") or [] if i.get("level") == "fixed"][:40],
+        }
+        version = self.repo.insert_plan(
+            job.project_id, r["plan"], created_by="roundup", report=report
+        )
+        self.repo.audit(
+            job.user_id, "plan", "project", job.project_id, {"version": version, **report}
+        )
+        if self.s.auto_render:
+            pub.update(JobStatus.RENDERING_PREVIEW, 0, "Making a quick preview…", **timings)
+            self.enqueue(job, JobType.RENDER_PREVIEW, {"plan_version": version, "then_final": True})
+        else:
+            pub.update(
+                JobStatus.AWAITING_PLAN_REVIEW, 100, "Your reel is ready to preview", **timings
+            )
+
     def _plan_animate(
         self,
         job: JobMessage,
@@ -1578,7 +1737,7 @@ class Pipeline:
         """Fill `source` on every broll element; drop the ones Pexels has nothing for."""
         from rasika_worker.stock import broll_elements
 
-        els = broll_elements(plan)
+        els = [e for e in broll_elements(plan) if not e.get("source")]
         if not els:
             return plan
         client = self._stock()
@@ -1599,8 +1758,11 @@ class Pipeline:
                 continue
             el["source"] = clip.as_source()
             kept.append(str(el["id"]))
+        asked = {str(e["id"]) for e in els}
         plan["elements"] = [
-            e for e in plan["elements"] if e.get("type") != "broll" or str(e.get("id")) in kept
+            e
+            for e in plan["elements"]
+            if e.get("type") != "broll" or str(e.get("id")) not in asked or str(e.get("id")) in kept
         ]
         log.info("broll_resolved", asked=len(els), found=len(kept))
         return plan
@@ -1613,6 +1775,25 @@ class Pipeline:
 
         out: dict[str, tuple[Path, int]] = {}
         els = [e for e in broll_elements(plan) if e.get("source")]
+        if not els:
+            return out
+        for el in [e for e in els if e["source"].get("provider") == "asset"]:
+            # the project's own clips (a roundup's demo videos): the whole picture over a blur
+            bdir = work / ("broll_540" if preview else "broll") / str(el["id"])
+            own = self._asset_file(str(el["source"]["assetId"]), work / "own_clips")
+            if not own:
+                continue
+            n = extract_window(
+                self.s.ffmpeg_bin,
+                own,
+                bdir,
+                float(el["t1"]) - float(el["t0"]),
+                scale=0.5 if preview else 1.0,
+                fit="contain",
+            )
+            if n:
+                out[str(el["id"])] = (bdir, n)
+        els = [e for e in els if e["source"].get("provider") != "asset"]
         if not els:
             return out
         client = self._stock()
@@ -1648,6 +1829,17 @@ class Pipeline:
             if n:
                 out[str(el["id"])] = (bdir, n)
         return out
+
+    def _asset_file(self, asset_id: str, folder: Path) -> Path | None:
+        """One asset's file in the work folder (downloaded once)."""
+        row = self.repo.asset(asset_id)
+        if not row:
+            return None
+        folder.mkdir(parents=True, exist_ok=True)
+        dest = folder / f"{asset_id}{Path(str(row['storage_key'])).suffix.lower() or '.mp4'}"
+        if not dest.exists():
+            self.storage.download(str(row["storage_key"]), dest)
+        return dest
 
     def _reference_stills(self, project: dict[str, Any], work: Path, n: int = 4) -> list[Path]:
         """Frames of the reference reel for the planner ("Match a reference" projects only): the

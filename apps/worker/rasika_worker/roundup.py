@@ -717,3 +717,309 @@ __all__ = [
     "split_post",
     "write",
 ]
+
+
+# ───────────────────────────── the plan ─────────────────────────────
+
+W, H = 1080, 1920
+TOP_BAND = 150  # the item's header sits here
+MEDIA_Y = 440  # the visual's box: x 40–1040, y 440–1120; the item's number counts up under it
+MEDIA_H = 680
+BAR_H = 54  # a browser card's address bar
+STAT_TOP = 1170
+CAPTION_Y = 1600
+CLIP_MAX = 6.0  # the engine's cap on one cutaway
+PAGE_LABELS = ("the page", "the README", "the project's own website")
+
+
+def when(words: list[dict[str, Any]], phrase: str, after: float = 0.0) -> float | None:
+    """The time the phrase starts being spoken (its first word), at or after `after`."""
+    p = _norm(phrase)
+    if not p:
+        return None
+    # one entry per token, so "eighty-nine" (one word, two tokens) still lines up with the phrase
+    toks: list[tuple[str, float]] = []
+    for w in words:
+        for tok in _norm(str(w.get("w") or "")):
+            toks.append((tok, float(w["t"])))
+    for i in range(len(toks) - len(p) + 1):
+        if toks[i][1] + 1e-6 < after:
+            continue
+        if [x for x, _ in toks[i : i + len(p)]] == p:
+            return toks[i][1]
+    return None
+
+
+def _host(url: str) -> str:
+    u = url if "://" in url else "https://" + url
+    h = urlparse(u).hostname or url
+    path = urlparse(u).path.strip("/")
+    return (h + ("/" + path if path else ""))[:60]
+
+
+def build_plan(
+    style: dict[str, Any],
+    film: dict[str, Any],
+    words: list[dict[str, Any]],
+    duration: float,
+) -> dict[str, Any]:
+    """The roundup's edit, fixed by its script: no planner call. Per item, from the moment its name
+    is spoken: a header (#n, the name, the takeaway), its visuals one after another on the words the
+    writer chose (page screenshots in a browser window, README pictures as cards, demo clips full
+    frame), its number counting up on the spoken number; the hook and the closing line as big type;
+    captions under everything."""
+    data = film.get("data") or {}
+    script = data.get("roundup") or {}
+    media = data.get("media") or {}
+    items = [x for x in script.get("items") or [] if isinstance(x, dict)]
+    els: list[dict[str, Any]] = []
+    sfx: list[dict[str, Any]] = []
+    last_clip_end = -10.0
+
+    # each item's window: from its opening words to the next item's (or the outro)
+    starts: list[float] = []
+    for it in items:
+        t = when(words, str(it.get("say") or ""), starts[-1] if starts else 0.0)
+        if t is None:  # not found: a little after the previous one
+            t = (starts[-1] + 6.0) if starts else 3.0
+        starts.append(min(t, duration - 1.0))
+    outro = script.get("outro") or {}
+    t_out = when(words, str(outro.get("say") or ""), starts[-1] if starts else 0.0)
+    end_last = t_out if t_out is not None else duration
+    hook = script.get("hook") or {}
+    first = starts[0] if starts else duration
+
+    if hook.get("line") and first > 1.2:
+        els.append(_poster("hook", 0.15, first - 0.1, 230, [hook["line"]], 112))
+        # a flash of every item's own page under the hook line: the whole list in the first seconds
+        pages: list[str] = []
+        for it in items:
+            rank = int(it.get("rank") or len(pages) + 1)
+            mine = [
+                k for k, v in media.items() if v.get("item") == rank and v.get("kind") == "image"
+            ]
+            site = [k for k in mine if str(media[k].get("shows") or "").startswith("the project's")]
+            if mine:
+                pages.append((site or mine)[0])
+        span = (first - 0.1) - 0.7
+        if pages and span >= 0.6 * len(pages):
+            step = span / len(pages)
+            for k, mid in enumerate(pages):
+                a = 0.7 + k * step
+                els.append(_visual(f"hook{k + 1}", a, a + step, media[mid], "", top=620))
+                if k:
+                    sfx.append({"t": round(a, 3), "type": "tick", "gain": 0.45})
+    for i, it in enumerate(items):
+        t0 = starts[i]
+        t1 = starts[i + 1] if i + 1 < len(items) else end_last
+        if t1 - t0 < 1.0:
+            continue
+        rank = int(it.get("rank") or i + 1)
+        if i:
+            sfx.append(
+                {"t": round(max(0.0, t0 - 0.12), 3), "type": "whoosh", "dur": 0.45, "gain": 0.5}
+            )
+        head = [
+            {"text": f"#{rank}", "font": "kicker", "size": 44, "color": "gold"},
+            {"text": str(it.get("name") or "")[:40] or f"#{rank}", "font": "anton", "size": 92},
+        ]
+        if it.get("line"):
+            head.append(
+                {"text": str(it["line"])[:60], "font": "kicker", "size": 36, "color": "goldd"}
+            )
+        els.append(
+            {
+                "id": f"head{rank}",
+                "type": "posterText",
+                "t0": round(t0, 3),
+                "t1": round(t1 - 0.05, 3),
+                "top": TOP_BAND,
+                "left": 60,
+                "w": 960,
+                "align": "left",
+                "anim": "rise",
+                "lines": head,
+            }
+        )
+        # its visuals, each until the next one (the first holds from the item's start)
+        shots = [s for s in it.get("shots") or [] if str(s.get("media")) in media]
+        if not shots:  # the page screenshot, if the writer chose nothing
+            mine = [
+                k for k, v in media.items() if v.get("item") == rank and v.get("kind") == "image"
+            ]
+            shots = [{"media": mine[0], "say": ""}] if mine else []
+        times: list[float] = []
+        for k, s in enumerate(shots):
+            t = when(words, str(s.get("say") or ""), t0) if k else t0
+            t = t0 if t is None else max(t, (times[-1] + 1.5) if times else t0)
+            times.append(min(t, t1 - 0.6))
+        # a clip plays at most 6 s with ≥ 1.5 s between two clips (the engine's cutaway rules); the
+        # rest of its window shows the item's page, as does a clip that would come too soon
+        page = next(
+            (
+                k
+                for k, v in media.items()
+                if v.get("item") == rank and str(v.get("shows") or "").startswith(PAGE_LABELS)
+            ),
+            None,
+        )
+        url = str(it.get("url") or "")
+        for k, s in enumerate(shots):
+            a, b = times[k], (times[k + 1] if k + 1 < len(shots) else t1)
+            if b - a < 0.6:
+                continue
+            m = media[str(s["media"])]
+            if m.get("kind") == "clip":
+                a = max(a, 1.5)
+                if a - last_clip_end < 1.5 or b - a < 1.2:
+                    if page:
+                        els.append(_visual(f"v{rank}_{k + 1}", a, b, media[page], url))
+                    continue
+                cut = min(b, a + CLIP_MAX)
+                els.append(_visual(f"v{rank}_{k + 1}", a, cut, m, url))
+                last_clip_end = cut
+                if b - cut >= 0.6 and page:
+                    els.append(_visual(f"v{rank}_{k + 1}p", cut, b, media[page], url))
+                continue
+            els.append(_visual(f"v{rank}_{k + 1}", a, b, m, url))
+        st = it.get("stat")
+        if isinstance(st, dict):
+            ts = when(words, str(st.get("say") or ""), t0)
+            if ts is not None and ts < t1 - 1.0:
+                # as it is said: 89,058 stars counts up to "89" over "THOUSAND GITHUB STARS"
+                value, label = float(st["value"]), str(st.get("label") or "")[:30] or "stars"
+                if value >= 10_000:
+                    value, label = round(value / 1000), f"thousand {label}"[:40]
+                els.append(
+                    {
+                        "id": f"stat{rank}",
+                        "type": "counter",
+                        "t0": round(ts, 3),
+                        "t1": round(min(t1 - 0.05, ts + 2.6), 3),
+                        "from": 0,
+                        "to": value,
+                        "label": label,
+                        "top": STAT_TOP,
+                        "size": 150,
+                        "duration": 1.2,
+                        "color": "gold",
+                    }
+                )
+                sfx.append({"t": round(ts + 1.2, 3), "type": "pop", "gain": 0.55})
+    if outro.get("line") and t_out is not None and duration - t_out > 1.0:
+        els.append(_poster("outro", t_out, duration - 0.05, 420, [outro["line"]], 104))
+        # the recap: every name, so the last frame is worth a screenshot
+        names = [str(it.get("name") or "") for it in items if it.get("name")]
+        if names and duration - t_out > 2.2:
+            half = (len(names) + 1) // 2
+            rows = [" · ".join(names[:half]), " · ".join(names[half:])]
+            els.append(
+                {
+                    "id": "recap",
+                    "type": "posterText",
+                    "t0": round(t_out + 0.8, 3),
+                    "t1": round(duration - 0.05, 3),
+                    "top": 900,
+                    "left": 60,
+                    "w": 960,
+                    "align": "center",
+                    "anim": "rise",
+                    "lines": [
+                        {"text": "TODAY'S LIST", "font": "kicker", "size": 40, "color": "gold"},
+                        *[{"text": r[:80], "font": "anton", "size": 54} for r in rows if r],
+                    ],
+                }
+            )
+
+    return {
+        "version": 1,
+        "meta": {
+            "durationSec": round(duration, 2),
+            "fps": 30,
+            "width": W,
+            "height": H,
+            "language": "en",
+            "faceless": True,
+        },
+        "style": style,
+        "subject": {
+            "faceBox": {"x": 0, "y": 0, "w": 1, "h": 1},
+            "freeZone": {"x": 0, "y": 150, "w": W, "h": 1400},
+        },
+        "videoModes": [{"t": 0, "mode": "full"}],
+        "captions": {"enabled": True, "y": CAPTION_Y, "gold": [], "accent": []},
+        "sfx": {"auto": False, "intensity": 0.7, "extra": sfx},
+        "elements": els,
+    }
+
+
+def _poster(
+    eid: str, t0: float, t1: float, top: float, lines: list[str], size: int
+) -> dict[str, Any]:
+    return {
+        "id": eid,
+        "type": "posterText",
+        "t0": round(t0, 3),
+        "t1": round(t1, 3),
+        "top": top,
+        "left": 60,
+        "w": 960,
+        "align": "center",
+        "anim": "rise",
+        "lines": [{"text": x[:60], "font": "anton", "size": size} for x in lines],
+    }
+
+
+def _visual(
+    eid: str, t0: float, t1: float, m: dict[str, Any], url: str, top: float = MEDIA_Y
+) -> dict[str, Any]:
+    """A page screenshot in a browser window sized to the screenshot, a README picture as a card,
+    a clip full frame."""
+    base = {"id": eid, "t0": round(t0, 3), "t1": round(t1, 3)}
+    page = _host(str(m.get("page") or url))
+    if m.get("kind") == "clip":
+        return {
+            **base,
+            "type": "broll",
+            "query": "demo clip from the project",
+            "label": page[:40],
+            "source": {
+                "provider": "asset",
+                "assetId": str(m["asset"]),
+                "url": str(m.get("url") or url),
+                "author": page,
+                "duration": float(m.get("sec") or 0) or None,
+            },
+        }
+    label = str(m.get("shows") or "")
+    if label.startswith(PAGE_LABELS):
+        mw, mh = float(m.get("w") or 1440), float(m.get("h") or 900)
+        return {
+            **base,
+            "type": "browserCard",
+            "imageId": str(m["asset"]),
+            "url": _host(str(m.get("url") or url))[:80],
+            "x": 40,
+            "y": top,
+            "w": 1000,
+            "h": round(min(MEDIA_H, 1000 * mh / mw + BAR_H)),
+            "scroll": 0.25 if label.startswith("the README") else 0.0,
+            "tilt": 0,
+        }
+    w, h = float(m.get("w") or 16), float(m.get("h") or 9)
+    cw = 960.0
+    ch = max(200.0, min(float(MEDIA_H), cw * h / w))
+    if ch == MEDIA_H:
+        cw = max(300.0, MEDIA_H * w / h)
+    return {
+        **base,
+        "type": "imageCard",
+        "imageId": str(m["asset"]),
+        "label": "",
+        "x": round((W - cw) / 2),
+        "y": round(top + (MEDIA_H - ch) / 2),
+        "w": round(cw),
+        "h": round(ch),
+        "tilt": 0,
+        "objectPosition": "50% 50%",
+    }

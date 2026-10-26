@@ -163,15 +163,32 @@ class PexelsClient:
         return clip
 
 
+# a landscape clip whole across the frame, over a darkened blur of itself filling the 9:16 stage
+VF_CONTAIN = (
+    f"fps={media.FPS},split[a][b];"
+    f"[a]scale={media.STAGE_W}:{media.STAGE_H}:force_original_aspect_ratio=increase,"
+    f"crop={media.STAGE_W}:{media.STAGE_H},boxblur=28:2,eq=brightness=-0.18[bg];"
+    f"[b]scale={media.STAGE_W}:{media.STAGE_H}:force_original_aspect_ratio=decrease[fg];"
+    "[bg][fg]overlay=(W-w)/2:(H-h)/2"
+)
+
+
 def extract_window(
-    ffmpeg: str, src: Path, frames_dir: Path, length_sec: float, scale: float = 1.0
+    ffmpeg: str,
+    src: Path,
+    frames_dir: Path,
+    length_sec: float,
+    scale: float = 1.0,
+    fit: str = "cover",
 ) -> int:
-    """Frames for one B-roll window: the first `length_sec` of the clip at 30 fps, fitted to 9:16."""
+    """Frames for one B-roll window: the first `length_sec` of the clip at 30 fps, fitted to 9:16
+    (`cover` crops to fill; `contain` keeps the whole picture over a blur of itself)."""
     if frames_dir.exists():
         shutil.rmtree(frames_dir, ignore_errors=True)
     frames_dir.mkdir(parents=True, exist_ok=True)
     w, h = int(media.STAGE_W * scale), int(media.STAGE_H * scale)
-    vf = media.VF_FIT if scale == 1.0 else f"{media.VF_FIT},scale={w}:{h}"
+    base = VF_CONTAIN if fit == "contain" else media.VF_FIT
+    vf = base if scale == 1.0 else f"{base},scale={w}:{h}"
     media.run(
         [
             ffmpeg,

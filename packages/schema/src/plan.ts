@@ -270,15 +270,28 @@ export const Broll = z.object({
   query: z.string().min(3).max(80),
   /** optional source tag drawn bottom-left ("archive", "2019", "stock") */
   label: z.string().max(40).optional(),
+  /**
+   * where the clip comes from: a Pexels stock clip, or one of the project's own clips (an asset the
+   * worker saved, e.g. a repo's demo video found while researching a roundup; `url` is its page)
+   */
   source: z
-    .object({
-      provider: z.literal("pexels"),
-      id: z.number().int(),
-      url: z.string(),
-      author: z.string(),
-      file: z.string().nullable().optional(),
-      duration: z.number().optional(),
-    })
+    .discriminatedUnion("provider", [
+      z.object({
+        provider: z.literal("pexels"),
+        id: z.number().int(),
+        url: z.string(),
+        author: z.string(),
+        file: z.string().nullable().optional(),
+        duration: z.number().optional(),
+      }),
+      z.object({
+        provider: z.literal("asset"),
+        assetId: z.string().min(1).max(64),
+        url: z.string(),
+        author: z.string(),
+        duration: z.number().optional(),
+      }),
+    ])
     .optional(),
 });
 

@@ -613,38 +613,71 @@
               "maxLength": 40
             },
             "source": {
-              "type": "object",
-              "properties": {
-                "provider": {
-                  "type": "string",
-                  "const": "pexels"
-                },
-                "id": {
-                  "type": "integer",
-                  "minimum": -9007199254740991,
-                  "maximum": 9007199254740991
-                },
-                "url": {
-                  "type": "string"
-                },
-                "author": {
-                  "type": "string"
-                },
-                "file": {
-                  "type": [
-                    "string",
-                    "null"
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "provider": {
+                      "type": "string",
+                      "const": "pexels"
+                    },
+                    "id": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "author": {
+                      "type": "string"
+                    },
+                    "file": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "duration": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "provider",
+                    "id",
+                    "url",
+                    "author"
                   ]
                 },
-                "duration": {
-                  "type": "number"
+                {
+                  "type": "object",
+                  "properties": {
+                    "provider": {
+                      "type": "string",
+                      "const": "asset"
+                    },
+                    "assetId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "author": {
+                      "type": "string"
+                    },
+                    "duration": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "provider",
+                    "assetId",
+                    "url",
+                    "author"
+                  ]
                 }
-              },
-              "required": [
-                "provider",
-                "id",
-                "url",
-                "author"
               ]
             }
           },
