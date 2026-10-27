@@ -399,7 +399,10 @@ export async function createBriefEdit(input: unknown): Promise<ActionResult> {
   const kind = briefKind(w.kind);
   if (!kind) return { ok: false, error: "Unknown kind of film" };
   const presenter = w.kind === "roundup" && w.speaker === "presenter";
-  if (w.kind === "roundup" && w.roundupLook === "reference") {
+  if (
+    (w.kind === "roundup" && w.roundupLook === "reference") ||
+    (w.kind === "researched" && w.explainerTheme === "reference")
+  ) {
     const [ref] = await db
       .select({ kind: schema.assets.kind })
       .from(schema.assets)
@@ -439,6 +442,11 @@ export async function createBriefEdit(input: unknown): Promise<ActionResult> {
       ? { brand: w.brand.name, line: w.closeLine ?? "", tail: w.closeTail ?? "" }
       : {}),
     ...(w.a ? { a: w.a, b: w.b, winner: w.winner } : {}),
+    ...(w.kind === "researched"
+      ? w.explainerTheme === "reference"
+        ? { reference_asset: w.referenceAssetId }
+        : { theme: w.explainerTheme }
+      : {}),
     ...(w.kind === "roundup"
       ? {
           post: w.post ?? "",

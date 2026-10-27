@@ -3,6 +3,7 @@
 import {
   BRIEF_GROUPS,
   BRIEF_KINDS,
+  EXPLAINER_THEMES,
   ROUNDUP_LOOKS,
   briefKind,
   type BriefKindId,
@@ -38,6 +39,8 @@ export interface BriefState {
   presenterOk: boolean;
   /** the designed look, or "reference" to match an uploaded reel */
   roundupLook: RoundupLookId | "reference";
+  /** researched explainer: the theme, or "reference" to match an uploaded reel */
+  explainerTheme: "studio" | "night" | "pop" | "reference";
 }
 
 export const defaultBriefState: BriefState = {
@@ -62,6 +65,7 @@ export const defaultBriefState: BriefState = {
   presenterVoice: "",
   presenterOk: false,
   roundupLook: "signal",
+  explainerTheme: "studio",
 };
 
 const BRIEF_EXAMPLE_TOPICS = Object.fromEntries(
@@ -90,6 +94,7 @@ export function briefReady(b: BriefState): boolean {
     case "explainer":
     case "editorial":
     case "tierlist":
+    case "researched":
       return b.topic.trim().length >= 6;
     case "versus":
       return Boolean(b.a.trim() && b.b.trim());
@@ -309,6 +314,70 @@ export function StepBrief({
                   onChange={(e) => set({ post: e.target.value })}
                 />
                 <p className="text-muted mt-1 text-[13px]">{f.help}</p>
+              </div>
+            );
+          if (f.id === "theme")
+            return (
+              <div key="theme" className="space-y-3">
+                <p className="label">The look</p>
+                <ul
+                  className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+                  role="radiogroup"
+                  aria-label="The look"
+                >
+                  {EXPLAINER_THEMES.map((t) => (
+                    <li key={t.id}>
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked={value.explainerTheme === t.id}
+                        onClick={() => set({ explainerTheme: t.id })}
+                        className={cn(
+                          "bg-raised flex h-full w-full flex-col gap-2 rounded-[8px] p-3 text-left",
+                          value.explainerTheme === t.id && "ring-text ring-2",
+                        )}
+                      >
+                        <span
+                          className="flex h-20 items-end gap-1 rounded-[6px] p-2"
+                          style={{ background: t.swatch[0] }}
+                          aria-hidden
+                        >
+                          <b
+                            className="text-[22px] leading-none"
+                            style={{ color: t.swatch[1], fontWeight: 900 }}
+                          >
+                            HOW IT
+                          </b>
+                          <b
+                            className="text-[22px] leading-none"
+                            style={{ color: t.swatch[2], fontWeight: 900 }}
+                          >
+                            WORKS
+                          </b>
+                        </span>
+                        <span className="font-semibold">{t.name}</span>
+                        <span className="text-muted text-[12px] leading-snug">{t.blurb}</span>
+                      </button>
+                    </li>
+                  ))}
+                  <li>
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={value.explainerTheme === "reference"}
+                      onClick={() => set({ explainerTheme: "reference" })}
+                      className={cn(
+                        "bg-raised flex h-full w-full flex-col justify-center rounded-[8px] p-4 text-left",
+                        value.explainerTheme === "reference" && "ring-text ring-2",
+                      )}
+                    >
+                      <span className="block font-semibold">Match a reel</span>
+                      <span className="text-muted mt-1 block text-[12px] leading-snug">
+                        Upload a reel whose style you love: we take its colours and type.
+                      </span>
+                    </button>
+                  </li>
+                </ul>
               </div>
             );
           if (f.id === "look")

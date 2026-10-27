@@ -126,7 +126,10 @@ export const BriefSubmission = z
       "diagram",
       "animate",
       "roundup",
+      "researched",
     ]),
+    /** researched explainer: the theme, or "reference" to match an uploaded reel */
+    explainerTheme: z.enum(["studio", "night", "pop", "reference"]).default("studio"),
     /** roundup: the pasted post, who speaks it, and (presenter) the stock look and its voice */
     post: z.string().trim().max(12000).optional(),
     speaker: z.enum(["voice", "presenter"]).default("voice"),
@@ -191,10 +194,16 @@ export const BriefSubmission = z
         "url",
         "The link should start with https://",
       );
-    if (["explainer", "editorial", "tierlist", "diagram", "animate"].includes(v.kind))
+    if (["explainer", "editorial", "tierlist", "diagram", "animate", "researched"].includes(v.kind))
       need((v.topic ?? "").length >= 6, "topic", "Say what the film is about.");
     if (v.kind === "versus") need(Boolean(v.a && v.b), "a", "Name both contenders.");
     if (v.kind === "machine") need(Boolean(v.line), "line", "Write the line that types out.");
+    if (v.kind === "researched" && v.explainerTheme === "reference")
+      need(
+        Boolean(v.referenceAssetId),
+        "referenceAssetId",
+        "Upload the reel whose style you want.",
+      );
     if (v.kind === "roundup") {
       need(
         /https?:\/\/\S+/i.test(v.post ?? ""),

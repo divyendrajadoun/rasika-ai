@@ -538,7 +538,8 @@ class Scene:
                 0.15 + k * 0.18,
             )
             year = re.fullmatch(r"(19|20)\d\d", val.strip()) is not None
-            if m and not year:  # the number counts up, written the way the writer wrote it
+            # the number counts up (not in the opening scene: frame 0 is the thumbnail, it shows the real value)
+            if m and not year and not self.instant:
                 num = m.group(2).replace(",", "")
                 dec = len(num.split(".")[1]) if "." in num else 0
                 group = "true" if "," in m.group(2) else "false"

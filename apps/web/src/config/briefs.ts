@@ -20,7 +20,8 @@ export type BriefKindId =
   | "flyover"
   | "diagram"
   | "animate"
-  | "roundup";
+  | "roundup"
+  | "researched";
 
 /** The sections the kinds are shown in (wizard + dashboard). */
 export type BriefGroup = "post" | "animate" | "website" | "topic" | "fun";
@@ -64,7 +65,36 @@ export type BriefField =
   | { id: "narrate" }
   | { id: "post"; label: string; placeholder: string; help: string }
   | { id: "speaker" }
-  | { id: "look" };
+  | { id: "look" }
+  | { id: "theme" };
+
+/** The looks of a researched explainer (apps/worker/rasika_worker/hyper.py THEMES), or a reel to match. */
+export type ExplainerThemeId = "studio" | "night" | "pop";
+export const EXPLAINER_THEMES: {
+  id: ExplainerThemeId;
+  name: string;
+  blurb: string;
+  swatch: [string, string, string];
+}[] = [
+  {
+    id: "studio",
+    name: "Studio",
+    blurb: "Warm paper, drifting light, bold black type, one orange word.",
+    swatch: ["#f1e9dd", "#1e1813", "#c2571b"],
+  },
+  {
+    id: "night",
+    name: "Night",
+    blurb: "Deep navy, violet and teal light, warm amber accents.",
+    swatch: ["#0d0f14", "#f4f1ea", "#ffb347"],
+  },
+  {
+    id: "pop",
+    name: "Pop",
+    blurb: "Butter yellow, pink and blue light, red accents.",
+    swatch: ["#fff2b8", "#111111", "#e8361c"],
+  },
+];
 
 /** The designed looks of a roundup film (packages/engine/src/roundup.ts), or a reel to match. */
 export type RoundupLookId = "signal" | "frontpage" | "loud" | "keynote" | "terminal";
@@ -136,6 +166,29 @@ const URL_FIELD: BriefField = {
 };
 
 export const BRIEF_KINDS: BriefKind[] = [
+  {
+    id: "researched",
+    group: "topic",
+    title: "Explainer from a topic",
+    blurb:
+      'Name a topic or paste a post: we research it and make a fast "how it works" reel with real numbers.',
+    youGive: "A topic, an idea or a post (links welcome).",
+    youGet:
+      'A 40–65 s narrated reel in the "how it works" format: a hook on screen from the first frame, then a new scene every 2–3 seconds (steps on cards, the real pages, numbers that count up), captions on every word, and a comment call to action. Every number comes from the research, with its source.',
+    fields: [
+      {
+        id: "topic",
+        label: "What should it explain?",
+        placeholder: "How UPI payments work in India, for a beginner",
+        help: "A topic, an idea or a whole post. Add links and we open them; we also search the web and only use facts we can source.",
+      },
+      { id: "theme" },
+    ],
+    preset: "dark-ios",
+    narrate: true,
+    maxSeconds: 66,
+    example: { topic: "How UPI payments work in India, explained for a beginner" },
+  },
   {
     id: "roundup",
     group: "post",

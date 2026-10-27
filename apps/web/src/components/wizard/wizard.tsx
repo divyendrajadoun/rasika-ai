@@ -252,8 +252,8 @@ export function Wizard({
       return (
         briefReady(draft.brief) &&
         !(
-          draft.brief.kind === "roundup" &&
-          draft.brief.roundupLook === "reference" &&
+          ((draft.brief.kind === "roundup" && draft.brief.roundupLook === "reference") ||
+            (draft.brief.kind === "researched" && draft.brief.explainerTheme === "reference")) &&
           !draft.reference?.complete
         )
       );
@@ -364,8 +364,11 @@ export function Wizard({
       presenterVoice:
         b.kind === "roundup" && b.speaker === "presenter" ? b.presenterVoice : undefined,
       roundupLook: b.kind === "roundup" ? b.roundupLook : undefined,
+      explainerTheme: b.kind === "researched" ? b.explainerTheme : undefined,
       referenceAssetId:
-        b.kind === "roundup" && b.roundupLook === "reference" && draft.reference?.complete
+        ((b.kind === "roundup" && b.roundupLook === "reference") ||
+          (b.kind === "researched" && b.explainerTheme === "reference")) &&
+        draft.reference?.complete
           ? draft.reference.assetId
           : undefined,
       photos: draft.photos.map((p) => ({
@@ -704,7 +707,9 @@ export function Wizard({
               voices={voices}
               presenterEnabled={presenterEnabled}
             />
-            {draft.brief.kind === "roundup" && draft.brief.roundupLook === "reference" && (
+            {((draft.brief.kind === "roundup" && draft.brief.roundupLook === "reference") ||
+              (draft.brief.kind === "researched" &&
+                draft.brief.explainerTheme === "reference")) && (
               <div className="bg-surface space-y-3 rounded-[8px] p-5">
                 <p className="font-medium">The reel to match</p>
                 {draft.scriptProjectId ? (
