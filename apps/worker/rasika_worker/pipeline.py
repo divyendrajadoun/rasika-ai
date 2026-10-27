@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import mimetypes
 import shutil
+import subprocess
 import time
 from collections.abc import Callable
 from pathlib import Path
@@ -267,6 +268,8 @@ class Pipeline:
             film, usage = self._animate_film(job, pub, work, b, narrate, max_dur, timings)
         elif kind_id == "roundup":
             film, usage = self._roundup_film(job, pub, work, b, max_dur, timings)
+        elif kind_id == "researched":
+            film, usage = self._researched_film(job, pub, work, b, max_dur, timings)
         else:
             film, usage = self._write_brief(kind_id, inputs, capture, narrate, max_dur)
         timings["write_sec"] = round(time.time() - t0, 2)
@@ -515,6 +518,275 @@ class Pipeline:
             },
             usage,
         )
+
+    def _researched_film(
+        self,
+        job: JobMessage,
+        pub: Publisher,
+        work: Path,
+        b: dict[str, Any],
+        max_dur: float,
+        timings: dict[str, float],
+    ) -> tuple[dict[str, Any], dict[str, int]]:
+        """Research the topic (web + the user's links + screenshots of the sources), save what was
+        found as the project's assets, write the storyboard and the narration."""
+        import shutil
+
+        from rasika_worker import research
+
+        topic = str(b.get("topic") or "").strip()
+        if len(topic) < 6:
+            raise PipelineError("Say what the reel should explain.")
+        client = self.anthropic()
+        rdir = work / "research"
+        shutil.rmtree(rdir, ignore_errors=True)
+        pub.update(JobStatus.PROBING, 4, "Researching the topic…", **timings)
+        t0 = time.time()
+        found, u1 = research.research(
+            topic,
+            rdir,
+            client,
+            self.s.anthropic_planner_model,
+            self.s.ffmpeg_bin,
+            self.s.ffprobe_bin,
+        )
+        timings["research_sec"] = round(time.time() - t0, 2)
+        timings["research_facts"] = float(len(found.facts))
+        prefix = project_prefix(job.user_id, job.project_id)
+        media_map: dict[str, dict[str, Any]] = {}
+        first = {"image": True, "research_clip": True}
+        for m in found.media:
+            kind = "image" if m.kind == "image" else "research_clip"
+            aid = self.upload_asset(
+                job,
+                kind,
+                m.path,
+                f"{prefix}/research/{m.id}_{m.path.name}",
+                {
+                    "label": m.label[:80],
+                    "sayWhen": "",
+                    "order": 100 + len(media_map),
+                    "source": "research",
+                    "url": m.source,
+                    "media": m.id,
+                },
+                replace=first[kind],
+            )
+            first[kind] = False
+            media_map[m.id] = {
+                "asset": aid,
+                "kind": m.kind,
+                "url": m.source,
+                "suffix": m.path.suffix.lower(),
+            }
+        ref_id = str(b.get("reference_asset") or "")
+        if ref_id:  # a reel to match: its colours and type dress the studio look
+            pub.update(JobStatus.PROBING, 18, "Studying your reference reel…", **timings)
+            try:
+                from rasika_worker import hyper, roundup
+                from rasika_worker import reference as ref_mod
+
+                src = self._asset_file(ref_id, work / "ref_reel")
+                if src:
+                    report = ref_mod.analyse(
+                        self.s.ffmpeg_bin, self.s.ffprobe_bin, src, work / "ref_reel" / "stills"
+                    )
+                    b["reference"] = roundup.match_reference(
+                        client, self.s.anthropic_planner_model, report, list(hyper.FONTS)
+                    )
+            except Exception as exc:
+                log.warning("researched_reference_failed", error=str(exc))
+        pub.update(JobStatus.PROBING, 22, "Writing the storyboard…", **timings)
+        try:
+            sb, u2 = research.write_storyboard(
+                client,
+                self.s.anthropic_planner_model,
+                found,
+                research.seconds_for(max_dur),
+                str(b.get("cta") or "") or None,
+            )
+        except Exception as exc:
+            raise PipelineError(f"Could not write the reel: {exc}") from exc
+        usage = {k: u1[k] + u2[k] for k in u1}
+        lines = [
+            {"text": str(s.get("title") or s.get("pill") or "")[:80], "sec": 3.0}
+            for s in sb["scenes"]
+        ]
+        return (
+            {
+                "title": sb.get("title") or topic[:80],
+                "narration": sb["narration"],
+                "lines": [x for x in lines if x["text"]],
+                "music": {"mood": "showreel", "bpm": None},
+                "data": {
+                    "storyboard": sb,
+                    "media": media_map,
+                    "facts": found.facts,
+                    "sources": found.sources,
+                    "problems": found.problems,
+                },
+            },
+            usage,
+        )
+
+    def _render_hyper(
+        self,
+        job: JobMessage,
+        pub: Publisher,
+        words: list[dict[str, Any]],
+        duration: float,
+        options: dict[str, Any],
+        timings: dict[str, float],
+    ) -> None:
+        """A researched reel is drawn by HyperFrames from its storyboard: the project is written,
+        rendered with the narration and a sound track on the scene changes, and the outputs land
+        where a normal render's do."""
+        import shlex
+        import shutil
+
+        from rasika_worker import hyper, sfx
+        from rasika_worker.roundup import when
+
+        film = dict(options.get("film") or {})
+        data = dict(film.get("data") or {})
+        sb = dict(data.get("storyboard") or {})
+        b = dict(options.get("brief") or {})
+        work = self.work(job.project_id)
+        hdir = work / "hyper"
+        shutil.rmtree(hdir, ignore_errors=True)
+        hdir.mkdir(parents=True)
+        pub.update(JobStatus.RENDERING_FINAL, 2, "Laying out the scenes…", **timings)
+        # the narration, from the stage clip the narrated path made
+        src, _ = self.source(job, work)
+        voice = hdir / "narration.wav"
+        media.run(
+            [
+                self.s.ffmpeg_bin,
+                "-v",
+                "error",
+                "-y",
+                "-i",
+                str(src),
+                "-vn",
+                "-ac",
+                "2",
+                "-ar",
+                "48000",
+                str(voice),
+            ]
+        )
+        # the research media
+        files: dict[str, Path] = {}
+        for mid, m in (data.get("media") or {}).items():
+            f = self._asset_file(str(m.get("asset")), hdir / "media")
+            if f:
+                files[mid] = f
+        # a whoosh on every scene change
+        cues = []
+        for s in (sb.get("scenes") or [])[1:]:
+            t = when(words, str(s.get("say") or ""))
+            if t:
+                cues.append(
+                    {"t": round(max(0.0, t - 0.08), 3), "type": "whoosh", "dur": 0.35, "gain": 0.5}
+                )
+        fx = hdir / "sfx.wav"
+        sfx.write(str(fx), sfx.build({"duration": duration + 0.6, "kit": "click", "cues": cues}))  # type: ignore[no-untyped-call]
+        theme = hyper.theme_for(str(b.get("theme") or "studio"), b.get("reference"))
+        proj = hdir / "project"
+        hyper.build_project(
+            proj,
+            sb,
+            words,
+            duration + 0.6,
+            [("voice", voice, 1.0), ("fx", fx, 0.35)],
+            files,
+            theme,
+            gsap_js=self.s.hyperframes_gsap,
+        )
+        pub.update(JobStatus.RENDERING_FINAL, 10, "Drawing the reel…", **timings)
+        t0 = time.time()
+        final = hdir / "final_1080.mp4"
+        try:
+            hyper.render(
+                proj, final, shlex.split(self.s.hyperframes_cli), browser=self.s.hyperframes_browser
+            )
+        except (RuntimeError, subprocess.TimeoutExpired) as exc:
+            raise PipelineError(f"The reel could not be drawn: {str(exc)[:400]}") from exc
+        timings["hyper_render_sec"] = round(time.time() - t0, 2)
+        share = hdir / "share_720.mp4"
+        media.run(
+            [
+                self.s.ffmpeg_bin,
+                "-v",
+                "error",
+                "-y",
+                "-i",
+                str(final),
+                "-vf",
+                "scale=720:1280",
+                "-c:v",
+                "libx264",
+                "-preset",
+                "veryfast",
+                "-crf",
+                "23",
+                "-c:a",
+                "aac",
+                "-b:a",
+                "128k",
+                "-movflags",
+                "+faststart",
+                str(share),
+            ]
+        )
+        thumb = hdir / "thumb.jpg"
+        media.run(
+            [
+                self.s.ffmpeg_bin,
+                "-v",
+                "error",
+                "-y",
+                "-ss",
+                "0.6",
+                "-i",
+                str(final),
+                "-frames:v",
+                "1",
+                "-vf",
+                "scale=540:960",
+                str(thumb),
+            ]
+        )
+        pub.update(JobStatus.RENDERING_FINAL, 90, "Uploading your reel…", **timings)
+        prefix = project_prefix(job.user_id, job.project_id)
+        out_prefix = f"{prefix}/out/{job.job_id}"
+        self.upload_asset(
+            job,
+            "output_1080",
+            final,
+            f"{out_prefix}/final_1080.mp4",
+            {"width": 1080, "height": 1920, "durationSec": duration, "engine": "hyperframes"},
+        )
+        self.upload_asset(
+            job,
+            "output_720",
+            share,
+            f"{out_prefix}/share_720.mp4",
+            {"width": 720, "height": 1280, "durationSec": duration},
+        )
+        tid = self.upload_asset(
+            job, "thumbnail", thumb, f"{out_prefix}/thumb.jpg", {"width": 540, "height": 960}
+        )
+        self.repo.update_project(job.project_id, thumbnail_asset_id=tid)
+        self.repo.audit(
+            job.user_id,
+            "render_final",
+            "project",
+            job.project_id,
+            {"job": job.job_id, "engine": "hyperframes", "timings": timings},
+        )
+        pub.update(JobStatus.DONE, 100, "Your reel is ready", **timings)
+        self._email_ready(job)
 
     def _animate_film(
         self,
@@ -1483,6 +1755,9 @@ class Pipeline:
         options = dict(project.get("style_options") or {})
         if (options.get("brief") or {}).get("kind") == "animate":
             self._plan_animate(job, pub, words, duration, style, options, timings)
+            return
+        if (options.get("brief") or {}).get("kind") == "researched":
+            self._render_hyper(job, pub, words, duration, options, timings)
             return
         if (options.get("brief") or {}).get("kind") == "roundup":
             presenter = (

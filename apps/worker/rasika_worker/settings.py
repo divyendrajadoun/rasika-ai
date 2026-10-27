@@ -80,6 +80,11 @@ class Settings(BaseSettings):
     heygen_api_key: str = Field(default="", alias="HEYGEN_API_KEY")
     stock_cache_dir: Path | None = Field(default=None, alias="STOCK_CACHE_DIR")
 
+    # researched explainer reels are drawn with HyperFrames (Apache-2.0, rendered locally)
+    hyperframes_cli: str = Field(default="npx -y hyperframes@0.8.206", alias="HYPERFRAMES_CLI")
+    hyperframes_browser: str = Field(default="", alias="HYPERFRAMES_BROWSER_PATH")
+    hyperframes_gsap: Path | None = Field(default=None, alias="HYPERFRAMES_GSAP")
+
     anthropic_api_key: str = Field(default="", alias="ANTHROPIC_API_KEY")
     anthropic_planner_model: str = Field(default="claude-opus-5-5", alias="ANTHROPIC_PLANNER_MODEL")
     anthropic_fast_model: str = Field(default="claude-haiku-5-5", alias="ANTHROPIC_FAST_MODEL")

@@ -214,6 +214,17 @@ KINDS: dict[str, dict[str, Any]] = {
         "numbers that land on the spoken word, a clear 'so what'. Journalism, not advertising; only facts that "
         "are well established, dated where it matters.",
     },
+    "researched": {
+        "title": "Explainer from a topic",
+        "needs": ["topic"],
+        "preset": "dark-ios",
+        "mood": "showreel",
+        "narrate": True,
+        "seconds": (40, 65),
+        # research.py writes it and hyper.py draws it (HyperFrames); the brief is for the record
+        "brief": "A researched explainer in the 'how it works' reel format: a hook, steps shown on cards, "
+        "real numbers with sources, a call to action.",
+    },
     "roundup": {
         "title": "From a post",
         "needs": ["post"],
