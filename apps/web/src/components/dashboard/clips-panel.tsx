@@ -1,9 +1,9 @@
 "use client";
 
 import { ArrowDown, ArrowUp, Eye, EyeOff } from "lucide-react";
-import { useMemo, useState, useTransition } from "react";
+import { type ReactNode, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { reassembleClips } from "@/app/dashboard/actions";
+import { type ActionResult, reassembleClips } from "@/app/dashboard/actions";
 import type { ClipDecision } from "@/db/schema";
 import { safeAction } from "@/lib/safe-action";
 import { cn } from "@/lib/utils";
@@ -28,6 +28,7 @@ export function ClipsPanel({
   arrangedBy,
   urls,
   busy,
+  review,
 }: {
   projectId: string;
   arrangement: ClipDecision[];
@@ -35,6 +36,13 @@ export function ClipsPanel({
   /** clip id → a playable URL of the clip */
   urls: Record<string, string>;
   busy: boolean;
+  /** one messy video, before the reel is made: the shots are checked here, the style is picked
+   *  (`extra`, under the list) and `onFinish` makes the reel from the kept shots */
+  review?: {
+    extra: ReactNode;
+    maxSeconds: number;
+    onFinish: (order: string[]) => Promise<ActionResult>;
+  };
 }) {
   const initial = useMemo(
     () => arrangement.filter((d) => urls[d.id]).map((d) => ({ ...d })),
@@ -72,7 +80,9 @@ export function ClipsPanel({
   const join = () => {
     setError(null);
     start(async () => {
-      const res = await safeAction(() => reassembleClips({ projectId, order: keptIds }));
+      const res = await safeAction(() =>
+        review ? review.onFinish(keptIds) : reassembleClips({ projectId, order: keptIds }),
+      );
       if (!res.ok) setError(res.error);
       else router.refresh();
     });
@@ -83,15 +93,16 @@ export function ClipsPanel({
     <section className="mt-10" aria-labelledby="clips-heading">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 id="clips-heading" className="text-xl font-semibold leading-tight tracking-[-0.02em]">
-          Your clips
+          {review ? "Your shots" : "Your clips"}
         </h2>
         <p className="text-muted-foreground text-[13px]">
           {keptIds.length} of {rows.length} joined {BY[arrangedBy ?? ""] ?? ""} · {fmt(keptSec)}
         </p>
       </div>
       <p className="text-muted mt-1 text-[14px]">
-        Move a clip, leave one out or put one back, then join them again. The dead air at the start
-        and end of each clip is already trimmed.
+        {review
+          ? "We found where your video was joined and checked every shot. The ones we left out show why. Move a shot, put one back or leave one out, then pick a style and make your reel. The ums, repeats and long pauses inside the shots come out too."
+          : "Move a clip, leave one out or put one back, then join them again. The dead air at the start and end of each clip is already trimmed."}
       </p>
       <ol className="mt-4 space-y-2">
         {rows.map((r, i) => (
@@ -168,14 +179,33 @@ export function ClipsPanel({
           {error}
         </p>
       )}
+      {review && <div className="mt-10">{review.extra}</div>}
+      {review && keptSec > review.maxSeconds + 0.5 && (
+        <p className="mt-3 text-sm text-[#ff8a66]">
+          The shots you kept add up to {fmt(keptSec)}; your plan allows {fmt(review.maxSeconds)}.
+          Leave a few out.
+        </p>
+      )}
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button
           type="button"
           className="button"
-          disabled={!dirty || busy || pending || keptIds.length === 0}
+          disabled={
+            (!review && !dirty) ||
+            (review && keptSec > review.maxSeconds + 0.5) ||
+            busy ||
+            pending ||
+            keptIds.length === 0
+          }
           onClick={join}
         >
-          {pending ? "Joining…" : "Join again in this order"}
+          {review
+            ? pending
+              ? "Starting…"
+              : "Make my reel"
+            : pending
+              ? "Joining…"
+              : "Join again in this order"}
         </button>
         {dirty && (
           <button type="button" className="button button-ghost" onClick={() => setRows(initial)}>

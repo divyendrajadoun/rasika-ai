@@ -61,6 +61,9 @@ export const ClipsSubmission = WizardSubmission.omit({
   /** the clips in the order the user left them (the worker reorders by what is said) */
   clipAssetIds: z.array(z.string().uuid()).min(1, "Add at least one clip").max(30),
   script: z.string().trim().max(6000, "Keep the script under 6 000 characters.").default(""),
+  /** one messy video: the worker cuts it back into its shots, cleans them up and waits for the
+   *  user to check them and pick the style */
+  messy: z.boolean().default(false),
 });
 export type ClipsSubmission = z.infer<typeof ClipsSubmission>;
 

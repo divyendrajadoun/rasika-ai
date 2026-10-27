@@ -223,7 +223,12 @@ export async function createClipsEdit(input: unknown): Promise<ActionResult> {
         status: "uploaded",
         stylePreset: w.stylePreset,
         styleText: w.styleText || null,
-        styleOptions: { ...w.options, source: "clips", clipScript: w.script || undefined },
+        styleOptions: {
+          ...w.options,
+          ...(w.messy ? { cleanCut: true, messy: true } : {}),
+          source: "clips",
+          clipScript: w.script || undefined,
+        },
         brand: w.brand,
         durationSec,
         creditsCost: cost,
@@ -266,6 +271,7 @@ export async function createClipsEdit(input: unknown): Promise<ActionResult> {
         clips: picked.length,
         rawSec,
         script: Boolean(w.script),
+        messy: w.messy,
       },
     });
     await enqueueJob({
@@ -839,6 +845,109 @@ export async function recutEdit(input: unknown): Promise<ActionResult> {
     user_id: user.id,
     type: "recut",
     payload: { transcript_version: r.transcriptVersion, removed },
+  });
+  revalidatePath(`/dashboard/p/${r.projectId}`);
+  return { ok: true, projectId: r.projectId };
+}
+
+const ShotReviewInput = z.object({
+  projectId: z.string().uuid(),
+  /** the shots to keep, in this order */
+  order: z.array(z.string().uuid()).min(1, "Keep at least one shot").max(30),
+  stylePreset: WizardSubmission.shape.stylePreset,
+  styleText: WizardSubmission.shape.styleText,
+  options: WizardSubmission.shape.options,
+});
+
+/** One messy video, after the clean-up: the user's shots and style. The same order as the worker's
+ *  goes straight on to the edit; a changed order is joined again first. Not a re-edit. */
+export async function finishShotReview(input: unknown): Promise<ActionResult> {
+  const user = await requireUser();
+  const parsed = ShotReviewInput.safeParse(input);
+  if (!parsed.success)
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid form" };
+  const r = parsed.data;
+  const got = await idleProject(user.id, r.projectId);
+  if ("error" in got) return { ok: false, error: got.error! };
+  const project = got.project;
+  if (!project.styleOptions.messy || project.styleOptions.reviewed)
+    return { ok: false, error: "This reel is not waiting for a shot check" };
+  const assets = await db
+    .select()
+    .from(schema.assets)
+    .where(
+      and(
+        eq(schema.assets.projectId, r.projectId),
+        inArray(schema.assets.kind, ["source_clip", "source_video"]),
+      ),
+    );
+  const joined = assets.find((a) => a.kind === "source_video" && a.meta.assembled);
+  if (!joined?.meta.arrangement) return { ok: false, error: "The shots are not ready yet" };
+  const shotIds = new Set(assets.filter((a) => a.meta.shotOf).map((a) => a.id));
+  const order = [...new Set(r.order)].filter((id) => shotIds.has(id));
+  if (!order.length) return { ok: false, error: "Keep at least one shot" };
+  const span = new Map(joined.meta.arrangement.map((d) => [d.id, d.end - d.start]));
+  const keptSec = order.reduce((s, id) => s + (span.get(id) ?? 0), 0);
+  const plan = plans.find((p) => p.id === user.plan) ?? plans[0]!;
+  if (keptSec > plan.maxSeconds + 0.5)
+    return {
+      ok: false,
+      error: `The shots you kept add up to ${Math.round(keptSec)} s; your plan allows ${plan.maxSeconds} s. Leave a few out.`,
+    };
+  const same =
+    order.join() ===
+    joined.meta.arrangement
+      .filter((d) => d.keep)
+      .map((d) => d.id)
+      .join();
+  const type = same ? "probe" : "assemble";
+  const [job] = await db
+    .insert(schema.jobs)
+    .values({
+      projectId: r.projectId,
+      userId: user.id,
+      type,
+      status: "uploaded",
+      message: "Queued",
+    })
+    .returning({ id: schema.jobs.id });
+  await db
+    .update(schema.projects)
+    .set({
+      status: "uploaded",
+      stylePreset: r.stylePreset,
+      styleText: r.styleText || null,
+      styleOptions: {
+        ...project.styleOptions,
+        ...r.options,
+        cleanCut: true,
+        reviewed: true,
+      },
+      updatedAt: schema.now,
+    })
+    .where(eq(schema.projects.id, r.projectId));
+  await db.insert(schema.auditLog).values({
+    userId: user.id,
+    action: "project.shot_review",
+    entity: "project",
+    entityId: r.projectId,
+    meta: {
+      job: job!.id,
+      kept: order.length,
+      of: shotIds.size,
+      changed: !same,
+      preset: r.stylePreset,
+    },
+  });
+  const common = { language_hint: r.options.language, max_duration_sec: plan.maxSeconds };
+  await enqueueJob({
+    job_id: job!.id,
+    project_id: r.projectId,
+    user_id: user.id,
+    type,
+    payload: same
+      ? { ...common, source_key: joined.storageKey }
+      : { ...common, order, proceed: true },
   });
   revalidatePath(`/dashboard/p/${r.projectId}`);
   return { ok: true, projectId: r.projectId };

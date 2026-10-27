@@ -9,6 +9,7 @@ export const STATUS_LABEL: Record<string, string> = {
   probing: "Checking video",
   transcribing: "Transcribing",
   awaiting_transcript_review: "Review transcript",
+  awaiting_shot_review: "Check your shots",
   planning: "Designing edit",
   awaiting_plan_review: "Ready to preview",
   rendering_preview: "Rendering preview",

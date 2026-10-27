@@ -55,6 +55,7 @@ export function StepClips({
   projectId,
   script,
   cleanCut,
+  single = false,
   onChange,
   onProject,
   onScript,
@@ -64,6 +65,8 @@ export function StepClips({
   projectId: string | null;
   script: string;
   cleanCut: boolean;
+  /** one messy video: a single file, cut back into its shots by the worker; always clean-cut */
+  single?: boolean;
   onChange: (fn: (clips: ClipItem[]) => ClipItem[]) => void;
   onProject: (projectId: string) => void;
   onScript: (s: string) => void;
@@ -181,8 +184,13 @@ export function StepClips({
       .map((f) => ({ f, key: fileFingerprint(f) }))
       .filter(({ key }) => !have.has(key))
       .sort((a, b) => a.f.lastModified - b.f.lastModified || a.f.name.localeCompare(b.f.name));
-    const room = MAX_CLIPS - value.length;
-    if (fresh.length > room) setNotice(`Up to ${MAX_CLIPS} clips in one reel.`);
+    const room = (single ? 1 : MAX_CLIPS) - value.length;
+    if (fresh.length > room)
+      setNotice(
+        single
+          ? "One video here. Remove it to choose another, or use Many clips for separate files."
+          : `Up to ${MAX_CLIPS} clips in one reel.`,
+      );
     const take = fresh.slice(0, Math.max(0, room));
     for (const { f, key } of take) files.current.set(key, f);
     onChange((cur) => {
@@ -251,24 +259,31 @@ export function StepClips({
           "bg-surface hover:bg-raised border-border flex cursor-pointer flex-col items-center justify-center rounded-[8px] border-2 border-dashed p-8 text-center transition-colors",
           value.length ? "min-h-36" : "min-h-64",
           dragOver && "bg-raised border-text",
+          single && value.length > 0 && "hidden",
         )}
       >
         <Layers className="text-accent size-10" aria-hidden />
         <p className="mt-4 text-xl font-semibold leading-tight tracking-[-0.02em]">
-          {value.length ? "Add more clips" : "Drop all your clips here"}
+          {single
+            ? "Drop your video here"
+            : value.length
+              ? "Add more clips"
+              : "Drop all your clips here"}
         </p>
         <p className="text-muted mt-1 text-[14px]">
-          or tap to choose several · any order · up to {MAX_CLIPS} clips, {MAX_CLIPS_SECONDS / 60}{" "}
-          min in all
+          {single
+            ? `or tap to choose it · the whole thing, as you exported it · up to ${MAX_CLIPS_SECONDS / 60} min`
+            : `or tap to choose several · any order · up to ${MAX_CLIPS} clips, ${MAX_CLIPS_SECONDS / 60} min in all`}
         </p>
         <p className="text-muted-foreground mt-3 max-w-[52ch] text-[13px]">
-          We listen to every clip, put them in the order of what you say, keep the best take of each
-          line and join them into one video. You can change the order afterwards.
+          {single
+            ? "We find where you joined your shots, take out the ums, bad takes and shots you can't use, and put the rest in order. Then you check the shots and pick a style."
+            : "We listen to every clip, put them in the order of what you say, keep the best take of each line and join them into one video. You can change the order afterwards."}
         </p>
         <input
           id="clips"
           type="file"
-          multiple
+          multiple={!single}
           accept="video/*,.mp4,.mov,.m4v,.hevc"
           className="sr-only"
           onChange={(e) => {
@@ -288,11 +303,15 @@ export function StepClips({
         <div>
           <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
             <p className="label mb-0">
-              {value.length} clip{value.length === 1 ? "" : "s"} · {fmt(total)} in all
+              {single
+                ? `Your video · ${fmt(total)}`
+                : `${value.length} clip${value.length === 1 ? "" : "s"} · ${fmt(total)} in all`}
             </p>
-            <p className="text-muted-foreground text-[13px]">
-              Recording order for now. Rasika reorders them by what you say.
-            </p>
+            {!single && (
+              <p className="text-muted-foreground text-[13px]">
+                Recording order for now. Rasika reorders them by what you say.
+              </p>
+            )}
           </div>
           {total > MAX_CLIPS_SECONDS && (
             <p className="mb-2 text-sm text-[#ff8a66]">
@@ -357,24 +376,28 @@ export function StepClips({
                       <RotateCcw className="size-4" aria-hidden />
                     </button>
                   )}
-                  <button
-                    type="button"
-                    className="button button-ghost h-8 px-2"
-                    disabled={i === 0}
-                    onClick={() => move(i, -1)}
-                    aria-label={`Move ${c.filename} up`}
-                  >
-                    <ArrowUp className="size-4" aria-hidden />
-                  </button>
-                  <button
-                    type="button"
-                    className="button button-ghost h-8 px-2"
-                    disabled={i === value.length - 1}
-                    onClick={() => move(i, 1)}
-                    aria-label={`Move ${c.filename} down`}
-                  >
-                    <ArrowDown className="size-4" aria-hidden />
-                  </button>
+                  {!single && (
+                    <>
+                      <button
+                        type="button"
+                        className="button button-ghost h-8 px-2"
+                        disabled={i === 0}
+                        onClick={() => move(i, -1)}
+                        aria-label={`Move ${c.filename} up`}
+                      >
+                        <ArrowUp className="size-4" aria-hidden />
+                      </button>
+                      <button
+                        type="button"
+                        className="button button-ghost h-8 px-2"
+                        disabled={i === value.length - 1}
+                        onClick={() => move(i, 1)}
+                        aria-label={`Move ${c.filename} down`}
+                      >
+                        <ArrowDown className="size-4" aria-hidden />
+                      </button>
+                    </>
+                  )}
                   <button
                     type="button"
                     className="button button-ghost h-8 px-2 hover:text-[#ff8a66]"
@@ -400,14 +423,25 @@ export function StepClips({
           maxLength={6000}
           value={script}
           onChange={(e) => onScript(e.target.value)}
-          placeholder="Paste what you meant to say, one line per thought. We follow its order, keep the take closest to each line, and leave out clips that are not in it."
+          placeholder={
+            single
+              ? "Paste what you meant to say, one line per thought. We follow its order, keep the best take of each line, and leave out shots that are not in it."
+              : "Paste what you meant to say, one line per thought. We follow its order, keep the take closest to each line, and leave out clips that are not in it."
+          }
         />
         <p className="text-muted-foreground mt-1 text-[13px]">
-          No script? We work out the order from what you say in each clip.
+          {single
+            ? "No script? We work out the order from what you say and what each shot shows."
+            : "No script? We work out the order from what you say in each clip."}
         </p>
       </div>
 
-      <label className="bg-surface flex items-center justify-between gap-4 rounded-[8px] p-4">
+      <label
+        className={cn(
+          "bg-surface flex items-center justify-between gap-4 rounded-[8px] p-4",
+          single && "hidden",
+        )}
+      >
         <span>
           <span className="block font-semibold">Clean cut inside the clips</span>
           <span className="text-muted-foreground text-[13px]">

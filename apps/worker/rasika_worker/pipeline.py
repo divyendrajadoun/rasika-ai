@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Any
 import redis
 import structlog
 
-from rasika_worker import assemble, cleancut, media, notify
+from rasika_worker import assemble, cleancut, media, notify, shots
 from rasika_worker.db import Repo
 from rasika_worker.face import subject_from_keyframes
 from rasika_worker.planner import ChromiumValidator, Planner, PlannerInput
@@ -1365,13 +1365,28 @@ class Pipeline:
         hint = str(job.payload.get("language_hint") or opts.get("language") or "auto")
         clip_dir = work / "clips"
         clip_dir.mkdir(exist_ok=True)
+        t0 = time.time()
+        # one messy video: cut back into the shots it was joined from; the shots are the clips
+        messy = bool(opts.get("messy"))
+        if messy:
+            rows = self._split_messy(job, pub, work, rows, hint)
+        rows = [r for r in rows if not (r.get("meta") or {}).get("split")]
         sources: dict[str, Path] = {}
         clips: list[assemble.Clip] = []
-        t0 = time.time()
+        looks: dict[str, shots.Look] = {}
         for n, a in enumerate(rows):
             cid = str(a["id"])
             meta = a.get("meta") or {}
-            name = f"Clip {n + 1}"
+            name = f"Shot {n + 1}" if messy else f"Clip {n + 1}"
+            lk = meta.get("look")
+            if isinstance(lk, dict):
+                looks[cid] = shots.Look(
+                    float(lk.get("bright") or 0),
+                    float(lk.get("sharp") or 0),
+                    float(lk.get("shift") or 0),
+                    str(work / "shots" / f"{cid}.jpg"),
+                    list(lk.get("flags") or []),
+                )
             dest = clip_dir / (cid + Path(a["storage_key"]).suffix.lower())
             if not dest.exists() or dest.stat().st_size != int(a.get("size_bytes") or 0):
                 pub.update(
@@ -1423,6 +1438,25 @@ class Pipeline:
         how = "picked"
         if isinstance(picked, list) and picked:
             decisions = assemble.arrange_as_picked(clips, [str(x) for x in picked])
+        elif messy:
+            how = "model"
+            decisions = None
+            if self.s.anthropic_api_key:
+                pub.update(JobStatus.PROBING, 82, f"Looking at all {len(clips)} shots…")
+                try:
+                    decisions = shots.review(
+                        self.anthropic(), self.s.anthropic_planner_model, clips, looks, script
+                    )
+                except Exception as exc:  # never block the edit on the review call
+                    log.warning("shot_review_failed", error=str(exc))
+            if not decisions:
+                how = "script" if script else "recorded"
+                decisions = (
+                    assemble.arrange_by_script(clips, script)
+                    if script
+                    else assemble.arrange_recorded(clips)
+                )
+                decisions = shots.drop_unusable(decisions, looks, {c.id: c for c in clips})
         elif script:
             how = "script"
             decisions = assemble.arrange_by_script(clips, script)
@@ -1443,7 +1477,11 @@ class Pipeline:
         kept = [d for d in decisions if d.keep]
         if not kept:
             raise PipelineError("Every clip was left out. Keep at least one.")
-        pub.update(JobStatus.PROBING, 86, f"Joining {len(kept)} of {len(clips)} clips…")
+        pub.update(
+            JobStatus.PROBING,
+            86,
+            f"Joining {len(kept)} of {len(clips)} {'shots' if messy else 'clips'}…",
+        )
         dest = work / "assembled.mp4"
         assemble.render(self.s.ffmpeg_bin, self.s.ffprobe_bin, sources, decisions, dest)
         info = media.probe(self.s.ffprobe_bin, dest)
@@ -1492,6 +1530,17 @@ class Pipeline:
             },
         )
         max_dur = float(str(job.payload.get("max_duration_sec") or MAX_DURATION_DEFAULT))
+        if messy and not opts.get("reviewed") and not job.payload.get("proceed"):
+            # the user checks the shots and picks a style before the reel is designed
+            over = info.duration_sec > max_dur + 0.5
+            pub.update(
+                JobStatus.AWAITING_SHOT_REVIEW,
+                100,
+                f"Cleaned up: kept {len(kept)} of {len(clips)} shots, {info.duration_sec:.0f} s."
+                + (f" Your plan allows {max_dur:.0f} s, so leave a few out." if over else "")
+                + " Check them, pick a style and make your reel.",
+            )
+            return
         if info.duration_sec > max_dur + 0.5:
             raise PipelineError(
                 f"The kept clips add up to {info.duration_sec:.0f} s; your plan allows {max_dur:.0f} s. "
@@ -1502,6 +1551,106 @@ class Pipeline:
             job,
             JobType.PROBE,
             {"source_key": key, "language_hint": hint, "max_duration_sec": max_dur},
+        )
+
+    def _split_messy(
+        self,
+        job: JobMessage,
+        pub: Publisher,
+        work: Path,
+        rows: list[dict[str, Any]],
+        hint: str,
+    ) -> list[dict[str, Any]]:
+        """One messy video (or a few): each is heard once, cut back into the shots it was joined
+        from, and every shot is saved as a clip of the project with its words and its look. The
+        originals stay (marked `split`); a re-assembly reuses the shots."""
+        done = [r for r in rows if (r.get("meta") or {}).get("shotOf")]
+        if done:
+            return done
+        clip_dir = work / "clips"
+        sdir = work / "shots"
+        sdir.mkdir(exist_ok=True)
+        prefix = project_prefix(job.user_id, job.project_id)
+        originals = [r for r in rows if not (r.get("meta") or {}).get("split")]
+        n_shot = 0
+        for k, a in enumerate(originals):
+            oid = str(a["id"])
+            src = clip_dir / (oid + Path(a["storage_key"]).suffix.lower())
+            if not src.exists() or src.stat().st_size != int(a.get("size_bytes") or 0):
+                pub.update(JobStatus.PROBING, 2, "Fetching your video…")
+                self.storage.download(a["storage_key"], src)
+            info = media.probe(self.s.ffprobe_bin, src)
+            words: list[dict[str, Any]] = []
+            if info.has_audio:
+                pub.update(JobStatus.PROBING, 6, "Listening to your video…")
+                a16 = clip_dir / f"{oid}.16k.wav"
+                media.run(
+                    [self.s.ffmpeg_bin, "-v", "error", "-y", "-i", str(src), "-vn", "-ac", "1",
+                     "-ar", "16000", str(a16)]
+                )  # fmt: skip
+                words = [w.as_dict() for w in self.transcriber().transcribe(a16, hint).words]
+                a16.unlink(missing_ok=True)
+            pub.update(JobStatus.PROBING, 30, "Finding where your shots were joined…")
+            cuts = shots.find_cuts(shots.scene_scores(self.s.ffmpeg_bin, src), words)
+            segs = shots.segments(cuts, info.duration_sec)
+            per = shots.split_words(words, segs)
+            looks = []
+            for n, (s0, s1) in enumerate(segs):
+                pub.update(
+                    JobStatus.PROBING,
+                    34 + int(20 * n / len(segs)),
+                    f"Checking shot {n + 1} of {len(segs)}…",
+                )
+                looks.append(
+                    shots.look(self.s.ffmpeg_bin, src, s0, s1, sdir / f"{oid}_{n}.jpg")
+                )
+            shots.hints(looks)
+            for n, (s0, s1) in enumerate(segs):
+                pub.update(
+                    JobStatus.PROBING,
+                    56 + int(24 * n / len(segs)),
+                    f"Cutting shot {n + 1} of {len(segs)}…",
+                )
+                part = clip_dir / f"{oid}_shot{n:02d}.mp4"
+                cmd = [self.s.ffmpeg_bin, "-v", "error", "-y", "-ss", f"{s0:.3f}",
+                       "-t", f"{s1 - s0:.3f}", "-i", str(src), "-map", "0:v:0"]  # fmt: skip
+                if info.has_audio:
+                    cmd += ["-map", "0:a:0", "-c:a", "aac", "-b:a", "192k"]
+                cmd += ["-c:v", "libx264", "-preset", "veryfast", "-crf", "18",
+                        "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(part)]  # fmt: skip
+                media.run(cmd)
+                sid = self.upload_asset(
+                    job,
+                    "source_clip",
+                    part,
+                    f"{prefix}/shots/{oid}_{n:02d}.mp4",
+                    {
+                        "shotOf": oid,
+                        "shotStart": s0,
+                        "shotEnd": s1,
+                        "order": n_shot,
+                        "words": per[n],
+                        "clipDuration": round(s1 - s0, 3),
+                        "durationSec": round(s1 - s0, 3),
+                        "look": looks[n].as_dict(),
+                    },
+                    replace=False,
+                )
+                n_shot += 1
+                part.replace(clip_dir / f"{sid}.mp4")
+                if looks[n].still and Path(looks[n].still).is_file():
+                    Path(looks[n].still).replace(sdir / f"{sid}.jpg")
+            self.repo.merge_asset_meta(
+                oid, {"split": True, "shots": len(segs), "order": k}
+            )
+            log.info("messy_split", asset=oid, shots=len(segs), cuts=len(cuts))
+        return sorted(
+            (
+                r
+                for r in self.repo.assets(job.project_id, "source_clip")
+                if (r.get("meta") or {}).get("shotOf")
+            ),
+            key=lambda r: int((r.get("meta") or {}).get("order", 0)),
         )
 
     # ── the editor: the original take cut to the words the user kept ──

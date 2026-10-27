@@ -65,6 +65,8 @@ const PATHS: Record<SourceMode, StepId[]> = {
   take: ["upload", "style", "brand"],
   // many clips: uploaded and ordered here, joined by the worker into one take
   clips: ["clips", "style", "brand"],
+  // one messy video: uploaded here; the style is picked after the worker has cleaned it up
+  messy: ["clips", "brand"],
   script: ["script", "style", "brand"],
   // the reference clip is uploaded on the upload step (second drop zone)
   reference: ["upload", "style", "brand"],
@@ -156,9 +158,9 @@ export function Wizard({
   const [draft, setDraft] = useState<Draft>({
     step: 0,
     mode:
-      (["take", "clips", "script", "reference", "presenter", "brief"] as SourceMode[]).find(
-        (m) => m === initialSource,
-      ) ?? "take",
+      (
+        ["take", "messy", "clips", "script", "reference", "presenter", "brief"] as SourceMode[]
+      ).find((m) => m === initialSource) ?? "take",
     upload: null,
     reference: null,
     clips: [],
@@ -220,7 +222,7 @@ export function Wizard({
   const projectId =
     draft.mode === "script" || draft.mode === "presenter" || draft.mode === "brief"
       ? draft.scriptProjectId
-      : draft.mode === "clips"
+      : draft.mode === "clips" || draft.mode === "messy"
         ? draft.clipsProjectId
         : (draft.upload?.projectId ?? null);
   const scriptSeconds = estimateSpokenSeconds(
@@ -231,7 +233,7 @@ export function Wizard({
       ? Math.min(briefKind(draft.brief.kind)?.maxSeconds ?? 30, maxSeconds)
       : draft.mode === "script" || draft.mode === "presenter"
         ? scriptSeconds || null
-        : draft.mode === "clips"
+        : draft.mode === "clips" || draft.mode === "messy"
           ? // the joined take is what is charged; it can be no longer than the plan allows
             Math.min(clipsSeconds(draft.clips), maxSeconds) || null
           : (draft.upload?.durationSec ?? null);
@@ -459,6 +461,7 @@ export function Wizard({
       title: draft.title || draft.clips[0]?.filename.replace(/\.[^.]+$/, "") || "Clips reel",
       clipAssetIds: draft.clips.map((c) => c.assetId!).filter(Boolean),
       script: draft.clipScript,
+      messy: draft.mode === "messy",
       photos: draft.photos.map((p) => ({
         assetId: p.assetId,
         label: p.label,
@@ -505,7 +508,7 @@ export function Wizard({
   };
 
   const submit = () => {
-    if (draft.mode === "clips") return submitClips();
+    if (draft.mode === "clips" || draft.mode === "messy") return submitClips();
     if (draft.mode === "brief") return submitBrief();
     if (draft.mode === "presenter") return submitPresenter();
     if (draft.mode === "script") return submitScript();
@@ -661,7 +664,7 @@ export function Wizard({
                   step: 0,
                   // clips are full of retakes and pauses: the clean cut starts on for them
                   style:
-                    mode === "clips" && d.mode !== "clips"
+                    (mode === "clips" || mode === "messy") && d.mode !== mode
                       ? { ...d.style, cleanCut: true }
                       : d.style,
                 }))
@@ -675,6 +678,7 @@ export function Wizard({
             projectId={draft.clipsProjectId}
             script={draft.clipScript}
             cleanCut={Boolean(draft.style.cleanCut)}
+            single={draft.mode === "messy"}
             onChange={(fn) => setDraft((d) => ({ ...d, clips: fn(d.clips) }))}
             onProject={(pid) => setDraft((d) => ({ ...d, clipsProjectId: pid }))}
             onScript={(clipScript) => setDraft((d) => ({ ...d, clipScript }))}
@@ -803,7 +807,12 @@ export function Wizard({
             value={draft.style}
             stockEnabled={stockEnabled}
             fromReference={draft.mode === "reference"}
-            recorded={draft.mode === "take" || draft.mode === "clips" || draft.mode === "reference"}
+            recorded={
+              draft.mode === "take" ||
+              draft.mode === "clips" ||
+              draft.mode === "messy" ||
+              draft.mode === "reference"
+            }
             onChange={(style) => setDraft((d) => ({ ...d, style }))}
           />
         )}

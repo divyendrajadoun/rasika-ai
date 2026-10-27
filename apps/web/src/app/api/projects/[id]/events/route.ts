@@ -9,6 +9,7 @@ const TERMINAL = new Set([
   "failed",
   "canceled",
   "awaiting_transcript_review",
+  "awaiting_shot_review",
   "awaiting_plan_review",
   "ready_preview",
 ]);

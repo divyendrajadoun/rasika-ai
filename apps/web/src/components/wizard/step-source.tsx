@@ -1,17 +1,34 @@
 "use client";
 
-import { Clapperboard, FileText, Layers, ScanSearch, Sparkles, UserRound } from "lucide-react";
+import {
+  Clapperboard,
+  FileText,
+  Layers,
+  ScanSearch,
+  Scissors,
+  Sparkles,
+  UserRound,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
  * Where the reel comes from.
  *  take       the owner's talking-head clip (the original flow)
  *  clips      many clips of one talk, ordered by what is said and joined into one take
+ *  messy      one video already joined in a phone app: cut back into its shots, cleaned up,
+ *             checked by the user, then styled
  *  script     no footage: a script narrated by a voice, the film drawn by the engine
  *  reference  a talking-head clip cut in the rhythm and look of a reference reel
  *  presenter  script + photo → avatar video — needs an avatar provider, not enabled yet
  */
-export type SourceMode = "take" | "clips" | "script" | "reference" | "presenter" | "brief";
+export type SourceMode =
+  | "take"
+  | "messy"
+  | "clips"
+  | "script"
+  | "reference"
+  | "presenter"
+  | "brief";
 
 interface Option {
   id: SourceMode;
@@ -29,6 +46,14 @@ const OPTIONS: Option[] = [
     blurb: "Upload a talking-head clip. We time every word and design the edit around you.",
     detail: "Captions, poster type, counters, your photos on the word.",
     icon: Clapperboard,
+  },
+  {
+    id: "messy",
+    title: "One messy video",
+    blurb:
+      "Already joined your clips in VN or CapCut? Upload that one video. We take out the ums, bad takes, false starts and shots you can't use, and put the rest in order.",
+    detail: "You check the shots, then pick a style.",
+    icon: Scissors,
   },
   {
     id: "clips",
@@ -129,6 +154,7 @@ export function StepSource({
 
 const SHORT: Record<SourceMode, string> = {
   take: "My video",
+  messy: "One messy video",
   clips: "Many clips",
   script: "A script",
   brief: "From a brief",

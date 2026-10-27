@@ -25,6 +25,8 @@ export const PROJECT_STATUSES = [
   "probing",
   "transcribing",
   "awaiting_transcript_review",
+  /** one messy video: cleaned up and joined; the user checks the shots and picks a style */
+  "awaiting_shot_review",
   "planning",
   "awaiting_plan_review",
   "rendering_preview",
@@ -110,6 +112,10 @@ export interface StyleOptions {
   source?: "take" | "clips" | "script" | "reference" | "presenter" | "brief";
   /** many clips: the script the clips follow (worker assemble.arrange_by_script) */
   clipScript?: string;
+  /** one messy video (clips from a single file the worker cuts back into its shots, worker
+   *  shots.py); `reviewed` once the user has checked the shots and picked the style */
+  messy?: boolean;
+  reviewed?: boolean;
   /** films made from a brief: the kind of film and the user's inputs (config/briefs.ts) */
   brief?: {
     kind: string;
@@ -234,6 +240,13 @@ export interface AssetMeta {
   arrangedBy?: "picked" | "script" | "model" | "recorded";
   /** a clip: its length (what was heard in it is kept too, for re-assembly) */
   clipDuration?: number;
+  /** one messy video: the original is `split` into shots; a shot records where it came from and
+   *  what its picture measured (worker shots.py) */
+  split?: boolean;
+  shotOf?: string;
+  shotStart?: number;
+  shotEnd?: number;
+  look?: { bright: number; sharp: number; shift: number; flags: string[] };
   cleanCutOf?: string;
   removedSec?: number;
   removedIdx?: number[];

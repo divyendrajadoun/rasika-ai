@@ -19,6 +19,7 @@ const ORDER = STAGES.map((s) => s.key);
 /** Waiting states sit just after the stage that produced them. */
 const AFTER: Record<string, string> = {
   awaiting_transcript_review: "transcribing",
+  awaiting_shot_review: "probing",
   awaiting_plan_review: "planning",
   ready_preview: "rendering_preview",
 };

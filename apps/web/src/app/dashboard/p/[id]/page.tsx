@@ -5,6 +5,9 @@ import { deleteProject, duplicateProject } from "@/app/dashboard/actions";
 import { fmtDuration } from "@/components/dashboard/project-card";
 import { ProgressView } from "@/components/dashboard/progress-view";
 import { ClipsPanel } from "@/components/dashboard/clips-panel";
+import { ShotReview } from "@/components/dashboard/shot-review";
+import { plans } from "@/config/pricing";
+import { env } from "@/lib/env";
 import { EditRoom } from "@/components/dashboard/edit-room";
 import { ExportShapes } from "@/components/dashboard/export-shapes";
 import { TranscriptPanel } from "@/components/dashboard/transcript-panel";
@@ -33,6 +36,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   const clipUrls = Object.fromEntries(
     assets.filter((a) => a.kind === "source_clip").map((a) => [a.id, a.url]),
   );
+  // one messy video, cleaned up: the user checks the shots and picks the style before the edit
+  const shotReview =
+    Boolean(project.styleOptions.messy && !project.styleOptions.reviewed) &&
+    (job?.status ?? project.status) === "awaiting_shot_review";
   const images = assets
     .filter((a) => a.kind === "image")
     .sort((a, b) => (a.meta.order ?? 0) - (b.meta.order ?? 0));
@@ -85,7 +92,23 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
           />
         )}
 
-        {joined?.meta.arrangement && (
+        {joined?.meta.arrangement && shotReview && (
+          <ShotReview
+            key={joined.id}
+            projectId={project.id}
+            arrangement={joined.meta.arrangement}
+            arrangedBy={joined.meta.arrangedBy}
+            urls={clipUrls}
+            busy={busy}
+            maxSeconds={(plans.find((p) => p.id === user.plan) ?? plans[0]!).maxSeconds}
+            stockEnabled={env.stockEnabled}
+            preset={project.stylePreset}
+            styleText={project.styleText ?? ""}
+            options={project.styleOptions}
+          />
+        )}
+
+        {joined?.meta.arrangement && !shotReview && (
           <ClipsPanel
             key={joined.id}
             projectId={project.id}

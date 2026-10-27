@@ -46,6 +46,8 @@ class JobStatus(StrEnum):
     PROBING = "probing"
     TRANSCRIBING = "transcribing"
     AWAITING_TRANSCRIPT_REVIEW = "awaiting_transcript_review"
+    # one messy video: the shots are cleaned up and joined; the user checks them and picks a style
+    AWAITING_SHOT_REVIEW = "awaiting_shot_review"
     PLANNING = "planning"
     AWAITING_PLAN_REVIEW = "awaiting_plan_review"
     RENDERING_PREVIEW = "rendering_preview"
@@ -88,6 +90,7 @@ STAGE_MESSAGES: dict[JobStatus, str] = {
     JobStatus.PROBING: "Looking at your video…",
     JobStatus.TRANSCRIBING: "Timing every word…",
     JobStatus.AWAITING_TRANSCRIPT_REVIEW: "Transcript ready for your review",
+    JobStatus.AWAITING_SHOT_REVIEW: "Your shots are cleaned up: check them and pick a style",
     JobStatus.PLANNING: "Designing your edit…",
     JobStatus.AWAITING_PLAN_REVIEW: "Your edit is ready to preview",
     JobStatus.RENDERING_PREVIEW: "Making a quick preview…",
