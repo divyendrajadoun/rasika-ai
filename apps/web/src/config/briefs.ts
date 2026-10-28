@@ -24,38 +24,43 @@ export type BriefKindId =
   | "researched"
   | "toon";
 
-/** The sections the kinds are shown in (wizard + dashboard). */
-export type BriefGroup = "host" | "post" | "animate" | "website" | "topic" | "fun";
-export const BRIEF_GROUPS: { id: BriefGroup; title: string; blurb: string }[] = [
+/**
+ * The sections the kinds are shown in (wizard + dashboard), by what the person wants to make, in
+ * plain words: the section says what you give, the card says what you get.
+ */
+export type BriefGroup = "topic" | "website" | "post" | "animate" | "fun";
+export const BRIEF_GROUPS: { id: BriefGroup; title: string; give: string; blurb: string }[] = [
   {
-    id: "host",
-    title: "Animated with a host",
-    blurb:
-      "A cartoon host talks your topic through, step by step: the AI-animated reel format, with a voice, captions on every word and sound on every move.",
-  },
-  {
-    id: "post",
-    title: "From a post",
-    blurb:
-      "Paste a post that lists things with links: we visit every link and make a narrated reel of them.",
-  },
-  {
-    id: "animate",
-    title: "Animate anything",
-    blurb:
-      "Show a style you love, give a rough idea: every frame is drawn in code, scored, and checked against your style.",
+    id: "topic",
+    title: "Explain something",
+    give: "A topic in one line",
+    blurb: "Teach, explain or tell a story. We research it, write it, voice it and animate it.",
   },
   {
     id: "website",
-    title: "From your website",
-    blurb: "Give a link: we capture the real page, its controls, colours and words.",
+    title: "Promote a product or website",
+    give: "Your website link",
+    blurb: "A launch or promo film made from your real website: its screens, colours and words.",
   },
   {
-    id: "topic",
-    title: "From a topic",
-    blurb: "Give a topic or a recipe: we write it, design it and (for some) narrate it.",
+    id: "post",
+    title: "Turn a post into a reel",
+    give: "A post with links",
+    blurb:
+      "Paste a post that lists tools, repos or products. We visit every link and explain each one.",
   },
-  { id: "fun", title: "Fun formats", blurb: "Fights, tier lists, machines and storybooks." },
+  {
+    id: "animate",
+    title: "Animate your own idea",
+    give: "An idea and 1–3 style pictures",
+    blurb: "Show a style you love and say what it's about. Every frame is drawn to match it.",
+  },
+  {
+    id: "fun",
+    title: "Just for fun",
+    give: "A line or two",
+    blurb: "Comic fights, tier lists, music machines and storybooks.",
+  },
 ];
 
 export type BriefField =
@@ -222,7 +227,7 @@ const URL_FIELD: BriefField = {
 export const BRIEF_KINDS: BriefKind[] = [
   {
     id: "toon",
-    group: "host",
+    group: "topic",
     title: "Animated explainer with a host",
     blurb:
       "Type what the reel is about in one line: a cartoon host walks your viewers through it, step by step.",

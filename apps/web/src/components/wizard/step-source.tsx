@@ -22,13 +22,7 @@ import { cn } from "@/lib/utils";
  *  presenter  script + photo → avatar video — needs an avatar provider, not enabled yet
  */
 export type SourceMode =
-  | "take"
-  | "messy"
-  | "clips"
-  | "script"
-  | "reference"
-  | "presenter"
-  | "brief";
+  "take" | "messy" | "clips" | "script" | "reference" | "presenter" | "brief";
 
 interface Option {
   id: SourceMode;
@@ -40,6 +34,22 @@ interface Option {
 }
 
 const OPTIONS: Option[] = [
+  {
+    id: "brief",
+    title: "From a brief",
+    blurb:
+      "No filming. Give a topic, a website link or a post; we write it, voice it and animate it.",
+    detail:
+      "Explain a topic with a cartoon host, promote your website, turn a post into a reel, animate an idea, or just have fun.",
+    icon: Sparkles,
+  },
+  {
+    id: "script",
+    title: "Script only",
+    blurb: "No footage. Paste a script; a voice narrates it and the engine draws the whole film.",
+    detail: "Pick a voice and a style. English voices for now.",
+    icon: FileText,
+  },
   {
     id: "take",
     title: "My take",
@@ -58,31 +68,18 @@ const OPTIONS: Option[] = [
   {
     id: "clips",
     title: "Many clips",
-    blurb: "Drop every clip you shot. We put them in the order of what you say, keep the best take of each line and join them.",
+    blurb:
+      "Drop every clip you shot. We put them in the order of what you say, keep the best take of each line and join them.",
     detail: "Paste your script to follow its order. The ums, retakes and dead air come out.",
     icon: Layers,
   },
   {
-    id: "script",
-    title: "Script only",
-    blurb: "No footage. Paste a script; a voice narrates it and the engine draws the whole film.",
-    detail: "Pick a voice and a style. English voices for now.",
-    icon: FileText,
-  },
-  {
     id: "reference",
     title: "Match a reference",
-    blurb: "Upload your take and a reel you love. We measure its pacing, camera and look, then cut yours the same way.",
+    blurb:
+      "Upload your take and a reel you love. We measure its pacing, camera and look, then cut yours the same way.",
     detail: "Shot length, cut cadence, palette and type are matched; your words stay yours.",
     icon: ScanSearch,
-  },
-  {
-    id: "brief",
-    title: "From a brief",
-    blurb: "No footage at all. Give a website, a recipe, two contenders or a line, and we write, score and design the film.",
-    detail:
-      "15 films: product, launch, hype, referral and Apple-style films and a 3D fly-over from your website; diagram, animated and editorial explainers and recipes from a topic; fights, tier lists, music machines and storybooks.",
-    icon: Sparkles,
   },
   {
     id: "presenter",
@@ -106,13 +103,18 @@ export function StepSource({
 }) {
   const options = OPTIONS.map((o) =>
     o.id === "presenter" && presenterEnabled
-      ? { ...o, disabled: undefined, detail: "Rendered from your script and a face, then edited like any take." }
+      ? {
+          ...o,
+          disabled: undefined,
+          detail: "Rendered from your script and a face, then edited like any take.",
+        }
       : o,
   );
   return (
     <div className="space-y-4">
       <p className="text-muted">
-        Six ways in. Footage, clips, a script, a presenter and a reference all end in the same editor and the same styles; a brief makes a whole film.
+        Seven ways in. A brief or a script needs no filming; footage, clips, a presenter and a
+        reference all end in the same editor and the same styles.
       </p>
       <ul className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Source">
         {options.map((o) => {
@@ -128,19 +130,21 @@ export function StepSource({
                 onClick={() => onChange(o.id)}
                 className={cn(
                   "bg-surface flex h-full w-full flex-col gap-2 rounded-[8px] p-5 text-left transition-colors",
-                  on && "ring-2 ring-text",
+                  on && "ring-text ring-2",
                   o.disabled ? "cursor-not-allowed opacity-60" : "",
                 )}
               >
                 <span className="flex items-center justify-between">
                   <Icon className="text-accent size-6" aria-hidden />
                   {o.disabled && (
-                    <span className="text-[12px] font-medium bg-raised text-foreground/70 rounded-full px-2 py-0.5 text-[11px]">
+                    <span className="bg-raised text-foreground/70 rounded-full px-2 py-0.5 text-[11px] text-[12px] font-medium">
                       {o.disabled}
                     </span>
                   )}
                 </span>
-                <span className="text-lg font-semibold leading-tight tracking-[-0.02em]">{o.title}</span>
+                <span className="text-lg font-semibold leading-tight tracking-[-0.02em]">
+                  {o.title}
+                </span>
                 <span className="text-sm">{o.blurb}</span>
                 <span className="text-muted-foreground text-[13px]">{o.detail}</span>
               </button>
@@ -156,11 +160,17 @@ const SHORT: Record<SourceMode, string> = {
   take: "My video",
   messy: "One messy video",
   clips: "Many clips",
-  script: "A script",
-  brief: "From a brief",
+  script: "Voice my script",
+  brief: "Make a film for me",
   reference: "Match a reel",
   presenter: "AI presenter",
 };
+
+/** The two rows of the switch: films made without a camera first, then the ones with a person. */
+const ROWS: { label: string; ids: SourceMode[] }[] = [
+  { label: "No filming needed", ids: ["brief", "script"] },
+  { label: "A person on screen", ids: ["take", "messy", "clips", "reference", "presenter"] },
+];
 
 /**
  * The first step's compact switch (the wizard opens straight on "My video"): one row of chips for
@@ -178,31 +188,37 @@ export function SourceSwitch({
   const current = OPTIONS.find((o) => o.id === value) ?? OPTIONS[0]!;
   return (
     <div>
-      <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Where the reel comes from">
-        {OPTIONS.map((o) => {
-          const off = o.id === "presenter" && !presenterEnabled;
-          const on = value === o.id;
-          const Icon = o.icon;
-          return (
-            <button
-              key={o.id}
-              type="button"
-              role="radio"
-              aria-checked={on}
-              disabled={off}
-              title={off ? o.disabled : o.blurb}
-              onClick={() => onChange(o.id)}
-              className={cn(
-                "inline-flex h-10 items-center gap-2 rounded-full px-4 text-[14px] transition-colors",
-                on ? "bg-text text-bg font-medium" : "bg-surface hover:bg-raised",
-                off && "cursor-not-allowed opacity-50",
-              )}
-            >
-              <Icon className="size-4" aria-hidden />
-              {SHORT[o.id]}
-            </button>
-          );
-        })}
+      <div className="space-y-3" role="radiogroup" aria-label="Where the reel comes from">
+        {ROWS.map((row) => (
+          <div key={row.label} className="flex flex-wrap items-center gap-2">
+            <span className="text-muted w-full text-[13px] font-medium sm:w-40">{row.label}</span>
+            {row.ids.map((id) => {
+              const o = OPTIONS.find((x) => x.id === id)!;
+              const off = o.id === "presenter" && !presenterEnabled;
+              const on = value === o.id;
+              const Icon = o.icon;
+              return (
+                <button
+                  key={o.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={on}
+                  disabled={off}
+                  title={off ? o.disabled : o.blurb}
+                  onClick={() => onChange(o.id)}
+                  className={cn(
+                    "inline-flex h-10 items-center gap-2 rounded-full px-4 text-[14px] transition-colors",
+                    on ? "bg-text text-bg font-medium" : "bg-surface hover:bg-raised",
+                    off && "cursor-not-allowed opacity-50",
+                  )}
+                >
+                  <Icon className="size-4" aria-hidden />
+                  {SHORT[o.id]}
+                </button>
+              );
+            })}
+          </div>
+        ))}
       </div>
       <p className="text-muted mt-3 text-[14px]">{current.blurb}</p>
     </div>

@@ -143,6 +143,7 @@ export function StepBrief({
 }) {
   const set = (patch: Partial<BriefState>) => onChange({ ...value, ...patch });
   const kind = briefKind(value.kind)!;
+  const group = BRIEF_GROUPS.find((g) => g.id === kind.group)!;
   const look = allPresetCards.find((c) => c.tokens.id === kind.preset)?.tokens;
   const pick = (id: BriefKindId) => {
     // a new kind starts from its example, unless the user already typed something for it
@@ -172,51 +173,93 @@ export function StepBrief({
   };
   return (
     <div className="space-y-8">
-      <p className="text-muted">
-        No footage needed. Pick the kind of film; we write it, score it and design it, using only
-        what you give us.
-      </p>
-      {BRIEF_GROUPS.map((g) => (
-        <section key={g.id} aria-label={g.title}>
-          <h3 className="text-lg font-semibold tracking-[-0.02em]">{g.title}</h3>
-          <p className="text-muted mb-3 text-[14px]">{g.blurb}</p>
-          <ul className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label={g.title}>
-            {BRIEF_KINDS.filter((k) => k.group === g.id).map((k) => {
-              const on = k.id === value.kind;
-              return (
-                <li key={k.id}>
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked={on}
-                    onClick={() => pick(k.id)}
-                    className={cn(
-                      "bg-surface hover:bg-raised flex h-full w-full flex-col gap-2 rounded-[8px] p-5 text-left transition-colors",
-                      on && "ring-text ring-2",
-                    )}
-                  >
-                    <span className="text-lg font-semibold leading-tight tracking-[-0.02em]">
+      <section aria-labelledby="brief-what">
+        <h3 id="brief-what" className="text-lg font-semibold tracking-[-0.02em]">
+          1. What do you want to make?
+        </h3>
+        <p className="text-muted mb-3 text-[14px]">
+          No filming needed: we write, voice and design it.
+        </p>
+        <ul
+          className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3"
+          role="radiogroup"
+          aria-label="What to make"
+        >
+          {BRIEF_GROUPS.map((g) => {
+            const on = g.id === kind.group;
+            return (
+              <li key={g.id}>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={on}
+                  onClick={() => !on && pick(BRIEF_KINDS.find((k) => k.group === g.id)!.id)}
+                  className={cn(
+                    "bg-surface hover:bg-raised flex h-full w-full flex-col gap-1 rounded-[8px] px-4 py-3 text-left transition-colors",
+                    on && "ring-text ring-2",
+                  )}
+                >
+                  <span className="font-semibold leading-tight">{g.title}</span>
+                  <span className="text-muted text-[13px]">You give: {g.give.toLowerCase()}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      <section aria-labelledby="brief-kind">
+        <h3 id="brief-kind" className="text-lg font-semibold tracking-[-0.02em]">
+          2. Pick the film
+        </h3>
+        <p className="text-muted mb-3 text-[14px]">{group.blurb}</p>
+        <ul className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label={group.title}>
+          {BRIEF_KINDS.filter((k) => k.group === group.id).map((k) => {
+            const on = k.id === value.kind;
+            return (
+              <li key={k.id}>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={on}
+                  onClick={() => pick(k.id)}
+                  className={cn(
+                    "bg-surface hover:bg-raised flex h-full w-full gap-3 rounded-[8px] p-3 text-left transition-colors",
+                    on && "ring-text ring-2",
+                  )}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element -- static demo poster */}
+                  <img
+                    src={`/demo/briefs/${k.id}.jpg`}
+                    alt=""
+                    loading="lazy"
+                    className="aspect-[9/14] w-16 shrink-0 rounded-[6px] object-cover object-top"
+                  />
+                  <span className="flex flex-col gap-1">
+                    <span className="font-semibold leading-tight tracking-[-0.01em]">
                       {k.title}
                     </span>
-                    <span className="text-[14px]">{k.blurb}</span>
-                    <span className="text-muted text-[13px]">
-                      <span className="text-text font-medium">You give:</span> {k.youGive}
+                    <span className="text-[13px]">{k.blurb}</span>
+                    <span className="text-muted text-[12px]">
+                      {k.narrate ? "With a voice" : "Music only"} · up to{" "}
+                      {Math.round(k.maxSeconds / 5) * 5} s
                     </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      ))}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
 
       <div className="bg-surface space-y-5 rounded-[8px] p-5">
         <div>
-          <p className="font-medium">{kind.title}</p>
+          <p className="font-medium">3. Tell us about it: {kind.title}</p>
           <p className="text-muted mt-1 text-[14px]">
             <span className="text-text font-medium">You get:</span> {kind.youGet}
           </p>
-          {look && (
+          {/* kinds with their own look choice (stage, theme, design) say it in the form below */}
+          {look && !kind.fields.some((f) => ["toonLook", "theme", "look"].includes(f.id)) && (
             <p className="text-muted mt-1 text-[14px]">
               <span className="text-text font-medium">The look:</span> {look.name}. {look.tagline}
             </p>
@@ -414,14 +457,20 @@ export function StepBrief({
                         )}
                       >
                         <span
-                          className="flex h-16 items-end gap-1 rounded-[6px] p-2"
+                          className="flex h-16 flex-wrap content-end items-end gap-x-1 overflow-hidden rounded-[6px] p-2"
                           style={{ background: t.swatch[0] }}
                           aria-hidden
                         >
-                          <b className="text-[20px] leading-none" style={{ color: t.swatch[1] }}>
+                          <b
+                            className="text-[16px] leading-none sm:text-[20px]"
+                            style={{ color: t.swatch[1] }}
+                          >
                             GET
                           </b>
-                          <b className="text-[20px] leading-none" style={{ color: t.swatch[2] }}>
+                          <b
+                            className="text-[16px] leading-none sm:text-[20px]"
+                            style={{ color: t.swatch[2] }}
+                          >
                             STARTED
                           </b>
                         </span>
