@@ -705,21 +705,35 @@ export async function retryEdit(formData: FormData) {
     .from(schema.assets)
     .where(and(eq(schema.assets.projectId, id), eq(schema.assets.kind, "source_video")));
   const plan = plans.find((p) => p.id === user.plan) ?? plans[0]!;
-  if (!source && project.styleOptions.source === "clips") {
-    // the clips were never joined (or the join failed): start again from the clips
+  // no video yet: the clips were never joined, or a film from a brief (a topic, a post) was
+  // never composed; start again from that step (both read what they need from the project)
+  const first =
+    project.styleOptions.source === "clips"
+      ? "assemble"
+      : project.styleOptions.source === "brief"
+        ? "compose"
+        : null;
+  if (!source && first) {
     const [job] = await db
       .insert(schema.jobs)
-      .values({ projectId: id, userId: user.id, type: "assemble", status: "uploaded" })
+      .values({ projectId: id, userId: user.id, type: first, status: "uploaded" })
       .returning();
     await db
       .update(schema.projects)
       .set({ status: "uploaded", updatedAt: schema.now })
       .where(eq(schema.projects.id, id));
+    await db.insert(schema.auditLog).values({
+      userId: user.id,
+      action: "project.retry",
+      entity: "project",
+      entityId: id,
+      meta: { job: job!.id, from: first },
+    });
     await enqueueJob({
       job_id: job!.id,
       project_id: id,
       user_id: user.id,
-      type: "assemble",
+      type: first,
       payload: { language_hint: project.styleOptions.language, max_duration_sec: plan.maxSeconds },
     });
     revalidatePath(`/dashboard/p/${id}`);
