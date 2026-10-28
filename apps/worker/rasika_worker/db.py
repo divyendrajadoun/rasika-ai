@@ -53,29 +53,32 @@ class JobStore:
         timings: dict[str, float],
         error: str | None = None,
     ) -> None:
-        conn = self._connect()
-        if conn is None:
-            return
-        try:
-            with conn.cursor() as cur:
-                cur.execute(
-                    """
-                    UPDATE jobs
-                       SET status = %s, progress = %s, message = %s, error = %s,
-                           timings = timings || %s::jsonb, updated_at = now()
-                     WHERE id = %s::uuid
-                    """,
-                    (status.value, progress, message, error, json.dumps(timings), job_id),
-                )
-                cur.execute(
-                    "UPDATE projects SET status = %s, updated_at = now() WHERE id = %s::uuid",
-                    (status.value, project_id),
-                )
-        except Exception as exc:
-            log.warning("db_update_failed", job_id=job_id, error=str(exc))
-            with contextlib.suppress(Exception):
-                conn.close()
-            self._conn = None
+        for attempt in (0, 1):  # a connection dropped while idle gets one fresh try
+            conn = self._connect()
+            if conn is None:
+                return
+            try:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        """
+                        UPDATE jobs
+                           SET status = %s, progress = %s, message = %s, error = %s,
+                               timings = timings || %s::jsonb, updated_at = now()
+                         WHERE id = %s::uuid
+                        """,
+                        (status.value, progress, message, error, json.dumps(timings), job_id),
+                    )
+                    cur.execute(
+                        "UPDATE projects SET status = %s, updated_at = now() WHERE id = %s::uuid",
+                        (status.value, project_id),
+                    )
+                return
+            except Exception as exc:
+                if attempt:
+                    log.warning("db_update_failed", job_id=job_id, error=str(exc))
+                with contextlib.suppress(Exception):
+                    conn.close()
+                self._conn = None
 
 
 class Repo:
@@ -92,20 +95,38 @@ class Repo:
             )
         return self._conn
 
+    def _run(self, sql: str, params: tuple[Any, ...], fetch: str | None) -> Any:
+        """One statement; a connection the server or the pooler closed while the worker sat idle
+        (`SSL error: unexpected eof`, `server closed the connection`) is reopened and the statement
+        sent once more. Only when the connection is dead: the statement never reached the server."""
+        for attempt in (0, 1):
+            conn = self.conn()
+            try:
+                with conn.cursor() as cur:
+                    cur.execute(sql, params)
+                    if fetch == "one":
+                        row = cur.fetchone()
+                        return dict(row) if row else None
+                    if fetch == "all":
+                        return [dict(r) for r in cur.fetchall()]
+                    return None
+            except psycopg.OperationalError as exc:
+                if attempt or not (conn.broken or conn.closed):
+                    raise
+                log.warning("db_reconnect", error=str(exc))
+                with contextlib.suppress(Exception):
+                    conn.close()
+                self._conn = None
+        return None
+
     def one(self, sql: str, params: tuple[Any, ...] = ()) -> dict[str, Any] | None:
-        with self.conn().cursor() as cur:
-            cur.execute(sql, params)
-            row = cur.fetchone()
-            return dict(row) if row else None
+        return self._run(sql, params, "one")  # type: ignore[no-any-return]
 
     def all(self, sql: str, params: tuple[Any, ...] = ()) -> list[dict[str, Any]]:
-        with self.conn().cursor() as cur:
-            cur.execute(sql, params)
-            return [dict(r) for r in cur.fetchall()]
+        return self._run(sql, params, "all")  # type: ignore[no-any-return]
 
     def exec(self, sql: str, params: tuple[Any, ...] = ()) -> None:
-        with self.conn().cursor() as cur:
-            cur.execute(sql, params)
+        self._run(sql, params, None)
 
     # ── reads ──
     def project(self, project_id: str) -> dict[str, Any] | None:
