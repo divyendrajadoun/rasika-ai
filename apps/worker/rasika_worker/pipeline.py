@@ -268,7 +268,7 @@ class Pipeline:
             film, usage = self._animate_film(job, pub, work, b, narrate, max_dur, timings)
         elif kind_id == "roundup":
             film, usage = self._roundup_film(job, pub, work, b, max_dur, timings)
-        elif kind_id == "researched":
+        elif kind_id in ("researched", "toon"):
             film, usage = self._researched_film(job, pub, work, b, max_dur, timings)
         else:
             film, usage = self._write_brief(kind_id, inputs, capture, narrate, max_dur)
@@ -598,13 +598,25 @@ class Pipeline:
                 log.warning("researched_reference_failed", error=str(exc))
         pub.update(JobStatus.PROBING, 22, "Writing the storyboard…", **timings)
         try:
-            sb, u2 = research.write_storyboard(
-                client,
-                self.s.anthropic_planner_model,
-                found,
-                research.seconds_for(max_dur),
-                str(b.get("cta") or "") or None,
-            )
+            if str(b.get("kind")) == "toon":
+                from rasika_worker import toon, toonhost
+
+                sb, u2 = toon.write_storyboard(
+                    client,
+                    self.s.anthropic_planner_model,
+                    found,
+                    research.seconds_for(max_dur),
+                    str(b.get("cta") or "") or None,
+                    str(b.get("host") or toonhost.DEFAULT_HOST),
+                )
+            else:
+                sb, u2 = research.write_storyboard(
+                    client,
+                    self.s.anthropic_planner_model,
+                    found,
+                    research.seconds_for(max_dur),
+                    str(b.get("cta") or "") or None,
+                )
         except Exception as exc:
             raise PipelineError(f"Could not write the reel: {exc}") from exc
         usage = {k: u1[k] + u2[k] for k in u1}
@@ -628,6 +640,42 @@ class Pipeline:
             },
             usage,
         )
+
+    def _build_toon(
+        self,
+        proj: Path,
+        hdir: Path,
+        sb: dict[str, Any],
+        words: list[dict[str, Any]],
+        duration: float,
+        voice: Path,
+        files: dict[str, Path],
+        b: dict[str, Any],
+    ) -> None:
+        """A toon reel: the project is laid out once for its sound cues (a pop, a whoosh, a click on
+        everything that moves), the effects and a quiet music bed are made, then it is written with
+        the voice, the effects and the bed."""
+        from rasika_worker import music as score
+        from rasika_worker import sfx, toon, toonhost
+
+        host = str(b.get("host") or toonhost.DEFAULT_HOST)
+        look = str(b.get("look") or "paper")
+        length = duration + 0.6
+        _, cues = toon.build_project(
+            proj, sb, words, length, [], files, look, host, voice_wav=voice,
+            gsap_js=self.s.hyperframes_gsap,
+        )  # fmt: skip
+        fx = hdir / "toon_sfx.wav"
+        sfx.write(str(fx), sfx.build({"duration": length, "kit": "toon", "cues": cues}))  # type: ignore[no-untyped-call]
+        audio: list[tuple[str, Path, float]] = [("voice", voice, 1.0), ("fx", fx, 0.45)]
+        if b.get("music", True):
+            bed = hdir / "toon_music.wav"
+            score.write(bed, score.compose("showreel", length))
+            audio.append(("music", bed, 0.1))
+        toon.build_project(
+            proj, sb, words, length, audio, files, look, host, voice_wav=voice,
+            gsap_js=self.s.hyperframes_gsap,
+        )  # fmt: skip
 
     def _render_hyper(
         self,
@@ -691,18 +739,21 @@ class Pipeline:
                 )
         fx = hdir / "sfx.wav"
         sfx.write(str(fx), sfx.build({"duration": duration + 0.6, "kit": "click", "cues": cues}))  # type: ignore[no-untyped-call]
-        theme = hyper.theme_for(str(b.get("theme") or "studio"), b.get("reference"))
         proj = hdir / "project"
-        hyper.build_project(
-            proj,
-            sb,
-            words,
-            duration + 0.6,
-            [("voice", voice, 1.0), ("fx", fx, 0.35)],
-            files,
-            theme,
-            gsap_js=self.s.hyperframes_gsap,
-        )
+        if str(b.get("kind")) == "toon":
+            self._build_toon(proj, hdir, sb, words, duration, voice, files, b)
+        else:
+            theme = hyper.theme_for(str(b.get("theme") or "studio"), b.get("reference"))
+            hyper.build_project(
+                proj,
+                sb,
+                words,
+                duration + 0.6,
+                [("voice", voice, 1.0), ("fx", fx, 0.35)],
+                files,
+                theme,
+                gsap_js=self.s.hyperframes_gsap,
+            )
         pub.update(JobStatus.RENDERING_FINAL, 10, "Drawing the reel…", **timings)
         t0 = time.time()
         final = hdir / "final_1080.mp4"
@@ -1474,6 +1525,8 @@ class Pipeline:
                     log.warning("assemble_order_failed", error=str(exc))
             if not decisions:
                 decisions = assemble.arrange_recorded(clips)
+        if decisions is None:  # every branch above sets an order; recording order otherwise
+            decisions = assemble.arrange_recorded(clips)
         kept = [d for d in decisions if d.keep]
         if not kept:
             raise PipelineError("Every clip was left out. Keep at least one.")
@@ -1601,9 +1654,7 @@ class Pipeline:
                     34 + int(20 * n / len(segs)),
                     f"Checking shot {n + 1} of {len(segs)}…",
                 )
-                looks.append(
-                    shots.look(self.s.ffmpeg_bin, src, s0, s1, sdir / f"{oid}_{n}.jpg")
-                )
+                looks.append(shots.look(self.s.ffmpeg_bin, src, s0, s1, sdir / f"{oid}_{n}.jpg"))
             shots.hints(looks)
             for n, (s0, s1) in enumerate(segs):
                 pub.update(
@@ -1640,9 +1691,7 @@ class Pipeline:
                 part.replace(clip_dir / f"{sid}.mp4")
                 if looks[n].still and Path(looks[n].still).is_file():
                     Path(looks[n].still).replace(sdir / f"{sid}.jpg")
-            self.repo.merge_asset_meta(
-                oid, {"split": True, "shots": len(segs), "order": k}
-            )
+            self.repo.merge_asset_meta(oid, {"split": True, "shots": len(segs), "order": k})
             log.info("messy_split", asset=oid, shots=len(segs), cuts=len(cuts))
         return sorted(
             (
@@ -1905,7 +1954,7 @@ class Pipeline:
         if (options.get("brief") or {}).get("kind") == "animate":
             self._plan_animate(job, pub, words, duration, style, options, timings)
             return
-        if (options.get("brief") or {}).get("kind") == "researched":
+        if (options.get("brief") or {}).get("kind") in ("researched", "toon"):
             self._render_hyper(job, pub, words, duration, options, timings)
             return
         if (options.get("brief") or {}).get("kind") == "roundup":

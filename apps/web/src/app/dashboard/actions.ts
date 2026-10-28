@@ -453,6 +453,13 @@ export async function createBriefEdit(input: unknown): Promise<ActionResult> {
         ? { reference_asset: w.referenceAssetId }
         : { theme: w.explainerTheme }
       : {}),
+    ...(w.kind === "toon"
+      ? {
+          host: w.host,
+          look: w.toonLook,
+          ...(w.cta ? { cta: `Comment ${w.cta.replace(/[^A-Za-z0-9]/g, "").toUpperCase()}` } : {}),
+        }
+      : {}),
     ...(w.kind === "roundup"
       ? {
           post: w.post ?? "",

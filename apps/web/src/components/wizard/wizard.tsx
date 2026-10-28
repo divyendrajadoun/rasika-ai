@@ -367,6 +367,10 @@ export function Wizard({
         b.kind === "roundup" && b.speaker === "presenter" ? b.presenterVoice : undefined,
       roundupLook: b.kind === "roundup" ? b.roundupLook : undefined,
       explainerTheme: b.kind === "researched" ? b.explainerTheme : undefined,
+      host: b.kind === "toon" ? b.host : undefined,
+      toonLook: b.kind === "toon" ? b.toonLook : undefined,
+      voice: b.kind === "toon" ? b.voice : undefined,
+      cta: b.kind === "toon" && b.cta ? b.cta : undefined,
       referenceAssetId:
         ((b.kind === "roundup" && b.roundupLook === "reference") ||
           (b.kind === "researched" && b.explainerTheme === "reference")) &&

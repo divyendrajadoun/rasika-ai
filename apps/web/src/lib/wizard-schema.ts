@@ -130,7 +130,12 @@ export const BriefSubmission = z
       "animate",
       "roundup",
       "researched",
+      "toon",
     ]),
+    /** toon explainer: the cartoon host, the stage and the word viewers comment */
+    host: z.enum(["arjun", "meera", "kabir", "zoe"]).default("arjun"),
+    toonLook: z.enum(["paper", "night", "mint"]).default("paper"),
+    cta: z.string().trim().max(60).optional(),
     /** researched explainer: the theme, or "reference" to match an uploaded reel */
     explainerTheme: z.enum(["studio", "night", "pop", "reference"]).default("studio"),
     /** roundup: the pasted post, who speaks it, and (presenter) the stock look and its voice */
@@ -197,7 +202,11 @@ export const BriefSubmission = z
         "url",
         "The link should start with https://",
       );
-    if (["explainer", "editorial", "tierlist", "diagram", "animate", "researched"].includes(v.kind))
+    if (
+      ["explainer", "editorial", "tierlist", "diagram", "animate", "researched", "toon"].includes(
+        v.kind,
+      )
+    )
       need((v.topic ?? "").length >= 6, "topic", "Say what the film is about.");
     if (v.kind === "versus") need(Boolean(v.a && v.b), "a", "Name both contenders.");
     if (v.kind === "machine") need(Boolean(v.line), "line", "Write the line that types out.");

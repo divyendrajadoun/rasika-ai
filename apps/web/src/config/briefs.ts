@@ -21,11 +21,18 @@ export type BriefKindId =
   | "diagram"
   | "animate"
   | "roundup"
-  | "researched";
+  | "researched"
+  | "toon";
 
 /** The sections the kinds are shown in (wizard + dashboard). */
-export type BriefGroup = "post" | "animate" | "website" | "topic" | "fun";
+export type BriefGroup = "host" | "post" | "animate" | "website" | "topic" | "fun";
 export const BRIEF_GROUPS: { id: BriefGroup; title: string; blurb: string }[] = [
+  {
+    id: "host",
+    title: "Animated with a host",
+    blurb:
+      "A cartoon host talks your topic through, step by step: the AI-animated reel format, with a voice, captions on every word and sound on every move.",
+  },
   {
     id: "post",
     title: "From a post",
@@ -66,7 +73,54 @@ export type BriefField =
   | { id: "post"; label: string; placeholder: string; help: string }
   | { id: "speaker" }
   | { id: "look" }
-  | { id: "theme" };
+  | { id: "theme" }
+  | { id: "host" }
+  | { id: "toonLook" }
+  | { id: "voice" }
+  | { id: "cta" };
+
+/** The cartoon hosts of a toon explainer (apps/worker/rasika_worker/toonhost.py HOSTS), each with a
+ * voice that suits them; the voice can be changed. Stills in /demo/hosts. */
+export type ToonHostId = "arjun" | "meera" | "kabir" | "zoe";
+export const TOON_HOSTS: { id: ToonHostId; name: string; blurb: string; voice: string }[] = [
+  { id: "arjun", name: "Arjun", blurb: "Beanie, glasses, beard.", voice: "aura-2-apollo-en" },
+  { id: "meera", name: "Meera", blurb: "Long hair, orange jacket.", voice: "aura-2-thalia-en" },
+  {
+    id: "kabir",
+    name: "Kabir",
+    blurb: "Short hair, beard, navy jacket.",
+    voice: "aura-2-orion-en",
+  },
+  { id: "zoe", name: "Zoe", blurb: "Curly hair, glasses, green jacket.", voice: "aura-2-luna-en" },
+];
+
+/** The stages of a toon explainer (apps/worker/rasika_worker/toon.py LOOKS). */
+export type ToonLookId = "paper" | "night" | "mint";
+export const TOON_LOOKS: {
+  id: ToonLookId;
+  name: string;
+  blurb: string;
+  swatch: [string, string, string];
+}[] = [
+  {
+    id: "paper",
+    name: "Paper",
+    blurb: "Linen paper, black type, red accents.",
+    swatch: ["#eeebe5", "#16130f", "#e0322b"],
+  },
+  {
+    id: "night",
+    name: "Night",
+    blurb: "Near-black, white type, coral accents.",
+    swatch: ["#141418", "#f4f1ea", "#ff5a4e"],
+  },
+  {
+    id: "mint",
+    name: "Mint",
+    blurb: "Soft mint paper, deep green type, orange accents.",
+    swatch: ["#e7f0ea", "#10201a", "#e2502b"],
+  },
+];
 
 /** The looks of a researched explainer (apps/worker/rasika_worker/hyper.py THEMES), or a reel to match. */
 export type ExplainerThemeId = "studio" | "night" | "pop";
@@ -166,6 +220,32 @@ const URL_FIELD: BriefField = {
 };
 
 export const BRIEF_KINDS: BriefKind[] = [
+  {
+    id: "toon",
+    group: "host",
+    title: "Animated explainer with a host",
+    blurb:
+      "Type what the reel is about in one line: a cartoon host walks your viewers through it, step by step.",
+    youGive: "A topic in one line (links welcome), a host and a comment word.",
+    youGet:
+      "A 40–65 s reel in the AI-animated format: a hook on a cork board, a roadmap of the steps, then each step with a big label, a numbered badge and app, browser and phone cards that pop, get clicked, ticked and stamped; the host talks (lips on the voice), points and celebrates; every word of the voice writes itself on screen with red accents; a pop, whoosh or click on everything that moves; a comment call to action. Facts come from research, with sources.",
+    fields: [
+      {
+        id: "topic",
+        label: "What is the reel about?",
+        placeholder: "How to set up UPI AutoPay for your monthly bills, step by step",
+        help: "One line is enough. Steps work best: how to do something, set something up, or fix something. Add links and we open them.",
+      },
+      { id: "host" },
+      { id: "voice" },
+      { id: "toonLook" },
+      { id: "cta" },
+    ],
+    preset: "dark-ios",
+    narrate: true,
+    maxSeconds: 66,
+    example: { topic: "How to set up UPI AutoPay for your monthly bills, step by step" },
+  },
   {
     id: "researched",
     group: "topic",

@@ -3,6 +3,7 @@
 the real worker (needs the local stack up and `.env` pointing at it).
 
   apps/worker/.venv/Scripts/python.exe tools/e2e/researched_reel.py <topic.txt> [--theme studio|night|pop]
+      a toon explainer (a cartoon host): --kind toon [--host arjun|meera|kabir|zoe] [--look paper|night|mint]
       [--voice aura-2-thalia-en] [--preset dark-ios] [--cta "Follow for tomorrow's list."] [--out DIR]
       presenter mode (paid, HeyGen): --look <look id> --presenter-voice <voice id>
       the look: --style signal|frontpage|loud|keynote|terminal, or --reference <reel.mp4> to match a reel
@@ -38,6 +39,8 @@ def main() -> int:
     ap.add_argument("--out", type=pathlib.Path, default=None)
     ap.add_argument("--look", default="")
     ap.add_argument("--theme", default="studio", choices=["studio", "night", "pop"])
+    ap.add_argument("--kind", default="researched", choices=["researched", "toon"])
+    ap.add_argument("--host", default="arjun")
     ap.add_argument("--reference", type=pathlib.Path, default=None)
     ap.add_argument("--presenter-voice", default="")
     ap.add_argument("--timeout", type=float, default=2400)
@@ -51,7 +54,9 @@ def main() -> int:
         for line in (ROOT / ".env").read_text(encoding="utf-8").splitlines()
         if "=" in line and not line.startswith("#")
     )
-    brief = {"kind": "researched", "topic": post, "voice": a.voice, "theme": a.theme}
+    brief = {"kind": a.kind, "topic": post, "voice": a.voice, "theme": a.theme}
+    if a.kind == "toon":
+        brief.update({"host": a.host, "look": a.look or "paper"})
     if a.cta:
         brief["cta"] = a.cta
     if a.mode == "presenter":

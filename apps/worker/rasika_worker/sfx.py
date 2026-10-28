@@ -303,6 +303,19 @@ KITS = {
         "glitch": (glitch, 1.0),
         "sub": (sub, 1.0),
     },
+    # toon explainers: a sound for everything that moves on screen
+    "toon": {
+        "whoosh": (whoosh, 0.8),
+        "impact": (impact, 0.8),
+        "tick": (click, 0.5),
+        "pop": (pop, 1.0),
+        "thud": (thud, 1.0),
+        "click": (click, 1.0),
+        "scribble": (scribble, 0.8),
+        "shimmer": (shimmer, 0.6),
+        "tap": (tap, 0.9),
+        "riser": (riser, 0.7),
+    },
     "click": {
         "whoosh": (air, 0.6),
         "impact": (thud, 0.7),

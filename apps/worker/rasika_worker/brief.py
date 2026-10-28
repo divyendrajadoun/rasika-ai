@@ -225,6 +225,17 @@ KINDS: dict[str, dict[str, Any]] = {
         "brief": "A researched explainer in the 'how it works' reel format: a hook, steps shown on cards, "
         "real numbers with sources, a call to action.",
     },
+    "toon": {
+        "title": "Animated explainer with a host",
+        "needs": ["topic"],
+        "preset": "dark-ios",
+        "mood": "showreel",
+        "narrate": True,
+        "seconds": (40, 65),
+        # toon.py writes it and draws it (HyperFrames) with a cartoon host; the brief is for the record
+        "brief": "An 'AI-animated' explainer: a cartoon host talks to camera, the words write themselves top "
+        "left, a big label with a step badge, app and phone cards that pop, a roadmap, a comment CTA.",
+    },
     "roundup": {
         "title": "From a post",
         "needs": ["post"],

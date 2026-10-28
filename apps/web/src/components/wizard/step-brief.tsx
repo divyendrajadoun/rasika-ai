@@ -5,10 +5,15 @@ import {
   BRIEF_KINDS,
   EXPLAINER_THEMES,
   ROUNDUP_LOOKS,
+  TOON_HOSTS,
+  TOON_LOOKS,
   briefKind,
   type BriefKindId,
   type RoundupLookId,
+  type ToonHostId,
+  type ToonLookId,
 } from "@/config/briefs";
+import { VOICES } from "@/config/voices";
 import type { HeyGenLook, HeyGenVoice } from "@/lib/heygen";
 import { allPresetCards } from "@/config/presets";
 import { BriefIdeas } from "@/components/wizard/brief-ideas";
@@ -41,6 +46,11 @@ export interface BriefState {
   roundupLook: RoundupLookId | "reference";
   /** researched explainer: the theme, or "reference" to match an uploaded reel */
   explainerTheme: "studio" | "night" | "pop" | "reference";
+  /** toon explainer: the cartoon host, its voice, the stage and the word viewers comment */
+  host: ToonHostId;
+  voice: string;
+  toonLook: ToonLookId;
+  cta: string;
 }
 
 export const defaultBriefState: BriefState = {
@@ -66,6 +76,10 @@ export const defaultBriefState: BriefState = {
   presenterOk: false,
   roundupLook: "signal",
   explainerTheme: "studio",
+  host: "arjun",
+  voice: "aura-2-apollo-en",
+  toonLook: "paper",
+  cta: "",
 };
 
 const BRIEF_EXAMPLE_TOPICS = Object.fromEntries(
@@ -95,6 +109,7 @@ export function briefReady(b: BriefState): boolean {
     case "editorial":
     case "tierlist":
     case "researched":
+    case "toon":
       return b.topic.trim().length >= 6;
     case "versus":
       return Boolean(b.a.trim() && b.b.trim());
@@ -314,6 +329,128 @@ export function StepBrief({
                   onChange={(e) => set({ post: e.target.value })}
                 />
                 <p className="text-muted mt-1 text-[13px]">{f.help}</p>
+              </div>
+            );
+          if (f.id === "host")
+            return (
+              <div key="host" className="space-y-3">
+                <p className="label">Your host</p>
+                <ul
+                  className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+                  role="radiogroup"
+                  aria-label="Your host"
+                >
+                  {TOON_HOSTS.map((h) => (
+                    <li key={h.id}>
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked={value.host === h.id}
+                        // the host comes with a voice that suits them; it can be changed below
+                        onClick={() => set({ host: h.id, voice: h.voice })}
+                        className={cn(
+                          "bg-raised w-full overflow-hidden rounded-[8px] text-left",
+                          value.host === h.id && "ring-text ring-2",
+                        )}
+                      >
+                        <span className="relative block aspect-square bg-[#eeebe5]">
+                          {/* eslint-disable-next-line @next/next/no-img-element -- a still of the drawn host */}
+                          <img
+                            src={`/demo/hosts/${h.id}.png`}
+                            alt=""
+                            loading="lazy"
+                            className="absolute inset-0 h-full w-full object-contain object-bottom"
+                          />
+                        </span>
+                        <span className="block px-3 pt-2 font-semibold">{h.name}</span>
+                        <span className="text-muted block px-3 pb-3 text-[12px] leading-snug">
+                          {h.blurb}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-muted text-[13px]">
+                  Drawn, not filmed: the host talks with the voice, blinks, points at the cards and
+                  celebrates the fun part.
+                </p>
+              </div>
+            );
+          if (f.id === "voice")
+            return (
+              <div key="voice">
+                <label htmlFor="brief-voice" className="label">
+                  Voice
+                </label>
+                <select
+                  id="brief-voice"
+                  className="input"
+                  value={value.voice}
+                  onChange={(e) => set({ voice: e.target.value })}
+                >
+                  {VOICES.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.name} · {v.accent} · {v.tone}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            );
+          if (f.id === "toonLook")
+            return (
+              <div key="toonLook" className="space-y-3">
+                <p className="label">The stage</p>
+                <ul className="grid grid-cols-3 gap-3" role="radiogroup" aria-label="The stage">
+                  {TOON_LOOKS.map((t) => (
+                    <li key={t.id}>
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked={value.toonLook === t.id}
+                        onClick={() => set({ toonLook: t.id })}
+                        className={cn(
+                          "bg-raised flex h-full w-full flex-col gap-2 rounded-[8px] p-3 text-left",
+                          value.toonLook === t.id && "ring-text ring-2",
+                        )}
+                      >
+                        <span
+                          className="flex h-16 items-end gap-1 rounded-[6px] p-2"
+                          style={{ background: t.swatch[0] }}
+                          aria-hidden
+                        >
+                          <b className="text-[20px] leading-none" style={{ color: t.swatch[1] }}>
+                            GET
+                          </b>
+                          <b className="text-[20px] leading-none" style={{ color: t.swatch[2] }}>
+                            STARTED
+                          </b>
+                        </span>
+                        <span className="font-semibold">{t.name}</span>
+                        <span className="text-muted text-[12px] leading-snug">{t.blurb}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          if (f.id === "cta")
+            return (
+              <div key="cta">
+                <label htmlFor="brief-cta" className="label">
+                  Comment word (optional)
+                </label>
+                <input
+                  id="brief-cta"
+                  className="input"
+                  maxLength={14}
+                  placeholder="GUIDE"
+                  value={value.cta}
+                  onChange={(e) => set({ cta: e.target.value.replace(/[^A-Za-z0-9]/g, "") })}
+                />
+                <p className="text-muted mt-1 text-[13px]">
+                  The reel ends with &ldquo;comment WORD and I&rsquo;ll send it to you&rdquo;. Leave
+                  empty and we pick one that fits.
+                </p>
               </div>
             );
           if (f.id === "theme")
