@@ -112,7 +112,9 @@ def find_cuts(
 
 
 def segments(
-    cuts: list[tuple[float, float]], duration: float, min_len: float = MIN_SHOT,
+    cuts: list[tuple[float, float]],
+    duration: float,
+    min_len: float = MIN_SHOT,
     max_shots: int = MAX_SHOTS,
 ) -> list[tuple[float, float]]:
     """Cuts → shots. Of cuts closer than `min_len` (a transition, a flash) the strongest stays; a

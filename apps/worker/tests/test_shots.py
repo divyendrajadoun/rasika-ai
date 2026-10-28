@@ -20,7 +20,12 @@ def _w(word: str, t: float, end: float) -> dict[str, object]:
 def test_a_weak_change_inside_a_word_is_not_a_cut() -> None:
     words = [_w("hello", 1.0, 1.6), _w("there", 2.0, 2.4)]
     scores = [(i / 30, 0.01) for i in range(90)]
-    scores[39], scores[45], scores[54], scores[66] = (1.3, 0.08), (1.5, 0.15), (1.8, 0.08), (2.2, 0.5)
+    scores[39], scores[45], scores[54], scores[66] = (
+        (1.3, 0.08),
+        (1.5, 0.15),
+        (1.8, 0.08),
+        (2.2, 0.5),
+    )
     # 1.3 is a faint change inside "hello" (a gesture); 1.5 is inside it too but a clear spike
     # (the word times are approximate); 1.8 is faint but between words; 2.2 is strong
     assert [t for t, _ in shots.find_cuts(scores, words)] == [1.5, 1.8, 2.2]
@@ -65,10 +70,14 @@ def test_hints_and_drop_unusable() -> None:
     shots.hints(list(looks.values()))
     assert looks["s2"].flags == ["black"] and "blurry" in looks["s4"].flags
     clips = {
-        "s1": assemble.Clip("s1", "Shot 1", [_w("hi", 0.1, 0.3), _w("all", 0.3, 0.5), _w("you", 0.5, 0.7)], 3.0),
+        "s1": assemble.Clip(
+            "s1", "Shot 1", [_w("hi", 0.1, 0.3), _w("all", 0.3, 0.5), _w("you", 0.5, 0.7)], 3.0
+        ),
         "s2": assemble.Clip("s2", "Shot 2", [], 2.0),
         "s3": assemble.Clip("s3", "Shot 3", [], 2.0),
-        "s4": assemble.Clip("s4", "Shot 4", [_w("ok", 0.1, 0.3), _w("so", 0.3, 0.5), _w("now", 0.5, 0.7)], 2.0),
+        "s4": assemble.Clip(
+            "s4", "Shot 4", [_w("ok", 0.1, 0.3), _w("so", 0.3, 0.5), _w("now", 0.5, 0.7)], 2.0
+        ),
     }
     out = shots.drop_unusable(assemble.arrange_recorded(list(clips.values())), looks, clips)
     kept = {d.id for d in out if d.keep}
