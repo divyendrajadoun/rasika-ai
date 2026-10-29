@@ -164,7 +164,7 @@ class Builder:
         """Text that types itself; returns when it is done."""
         d = round(max(0.25, len(text) / cps), 3)
         self.ft(sel, {"text": ""}, {"text": text, "duration": d, "ease": "none"}, at)
-        self.cue(at, "tick", 0.25, repeat=max(1, int(d / 0.09)), every=0.09)
+        self.cue(at, "key", 0.25, repeat=max(1, int(d / 0.09)), every=0.09)
         return at + d
 
     # ── the pieces
@@ -411,7 +411,7 @@ class Builder:
                     f'<div id="{pid}" class="stamp"><svg viewBox="0 0 100 100"><path d="M18 18 L82 82 M82 18 L18 82" stroke="{lk.accent}" stroke-width="14" stroke-linecap="round"/></svg></div>'
                 )
                 self.ft(f"#{pid}", {"opacity": 0, "scale": 2.2, "rotation": -20}, {"opacity": 1, "scale": 1, "rotation": -8, "duration": 0.28, "ease": "power4.in"}, at)  # fmt: skip
-                self.cue(at + 0.26, "thud", 0.6)
+                self.cue(at + 0.26, "stamp", 0.6)
             elif kind == "check":
                 out.append(f'<div id="{pid}" class="checkb">✓</div>')
                 self.pop(f"#{pid}", at)
@@ -451,7 +451,7 @@ class Builder:
                             {"x": round(math.cos(ang) * dist), "y": round(math.sin(ang) * dist + 420), "rotation": self.rng.randint(-540, 540),
                              "opacity": 0, "duration": 1.6, "ease": "power2.out"}, at)  # fmt: skip
                 out.append(f'<div id="{pid}" class="confetti">{"".join(bits)}</div>')
-                self.cue(at, "pop", 0.7)
+                self.cue(at, "popper", 0.7)
                 self.cue(at + 0.05, "shimmer", 0.35, dur=0.9)
             elif kind in ("box", "envelope"):
                 body = (
@@ -518,7 +518,7 @@ class Builder:
         )
         for k in range(len(words)):
             self.ft(f"#{sid} .bw{k}", {"opacity": 0, "scale": 1.6, "y": -30}, {"opacity": 1, "scale": 1, "y": 0, "duration": 0.3, "ease": "power4.out"}, t0 + 0.1 + k * 0.18)  # fmt: skip
-            self.cue(t0 + 0.1 + k * 0.18, "impact", 0.4)
+            self.cue(t0 + 0.1 + k * 0.18, "impact" if k == 0 else "thud", 0.4)
         size = max(110, min(230, int(900 / max(4, len(plain(text))) / 0.48)))
         return f'<div class="bigtext" style="font-size:{size}px">{spans}</div>' + (
             f'<div class="bigsub">{_accented(sub)}</div>' if sub else ""

@@ -355,7 +355,7 @@ def render(
         sfx_wav: Path | None = None
         if cues.get("cues"):
             sfx_wav = work / ("sfx_preview.wav" if spec.preview else "sfx.wav")
-            sfx.write(str(sfx_wav), sfx.build(cues))  # type: ignore[no-untyped-call]
+            sfx.write(str(sfx_wav), sfx.build({**cues, "voice": str(spec.voice_wav)}))
         mix_wav = work / ("mix_preview.wav" if spec.preview else "mix.wav")
         media.mix(
             settings.ffmpeg_bin,

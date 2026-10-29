@@ -119,5 +119,5 @@ def test_build_project(tmp_path: Path) -> None:
     assert 'class="clip cap"' in doc and "hostshadow" in doc and "assets/voice.wav" in doc
     assert "Math.random" not in doc and "Date.now" not in doc  # a function of timeline time only
     kinds = {c["type"] for c in cues}
-    assert {"pop", "whoosh", "thud", "impact"} <= kinds
+    assert {"pop", "whoosh", "stamp", "impact"} <= kinds
     assert cues == sorted(cues, key=lambda c: c["t"])

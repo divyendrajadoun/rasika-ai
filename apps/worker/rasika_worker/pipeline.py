@@ -666,7 +666,10 @@ class Pipeline:
             gsap_js=self.s.hyperframes_gsap,
         )  # fmt: skip
         fx = hdir / "toon_sfx.wav"
-        sfx.write(str(fx), sfx.build({"duration": length, "kit": "toon", "cues": cues}))  # type: ignore[no-untyped-call]
+        sfx.write(
+            str(fx),
+            sfx.build({"duration": length, "kit": "toon", "cues": cues, "voice": str(voice)}),
+        )
         audio: list[tuple[str, Path, float]] = [("voice", voice, 1.0), ("fx", fx, 0.45)]
         if b.get("music", True):
             bed = hdir / "toon_music.wav"
@@ -738,7 +741,12 @@ class Pipeline:
                     {"t": round(max(0.0, t - 0.08), 3), "type": "whoosh", "dur": 0.35, "gain": 0.5}
                 )
         fx = hdir / "sfx.wav"
-        sfx.write(str(fx), sfx.build({"duration": duration + 0.6, "kit": "click", "cues": cues}))  # type: ignore[no-untyped-call]
+        sfx.write(
+            str(fx),
+            sfx.build(
+                {"duration": duration + 0.6, "kit": "click", "cues": cues, "voice": str(voice)}
+            ),
+        )
         proj = hdir / "project"
         if str(b.get("kind")) == "toon":
             self._build_toon(proj, hdir, sb, words, duration, voice, files, b)

@@ -1,0 +1,619 @@
+{
+ "whoosh": [
+  {
+   "file": "whoosh_01.wav",
+   "dur": 0.318,
+   "peak_t": 0.053,
+   "source": "https://freesound.org/people/snowflakes/sounds/72191",
+   "creator": "snowflakes",
+   "license": "cc0",
+   "title": "whip03.wav"
+  },
+  {
+   "file": "whoosh_02.wav",
+   "dur": 0.469,
+   "peak_t": 0.086,
+   "source": "https://freesound.org/people/snowflakes/sounds/72189",
+   "creator": "snowflakes",
+   "license": "cc0",
+   "title": "whip01.wav"
+  },
+  {
+   "file": "whoosh_03.wav",
+   "dur": 0.312,
+   "peak_t": 0.058,
+   "source": "https://freesound.org/people/Kinoton/sounds/427823",
+   "creator": "Kinoton",
+   "license": "cc0",
+   "title": "Whoosh #1"
+  },
+  {
+   "file": "whoosh_04.wav",
+   "dur": 0.23,
+   "peak_t": 0.042,
+   "source": "https://freesound.org/people/Joao_Janz/sounds/485275",
+   "creator": "Joao_Janz",
+   "license": "cc0",
+   "title": "Swing 1_9"
+  },
+  {
+   "file": "whoosh_05.wav",
+   "dur": 0.54,
+   "peak_t": 0.399,
+   "source": "https://freesound.org/people/SlavicMagic/sounds/446010",
+   "creator": "SlavicMagic",
+   "license": "cc0",
+   "title": "Backwards Whoosh"
+  },
+  {
+   "file": "whoosh_06.wav",
+   "dur": 0.478,
+   "peak_t": 0.09,
+   "source": "https://freesound.org/people/qubodup/sounds/60000",
+   "creator": "qubodup",
+   "license": "cc0",
+   "title": "13th Whoosh Swing Sound"
+  },
+  {
+   "file": "whoosh_07.wav",
+   "dur": 1.594,
+   "peak_t": 0.212,
+   "source": "https://freesound.org/people/Kinoton/sounds/351256",
+   "creator": "Kinoton",
+   "license": "cc0",
+   "title": "Deep Whoosh #1"
+  }
+ ],
+ "swish": [
+  {
+   "file": "swish_01.wav",
+   "dur": 0.275,
+   "peak_t": 0.038,
+   "source": "https://freesound.org/people/blukotek/sounds/254871",
+   "creator": "blukotek",
+   "license": "cc0",
+   "title": "swish whip.wav"
+  },
+  {
+   "file": "swish_02.wav",
+   "dur": 0.256,
+   "peak_t": 0.039,
+   "source": "https://freesound.org/people/blukotek/sounds/254866",
+   "creator": "blukotek",
+   "license": "cc0",
+   "title": "swish twig.wav"
+  },
+  {
+   "file": "swish_03.wav",
+   "dur": 0.43,
+   "peak_t": 0.044,
+   "source": "https://freesound.org/people/deleted_user_6479820/sounds/388005",
+   "creator": "deleted_user_6479820",
+   "license": "cc0",
+   "title": "Funny Swish"
+  },
+  {
+   "file": "swish_04.wav",
+   "dur": 0.12,
+   "peak_t": 0.033,
+   "source": "https://freesound.org/people/jawbutch/sounds/344408",
+   "creator": "jawbutch",
+   "license": "cc0",
+   "title": "Knife Swish 2.wav"
+  },
+  {
+   "file": "swish_05.wav",
+   "dur": 0.274,
+   "peak_t": 0.057,
+   "source": "https://freesound.org/people/ihitokage/sounds/395369",
+   "creator": "ihitokage",
+   "license": "cc0",
+   "title": "Swish 4"
+  }
+ ],
+ "pop": [
+  {
+   "file": "pop_01.wav",
+   "dur": 0.109,
+   "peak_t": 0.003,
+   "source": "https://freesound.org/people/el_boss/sounds/669921",
+   "creator": "el_boss",
+   "license": "cc0",
+   "title": "Bubble Pop UI and Game Sounds Multiple Samples"
+  },
+  {
+   "file": "pop_02.wav",
+   "dur": 0.076,
+   "peak_t": 0.006,
+   "source": "https://freesound.org/people/BathroomCrooner/sounds/503162",
+   "creator": "BathroomCrooner",
+   "license": "cc0",
+   "title": "MOUTH POPS - MAGIC BOTTLE CORK OPEN.wav"
+  },
+  {
+   "file": "pop_03.wav",
+   "dur": 0.152,
+   "peak_t": 0.007,
+   "source": "https://freesound.org/people/oldedgar/sounds/97978",
+   "creator": "oldedgar",
+   "license": "cc0",
+   "title": "Pop!.aif"
+  },
+  {
+   "file": "pop_04.wav",
+   "dur": 0.142,
+   "peak_t": 0.003,
+   "source": "https://freesound.org/people/DuffyBro/sounds/319107",
+   "creator": "DuffyBro",
+   "license": "cc0",
+   "title": "Pop (made by DuffyBro)"
+  },
+  {
+   "file": "pop_05.wav",
+   "dur": 0.119,
+   "peak_t": 0.004,
+   "source": "https://freesound.org/people/hollandm/sounds/691907",
+   "creator": "hollandm",
+   "license": "cc0",
+   "title": "Mouth pop 2"
+  },
+  {
+   "file": "pop_06.wav",
+   "dur": 0.139,
+   "peak_t": 0.004,
+   "source": "https://freesound.org/people/hollandm/sounds/691906",
+   "creator": "hollandm",
+   "license": "cc0",
+   "title": "Mouth pop 1"
+  },
+  {
+   "file": "pop_07.wav",
+   "dur": 0.23,
+   "peak_t": 0.003,
+   "source": "https://freesound.org/people/jcallison/sounds/258269",
+   "creator": "jcallison",
+   "license": "cc0",
+   "title": "Mouth pop"
+  }
+ ],
+ "click": [
+  {
+   "file": "click_01.wav",
+   "dur": 0.12,
+   "peak_t": 0.02,
+   "source": "https://freesound.org/people/SomeoneCool15/sounds/423512",
+   "creator": "SomeoneCool15",
+   "license": "cc0",
+   "title": "Light Switch Click On and Off"
+  },
+  {
+   "file": "click_02.wav",
+   "dur": 0.062,
+   "peak_t": 0.005,
+   "source": "https://freesound.org/people/malle99/sounds/384187",
+   "creator": "malle99",
+   "license": "cc0",
+   "title": "Click Tick.wav"
+  },
+  {
+   "file": "click_03.wav",
+   "dur": 0.025,
+   "peak_t": 0.002,
+   "source": "https://freesound.org/people/Breviceps/sounds/448081",
+   "creator": "Breviceps",
+   "license": "cc0",
+   "title": "Tic Toc Click"
+  },
+  {
+   "file": "click_04.wav",
+   "dur": 0.05,
+   "peak_t": 0.008,
+   "source": "https://freesound.org/people/YOH/sounds/195305",
+   "creator": "YOH",
+   "license": "cc0",
+   "title": "Computer Mouse Clicks"
+  },
+  {
+   "file": "click_05.wav",
+   "dur": 0.144,
+   "peak_t": 0.085,
+   "source": "https://freesound.org/people/Ezcah/sounds/208204",
+   "creator": "Ezcah",
+   "license": "cc0",
+   "title": "Mouse Clicks"
+  }
+ ],
+ "tick": [
+  {
+   "file": "tick_01.wav",
+   "dur": 0.17,
+   "peak_t": 0.013,
+   "source": "https://freesound.org/people/olver/sounds/130388",
+   "creator": "olver",
+   "license": "cc0",
+   "title": "Clock ticking"
+  },
+  {
+   "file": "tick_02.wav",
+   "dur": 0.068,
+   "peak_t": 0.012,
+   "source": "https://freesound.org/people/trullilulli/sounds/422642",
+   "creator": "trullilulli",
+   "license": "cc0",
+   "title": "SFX Ambiance: Clock Tick"
+  }
+ ],
+ "tap": [
+  {
+   "file": "tap_01.wav",
+   "dur": 0.089,
+   "peak_t": 0.007,
+   "source": "https://freesound.org/people/MATRIXXX_/sounds/368680",
+   "creator": "MATRIXXX_",
+   "license": "cc0",
+   "title": "Knocking On Screen, 01.wav"
+  },
+  {
+   "file": "tap_02.wav",
+   "dur": 0.145,
+   "peak_t": 0.005,
+   "source": "https://freesound.org/people/deraj/sounds/202231",
+   "creator": "deraj",
+   "license": "cc0",
+   "title": "hammering or knocking sound"
+  },
+  {
+   "file": "tap_03.wav",
+   "dur": 0.114,
+   "peak_t": 0.008,
+   "source": "https://freesound.org/people/Mrguff/sounds/369710",
+   "creator": "Mrguff",
+   "license": "cc0",
+   "title": "Wood Knock"
+  }
+ ],
+ "thud": [
+  {
+   "file": "thud_01.wav",
+   "dur": 0.24,
+   "peak_t": 0.007,
+   "source": "https://freesound.org/people/newagesoup/sounds/339365",
+   "creator": "newagesoup",
+   "license": "cc0",
+   "title": "drop05.wav"
+  },
+  {
+   "file": "thud_02.wav",
+   "dur": 0.408,
+   "peak_t": 0.014,
+   "source": "https://freesound.org/people/anational/sounds/443958",
+   "creator": "anational",
+   "license": "cc0",
+   "title": "box-dropping-with-stones.wav"
+  },
+  {
+   "file": "thud_03.wav",
+   "dur": 0.165,
+   "peak_t": 0.007,
+   "source": "https://freesound.org/people/ittou/sounds/465450",
+   "creator": "ittou",
+   "license": "cc0",
+   "title": "foley_Cardboard Box Hit.wav"
+  },
+  {
+   "file": "thud_04.wav",
+   "dur": 0.44,
+   "peak_t": 0.008,
+   "source": "https://freesound.org/people/sgrowe/sounds/342533",
+   "creator": "sgrowe",
+   "license": "cc0",
+   "title": "Light Thud 1"
+  },
+  {
+   "file": "thud_05.wav",
+   "dur": 0.417,
+   "peak_t": 0.015,
+   "source": "https://freesound.org/people/sgrowe/sounds/342531",
+   "creator": "sgrowe",
+   "license": "cc0",
+   "title": "Light Thud 3"
+  }
+ ],
+ "impact": [
+  {
+   "file": "impact_01.wav",
+   "dur": 2.23,
+   "peak_t": 0.031,
+   "source": "https://freesound.org/people/waveplaySFX/sounds/529139",
+   "creator": "waveplaySFX",
+   "license": "cc0",
+   "title": "[Ambient Hits] Ambient Hit"
+  },
+  {
+   "file": "impact_02.wav",
+   "dur": 0.489,
+   "peak_t": 0.046,
+   "source": "https://freesound.org/people/Nightflame/sounds/397596",
+   "creator": "Nightflame",
+   "license": "cc0",
+   "title": "Heavy Impacts"
+  },
+  {
+   "file": "impact_03.wav",
+   "dur": 0.331,
+   "peak_t": 0.061,
+   "source": "https://freesound.org/people/Kinoton/sounds/503277",
+   "creator": "Kinoton",
+   "license": "cc0",
+   "title": "Face Punch, Body Impact, 4x"
+  },
+  {
+   "file": "impact_04.wav",
+   "dur": 0.452,
+   "peak_t": 0.029,
+   "source": "https://freesound.org/people/kyles/sounds/450793",
+   "creator": "kyles",
+   "license": "cc0",
+   "title": "door wood hits impacts small break through clumsy metal thing dall.wav"
+  },
+  {
+   "file": "impact_05.wav",
+   "dur": 2.26,
+   "peak_t": 0.02,
+   "source": "https://freesound.org/people/Kievinay/sounds/512389",
+   "creator": "Kievinay",
+   "license": "cc0",
+   "title": "Bass Impact - Ki_01.mp3"
+  }
+ ],
+ "scribble": [
+  {
+   "file": "scribble_01.wav",
+   "dur": 1.852,
+   "peak_t": 0.003,
+   "source": "https://freesound.org/people/Rinus_Marais/sounds/655452",
+   "creator": "Rinus_Marais",
+   "license": "cc0",
+   "title": "Pen scribbling sfx.mp3"
+  },
+  {
+   "file": "scribble_02.wav",
+   "dur": 1.359,
+   "peak_t": 0.11,
+   "source": "https://freesound.org/people/VeinAdams/sounds/711554",
+   "creator": "VeinAdams",
+   "license": "cc0",
+   "title": "Objects, Writting, Pen, Scribbling On Paper"
+  },
+  {
+   "file": "scribble_03.wav",
+   "dur": 0.618,
+   "peak_t": 0.003,
+   "source": "https://freesound.org/people/newagesoup/sounds/335953",
+   "creator": "newagesoup",
+   "license": "cc0",
+   "title": "marker-whiteboard-short05"
+  },
+  {
+   "file": "scribble_04.wav",
+   "dur": 0.95,
+   "peak_t": 0.566,
+   "source": "https://freesound.org/people/elliotlp/sounds/277312",
+   "creator": "elliotlp",
+   "license": "cc0",
+   "title": "Pencil Writing on Paper"
+  },
+  {
+   "file": "scribble_05.wav",
+   "dur": 1.317,
+   "peak_t": 0.218,
+   "source": "https://freesound.org/people/ListenTonyBoy/sounds/326961",
+   "creator": "ListenTonyBoy",
+   "license": "cc0",
+   "title": "PEN SIGNATURE SIGNING 2.wav"
+  }
+ ],
+ "chime": [
+  {
+   "file": "chime_01.wav",
+   "dur": 0.767,
+   "peak_t": 0.133,
+   "source": "https://freesound.org/people/ConBlast/sounds/562974",
+   "creator": "ConBlast",
+   "license": "cc0",
+   "title": "Stressed ding ding.wav"
+  },
+  {
+   "file": "chime_02.wav",
+   "dur": 0.428,
+   "peak_t": 0.01,
+   "source": "https://freesound.org/people/Leonardmedia.nl/sounds/627794",
+   "creator": "Leonardmedia.nl",
+   "license": "cc0",
+   "title": "pling sound effect ui interface ding ting sound.wav"
+  },
+  {
+   "file": "chime_03.wav",
+   "dur": 0.616,
+   "peak_t": 0.002,
+   "source": "https://freesound.org/people/Counter-gamer/sounds/404104",
+   "creator": "Counter-gamer",
+   "license": "cc0",
+   "title": "Glass ding"
+  },
+  {
+   "file": "chime_04.wav",
+   "dur": 3.185,
+   "peak_t": 0.065,
+   "source": "https://freesound.org/people/frubu/sounds/161546",
+   "creator": "frubu",
+   "license": "cc0",
+   "title": "glockenspiel A medium soft.wav"
+  }
+ ],
+ "riser": [
+  {
+   "file": "riser_01.wav",
+   "dur": 1.542,
+   "peak_t": 1.496,
+   "source": "https://freesound.org/people/Rizzard/sounds/561207",
+   "creator": "Rizzard",
+   "license": "cc0",
+   "title": "Riser"
+  },
+  {
+   "file": "riser_02.wav",
+   "dur": 0.984,
+   "peak_t": 0.697,
+   "source": "https://freesound.org/people/Gerent/sounds/558736",
+   "creator": "Gerent",
+   "license": "cc0",
+   "title": "brush-rising-woosh-muffle-000212_0029S3_D 057-062 069-100 003-007.wav"
+  }
+ ],
+ "sub": [
+  {
+   "file": "sub_01.wav",
+   "dur": 1.675,
+   "peak_t": 0.036,
+   "source": "https://freesound.org/people/uzerx/sounds/81144",
+   "creator": "uzerx",
+   "license": "cc0",
+   "title": "SUB OCEANO A sharp.wav"
+  },
+  {
+   "file": "sub_02.wav",
+   "dur": 1.495,
+   "peak_t": 0.034,
+   "source": "https://freesound.org/people/uzerx/sounds/81145",
+   "creator": "uzerx",
+   "license": "cc0",
+   "title": "SUB OCEANO A.wav"
+  },
+  {
+   "file": "sub_03.wav",
+   "dur": 1.205,
+   "peak_t": 0.076,
+   "source": "https://freesound.org/people/bazz_boy/sounds/334638",
+   "creator": "bazz_boy",
+   "license": "cc0",
+   "title": "yaw bass/drop"
+  },
+  {
+   "file": "sub_04.wav",
+   "dur": 3.729,
+   "peak_t": 0.116,
+   "source": "https://freesound.org/people/marc_drcksn/sounds/394285",
+   "creator": "marc_drcksn",
+   "license": "cc0",
+   "title": "Bass Drop.mp3"
+  }
+ ],
+ "glitch": [
+  {
+   "file": "glitch_01.wav",
+   "dur": 0.33,
+   "peak_t": 0.077,
+   "source": "https://freesound.org/people/Elnosos/sounds/424375",
+   "creator": "Elnosos",
+   "license": "cc0",
+   "title": "glitched sound 1.wav"
+  },
+  {
+   "file": "glitch_02.wav",
+   "dur": 0.215,
+   "peak_t": 0.063,
+   "source": "https://freesound.org/people/JacksonMiller0/sounds/371603",
+   "creator": "JacksonMiller0",
+   "license": "cc0",
+   "title": "Odd glitch .wav"
+  }
+ ],
+ "key": [
+  {
+   "file": "key_01.wav",
+   "dur": 0.177,
+   "peak_t": 0.009,
+   "source": "https://freesound.org/people/newagesoup/sounds/348238",
+   "creator": "newagesoup",
+   "license": "cc0",
+   "title": "MECH-KEYBOARD-02.wav"
+  },
+  {
+   "file": "key_02.wav",
+   "dur": 0.14,
+   "peak_t": 0.004,
+   "source": "https://freesound.org/people/bigmonmulgrew/sounds/378085",
+   "creator": "bigmonmulgrew",
+   "license": "cc0",
+   "title": "mechanical key hard.wav"
+  },
+  {
+   "file": "key_03.wav",
+   "dur": 0.196,
+   "peak_t": 0.01,
+   "source": "https://freesound.org/people/newagesoup/sounds/348239",
+   "creator": "newagesoup",
+   "license": "cc0",
+   "title": "MECH-KEYBOARD-01.wav"
+  },
+  {
+   "file": "key_04.wav",
+   "dur": 0.17,
+   "peak_t": 0.01,
+   "source": "https://freesound.org/people/FrostyFrost/sounds/348369",
+   "creator": "FrostyFrost",
+   "license": "cc0",
+   "title": "Keyboard typing"
+  },
+  {
+   "file": "key_05.wav",
+   "dur": 0.22,
+   "peak_t": 0.005,
+   "source": "https://freesound.org/people/Jofae/sounds/367852",
+   "creator": "Jofae",
+   "license": "cc0",
+   "title": "Button Pressed"
+  },
+  {
+   "file": "key_06.wav",
+   "dur": 0.263,
+   "peak_t": 0.004,
+   "source": "https://freesound.org/people/danlucaz/sounds/517762",
+   "creator": "danlucaz",
+   "license": "cc0",
+   "title": "Keyboard Typing"
+  }
+ ],
+ "shutter": [
+  {
+   "file": "shutter_01.wav",
+   "dur": 0.32,
+   "peak_t": 0.026,
+   "source": "https://freesound.org/people/StevenMyat_/sounds/676387",
+   "creator": "StevenMyat_",
+   "license": "cc0",
+   "title": "Polaroid Camera Shutter"
+  },
+  {
+   "file": "shutter_02.wav",
+   "dur": 0.442,
+   "peak_t": 0.008,
+   "source": "https://freesound.org/people/matthiastidlund/sounds/249750",
+   "creator": "matthiastidlund",
+   "license": "cc0",
+   "title": "Camera shutter in Sony A55"
+  }
+ ],
+ "popper": [
+  {
+   "file": "popper_01.wav",
+   "dur": 0.257,
+   "peak_t": 0.008,
+   "source": "https://freesound.org/people/Breviceps/sounds/458398",
+   "creator": "Breviceps",
+   "license": "cc0",
+   "title": "Balloon Pop / Christmas cracker / Confetti Cannon"
+  }
+ ]
+}
