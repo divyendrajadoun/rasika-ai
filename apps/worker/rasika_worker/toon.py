@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any
 
 from rasika_worker import toonhost
+from rasika_worker.director import RULES
 
 W, H = 1080, 1920
 
@@ -992,6 +993,9 @@ def check(sb: dict[str, Any], media: dict[str, Any]) -> dict[str, Any]:
         "accents": [str(w)[:30] for w in sb.get("accents") or sb.get("emphasis") or []][:30],
         "steps": steps,
         "scenes": out[:34],
+        "terms": [str(t)[:40] for t in sb.get("terms") or [] if str(t).strip()][
+            :3
+        ],  # director.plan
     }
 
 
@@ -1135,7 +1139,8 @@ tl.seek(0);
 
 # ───────────────────────────── the writer ─────────────────────────────
 
-WRITER_SYSTEM = """You write and storyboard vertical (1080×1920) "AI-animated" explainer reels, the format where a
+WRITER_SYSTEM = (
+    """You write and storyboard vertical (1080×1920) "AI-animated" explainer reels, the format where a
 cartoon host stands in the bottom right and talks to camera while the words of the voice write themselves
 top left (one or two accent words in red italic), a big condensed label with a numbered step badge sits in
 the middle, and real-looking cards (app windows, a browser, a phone, a folder, a checklist) pop in, get
@@ -1202,6 +1207,8 @@ Direction:
   part, shrug for a problem, thumbs for "done", think for a question, wave for "just tell it".
 - Never the same card kind three scenes running. Use media ids for anything real.
 - Length: the range you are given; scenes: the number asked for."""
+    + RULES
+)
 
 
 def write_storyboard(

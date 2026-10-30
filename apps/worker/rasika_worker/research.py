@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Any
 
 from rasika_worker import roundup
+from rasika_worker.director import RULES
 from rasika_worker.reference import parse_json
 
 MAX_LINKS = 4
@@ -184,7 +185,8 @@ def research(
 
 # ───────────────────────────── the storyboard ─────────────────────────────
 
-STORY_SYSTEM = """You write and storyboard vertical (1080×1920) explainer reels in the "how it works" format: a
+STORY_SYSTEM = (
+    """You write and storyboard vertical (1080×1920) explainer reels in the "how it works" format: a
 warm paper stage, heavy uppercase headlines with one accent word, step pills, cards that slide in, and
 two-to-three-word captions on the voice. A new scene every 2–3 seconds: write the number of scenes the brief
 asks for ("scenes"), never fewer. You get the topic, the research
@@ -225,6 +227,8 @@ How to write it (this is what makes people stay):
 - Use the media ids given for anything real (pages, demos); use chat/code/list/stats when nothing real fits.
 - End with the call to action scene ("comment WORD to get …" unless the user gave their own CTA).
 - Length: the range you are given."""
+    + RULES
+)
 
 
 def write_storyboard(
@@ -330,6 +334,9 @@ def check_storyboard(sb: dict[str, Any], media: dict[str, Any]) -> dict[str, Any
         "narration": narration,
         "emphasis": [str(w)[:30] for w in sb.get("emphasis") or []][:20],
         "scenes": out_scenes[:30],
+        "terms": [str(t)[:40] for t in sb.get("terms") or [] if str(t).strip()][
+            :3
+        ],  # director.plan
     }
 
 

@@ -31,6 +31,7 @@ from typing import Any
 from urllib.parse import urljoin, urlparse
 
 from rasika_worker.brief import UnsafeUrlError, check_url
+from rasika_worker.director import RULES
 from rasika_worker.reference import parse_json
 
 URL_RE = re.compile(r"https?://[^\s<>()\[\]\"'`]+")
@@ -537,7 +538,8 @@ def research_item(
 
 WORDS_PER_SEC = 2.5
 
-WRITER_SYSTEM = """You write and direct vertical (1080×1920) news-style reels for Rasika from a pasted post that
+WRITER_SYSTEM = (
+    """You write and direct vertical (1080×1920) news-style reels for Rasika from a pasted post that
 lists several things (GitHub repos, tools, products). You get the post's items, what we found on each link
 (the page's own facts, numbers and the pictures/clips we saved, with ids) and the screenshots themselves.
 Return ONE JSON object, nothing else:
@@ -580,6 +582,8 @@ How to direct the visuals:
   when the item is named. Only use media ids we gave you; an item with none gets an empty list.
 - `stat` only for a number the narration actually says.
 - Every `say` must be copied exactly from your narration (same words, same order)."""
+    + RULES
+)
 
 
 def write(

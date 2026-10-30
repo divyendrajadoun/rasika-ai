@@ -157,6 +157,9 @@ class Pipeline:
             sheet = reel.with_name(reel.stem + "_qa.jpg")
             report = qa.check(self.s.ffmpeg_bin, self.s.ffprobe_bin, reel, sheet)
             report["sec"] = round(time.time() - t0, 1)
+            planned = reel.with_name("plan_checks.json")
+            if planned.exists():  # a film from a brief: its storyboard's checks (director.plan)
+                report["plan"] = json.loads(planned.read_text(encoding="utf-8"))
             if report.pop("sheet") and sheet.exists():
                 report["sheetKey"] = key.rsplit("/", 1)[0] + "/qa_sheet.jpg"
                 self.upload_asset(job, "qa_sheet", sheet, report["sheetKey"])
@@ -768,6 +771,12 @@ class Pipeline:
                 {"duration": duration + 0.6, "kit": "click", "cues": cues, "voice": str(voice)}
             ),
         )
+        # the director's plan check: screens that change before they can be read start later, and
+        # what can't be fixed goes in the reel's QA report
+        from rasika_worker import director
+
+        sb, plan_checks = director.plan(sb, words, duration + 0.6)
+        (hdir / "plan_checks.json").write_text(json.dumps(plan_checks), encoding="utf-8")
         proj = hdir / "project"
         if str(b.get("kind")) == "toon":
             self._build_toon(proj, hdir, sb, words, duration, voice, files, b)

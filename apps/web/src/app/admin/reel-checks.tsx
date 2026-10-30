@@ -41,7 +41,7 @@ export async function ReelChecks({
   for (const r of checked) {
     const qa = r.asset.meta.qa as ReelQa;
     tally[qa.verdict] += 1;
-    for (const c of qa.checks)
+    for (const c of [...qa.checks, ...(qa.plan ?? [])])
       if (c.level === "WARN" || c.level === "FAIL")
         problems.set(c.check, (problems.get(c.check) ?? 0) + 1);
   }
@@ -59,8 +59,10 @@ export async function ReelChecks({
       <h2 className="text-xl font-semibold">Reel checks</h2>
       <p className="text-muted mt-1 text-[14px]">
         Every finished reel is measured by the worker: first frame, flashes, frozen picture, blank
-        frames, loudness and gaps in the sound. The contact sheet shows the first 3 seconds (can you
-        tell what it is with the sound off?) and the whole reel.
+        frames, loudness and gaps in the sound. Films from a brief also show their plan checks
+        (“plan:”): reading time, the hook naming the subject, search terms, caption speed. The
+        contact sheet shows the first 3 seconds (can you tell what it is with the sound off?) and
+        the whole reel.
       </p>
       {checked.length === 0 ? (
         <p className="text-muted mt-3 text-[14px]">
@@ -86,7 +88,9 @@ export async function ReelChecks({
       <ul className="mt-4 space-y-2">
         {rows.map((r, i) => {
           const qa = r.asset.meta?.qa;
-          const bad = qa?.checks.filter((c) => c.level === "WARN" || c.level === "FAIL") ?? [];
+          const bad = [...(qa?.checks ?? []), ...(qa?.plan ?? [])].filter(
+            (c) => c.level === "WARN" || c.level === "FAIL",
+          );
           return (
             <li key={r.asset.id} className="bg-surface rounded-[8px] p-3 text-[14px]">
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -108,8 +112,8 @@ export async function ReelChecks({
               </div>
               {bad.length > 0 && (
                 <ul className="mt-2 space-y-0.5">
-                  {bad.map((c) => (
-                    <li key={c.check}>
+                  {bad.map((c, k) => (
+                    <li key={k}>
                       <Chip level={c.level} /> <span className="font-medium">{c.check}</span>
                       <span className="text-muted"> · {c.detail}</span>
                     </li>

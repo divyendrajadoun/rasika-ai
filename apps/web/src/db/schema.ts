@@ -216,6 +216,8 @@ export interface ReelQa {
   info?: { w: number; h: number; fps: number; dur: number; audio: boolean };
   sheetKey?: string;
   sec?: number;
+  /** a film from a brief: the storyboard's checks before it was drawn (director.plan) */
+  plan?: ReelQa["checks"];
 }
 
 export interface AssetMeta {
