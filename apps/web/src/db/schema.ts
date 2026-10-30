@@ -57,6 +57,8 @@ export const ASSET_KINDS = [
   "export",
   /** roundups: a demo clip found on an item's page or README (meta.url: where it came from) */
   "research_clip",
+  /** the finished reel's contact sheet from the worker's QA check (output_1080 meta.qa.sheetKey) */
+  "qa_sheet",
 ] as const;
 export type AssetKind = (typeof ASSET_KINDS)[number];
 
@@ -207,8 +209,19 @@ export interface ClipDecision {
   script_line: number | null;
 }
 
+/** The worker's measurements of a finished reel (qa.py): PASS / WARN / FAIL per check. */
+export interface ReelQa {
+  verdict: "PASS" | "WARN" | "FAIL";
+  checks: Array<{ level: "PASS" | "WARN" | "FAIL" | "INFO"; check: string; detail: string }>;
+  info?: { w: number; h: number; fps: number; dur: number; audio: boolean };
+  sheetKey?: string;
+  sec?: number;
+}
+
 export interface AssetMeta {
   label?: string;
+  /** output_1080: the QA check's report */
+  qa?: ReelQa;
   /** "ai": drawn by the image service (prompt + request kept for the record), "site": a website capture */
   source?: string;
   prompt?: string;

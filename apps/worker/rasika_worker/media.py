@@ -339,8 +339,10 @@ def concat(ffmpeg: str, parts: list[Path], dest: Path) -> None:
     )
 
 
-# social platforms play at -14 LUFS; levelling to it keeps a reel from being turned down (or up)
-LEVEL = "loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000,alimiter=limit=0.79"
+# social platforms play at -14 LUFS; levelling to it keeps a reel from being turned down (or up).
+# The limiter's auto-level is off (it raised every mix to 0 dBFS, 2 dB over the target), and its
+# ceiling (-3 dBFS) leaves room for the peaks AAC adds: the QA check measures <= -1 dBTP on the reel
+LEVEL = "loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000,alimiter=limit=0.7:level=false"
 
 
 def mix(
@@ -409,6 +411,16 @@ def mix(
             str(dest),
         ]
     )
+
+
+def level(ffmpeg: str, src: Path, dest: Path) -> None:
+    """A finished video's sound levelled to -14 LUFS like every other mix (LEVEL), the picture
+    copied as it is: for reels whose sound is mixed by a renderer that doesn't level it."""
+    run(
+        [ffmpeg, "-v", "error", "-y", "-i", str(src), "-map", "0:v:0", "-map", "0:a:0",
+         "-c:v", "copy", "-af", LEVEL, "-c:a", "aac", "-b:a", "192k", "-ac", "2",
+         "-movflags", "+faststart", str(dest)]
+    )  # fmt: skip
 
 
 # the finished 9:16 reel in another shape: fitted whole (nothing cropped off the poster type), on a

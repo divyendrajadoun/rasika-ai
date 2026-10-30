@@ -139,11 +139,32 @@ class Pipeline:
                         self.storage.delete(old_key)
                     except Exception as exc:  # best effort
                         log.warning("delete_failed", key=old_key, error=str(exc))
+        if kind == "output_1080":
+            meta = {**(meta or {}), **self._qa(job, src, key)}
         mime = mimetypes.guess_type(src.name)[0] or "application/octet-stream"
         size = self.storage.upload(src, key, mime)
         return self.repo.insert_asset(
             job.project_id, job.user_id, kind, key, src.name, mime, size, meta, asset_id
         )
+
+    def _qa(self, job: JobMessage, reel: Path, key: str) -> dict[str, Any]:
+        """The finished reel measured (qa.py) for the admin page: {"qa": report}, its contact sheet
+        stored beside the reel. A check that breaks never holds a reel back."""
+        from rasika_worker import qa
+
+        try:
+            t0 = time.time()
+            sheet = reel.with_name(reel.stem + "_qa.jpg")
+            report = qa.check(self.s.ffmpeg_bin, self.s.ffprobe_bin, reel, sheet)
+            report["sec"] = round(time.time() - t0, 1)
+            if report.pop("sheet") and sheet.exists():
+                report["sheetKey"] = key.rsplit("/", 1)[0] + "/qa_sheet.jpg"
+                self.upload_asset(job, "qa_sheet", sheet, report["sheetKey"])
+            log.info("reel_qa", job=job.job_id, verdict=report["verdict"], sec=report["sec"])
+            return {"qa": report}
+        except Exception as exc:  # the check is a report, never a gate
+            log.warning("reel_qa_failed", job=job.job_id, error=str(exc)[:300])
+            return {}
 
     # ── script-only reels: narration + stage clip, then the normal chain ──
     def synth(self, job: JobMessage, pub: Publisher) -> None:
@@ -772,6 +793,11 @@ class Pipeline:
         except (RuntimeError, subprocess.TimeoutExpired) as exc:
             raise PipelineError(f"The reel could not be drawn: {str(exc)[:400]}") from exc
         timings["hyper_render_sec"] = round(time.time() - t0, 2)
+        # HyperFrames mixes the tracks at their set volumes but doesn't level the result (the QA
+        # check measured a toon reel at -21 LUFS): level it like every other reel
+        drawn = hdir / "drawn_1080.mp4"
+        final.replace(drawn)
+        media.level(self.s.ffmpeg_bin, drawn, final)
         share = hdir / "share_720.mp4"
         media.run(
             [

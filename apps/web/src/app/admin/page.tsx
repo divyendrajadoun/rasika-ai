@@ -7,6 +7,7 @@ import { listSignups } from "@/lib/admin";
 import { requireAdmin } from "@/lib/auth";
 import type { OrderRaw } from "@/lib/billing";
 import { approvePayment, grantCredits, rejectPayment } from "./actions";
+import { ReelChecks } from "./reel-checks";
 
 export const metadata: Metadata = { title: "Admin", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -182,6 +183,8 @@ export default async function AdminPage() {
           </table>
         </div>
       </section>
+
+      <ReelChecks emailOf={emailOf} when={when} />
 
       {recent.length > 0 && (
         <section>
