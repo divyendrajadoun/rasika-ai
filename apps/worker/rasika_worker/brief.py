@@ -247,6 +247,63 @@ KINDS: dict[str, dict[str, Any]] = {
         "brief": "A news-style roundup of the things a pasted post lists: a hook, each item with its real "
         "page, demo and numbers on screen while the narrator explains it, a closing line.",
     },
+    # ── 3D and motion animations (motion.py and whatif.py run the claude-animation-skills engines) ──
+    "whatif3d": {
+        "title": "3D what-if explainer",
+        "needs": ["topic"],
+        "preset": "dark-ios",
+        "mood": "showreel",
+        "narrate": True,
+        "seconds": (28, 40),
+        "brief": "A 3D cartoon 'what if' short: procedural people and props in three.js, slow-motion "
+        "impacts, a red force ripple, 1-3 word captions on the voice (whatif.py writes and draws it).",
+    },
+    "stickfig": {
+        "title": "Stick-figure explainer",
+        "needs": ["topic"],
+        "preset": "dark-ios",
+        "mood": "recipe",
+        "narrate": True,
+        "seconds": (34, 45),
+        "brief": "A stick-figure explainer: a bright cartoon world drawn in code, stick people with big "
+        "faces, whip transitions, 1-2 word captions (whatif.py writes and draws it).",
+    },
+    "graph": {
+        "title": "Growth graph",
+        "needs": ["topic"],
+        "preset": "dark-ios",
+        "mood": "launch",
+        "narrate": False,
+        "seconds": (5, 6),
+        "brief": "A minimal line graph that draws itself while one number counts up (motion.py).",
+    },
+    "maproute": {
+        "title": "3D map route",
+        "needs": ["topic"],
+        "preset": "dark-ios",
+        "mood": "journey",
+        "narrate": False,
+        "seconds": (5, 6),
+        "brief": "A white 3D city, a route that draws itself, a pin drop and an ETA (motion.py).",
+    },
+    "breakdown": {
+        "title": "3D exploded view",
+        "needs": ["topic"],
+        "preset": "dark-ios",
+        "mood": "launch",
+        "narrate": False,
+        "seconds": (5, 6),
+        "brief": "A 3D phone that comes apart layer by layer, every part labelled (motion.py).",
+    },
+    "minimal": {
+        "title": "Minimal line art",
+        "needs": ["topic"],
+        "preset": "dark-ios",
+        "mood": "journey",
+        "narrate": False,
+        "seconds": (5, 6),
+        "brief": "Black-and-white line art: a dot hops up hairline steps to one quiet line (motion.py).",
+    },
     "tierlist": {
         "title": "Tier list",
         "needs": ["topic"],

@@ -84,6 +84,11 @@ class Settings(BaseSettings):
     hyperframes_cli: str = Field(default="npx -y hyperframes@0.8.206", alias="HYPERFRAMES_CLI")
     hyperframes_browser: str = Field(default="", alias="HYPERFRAMES_BROWSER_PATH")
     hyperframes_gsap: Path | None = Field(default=None, alias="HYPERFRAMES_GSAP")
+    # 3D and motion animations (motion.py, whatif.py): three.js for the 3D ones, how the browsers
+    # draw WebGL ("swiftshader" in software, or "gpu"), and how many draw a what-if reel at once
+    motion_three_dir: Path | None = Field(default=None, alias="MOTION_THREE_DIR")
+    motion_gl: str = Field(default="swiftshader", alias="MOTION_GL")
+    motion_workers: int = Field(default=4, alias="MOTION_WORKERS")
 
     anthropic_api_key: str = Field(default="", alias="ANTHROPIC_API_KEY")
     anthropic_planner_model: str = Field(default="claude-opus-5-5", alias="ANTHROPIC_PLANNER_MODEL")
@@ -105,13 +110,19 @@ class Settings(BaseSettings):
 
     enable_cutout: bool = Field(default=False, alias="ENABLE_CUTOUT")
 
-    @field_validator("render_parallelism", "whisper_cache_dir", "music_bed_path", mode="before")
+    @field_validator(
+        "render_parallelism",
+        "whisper_cache_dir",
+        "music_bed_path",
+        "motion_three_dir",
+        mode="before",
+    )
     @classmethod
     def _blank_is_none(cls, v: object) -> object:
         """`.env` files often carry `KEY=` for unset values; treat blank as None."""
         return None if isinstance(v, str) and v.strip() == "" else v
 
-    @field_validator("engine_dir", "fonts_dir", mode="before")
+    @field_validator("engine_dir", "fonts_dir", "motion_gl", "motion_workers", mode="before")
     @classmethod
     def _blank_path_is_default(cls, v: object, info: ValidationInfo) -> object:
         """A blank ENGINE_DIR / FONTS_DIR (as in .env.example) must fall back to the default

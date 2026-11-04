@@ -12,7 +12,8 @@ RUN pnpm install --frozen-lockfile --filter @rasika/engine... \
  && pnpm --filter @rasika/engine build
 # researched explainer reels are drawn with HyperFrames (Apache-2.0); pinned, with GSAP vendored so a
 # render never fetches a script from the network
-RUN npm install --no-audit --no-fund --prefix /opt/hyperframes hyperframes@0.8.206 gsap@3.14.2
+# three.js for the 3D motion animations (map route, exploded view, the 3D what-if engine), pinned
+RUN npm install --no-audit --no-fund --prefix /opt/hyperframes hyperframes@0.8.206 gsap@3.14.2 three@0.169.0
 
 # ── stage 2: the worker ──
 FROM mcr.microsoft.com/playwright/python:v1.63.0-noble
@@ -41,7 +42,7 @@ COPY --from=engine /usr/local/bin/node /usr/local/bin/node
 COPY --from=engine /opt/hyperframes /opt/hyperframes
 # its own chrome-headless-shell (fetched once, at build): frame capture by BeginFrame, much faster
 RUN HYPERFRAMES_NO_TELEMETRY=1 node /opt/hyperframes/node_modules/hyperframes/bin/hyperframes.mjs browser ensure
-ENV HYPERFRAMES_CLI="node /opt/hyperframes/node_modules/hyperframes/bin/hyperframes.mjs"     HYPERFRAMES_GSAP=/opt/hyperframes/node_modules/gsap/dist/gsap.min.js     HYPERFRAMES_NO_TELEMETRY=1     HYPERFRAMES_NO_UPDATE_CHECK=1     DO_NOT_TRACK=1
+ENV HYPERFRAMES_CLI="node /opt/hyperframes/node_modules/hyperframes/bin/hyperframes.mjs"     HYPERFRAMES_GSAP=/opt/hyperframes/node_modules/gsap/dist/gsap.min.js     HYPERFRAMES_NO_TELEMETRY=1     HYPERFRAMES_NO_UPDATE_CHECK=1     DO_NOT_TRACK=1     MOTION_THREE_DIR=/opt/hyperframes/node_modules/three
 
 COPY apps/worker/pyproject.toml /app/pyproject.toml
 COPY apps/worker/rasika_worker /app/rasika_worker

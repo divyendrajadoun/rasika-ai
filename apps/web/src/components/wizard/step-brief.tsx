@@ -110,7 +110,14 @@ export function briefReady(b: BriefState): boolean {
     case "tierlist":
     case "researched":
     case "toon":
+    case "whatif3d":
+    case "stickfig":
       return b.topic.trim().length >= 6;
+    case "graph":
+    case "maproute":
+    case "breakdown":
+    case "minimal":
+      return b.topic.trim().length >= 3;
     case "versus":
       return Boolean(b.a.trim() && b.b.trim());
     case "machine":

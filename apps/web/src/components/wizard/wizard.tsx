@@ -369,7 +369,7 @@ export function Wizard({
       explainerTheme: b.kind === "researched" ? b.explainerTheme : undefined,
       host: b.kind === "toon" ? b.host : undefined,
       toonLook: b.kind === "toon" ? b.toonLook : undefined,
-      voice: b.kind === "toon" ? b.voice : undefined,
+      voice: ["toon", "whatif3d", "stickfig"].includes(b.kind) ? b.voice : undefined,
       cta: b.kind === "toon" && b.cta ? b.cta : undefined,
       referenceAssetId:
         ((b.kind === "roundup" && b.roundupLook === "reference") ||

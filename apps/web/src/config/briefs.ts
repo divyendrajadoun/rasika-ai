@@ -22,19 +22,42 @@ export type BriefKindId =
   | "animate"
   | "roundup"
   | "researched"
-  | "toon";
+  | "toon"
+  | "whatif3d"
+  | "stickfig"
+  | "graph"
+  | "maproute"
+  | "breakdown"
+  | "minimal";
+
+/** 3D and motion animations (apps/worker/rasika_worker/motion.py and whatif.py) */
+export const MOTION_KIND_IDS: BriefKindId[] = [
+  "whatif3d",
+  "stickfig",
+  "graph",
+  "maproute",
+  "breakdown",
+  "minimal",
+];
 
 /**
  * The sections the kinds are shown in (wizard + dashboard), by what the person wants to make, in
  * plain words: the section says what you give, the card says what you get.
  */
-export type BriefGroup = "topic" | "website" | "post" | "animate" | "fun";
+export type BriefGroup = "topic" | "motion" | "website" | "post" | "animate" | "fun";
 export const BRIEF_GROUPS: { id: BriefGroup; title: string; give: string; blurb: string }[] = [
   {
     id: "topic",
     title: "Explain something",
     give: "A topic in one line",
     blurb: "Teach, explain or tell a story. We research it, write it, voice it and animate it.",
+  },
+  {
+    id: "motion",
+    title: "3D and motion animations",
+    give: "A question, a number or a trip",
+    blurb:
+      "No footage at all. A 3D cartoon what-if, a stick-figure explainer, or a quick animated graph, map route, exploded view or line art.",
   },
   {
     id: "website",
@@ -225,6 +248,138 @@ const URL_FIELD: BriefField = {
 };
 
 export const BRIEF_KINDS: BriefKind[] = [
+  {
+    id: "whatif3d",
+    group: "motion",
+    title: "3D what-if explainer",
+    blurb:
+      'Ask a "what if" or "could X stop Y" question: a 3D cartoon short answers it, with slow-motion impacts.',
+    youGive: "A question in one line, and a voice.",
+    youGet:
+      'A 30–40 s 3D cartoon short: cartoon people and props built in 3D on a bright blue sky, a hook, the common belief, a "But" twist, examples that build and the answer, with slow-motion impacts, sparks, a red force ripple and 1–3 word captions on the voice. The script is written to well-known facts; every shot is checked in a browser before the render. It takes about 15–30 minutes to make.',
+    fields: [
+      {
+        id: "topic",
+        label: "Your question",
+        placeholder: "Could a bowling ball and a feather hit the ground together?",
+        help: "One line. Physical things work best: impacts, falls, forces, what stops what.",
+      },
+      { id: "voice" },
+    ],
+    preset: "dark-ios",
+    narrate: true,
+    maxSeconds: 42,
+    example: { topic: "Could a bowling ball and a feather hit the ground at the same time?" },
+  },
+  {
+    id: "stickfig",
+    group: "motion",
+    title: "Stick-figure explainer",
+    blurb: "A funny stick-figure reel that explains a curious question in under 45 seconds.",
+    youGive: "A question or topic in one line, and a voice.",
+    youGet:
+      "A 35–45 s stick-figure explainer: a bright cartoon world drawn in code, stick people with big faces, whip transitions, 1–2 word captions and whooshes on the cuts. Facts are kept to what is well known. It takes about 10–20 minutes to make.",
+    fields: [
+      {
+        id: "topic",
+        label: "Your question",
+        placeholder: "Why did pirates wear eye patches?",
+        help: "One line. Curious why and what-if questions work best.",
+      },
+      { id: "voice" },
+    ],
+    preset: "dark-ios",
+    narrate: true,
+    maxSeconds: 46,
+    example: { topic: "Why did pirates wear eye patches?" },
+  },
+  {
+    id: "graph",
+    group: "motion",
+    title: "Growth graph",
+    blurb: "One smooth line draws itself while a big number counts up to your result.",
+    youGive: "What grew and the real numbers, oldest first.",
+    youGet:
+      "A 5 s animation, black on white (or white on black): the line draws itself, the number counts up with its tip and lands on the final value, with a short music sting. We never invent numbers: give the points in between.",
+    fields: [
+      {
+        id: "topic",
+        label: "What grew, with the numbers",
+        placeholder:
+          "Followers, Jan to Sep: 1.2K, 2.1K, 3.4K, 5K, 9K, 24K, 51K, 78K, 100K. Dark please.",
+        help: "Two or more numbers. Add the months or years if you want them under the line.",
+      },
+    ],
+    preset: "dark-ios",
+    narrate: false,
+    maxSeconds: 6,
+    example: {
+      topic: "Followers, Jan to Sep: 1.2K, 2.1K, 3.4K, 5K, 9K, 24K, 51K, 78K, 100K",
+    },
+  },
+  {
+    id: "maproute",
+    group: "motion",
+    title: "3D map route",
+    blurb: "A white 3D city where your route draws itself, a pin drops and the ETA counts down.",
+    youGive: "Where to, and how far or how long.",
+    youGet:
+      "A 5 s 3D animation: the route draws itself while the camera rides along, a red pin drops with a bounce, the ETA counts down to Arrived and the destination card appears. The city is decoration, not a real map.",
+    fields: [
+      {
+        id: "topic",
+        label: "The trip",
+        placeholder: "Home to the gym, 2.8 km, 9 minutes",
+        help: "The place and the distance or the minutes. Name a colour if you want one.",
+      },
+    ],
+    preset: "dark-ios",
+    narrate: false,
+    maxSeconds: 6,
+    example: { topic: "Home to Iron Yard Gym, 2.8 km, 9 minutes" },
+  },
+  {
+    id: "breakdown",
+    group: "motion",
+    title: "3D exploded view",
+    blurb: "A 3D phone comes apart layer by layer, every part with a line and a label.",
+    youGive: "What the labels should say (real specs, or a joke).",
+    youGet:
+      "A 5 s 3D animation of a phone that comes apart into six layers, each with a leader line, a number and your label. The shape is always a phone; the words are yours.",
+    fields: [
+      {
+        id: "topic",
+        label: "What to label",
+        placeholder: "My phone, every part labelled like a joke",
+        help: "Name the phone for its real specs, or ask for a joke. Six short labels.",
+      },
+    ],
+    preset: "dark-ios",
+    narrate: false,
+    maxSeconds: 6,
+    example: { topic: "My phone, every part labelled like a joke" },
+  },
+  {
+    id: "minimal",
+    group: "motion",
+    title: "Minimal line art",
+    blurb: "Black and white: a dot hops up hairline steps and lands on one quiet line.",
+    youGive: "An idea about steady progress, in a line or two.",
+    youGet:
+      "A 5 s animation: thin white steps rise one by one, a white dot hops up them, an orbit draws around it at the top and your second line swaps in. Lowercase and calm.",
+    fields: [
+      {
+        id: "topic",
+        label: "Your line",
+        placeholder: "Every step feels small until you look back",
+        help: "A setup and a turn. Habits, patience and compounding suit the picture.",
+      },
+    ],
+    preset: "dark-ios",
+    narrate: false,
+    maxSeconds: 6,
+    example: { topic: "Every step feels small until you look back" },
+  },
   {
     id: "toon",
     group: "topic",

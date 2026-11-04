@@ -131,6 +131,12 @@ export const BriefSubmission = z
       "roundup",
       "researched",
       "toon",
+      "whatif3d",
+      "stickfig",
+      "graph",
+      "maproute",
+      "breakdown",
+      "minimal",
     ]),
     /** toon explainer: the cartoon host, the stage and the word viewers comment */
     host: z.enum(["arjun", "meera", "kabir", "zoe"]).default("arjun"),
@@ -208,6 +214,10 @@ export const BriefSubmission = z
       )
     )
       need((v.topic ?? "").length >= 6, "topic", "Say what the film is about.");
+    if (["whatif3d", "stickfig"].includes(v.kind))
+      need((v.topic ?? "").length >= 6, "topic", "Ask the question the animation answers.");
+    if (["graph", "maproute", "breakdown", "minimal"].includes(v.kind))
+      need((v.topic ?? "").length >= 3, "topic", "Say what the animation should show.");
     if (v.kind === "versus") need(Boolean(v.a && v.b), "a", "Name both contenders.");
     if (v.kind === "machine") need(Boolean(v.line), "line", "Write the line that types out.");
     if (v.kind === "researched" && v.explainerTheme === "reference")

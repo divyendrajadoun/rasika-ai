@@ -38,6 +38,12 @@ _REPO_ROOT = _HERE.parents[2] if len(_HERE.parents) > 2 else None
 
 MAX_DURATION_DEFAULT = 180.0
 
+#: 3D and motion animations, by brief kind: the what-if explainers (whatif.py engines) and the
+#: quick ones (motion.py templates)
+WHATIF_KINDS = {"whatif3d": "whatif3d", "stickfig": "stick"}
+QUICK_KINDS = ("graph", "maproute", "breakdown", "minimal")
+MOTION_KINDS = (*WHATIF_KINDS, *QUICK_KINDS)
+
 
 #: the neutral starting point a reference style is written over (dark ground, plain sans, no
 #: pattern); with a full match every visual field is replaced by what the reference shows
@@ -249,6 +255,10 @@ class Pipeline:
         kind = film_brief.KINDS[kind_id]
         max_dur = float(str(job.payload.get("max_duration_sec") or MAX_DURATION_DEFAULT))
         narrate = bool(b.get("narrate", kind["narrate"]))
+        if (
+            kind_id in MOTION_KINDS
+        ):  # the engines decide: the what-ifs are voiced, the quick ones aren't
+            narrate = bool(kind["narrate"])
         timings: dict[str, float] = {}
 
         capture = None
@@ -294,6 +304,8 @@ class Pipeline:
             film, usage = self._roundup_film(job, pub, work, b, max_dur, timings)
         elif kind_id in ("researched", "toon"):
             film, usage = self._researched_film(job, pub, work, b, max_dur, timings)
+        elif kind_id in MOTION_KINDS:
+            film, usage = self._motion_film(kind_id, b, max_dur)
         else:
             film, usage = self._write_brief(kind_id, inputs, capture, narrate, max_dur)
         timings["write_sec"] = round(time.time() - t0, 2)
@@ -807,6 +819,20 @@ class Pipeline:
         drawn = hdir / "drawn_1080.mp4"
         final.replace(drawn)
         media.level(self.s.ffmpeg_bin, drawn, final)
+        self._publish_drawn(job, pub, final, hdir, duration, timings, "hyperframes")
+
+    def _publish_drawn(
+        self,
+        job: JobMessage,
+        pub: Publisher,
+        final: Path,
+        hdir: Path,
+        duration: float,
+        timings: dict[str, float],
+        engine: str,
+    ) -> None:
+        """A reel drawn whole by a renderer (no edit plan): the 720p share copy and the thumbnail
+        are made, everything lands where a normal render's outputs do, and the reel is done."""
         share = hdir / "share_720.mp4"
         media.run(
             [
@@ -859,7 +885,7 @@ class Pipeline:
             "output_1080",
             final,
             f"{out_prefix}/final_1080.mp4",
-            {"width": 1080, "height": 1920, "durationSec": duration, "engine": "hyperframes"},
+            {"width": 1080, "height": 1920, "durationSec": duration, "engine": engine},
         )
         self.upload_asset(
             job,
@@ -877,10 +903,278 @@ class Pipeline:
             "render_final",
             "project",
             job.project_id,
-            {"job": job.job_id, "engine": "hyperframes", "timings": timings},
+            {"job": job.job_id, "engine": engine, "timings": timings},
         )
         pub.update(JobStatus.DONE, 100, "Your reel is ready", **timings)
         self._email_ready(job)
+
+    def _motion_film(
+        self, kind_id: str, b: dict[str, Any], max_dur: float
+    ) -> tuple[dict[str, Any], dict[str, int]]:
+        """3D and motion animations, the writing: a what-if gets its voiceover (whatif.py), a quick
+        one turns the user's line into its template's spec (motion.py). Both are drawn at render."""
+        from rasika_worker import brief as film_brief
+        from rasika_worker import motion, whatif
+
+        line = str(b.get("topic") or "").strip()
+        if len(line) < 3:
+            raise PipelineError("Say what the animation should show.")
+        client = self.anthropic()
+        mood = str(film_brief.KINDS[kind_id]["mood"])
+        if kind_id in WHATIF_KINDS:
+            engine = whatif.ENGINES[WHATIF_KINDS[kind_id]]
+            try:
+                script, usage = whatif.write_script(
+                    client,
+                    self.s.anthropic_planner_model,
+                    engine,
+                    line,
+                    whatif.seconds_for(engine, max_dur),
+                )
+            except whatif.AnimationError as exc:
+                raise PipelineError(str(exc)) from exc
+            except Exception as exc:
+                raise PipelineError(f"Could not write the script: {exc}") from exc
+            return (
+                {
+                    "title": script["title"],
+                    "narration": script["narration"],
+                    "lines": [{"text": x[:80], "sec": 3.0} for x in script["lines"]],
+                    "music": {"mood": mood, "bpm": None},
+                    "data": {"script": script},
+                },
+                usage,
+            )
+        try:
+            spec, usage = motion.spec_from_line(client, self.s.anthropic_fast_model, kind_id, line)
+        except motion.SpecError as exc:
+            raise PipelineError(str(exc)) from exc
+        length = motion.duration(kind_id, spec)
+        return (
+            {
+                "title": line[:80],
+                "narration": None,
+                # one held line so the score (the stage clip's sound) runs the animation's length:
+                # timeline() adds 0.35 s before it and 0.6 s after
+                "lines": [
+                    {"text": film_brief.KINDS[kind_id]["title"], "sec": round(length - 0.95, 3)}
+                ],
+                "music": {"mood": mood, "bpm": None},
+                "data": {"spec": spec},
+            },
+            usage,
+        )
+
+    def _render_motion(
+        self,
+        job: JobMessage,
+        pub: Publisher,
+        words: list[dict[str, Any]],
+        duration: float,
+        options: dict[str, Any],
+        timings: dict[str, float],
+    ) -> None:
+        """3D and motion animations are drawn whole: a quick one by HyperFrames from its template
+        and spec, a what-if by its engine from shots written against the voice. The sound is the
+        film's own (the narration, or the score) with effects on the cuts."""
+        import shlex
+        import shutil
+
+        from rasika_worker import hyper, motion, whatif
+
+        film = dict(options.get("film") or {})
+        data = dict(film.get("data") or {})
+        kind_id = str((options.get("brief") or {}).get("kind") or "")
+        work = self.work(job.project_id)
+        hdir = work / "motion"
+        shutil.rmtree(hdir, ignore_errors=True)
+        hdir.mkdir(parents=True)
+        src, _ = self.source(job, work)
+        sound = hdir / "sound.wav"
+        media.run(
+            [self.s.ffmpeg_bin, "-v", "error", "-y", "-i", str(src), "-vn", "-ac", "2",
+             "-ar", "48000", str(sound)]
+        )  # fmt: skip
+        picture = hdir / "picture.mp4"
+        if kind_id in QUICK_KINDS:
+            pub.update(JobStatus.RENDERING_FINAL, 5, "Drawing the animation…", **timings)
+            proj = hdir / "project"
+            t0 = time.time()
+            try:
+                length = motion.build_project(
+                    kind_id,
+                    dict(data.get("spec") or {}),
+                    proj,
+                    self.s.hyperframes_gsap,
+                    self.s.motion_three_dir,
+                )
+                hyper.render(
+                    proj,
+                    picture,
+                    shlex.split(self.s.hyperframes_cli),
+                    browser=self.s.hyperframes_browser,
+                )
+            except (RuntimeError, subprocess.TimeoutExpired, motion.SpecError) as exc:
+                raise PipelineError(f"The animation could not be drawn: {str(exc)[:400]}") from exc
+            timings["motion_render_sec"] = round(time.time() - t0, 2)
+            mix = sound  # the score, made to the animation's length when it was written
+        else:
+            engine = whatif.ENGINES[WHATIF_KINDS[kind_id]]
+            length, mix = self._draw_whatif(
+                job, pub, engine, data, words, duration, sound, hdir, picture, timings
+            )
+        pub.update(JobStatus.RENDERING_FINAL, 86, "Adding the sound…", **timings)
+        joined = hdir / "joined_1080.mp4"
+        media.run(
+            [self.s.ffmpeg_bin, "-v", "error", "-y", "-i", str(picture), "-i", str(mix),
+             "-map", "0:v:0", "-map", "1:a:0", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+             "-ar", "48000", "-shortest", str(joined)]
+        )  # fmt: skip
+        final = hdir / "final_1080.mp4"
+        media.level(self.s.ffmpeg_bin, joined, final)
+        self._publish_drawn(job, pub, final, hdir, length, timings, "motion")
+
+    def _draw_whatif(
+        self,
+        job: JobMessage,
+        pub: Publisher,
+        engine: Any,
+        data: dict[str, Any],
+        words: list[dict[str, Any]],
+        duration: float,
+        voice: Path,
+        hdir: Path,
+        picture: Path,
+        timings: dict[str, float],
+    ) -> tuple[float, Path]:
+        """A what-if reel: the shots are written as code against the voice's word timings, run in a
+        browser and fixed until every shot draws (two rounds at most), looked at once by the
+        director (a revision that breaks a shot is dropped), then rendered by parallel browsers.
+        Returns the length and the mixed sound (voice, whooshes on the cuts, a quiet bed)."""
+        from rasika_worker import music as score
+        from rasika_worker import sfx, whatif
+
+        client, model = self.anthropic(), self.s.anthropic_planner_model
+        lines = list((data.get("script") or {}).get("lines") or [])
+        if not lines:
+            raise PipelineError("This animation is missing its script.")
+        try:
+            tm = whatif.timing(words, lines)
+        except whatif.AnimationError as exc:
+            raise PipelineError(str(exc)) from exc
+        length = round(max(duration, tm["end"] + 0.6), 2)
+        proj = whatif.new_project(engine, hdir / "project")
+        whatif.write_timing(engine, proj, tm, length)
+        three = self.s.motion_three_dir if engine.id == "whatif3d" else None
+        gl = self.s.motion_gl
+        usage = {"input_tokens": 0, "output_tokens": 0}
+
+        def spent(u: dict[str, int]) -> None:
+            for k in usage:
+                usage[k] += int(u.get(k, 0))
+
+        pub.update(JobStatus.RENDERING_FINAL, 3, "Writing the shots…", **timings)
+        t0 = time.time()
+        try:
+            code, u = whatif.write_shots(client, model, engine, tm, length)
+            spent(u)
+            issues: list[str] = []
+            for rnd in range(3):
+                whatif.install_shots(engine, proj, code, length)
+                pub.update(
+                    JobStatus.RENDERING_FINAL, 12 + rnd * 4, "Checking every shot…", **timings
+                )
+                res = whatif.check(engine, proj, three, gl, hdir / f"check_{rnd}")
+                issues = whatif.problems(engine, code, res)
+                if not issues or rnd == 2:
+                    break
+                pub.update(
+                    JobStatus.RENDERING_FINAL,
+                    14 + rnd * 4,
+                    f"Fixing {len(issues)} problem{'s' if len(issues) != 1 else ''}…",
+                    **timings,
+                )
+                code, u = whatif.fix(client, model, engine, tm, code, issues)
+                spent(u)
+            if issues:
+                log.warning("whatif_unfixed", project=job.project_id, issues=issues[:10])
+                raise PipelineError("The animation could not be drawn: " + issues[0][:200])
+            pub.update(JobStatus.RENDERING_FINAL, 24, "Looking at every shot…", **timings)
+            try:
+                rev, u = whatif.critique(client, model, engine, tm, code, res)
+                spent(u)
+            except Exception as exc:  # the director is a polish pass, never a reason to fail
+                log.warning("whatif_critique_failed", error=str(exc))
+                rev = None
+            if rev:
+                whatif.install_shots(engine, proj, rev, length)
+                res2 = whatif.check(engine, proj, three, gl, hdir / "check_rev")
+                if whatif.problems(engine, rev, res2):
+                    whatif.install_shots(engine, proj, code, length)
+                else:
+                    code, res = rev, res2
+                    timings["motion_revised"] = 1.0
+        except PipelineError:
+            raise
+        except Exception as exc:
+            raise PipelineError(f"The animation could not be written: {str(exc)[:300]}") from exc
+        timings["motion_write_sec"] = round(time.time() - t0, 2)
+        timings["motion_input_tokens"] = float(usage["input_tokens"])
+        timings["motion_output_tokens"] = float(usage["output_tokens"])
+        timings["motion_shots"] = float(len(res["shots"]))
+        (hdir / "shots.js").write_text(code, encoding="utf-8")
+        self.repo.audit(
+            job.user_id,
+            "motion_written",
+            "project",
+            job.project_id,
+            {"engine": engine.id, "usage": usage, "shots": len(res["shots"]), "code": code[:60000]},
+        )
+        n = len(res["shots"])
+        pub.update(JobStatus.RENDERING_FINAL, 30, f"Rendering {n} shots…", **timings)
+        t0 = time.time()
+
+        def drawn(share: float) -> None:
+            pub.update(
+                JobStatus.RENDERING_FINAL,
+                30 + int(share * 54),
+                f"Rendering {n} shots… {round(share * 100)}%",
+                **timings,
+            )
+
+        try:
+            whatif.render(
+                engine,
+                proj,
+                three,
+                gl,
+                length,
+                picture,
+                self.s.ffmpeg_bin,
+                workers=max(1, self.s.motion_workers),
+                progress=drawn,
+            )
+        except (whatif.AnimationError, subprocess.CalledProcessError) as exc:
+            raise PipelineError(str(exc)[:400]) from exc
+        timings["motion_render_sec"] = round(time.time() - t0, 2)
+        fx = hdir / "sfx.wav"
+        sfx.write(
+            str(fx),
+            sfx.build(
+                {
+                    "duration": length,
+                    "kit": engine.sfx_kit,
+                    "cues": whatif.cues(tm, res["spans"], engine.sfx_kit),
+                    "voice": str(voice),
+                }
+            ),
+        )
+        bed = hdir / "music.wav"
+        mood = "showreel" if engine.id == "whatif3d" else "recipe"
+        score.write(bed, score.compose(mood, length))
+        mix = hdir / "mix.wav"
+        media.mix(self.s.ffmpeg_bin, voice, fx, mix, music=bed, music_gain=0.1)
+        return length, mix
 
     def _animate_film(
         self,
@@ -1999,6 +2293,9 @@ class Pipeline:
             return
         if (options.get("brief") or {}).get("kind") in ("researched", "toon"):
             self._render_hyper(job, pub, words, duration, options, timings)
+            return
+        if (options.get("brief") or {}).get("kind") in MOTION_KINDS:
+            self._render_motion(job, pub, words, duration, options, timings)
             return
         if (options.get("brief") or {}).get("kind") == "roundup":
             presenter = (
