@@ -52,7 +52,13 @@ export async function listSignups() {
       .from(schema.payments)
       .where(eq(schema.payments.status, "paid"))
       .groupBy(schema.payments.userId),
-    authUsers(),
+    // the sign-in details are extras: a slow Auth API mustn't hold the page past the host's limit
+    Promise.race([
+      authUsers(),
+      new Promise<Awaited<ReturnType<typeof authUsers>>>((done) =>
+        setTimeout(() => done(new Map()), 8000),
+      ),
+    ]),
   ]);
   const reelsBy = new Map(reels.map((r) => [r.userId, r.n]));
   const paidBy = new Map(paid.map((r) => [r.userId, r.rupees]));

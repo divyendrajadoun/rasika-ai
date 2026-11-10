@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { desc, eq, inArray } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { formatPrice } from "@/config/pricing";
@@ -21,9 +22,32 @@ const when = (d: Date | string | null) =>
       })
     : "—";
 
-/** The owner's desk: payments to confirm against the bank statement, then every sign-up. */
+/** The owner's desk: payments to confirm against the bank statement, then every sign-up. The page
+ *  streams: the heading goes out at once and the tables follow, so a slow query can't leave the
+ *  host waiting on an empty response (Netlify cuts it off). */
 export default async function AdminPage() {
   await requireAdmin();
+  return (
+    <div className="space-y-10">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <h1 className="text-2xl font-semibold leading-tight tracking-[-0.02em]">Admin</h1>
+        <a href="/admin/signups.csv" className="button button-ghost">
+          Download sign-ups (CSV)
+        </a>
+      </div>
+      <Suspense fallback={<p className="text-muted text-[14px]">Loading accounts and payments…</p>}>
+        <Desk />
+      </Suspense>
+      <p>
+        <Link href="/dashboard" className="link text-[14px]">
+          Back to the dashboard
+        </Link>
+      </p>
+    </div>
+  );
+}
+
+async function Desk() {
   const [signups, pending, recent] = await Promise.all([
     listSignups(),
     db
@@ -54,13 +78,6 @@ export default async function AdminPage() {
 
   return (
     <div className="space-y-10">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-2xl font-semibold leading-tight tracking-[-0.02em]">Admin</h1>
-        <a href="/admin/signups.csv" className="button button-ghost">
-          Download sign-ups (CSV)
-        </a>
-      </div>
-
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {stats.map(([k, v]) => (
           <div key={k} className="bg-surface rounded-[8px] p-4">
@@ -184,7 +201,9 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      <ReelChecks emailOf={emailOf} when={when} />
+      <Suspense fallback={<p className="text-muted text-[14px]">Loading reel checks…</p>}>
+        <ReelChecks emailOf={emailOf} when={when} />
+      </Suspense>
 
       {recent.length > 0 && (
         <section>
@@ -203,11 +222,6 @@ export default async function AdminPage() {
           </ul>
         </section>
       )}
-      <p>
-        <Link href="/dashboard" className="link text-[14px]">
-          Back to the dashboard
-        </Link>
-      </p>
     </div>
   );
 }
