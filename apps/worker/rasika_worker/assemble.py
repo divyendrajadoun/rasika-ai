@@ -260,12 +260,25 @@ def kept_seconds(decisions: list[Decision]) -> float:
     return round(sum(d.end - d.start for d in decisions if d.keep), 3)
 
 
+# storage refuses objects over 50 MB (Supabase free plan), so the joined take is sized under it
+MAX_JOINED_BYTES = 45_000_000
+AUDIO_KBPS = 160
+
+
+def video_kbps(seconds: float, max_bytes: int = MAX_JOINED_BYTES) -> int:
+    """A video bitrate cap that keeps a take of this length under max_bytes (8% for the container)."""
+    budget = max_bytes * 8 * 0.92 / max(1.0, seconds) / 1000 - AUDIO_KBPS
+    return int(min(12000, max(800, budget)))
+
+
 def render(
     ffmpeg: str, ffprobe: str, sources: dict[str, Path], decisions: list[Decision], dest: Path
 ) -> None:
     """Each kept clip trimmed to its speech and normalised (1080×1920, 30 fps, 48 kHz stereo), then
-    joined; the edges get a 20 ms audio fade so the joins never click."""
+    joined; the edges get a 20 ms audio fade so the joins never click. The video bitrate is capped
+    so the joined take fits in storage."""
     parts: list[Path] = []
+    cap = video_kbps(kept_seconds(decisions))
     for k, d in enumerate(x for x in decisions if x.keep):
         src = sources[d.id]
         info = media.probe(ffprobe, src)
@@ -281,7 +294,8 @@ def render(
             "-vf", media.VF_FIT,
             "-af", f"aresample=48000,{fade}",
             "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p",
-            "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+            "-maxrate", f"{cap}k", "-bufsize", f"{cap * 2}k",
+            "-c:a", "aac", "-b:a", f"{AUDIO_KBPS}k", "-ar", "48000", "-ac", "2",
             "-shortest", "-movflags", "+faststart", str(seg),
         ]  # fmt: skip
         media.run(cmd)
